@@ -1,0 +1,33 @@
+# Environment variables — NEVER push these
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# VS Code
+.vscode/
+
+# ML Models — too large for GitHub
+*.bin
+*.pt
+*.pth
+model_weights/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
