@@ -84,19 +84,64 @@ def test_generated_files_warn_against_hand_editing(ml_root: Path) -> None:
         assert "DO NOT EDIT" in text.upper(), f"{path} lacks a do-not-edit banner"
 
 
-def test_evaluate_refuses_a_drifted_split(ml_root: Path, tmp_path: Path) -> None:
+def _manifest_over(tmp_path: Path) -> tuple[dict, Path, Path]:
+    """A self-contained manifest over two real temp files.
+
+    Deliberately does not reference dataset/processed/: those CSVs are derived
+    and git-ignored, so a test that reads them passes only on a machine that
+    happens to have built them, and fails in CI for a reason unrelated to what
+    it checks.
+    """
+    from dataset.freeze_eval import sha256
+
+    train = tmp_path / "train.csv"
+    train.write_text("text,language,label\nchest pain,english,CRITICAL\n", encoding="utf-8")
+    evaluation = tmp_path / "eval.csv"
+    evaluation.write_text("text,language,label\nmild cough,english,ROUTINE\n", encoding="utf-8")
+    manifest = {
+        "strategy": "phrase",
+        "split_seed": 42,
+        "source": {"path": str(tmp_path / "source.csv"), "sha256": "0" * 64},
+        "files": {
+            "train": {"path": str(train), "sha256": sha256(train), "rows": 1},
+            "eval": {"path": str(evaluation), "sha256": sha256(evaluation), "rows": 1},
+        },
+    }
+    return manifest, train, evaluation
+
+
+def test_evaluate_accepts_an_intact_manifest(tmp_path: Path) -> None:
+    from training.evaluate import load_manifest
+
+    manifest, _, _ = _manifest_over(tmp_path)
+    path = tmp_path / "intact.json"
+    path.write_text(json.dumps(manifest))
+    assert load_manifest(path)["strategy"] == "phrase"
+
+
+def test_evaluate_refuses_a_drifted_split(tmp_path: Path) -> None:
     """A score computed against rows the manifest does not describe is untraceable."""
     from training.evaluate import load_manifest
 
-    real = ml_root / "dataset/processed/eval_manifest_phrase_v1.json"
-    if not real.exists():
-        pytest.skip("phrase manifest is built by `make dataset`")
-
-    manifest = json.loads(real.read_text())
+    manifest, _, _ = _manifest_over(tmp_path)
     manifest["files"]["eval"]["sha256"] = "0" * 64
-    tampered = tmp_path / "tampered.json"
-    tampered.write_text(json.dumps(manifest))
+    path = tmp_path / "drifted.json"
+    path.write_text(json.dumps(manifest))
 
     with pytest.raises(SystemExit) as excinfo:
-        load_manifest(tampered)
+        load_manifest(path)
     assert "drifted" in str(excinfo.value).lower()
+
+
+def test_evaluate_refuses_a_missing_split(tmp_path: Path) -> None:
+    """The other guard: a manifest naming a file that is not there."""
+    from training.evaluate import load_manifest
+
+    manifest, train, _ = _manifest_over(tmp_path)
+    train.unlink()
+    path = tmp_path / "missing.json"
+    path.write_text(json.dumps(manifest))
+
+    with pytest.raises(SystemExit) as excinfo:
+        load_manifest(path)
+    assert "missing" in str(excinfo.value).lower()

@@ -39,13 +39,13 @@ make verify        # regenerate the committed sample + both splits, check digest
 make verify-full   # regenerate all 1,000,000 rows and check every frozen digest (~1 min)
 
 make install-dev   # pytest, plus the pinned training dependencies
-make test          # 39 tests
+make test          # 41 tests
 ```
 
 `make verify` and `make verify-full` need **no dependencies at all** — both run in CI,
 and both were run for this README on a clean clone with nothing installed. `make test`
 needs pytest, so run `make install-dev` first; without torch the nine training tests
-skip as one module and the other 30 still pass.
+skip as one module and the other 32 still pass.
 
 ---
 
@@ -179,7 +179,7 @@ kinyamed/ml_model/
     processed/                  manifests and split reports (CSVs are ignored)
   training/
     train_holdout.py            checkpointed, resumable training
-  tests/                        39 tests
+  tests/                        41 tests
   verify.py                     re-derives every committed digest
 kinyamed/backend/               FastAPI triage service (in development)
 ```
