@@ -19,10 +19,18 @@ leakage-controlled splits yet, so this repository currently contains
 
 ## What the badge means
 
-CI re-derives every committed digest from seed 42 on a clean machine, on every push:
-it regenerates the sample corpus, re-runs both splits, and compares SHA-256 digests
-against the committed manifests. The dataset pipeline imports nothing outside the
-Python standard library, so this check cannot break because of an upstream release.
+On every push, CI regenerates the **full 1,000,000-row corpus** from seed 42 on a
+clean machine, re-runs both splits, and re-derives every SHA-256 digest in both frozen
+manifests — the source corpus and all four train/eval files. Not a sample of them, and
+not a cached artefact: the bytes are rebuilt and compared.
+
+A second, faster job does the same against the committed 1,000-row sample, so a broken
+pipeline is reported in seconds rather than minutes. The dataset pipeline imports
+nothing outside the Python standard library, so neither check can break because an
+upstream package published a release.
+
+That is what the badge asserts. It does **not** assert anything about model quality —
+nothing has been trained on these splits.
 
 Reproduce it yourself:
 
@@ -34,10 +42,10 @@ make install-dev   # pytest, plus the pinned training dependencies
 make test          # 33 tests
 ```
 
-`make verify` and `make verify-full` need **no dependencies at all** — they were run
-for this README on a clean clone with nothing installed. `make test` needs pytest, so
-run `make install-dev` first; without torch the nine training tests skip and the other
-24 still pass.
+`make verify` and `make verify-full` need **no dependencies at all** — both run in CI,
+and both were run for this README on a clean clone with nothing installed. `make test`
+needs pytest, so run `make install-dev` first; without torch the nine training tests
+skip as one module and the other 24 still pass.
 
 ---
 

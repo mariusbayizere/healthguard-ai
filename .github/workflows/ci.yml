@@ -38,6 +38,25 @@ jobs:
       - name: Dataset test suite (training tests skip without torch)
         run: cd kinyamed/ml_model && python -m pytest -q -rs
 
+  reproducibility-full:
+    # The strong claim: the 1,000,000-row corpus is regenerated from seed 42
+    # and every digest in both frozen manifests is re-derived and compared.
+    # Split from the sample job so the fast signal stays fast — this one takes
+    # a couple of minutes and about a gigabyte of scratch.
+    name: Full 1M-row digest re-derivation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Regenerate 1,000,000 rows and check every frozen digest
+        # Installs nothing: the pipeline is pure standard library.
+        run: make verify-full
+
   training-tests:
     # Checkpoint and resume tests, which need torch. Split into its own job so
     # a slow dependency install never delays the reproducibility signal above.
