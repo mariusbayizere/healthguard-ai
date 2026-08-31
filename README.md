@@ -2,14 +2,18 @@
 
 [![CI](https://github.com/mariusbayizere/healthguard-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/mariusbayizere/healthguard-ai/actions/workflows/ci.yml)
 
-A unified AI platform solving two critical problems in emerging markets:
+A platform targeting two problems in emerging markets. One module has code in this
+repository; the other is planned and not yet started.
 
-- **KinyaMed** — AI-powered medical triage and patient queue system for Kinyarwanda-speaking populations.
-- **FraudShield** — real-time fraud detection engine for financial transactions.
+- **KinyaMed** *(in progress)* — AI-powered medical triage and patient queue system
+  for Kinyarwanda-speaking populations. The dataset pipeline is complete and
+  verifiable; a FastAPI backend is in development.
+- **FraudShield** *(planned, no code yet)* — real-time fraud detection engine for
+  financial transactions.
 
-**Status:** 🚧 under active development. The triage dataset pipeline is complete and
-verifiable; no model has been trained on the leakage-controlled splits yet, so this
-repository currently contains **no accuracy claims**.
+**Status:** 🚧 under active development. No model has been trained on the
+leakage-controlled splits yet, so this repository currently contains
+**no accuracy claims** — and nothing here has been validated by a clinician.
 
 ---
 
@@ -25,10 +29,15 @@ Reproduce it yourself:
 ```bash
 make verify        # regenerate the committed sample + both splits, check digests (seconds)
 make verify-full   # regenerate all 1,000,000 rows and check every frozen digest (~1 min)
+
+make install-dev   # pytest, plus the pinned training dependencies
 make test          # 33 tests
 ```
 
-`make verify` needs no dependencies at all. Only training does.
+`make verify` and `make verify-full` need **no dependencies at all** — they were run
+for this README on a clean clone with nothing installed. `make test` needs pytest, so
+run `make install-dev` first; without torch the nine training tests skip and the other
+24 still pass.
 
 ---
 
@@ -164,16 +173,25 @@ kinyamed/ml_model/
     train_holdout.py            checkpointed, resumable training
   tests/                        33 tests
   verify.py                     re-derives every committed digest
-kinyamed/backend/               FastAPI triage service
-fraudshield/                    fraud detection module
-infrastructure/                 Docker and Kubernetes manifests
+kinyamed/backend/               FastAPI triage service (in development)
 ```
+
+Every path above exists in a clean clone. FraudShield and the deployment manifests
+have no files yet, so they are deliberately absent rather than listed as empty
+directories that git cannot track and a reader would not find.
 
 ## Tech stack
 
-- **NLP:** AfroXLMR (`Davlan/afro-xlmr-mini`) via HuggingFace Transformers
-- **Backend:** FastAPI (Python) + Spring Boot (Java)
-- **Frontend:** React.js + Tailwind CSS
-- **Streaming:** Apache Kafka
-- **Database:** PostgreSQL + Redis
-- **Infrastructure:** Docker + Kubernetes
+**In this repository today:**
+
+- **Dataset pipeline:** Python standard library only — no third-party dependency
+- **NLP:** AfroXLMR (`Davlan/afro-xlmr-mini`) via HuggingFace Transformers, PyTorch
+- **Backend:** FastAPI (Python), SQLAlchemy
+- **Database:** PostgreSQL, Redis
+
+**Planned, not yet started** — listed as intent, not as something you will find here:
+
+- Spring Boot (Java) services
+- React.js + Tailwind CSS frontend
+- Apache Kafka streaming
+- Docker + Kubernetes deployment
