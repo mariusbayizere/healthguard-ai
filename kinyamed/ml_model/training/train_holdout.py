@@ -16,6 +16,7 @@ Smoke run:
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import math
@@ -59,19 +60,32 @@ class SymptomDataset(Dataset):
     def __len__(self) -> int:
         return len(self.texts)
 
-    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
+    def __getitem__(self, index: int) -> dict:
+        # No padding here: the collator pads each batch to its own longest
+        # sequence. Token lengths run 18-63 with a median of 43, so padding
+        # every row to 64 spends about a third of the compute on padding.
         encoded = self.tokenizer(
             self.texts[index],
             max_length=self.max_length,
-            padding="max_length",
             truncation=True,
-            return_tensors="pt",
         )
         return {
-            "input_ids": encoded["input_ids"].squeeze(0),
-            "attention_mask": encoded["attention_mask"].squeeze(0),
-            "labels": torch.tensor(self.labels[index], dtype=torch.long),
+            "input_ids": encoded["input_ids"],
+            "attention_mask": encoded["attention_mask"],
+            "labels": self.labels[index],
         }
+
+
+def make_collator(tokenizer):
+    """Pad each batch to its longest member rather than to max_length."""
+
+    def collate(batch: list[dict]) -> dict[str, torch.Tensor]:
+        labels = torch.tensor([item.pop("labels") for item in batch], dtype=torch.long)
+        padded = tokenizer.pad(batch, return_tensors="pt")
+        padded["labels"] = labels
+        return padded
+
+    return collate
 
 
 def run_fingerprint(manifest: dict, args) -> str:
@@ -89,6 +103,7 @@ def run_fingerprint(manifest: dict, args) -> str:
         f"{args.seed}:{args.epochs}:{args.max_steps}:{args.batch_size}",
         f"{args.max_length}:{args.learning_rate}:{args.weight_decay}",
         f"{args.warmup_ratio}:{args.train_fraction}:{args.eval_limit}",
+        f"freeze_embeddings={args.freeze_embeddings}",
     ]
     return hashlib.sha256("|".join(str(p) for p in parts).encode()).hexdigest()
 
@@ -139,8 +154,68 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
 
 
-def load_split(manifest_path: Path, *, verify: bool = True) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    """Load the train/eval frames named by a frozen manifest."""
+def _sample_rows(path: str, fraction: float, seed: int) -> pd.DataFrame:
+    """Read a fraction of a CSV without materialising the whole file.
+
+    pd.read_csv followed by .sample() holds every row in memory before throwing
+    almost all of them away: on the 228 MB training split that is most of a
+    gigabyte to keep 1% of it, which on a memory-constrained box is the
+    difference between running and being OOM-killed. A Bernoulli decision per
+    row, seeded, keeps only what survives and stays deterministic.
+    """
+    if fraction >= 1.0:
+        return pd.read_csv(path)
+    rng = random.Random(seed)
+    kept: list[dict] = []
+    with open(path, newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if rng.random() < fraction:
+                kept.append(row)
+    return pd.DataFrame(kept)
+
+
+def _sample_eval(path: str, limit: int | None, seed: int) -> pd.DataFrame:
+    """Read the eval split, optionally capped to `limit` rows per class overall.
+
+    Stratified so a smoke run still reports every class. Streaming, so the cap
+    bounds memory rather than merely trimming a frame already in memory.
+    """
+    if not limit:
+        return pd.read_csv(path)
+    per_class = max(limit // NUM_LABELS, 1)
+    rng = random.Random(seed)
+    # Reservoir per class: one pass, memory bounded by the cap, and every row
+    # gets an equal chance regardless of where it sits in the file.
+    reservoir: dict[str, list[dict]] = {}
+    seen: Counter[str] = Counter()
+    with open(path, newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            label = row["label"]
+            seen[label] += 1
+            bucket = reservoir.setdefault(label, [])
+            if len(bucket) < per_class:
+                bucket.append(row)
+            else:
+                j = rng.randrange(seen[label])
+                if j < per_class:
+                    bucket[j] = row
+    rows = [r for bucket in reservoir.values() for r in bucket]
+    return pd.DataFrame(rows)
+
+
+def load_split(
+    manifest_path: Path,
+    *,
+    verify: bool = True,
+    train_fraction: float = 1.0,
+    eval_limit: int | None = None,
+    seed: int = 42,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+    """Load the train/eval frames named by a frozen manifest.
+
+    Sampling happens during the read, not after it, so asking for 1% of the
+    training split costs 1% of the memory.
+    """
     manifest = json.loads(manifest_path.read_text())
     if verify:
         from dataset.freeze_eval import sha256
@@ -153,8 +228,8 @@ def load_split(manifest_path: Path, *, verify: bool = True) -> tuple[pd.DataFram
                     f"  expected {entry['sha256']}\n  actual   {actual}"
                 )
 
-    train = pd.read_csv(manifest["files"]["train"]["path"])
-    evaluation = pd.read_csv(manifest["files"]["eval"]["path"])
+    train = _sample_rows(manifest["files"]["train"]["path"], train_fraction, seed)
+    evaluation = _sample_eval(manifest["files"]["eval"]["path"], eval_limit, seed)
     for frame in (train, evaluation):
         frame["label_id"] = frame["label"].map(LABEL_MAP)
     return train, evaluation, manifest
@@ -250,6 +325,15 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--threads", type=int, default=None)
     parser.add_argument(
+        "--freeze-embeddings", dest="freeze_embeddings", action="store_true", default=True,
+        help="Train only the encoder and head (default). Removes ~96M embedding "
+             "parameters from gradients and optimiser state.",
+    )
+    parser.add_argument(
+        "--no-freeze-embeddings", dest="freeze_embeddings", action="store_false",
+        help="Fine-tune the embedding matrix too; needs ~1.15 GB more.",
+    )
+    parser.add_argument(
         "--checkpoint-every", type=int, default=200,
         help="Steps between resumable checkpoints; 0 disables.",
     )
@@ -269,26 +353,14 @@ def main() -> int:
         torch.set_num_threads(args.threads)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    train_frame, eval_frame, manifest = load_split(args.manifest)
+    train_frame, eval_frame, manifest = load_split(
+        args.manifest,
+        train_fraction=args.train_fraction,
+        eval_limit=args.eval_limit,
+        seed=args.seed,
+    )
     print(f"Manifest        : {args.manifest} (strategy {manifest['strategy']}, digests verified)")
     print(f"Device          : {device}  threads={torch.get_num_threads()}")
-
-    if args.train_fraction < 1.0:
-        train_frame = train_frame.sample(
-            frac=args.train_fraction, random_state=args.seed
-        ).reset_index(drop=True)
-    if args.eval_limit:
-        # Stratified cap so a smoke run still reports every class. Explicit
-        # masks rather than groupby().apply(): the latter consumes the grouping
-        # column, and losing `label` here would be silent until much later.
-        per_class = max(args.eval_limit // NUM_LABELS, 1)
-        parts = [
-            eval_frame[eval_frame["label"] == name].sample(
-                min((eval_frame["label"] == name).sum(), per_class), random_state=args.seed
-            )
-            for name in CLASS_ORDER
-        ]
-        eval_frame = pd.concat(parts).reset_index(drop=True)
 
     print(f"Train rows      : {len(train_frame):,}  {dict(Counter(train_frame['label']))}")
     print(f"Eval rows       : {len(eval_frame):,}  {dict(Counter(eval_frame['label']))}")
@@ -301,13 +373,31 @@ def main() -> int:
         label2id=LABEL_MAP,
     ).to(device)
 
+    if args.freeze_embeddings:
+        for name, parameter in model.named_parameters():
+            if "embeddings" in name:
+                parameter.requires_grad = False
+
+    trainable = [p for p in model.parameters() if p.requires_grad]
+    n_total = sum(p.numel() for p in model.parameters())
+    n_train = sum(p.numel() for p in trainable)
+    # Frozen weights stay resident for the forward pass; only gradients and
+    # optimiser state shrink. Reporting both stops the budget being taken
+    # against the trainable slice alone.
+    resident = (n_total + 3 * n_train) * 4 / 1e9
+    print(f"Parameters      : {n_total:,} total, {n_train:,} trainable "
+          f"({n_train / n_total:.1%}), {n_total - n_train:,} frozen")
+    print(f"Projected fp32  : {resident:.2f} GB (params + grads + AdamW over trainable)")
+
     train_dataset = SymptomDataset(train_frame, tokenizer, args.max_length)
     # Length only; the per-epoch loader is rebuilt below so a resume can start
     # partway through an epoch without replaying the batches it already did.
     steps_per_epoch_full = math.ceil(len(train_dataset) / args.batch_size)
+    collate = make_collator(tokenizer)
     eval_loader = DataLoader(
         SymptomDataset(eval_frame, tokenizer, args.max_length),
         batch_size=args.batch_size * 2,
+        collate_fn=collate,
     )
 
     weights = class_weights(train_frame["label_id"].tolist(), device)
@@ -318,7 +408,7 @@ def main() -> int:
 
     steps_per_epoch = steps_per_epoch_full
     total_steps = args.max_steps or steps_per_epoch * args.epochs
-    optimiser = AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
+    optimiser = AdamW(trainable, lr=args.learning_rate, weight_decay=args.weight_decay)
     scheduler = get_linear_schedule_with_warmup(
         optimiser, int(total_steps * args.warmup_ratio), total_steps
     )
@@ -395,6 +485,7 @@ def main() -> int:
             Subset(train_dataset, order[skip:]),
             batch_size=args.batch_size,
             shuffle=False,
+            collate_fn=collate,
         )
         batch_in_epoch = start_batch if epoch == start_epoch else 0
         for batch in train_loader:
@@ -405,7 +496,7 @@ def main() -> int:
             logits = model(input_ids=input_ids, attention_mask=attention_mask).logits
             loss = criterion(logits, labels)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            torch.nn.utils.clip_grad_norm_(trainable, 1.0)
             optimiser.step()
             scheduler.step()
             optimiser.zero_grad()
