@@ -190,7 +190,17 @@ def main() -> int:
         for name, _, detail in failed:
             print(f"  - {name}: {detail}")
         return 1
-    print(f"All {total} checks passed — every committed digest re-derived from seed {GENERATOR_SEED}.")
+    if args.scope == "full":
+        print(f"All {total} checks passed — every committed digest re-derived "
+              f"from seed {GENERATOR_SEED}.")
+    else:
+        # Say what was actually checked. The 1M manifest digests are committed
+        # too, and this scope does not touch them; claiming otherwise is how a
+        # green check comes to mean more than it should.
+        print(f"All {total} checks passed — the committed sample and both of its "
+              f"splits re-derived from seed {GENERATOR_SEED}.")
+        print("The 1,000,000-row manifest digests are NOT checked at this scope; "
+              "run --scope full for those.")
     return 0
 
 
