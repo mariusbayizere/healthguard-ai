@@ -1,0 +1,7 @@
+# Deliberately empty of runtime dependencies.
+#
+# `make verify` regenerates the corpus from seed 42, re-runs both splits and
+# checks every digest in the frozen manifests using only the Python standard
+# library. Keeping this path dependency-free means the reproducibility check
+# cannot be broken by an upstream release, and CI can run it in seconds.
+pytest==9.1.1

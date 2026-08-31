@@ -1,0 +1,20 @@
+# Pinned to the exact versions that produced the frozen manifests.
+#
+# The dataset pipeline itself (generate -> validate -> split -> freeze) imports
+# nothing outside the standard library, so `make verify` — the reproducibility
+# claim this repo rests on — runs with none of these installed. They are needed
+# only to train and evaluate a model.
+#
+# torch is pinned to the CPU build; install with:
+#   pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Training and evaluation
+torch==2.12.0+cpu
+transformers==5.8.1
+scikit-learn==1.8.0
+pandas==2.3.3
+
+# numpy is used by the near-duplicate scan and by training
+numpy==2.4.4

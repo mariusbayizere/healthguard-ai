@@ -1,0 +1,5 @@
+# Test suite only. The dataset tests need nothing beyond pytest; the training
+# checkpoint tests additionally need torch from requirements.txt and skip
+# cleanly when it is absent.
+-r requirements.txt
+pytest==9.1.1

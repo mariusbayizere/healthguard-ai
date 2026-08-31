@@ -1,0 +1,68 @@
+{
+  "strategy": "phrase",
+  "eval_fraction_target": 0.1,
+  "seed": 42,
+  "train": {
+    "rows": 905774,
+    "labels": {
+      "CRITICAL": 304864,
+      "URGENT": 314225,
+      "ROUTINE": 286685
+    },
+    "languages": {
+      "kinyarwanda": 112674,
+      "english": 117848,
+      "french": 121222,
+      "swahili": 121219,
+      "mixed": 432811
+    },
+    "families": 160,
+    "phrases": 168
+  },
+  "eval": {
+    "rows": 94226,
+    "labels": {
+      "CRITICAL": 25118,
+      "URGENT": 25787,
+      "ROUTINE": 43321
+    },
+    "languages": {
+      "kinyarwanda": 17341,
+      "english": 12163,
+      "french": 8777,
+      "swahili": 8780,
+      "mixed": 47165
+    },
+    "families": 39,
+    "phrases": 16
+  },
+  "holdout_groups": [
+    "a child vaccination appointment",
+    "an annual checkup appointment",
+    "chest pain when breathing deeply",
+    "gahunda yo gukurikirana ubuvuzi bwahise",
+    "gahunda yo gusuzumwa buri mwaka",
+    "homa na maumivu ya mwili mzima",
+    "maumivu makali ya kifua yanayoenea mkononi",
+    "ombi la kuongezewa dawa zangu",
+    "one side of the body not working",
+    "ububabare bukabije mu nda",
+    "umuriro mwinshi wa dogere 39",
+    "umutima utera cyane nk'aho uhagarara",
+    "une douleur ecrasante dans la poitrine qui va vers le bras",
+    "une forte fievre et refuse de manger",
+    "une toux legere sans fievre"
+  ],
+  "leakage": {
+    "exact_text_overlap": 0,
+    "family_overlap": 39,
+    "phrase_overlap": 0,
+    "substring_violations": 0,
+    "substring_violation_detail": [],
+    "eval_rows_whose_phrase_appears_in_train": 0,
+    "eval_rows_leaked_fraction": 0.0,
+    "shared_phrase_sample": []
+  },
+  "train_path": "dataset/processed/train_phrase_holdout.csv",
+  "eval_path": "dataset/processed/eval_phrase_holdout.csv"
+}

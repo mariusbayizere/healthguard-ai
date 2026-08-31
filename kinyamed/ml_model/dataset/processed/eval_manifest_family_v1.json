@@ -1,0 +1,234 @@
+{
+  "manifest_version": 1,
+  "created_at": "2026-08-31T09:10:10.282671+00:00",
+  "git_commit": "9000dbe8e1c1fdd7a25d1dbf1a5cad9c3204988a",
+  "strategy": "family",
+  "eval_fraction_target": 0.1,
+  "split_seed": 42,
+  "generator_seed": 42,
+  "source": {
+    "path": "dataset/raw/symptoms_large.csv",
+    "sha256": "751b8f57c195183ffc392959a58e2e6cbb0beb9c63caa3c15b7fb28530f4edec"
+  },
+  "files": {
+    "train": {
+      "path": "dataset/processed/train_family_holdout.csv",
+      "sha256": "d5962755213e9153a70fc446c49e6cfda87f130de48ab3ed306b2e15adeb8d92",
+      "rows": 885679
+    },
+    "eval": {
+      "path": "dataset/processed/eval_family_holdout.csv",
+      "sha256": "c47ed5053700e8ec06cb0f1733e354d5cd289a2707ded09ba46a7615b8bf2a33",
+      "rows": 114321
+    }
+  },
+  "holdout_groups": [
+    {
+      "group": "english->english:CRITICAL:obstetric",
+      "phrases": [
+        "english->english:CRITICAL:obstetric"
+      ]
+    },
+    {
+      "group": "english->english:ROUTINE:neurological",
+      "phrases": [
+        "english->english:ROUTINE:neurological"
+      ]
+    },
+    {
+      "group": "english->english:URGENT:haemorrhage_trauma",
+      "phrases": [
+        "english->english:URGENT:haemorrhage_trauma"
+      ]
+    },
+    {
+      "group": "english->swahili:CRITICAL:cardiac_respiratory",
+      "phrases": [
+        "english->swahili:CRITICAL:cardiac_respiratory"
+      ]
+    },
+    {
+      "group": "english->swahili:URGENT:infectious_fever",
+      "phrases": [
+        "english->swahili:URGENT:infectious_fever"
+      ]
+    },
+    {
+      "group": "french->french:CRITICAL:obstetric",
+      "phrases": [
+        "french->french:CRITICAL:obstetric"
+      ]
+    },
+    {
+      "group": "french->french:ROUTINE:neurological",
+      "phrases": [
+        "french->french:ROUTINE:neurological"
+      ]
+    },
+    {
+      "group": "french->french:URGENT:chronic_care",
+      "phrases": [
+        "french->french:URGENT:chronic_care"
+      ]
+    },
+    {
+      "group": "french->kinyarwanda:CRITICAL:cardiac_respiratory",
+      "phrases": [
+        "french->kinyarwanda:CRITICAL:cardiac_respiratory"
+      ]
+    },
+    {
+      "group": "french->kinyarwanda:ROUTINE:infectious_fever",
+      "phrases": [
+        "french->kinyarwanda:ROUTINE:infectious_fever"
+      ]
+    },
+    {
+      "group": "french->kinyarwanda:URGENT:infectious_fever",
+      "phrases": [
+        "french->kinyarwanda:URGENT:infectious_fever"
+      ]
+    },
+    {
+      "group": "kinyarwanda->french:ROUTINE:preventive",
+      "phrases": [
+        "kinyarwanda->french:ROUTINE:preventive"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:CRITICAL:obstetric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:CRITICAL:obstetric"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:ROUTINE:chronic_care",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:ROUTINE:chronic_care"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:URGENT:paediatric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:URGENT:paediatric"
+      ]
+    },
+    {
+      "group": "swahili->swahili:CRITICAL:obstetric",
+      "phrases": [
+        "swahili->swahili:CRITICAL:obstetric"
+      ]
+    },
+    {
+      "group": "swahili->swahili:ROUTINE:gastrointestinal",
+      "phrases": [
+        "swahili->swahili:ROUTINE:gastrointestinal"
+      ]
+    },
+    {
+      "group": "swahili->swahili:URGENT:cardiac_respiratory",
+      "phrases": [
+        "swahili->swahili:URGENT:cardiac_respiratory"
+      ]
+    }
+  ],
+  "held_out_phrase_count": 18,
+  "leakage": {
+    "exact_text_overlap": 0,
+    "family_overlap": 0,
+    "phrase_overlap": 50,
+    "substring_violations": 54,
+    "substring_violation_detail": [
+      {
+        "eval_phrase": "a mild headache that is not severe",
+        "train_phrase": "a mild headache that is not severe"
+      },
+      {
+        "eval_phrase": "agahinda gakabije mu gituza kanyura mu kuboko",
+        "train_phrase": "agahinda gakabije mu gituza kanyura mu kuboko"
+      },
+      {
+        "eval_phrase": "amazuru atemba yoroheje",
+        "train_phrase": "amazuru atemba yoroheje"
+      },
+      {
+        "eval_phrase": "an infected wound, red and full of pus",
+        "train_phrase": "an infected wound, red and full of pus"
+      },
+      {
+        "eval_phrase": "dalili za malaria, homa na baridi",
+        "train_phrase": "dalili za malaria, homa na baridi"
+      },
+      {
+        "eval_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement",
+        "train_phrase": "de fortes douleurs au ventre"
+      },
+      {
+        "eval_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement",
+        "train_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement"
+      },
+      {
+        "eval_phrase": "gahunda yo gukurikirana ubuvuzi bwahise",
+        "train_phrase": "gahunda yo gukurikirana ubuvuzi bwahise"
+      },
+      {
+        "eval_phrase": "guhumeka nabi n'iminwa ihindura ibara",
+        "train_phrase": "guhumeka nabi n'iminwa ihindura ibara"
+      },
+      {
+        "eval_phrase": "heavy bleeding after giving birth",
+        "train_phrase": "heavy bleeding after giving birth"
+      }
+    ],
+    "eval_rows_whose_phrase_appears_in_train": 114321,
+    "eval_rows_leaked_fraction": 1.0,
+    "shared_phrase_sample": [
+      "a mild headache that is not severe",
+      "agahinda gakabije mu gituza kanyura mu kuboko",
+      "amazuru atemba yoroheje",
+      "an infected wound, red and full of pus",
+      "dalili za malaria, homa na baridi"
+    ]
+  },
+  "eval_matrix": {
+    "kinyarwanda": {
+      "CRITICAL": 5048,
+      "URGENT": 5201,
+      "ROUTINE": 7151
+    },
+    "english": {
+      "CRITICAL": 5048,
+      "URGENT": 5201,
+      "ROUTINE": 7150
+    },
+    "french": {
+      "CRITICAL": 5047,
+      "URGENT": 5200,
+      "ROUTINE": 7150
+    },
+    "swahili": {
+      "CRITICAL": 5047,
+      "URGENT": 5200,
+      "ROUTINE": 7150
+    },
+    "mixed": {
+      "CRITICAL": 15528,
+      "URGENT": 16000,
+      "ROUTINE": 13200
+    }
+  },
+  "eval_languages": {
+    "kinyarwanda": 17400,
+    "english": 17399,
+    "french": 17397,
+    "swahili": 17397,
+    "mixed": 44728
+  },
+  "eval_labels": {
+    "CRITICAL": 35718,
+    "URGENT": 36802,
+    "ROUTINE": 41801
+  },
+  "eval_total": 114321,
+  "thin_cells": []
+}

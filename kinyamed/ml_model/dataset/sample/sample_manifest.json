@@ -1,0 +1,31 @@
+{
+  "description": "Deterministic 1,000-row sample of the full corpus, for running the pipeline end-to-end without generating 1M rows.",
+  "generator": "dataset/generate_large_dataset.py",
+  "target": 1000,
+  "seed": 42,
+  "path": "dataset/sample/symptoms_sample.csv",
+  "sha256": "e75057b5e73070d5ef2fa9ea76dca140be40e9e1dff229b7587d5e3a8853ccc0",
+  "rows": 1000,
+  "splits": {
+    "phrase": {
+      "train": {
+        "sha256": "9f45e6149d18b2639cafee8208da09752e9b1c078a42fce11293b5781b0620ef",
+        "rows": 905
+      },
+      "eval": {
+        "sha256": "4c1453e27136c44c737d17482fa72fe9a09ac82e39b4cb1bde1b560d3ece77b5",
+        "rows": 95
+      }
+    },
+    "family": {
+      "train": {
+        "sha256": "f09e73676633f04f710a89090c59041ad52317334303cdccc15269f1ebb31f6e",
+        "rows": 883
+      },
+      "eval": {
+        "sha256": "04a85153c219908ac6b9fb44a0dca06d4201dd86f5b1efdcd9d27bc46cf640a6",
+        "rows": 117
+      }
+    }
+  }
+}
