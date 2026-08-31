@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reproducibility:
+    # The claim this repository rests on: every committed digest can be
+    # re-derived from seed 42. The dataset pipeline is pure standard library,
+    # so this job installs nothing and cannot break because of an upstream
+    # release — which is exactly what makes the badge worth reading.
+    name: Reproducibility and dataset tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Show that no dependencies are installed
+        run: python -c "import sys; print(sys.version); import importlib.util; print('torch present:', importlib.util.find_spec('torch') is not None)"
+
+      - name: Re-derive the sample and both splits from seed 42
+        run: make verify
+
+      - name: Install pytest only
+        run: python -m pip install --disable-pip-version-check pytest==9.1.1
+
+      - name: Dataset test suite (training tests skip without torch)
+        run: cd kinyamed/ml_model && python -m pytest -q -rs
+
+  training-tests:
+    # Checkpoint and resume tests, which need torch. Split into its own job so
+    # a slow dependency install never delays the reproducibility signal above.
+    name: Training checkpoint tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: kinyamed/ml_model/requirements-dev.txt
+
+      - name: Install pinned dependencies
+        run: python -m pip install --disable-pip-version-check -r kinyamed/ml_model/requirements-dev.txt
+
+      - name: Full test suite
+        run: cd kinyamed/ml_model && python -m pytest -q -rs
+
+  hygiene:
+    # Guards the ignore rules. A 471 MB model file or a 181 MB corpus reaching
+    # a commit is the kind of mistake that is painful to undo after a push.
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No tracked file may exceed 5 MB
+        run: |
+          oversized=$(git ls-files -z | xargs -0 -r du -k 2>/dev/null | awk '$1 > 5120 {print $1" KB\t"$2}')
+          if [ -n "$oversized" ]; then
+            echo "::error::Tracked files over 5 MB:"; echo "$oversized"; exit 1
+          fi
+          echo "No tracked file exceeds 5 MB."
+
+      - name: No generated data, model weights or crash debris tracked
+        run: |
+          bad=$(git ls-files | grep -E '(\.safetensors|\.partial|\.orig|symptoms_large\.csv|_holdout\.csv|/venv/)' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::These should be ignored, not tracked:"; echo "$bad"; exit 1
+          fi
+          echo "No generated artefacts are tracked."
