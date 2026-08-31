@@ -75,6 +75,14 @@ Under-triage (missing a CRITICAL case) is the failure that matters, which is why
 training script weights the loss by inverse class frequency and gates on CRITICAL
 recall rather than accuracy.
 
+**Planned for v2 (not yet built).** The seed vocabulary is being expanded to 504
+phrasings — 14 per domain per language — authored by native speakers and reviewed by
+a clinician. The corpus will then be regenerated at **1,008,000 rows**, chosen so
+that the median phrase accounts for 2,000 rows rather than the current 5,674. That
+figure is deliberate: rows-per-phrase is the honest measure of how much clinical
+variety a row count represents, and raising rows without adding phrases makes it
+worse. Everything described above is v1 and remains exactly as stated.
+
 ---
 
 ## The two splits measure different things

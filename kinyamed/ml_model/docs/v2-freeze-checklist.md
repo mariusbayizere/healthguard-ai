@@ -14,8 +14,9 @@ Nothing here starts until speaker briefs and clinician sign-off are both back.
 | 5 | **Verify per-cell balance** | 14 per domain per language, all four languages parallel | `allocate()` distributes by family; an unbalanced cell skews class and language shares away from targets |
 | 6 | **Update `vocabulary.py`** | add phrases in the same tuple structure | — |
 | 7 | **Re-run slot distinctness** | `assert_slots_are_distinct()` (called by the generator) | duplicate slot values silently reduce the combination count, so uniqueness-by-construction stops holding |
-| 8 | **Regenerate the corpus at 1,000,000, seed 42** | `python dataset/generate_large_dataset.py --target 1000000 --seed 42` | — |
+| 8 | **Regenerate the corpus at 1,008,000, seed 42** | `python dataset/generate_large_dataset.py --target 1008000 --seed 42` | at 504 phrases this is the row count that gives 2,000 rows per phrase; 1,000,000 gives 1,984 and 2,000,000 gives 3,968. See `docs/v2-sizing.md` |
 | 9 | **Validate** | `python dataset/validate_dataset.py --report dataset/raw/symptoms_large.validation.json` | duplicate or malformed rows reach the splits undetected |
+| 9b | **Confirm the row count is 1,008,000 and rows-per-phrase ~2,000** | read `symptoms_large.stats.json` and the near-duplicate report | the headline sizing claim goes unverified, and rows-per-phrase is the number the paper argues from |
 | 10 | **Near-duplicate scan** | `python dataset/near_duplicates.py` | the rows-per-phrase figure quoted in Limitations goes stale; with ~504 phrases it should fall from 5,674 toward ~2,000 and that number needs re-measuring, not estimating |
 | 11 | **Rebuild both splits** | `split_dataset.py --strategy phrase` then `--strategy family` | — |
 | 12 | **Check the leakage report** | `split_phrase_holdout.json` must show `substring_violations: 0`, `phrase_overlap: 0`, `eval_rows_leaked_fraction: 0.0` | **the headline claim of the whole project.** New phrases can be nested inside existing ones; the substring closure must still hold |

@@ -11,7 +11,7 @@ Class and language balance are allocated up front from the quality targets, not
 measured and hoped for. Every row is validated before it is written.
 
 Usage:
-    python dataset/generate_large_dataset.py --target 1000000
+    python dataset/generate_large_dataset.py --target 1008000
 """
 
 from __future__ import annotations
@@ -49,6 +49,14 @@ MIN_LENGTH = 20
 MAX_LENGTH = 512
 MIN_AVG_LENGTH = 30
 MAX_DUPLICATE_RATE = 0.02
+# v2 target. 504 phrase strings x 2,000 rows per phrase = 1,008,000. Chosen so
+# that median rows-per-phrase lands on 2,000: raising the row count without adding
+# phrases only makes each phrase repeat more often, which is the opposite of the
+# diversity the vocabulary expansion buys. See docs/v2-sizing.md.
+#
+# v1 is 1,000,000 rows and stays that way; every v1 path passes --target explicitly.
+TARGET_ROWS_V2 = 1_008_000
+
 MIN_EXAMPLES_PER_DOMAIN = 500
 # The domain floor above is expressed for a full-size run; below that size it
 # is scaled proportionally. An absolute floor would fail every small run for
@@ -342,7 +350,10 @@ def check_quality(stats: dict) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--target", type=int, default=1_000_000, help="Examples to generate.")
+    parser.add_argument(
+        "--target", type=int, default=TARGET_ROWS_V2,
+        help="Examples to generate (default: the v2 target of 1,008,000).",
+    )
     parser.add_argument(
         "--output", type=Path, default=Path("dataset/raw/symptoms_large.csv"),
         help="Destination CSV.",
