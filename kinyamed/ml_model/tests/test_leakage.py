@@ -101,15 +101,20 @@ def test_phrase_split_has_no_substring_leakage(ml_root: Path) -> None:
     assert leakage["eval_rows_leaked_fraction"] == 0.0
 
 
-def test_held_out_phrases_are_absent_from_sample_training_text(sample_csv: Path, tmp_path: Path) -> None:
+def test_held_out_phrases_are_absent_from_sample_training_text(
+    sample_csv: Path, tmp_path: Path, ml_root: Path
+) -> None:
     """End-to-end on the committed sample: scan real training rows, not phrase sets."""
     import subprocess
     import sys
 
+    # cwd is explicit: the script resolves its imports relative to the ml_model
+    # directory, so without this the test passes or fails depending on where
+    # pytest happened to be invoked from.
     subprocess.run(
         [sys.executable, "dataset/split_dataset.py", "--strategy", "phrase",
          "--input", str(sample_csv), "--out-dir", str(tmp_path)],
-        check=True, capture_output=True,
+        cwd=ml_root, check=True, capture_output=True,
     )
     report = json.loads((tmp_path / "split_phrase_holdout.json").read_text())
     held = set(report["holdout_groups"])
