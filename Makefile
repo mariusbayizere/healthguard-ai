@@ -8,7 +8,7 @@ ML := kinyamed/ml_model
 PY := python3
 
 .DEFAULT_GOAL := help
-.PHONY: help install install-dev test verify verify-full sample dataset splits freeze clean
+.PHONY: help install install-dev test test-clean install-hooks verify verify-full sample dataset splits freeze clean
 
 help:  ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -25,6 +25,40 @@ test:  ## Run the test suite
 		echo "pytest is not installed. Run 'make install-dev' first."; \
 		echo "(note: 'make verify' needs no dependencies at all)"; exit 1; }
 	cd $(ML) && $(PY) -m pytest -q
+
+test-clean:  ## Run the suite in a throwaway clone of HEAD — catches ambient-state bugs
+	@set -e; \
+	if ! git diff --quiet HEAD -- $(ML) 2>/dev/null; then \
+		echo "NOTE: uncommitted changes under $(ML) are NOT included."; \
+		echo "      This tests HEAD ($$(git rev-parse --short HEAD)) — i.e. what a push would publish."; \
+		echo ""; \
+	fi; \
+	tmp=$$(mktemp -d -t healthguard-testclean-XXXXXX); \
+	trap 'rm -rf "$$tmp"' EXIT INT TERM; \
+	git clone --quiet --no-hardlinks . "$$tmp/clone"; \
+	echo "clean clone of $$(git -C "$$tmp/clone" rev-parse --short HEAD)"; \
+	leaked=$$(find "$$tmp/clone/$(ML)/dataset/raw" "$$tmp/clone/$(ML)/dataset/processed" \
+	          -name '*.csv' 2>/dev/null | wc -l); \
+	model=$$(find "$$tmp/clone/$(ML)" -name '*.safetensors' 2>/dev/null | wc -l); \
+	echo "  generated CSVs present : $$leaked (must be 0)"; \
+	echo "  model weights present  : $$model (must be 0)"; \
+	if [ "$$leaked" -ne 0 ] || [ "$$model" -ne 0 ]; then \
+		echo ""; \
+		echo "FAIL: derived data is tracked. A test could pass on ambient state"; \
+		echo "      that a fresh clone will not have."; \
+		exit 1; \
+	fi; \
+	py=$$($(PY) -c 'import sys; print(sys.executable)'); \
+	if ! "$$py" -c "import pytest" 2>/dev/null; then \
+		echo "pytest is not installed. Run 'make install-dev' first."; exit 1; fi; \
+	echo "  interpreter            : $$py"; \
+	echo ""; \
+	cd "$$tmp/clone/$(ML)" && "$$py" -m pytest -q -rs
+
+install-hooks:  ## Make pre-push run test-clean automatically
+	git config core.hooksPath .githooks
+	@echo "pre-push now runs 'make test-clean'."
+	@echo "Undo with: git config --unset core.hooksPath"
 
 verify:  ## Re-derive the committed sample and its splits from seed 42 (seconds)
 	cd $(ML) && $(PY) verify.py --scope sample

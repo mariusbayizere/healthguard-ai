@@ -1,0 +1,14 @@
+#!/bin/sh
+# Run the test suite in a throwaway clone of HEAD before allowing a push.
+#
+# Two of the three test failures on the day this was written passed locally and
+# failed in CI, both because a test read data that exists on the developer's
+# machine but is git-ignored: generated CSVs in one case, the working directory
+# in the other. A suite that only runs against a dirty tree cannot catch that
+# class of bug, so this runs it against what a fresh clone would actually see.
+#
+# Bypass for an emergency push with:  git push --no-verify
+set -e
+root=$(git rev-parse --show-toplevel)
+echo "pre-push: running the suite in a clean clone of HEAD..."
+make -C "$root" test-clean
