@@ -21,6 +21,9 @@ install-dev:  ## Install test dependencies
 	$(PY) -m pip install -r $(ML)/requirements-dev.txt
 
 test:  ## Run the test suite
+	@$(PY) -c "import pytest" 2>/dev/null || { \
+		echo "pytest is not installed. Run 'make install-dev' first."; \
+		echo "(note: 'make verify' needs no dependencies at all)"; exit 1; }
 	cd $(ML) && $(PY) -m pytest -q
 
 verify:  ## Re-derive the committed sample and its splits from seed 42 (seconds)
