@@ -231,3 +231,139 @@ D045,draft,kinyarwanda,obstetric,ROUTINE,inama zo konsa umwana,advice on breastf
 D046,draft,swahili,obstetric,ROUTINE,ushauri wa kunyonyesha mtoto,advice on breastfeeding after delivery,Claude (unverified),low,,,,,,
 D047,draft,english,obstetric,ROUTINE,advice about breastfeeding my baby,advice on breastfeeding after delivery,Claude (unverified),medium,,,,,,
 D048,draft,french,obstetric,ROUTINE,des conseils pour allaiter mon bebe,advice on breastfeeding after delivery,Claude (unverified),medium,,,,,,
+D049,draft,english,cardiac_respiratory,CRITICAL,a crushing pain in my chest that spreads to my jaw,[CR01] crushing central chest pain spreading to jaw or arm,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D050,draft,french,cardiac_respiratory,CRITICAL,une douleur ecrasante dans la poitrine qui monte vers la machoire,[CR01] crushing central chest pain spreading to jaw or arm,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D051,draft,english,cardiac_respiratory,CRITICAL,so breathless I cannot finish a sentence,[CR02] too breathless to complete a sentence,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D052,draft,french,cardiac_respiratory,CRITICAL,essouffle au point de ne pas finir une phrase,[CR02] too breathless to complete a sentence,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D053,draft,english,cardiac_respiratory,CRITICAL,my lips and fingertips have turned blue,[CR03] central cyanosis - blue lips or fingertips,Claude (unverified),medium,,,,,,"IMCI: IMCI: central cyanosis, severe respiratory distress"
+D054,draft,french,cardiac_respiratory,CRITICAL,mes levres et le bout des doigts sont devenus bleus,[CR03] central cyanosis - blue lips or fingertips,Claude (unverified),medium,,,,,,"IMCI: IMCI: central cyanosis, severe respiratory distress"
+D055,draft,english,cardiac_respiratory,URGENT,breathing fast with the lower chest pulling in,[CR04] fast breathing with lower chest wall indrawing,Claude (unverified),medium,,,,,,IMCI: IMCI: chest indrawing -> SEVERE PNEUMONIA
+D056,draft,french,cardiac_respiratory,URGENT,une respiration rapide avec le bas du thorax qui se creuse,[CR04] fast breathing with lower chest wall indrawing,Claude (unverified),medium,,,,,,IMCI: IMCI: chest indrawing -> SEVERE PNEUMONIA
+D057,draft,english,cardiac_respiratory,URGENT,wheezing and a tight chest,[CR05] wheeze with chest tightness,Claude (unverified),medium,,,,,,IMCI: IMCI: wheeze (assess for asthma)
+D058,draft,french,cardiac_respiratory,URGENT,une respiration sifflante et la poitrine serree,[CR05] wheeze with chest tightness,Claude (unverified),medium,,,,,,IMCI: IMCI: wheeze (assess for asthma)
+D059,draft,english,cardiac_respiratory,URGENT,coughing for more than two weeks and losing weight,[CR06] cough over two weeks with weight loss,Claude (unverified),medium,,,,,,"IMCI: not IMCI (TB screening, adult)"
+D060,draft,french,cardiac_respiratory,URGENT,une toux depuis plus de deux semaines avec une perte de poids,[CR06] cough over two weeks with weight loss,Claude (unverified),medium,,,,,,"IMCI: not IMCI (TB screening, adult)"
+D061,draft,english,cardiac_respiratory,ROUTINE,a mild cough for a few days without fever,"[CR07] short mild cough, no fever",Claude (unverified),medium,,,,,,"IMCI: IMCI: cough, no pneumonia (green)"
+D062,draft,french,cardiac_respiratory,ROUTINE,une toux legere depuis quelques jours sans fievre,"[CR07] short mild cough, no fever",Claude (unverified),medium,,,,,,"IMCI: IMCI: cough, no pneumonia (green)"
+D063,draft,english,infectious_fever,CRITICAL,a fever and my neck is stiff,[IF01] fever with stiff neck,Claude (unverified),medium,,,,,,IMCI: IMCI: stiff neck -> VERY SEVERE FEBRILE DISEASE
+D064,draft,french,infectious_fever,CRITICAL,de la fievre et la nuque raide,[IF01] fever with stiff neck,Claude (unverified),medium,,,,,,IMCI: IMCI: stiff neck -> VERY SEVERE FEBRILE DISEASE
+D065,draft,english,infectious_fever,CRITICAL,a high fever and then a fit,[IF02] fever with convulsions,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsions
+D066,draft,french,infectious_fever,CRITICAL,une forte fievre puis des convulsions,[IF02] fever with convulsions,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsions
+D067,draft,english,infectious_fever,CRITICAL,feverish and unable to drink anything,[IF03] fever and unable to drink,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: not able to drink or breastfeed
+D068,draft,french,infectious_fever,CRITICAL,de la fievre et incapable de boire quoi que ce soit,[IF03] fever and unable to drink,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: not able to drink or breastfeed
+D069,draft,english,infectious_fever,URGENT,fever with shivering and sweating for three days,[IF04] fever with chills and sweats for days,Claude (unverified),medium,,,,,,"IMCI: IMCI: fever, malaria risk"
+D070,draft,french,infectious_fever,URGENT,de la fievre avec des frissons et des sueurs depuis trois jours,[IF04] fever with chills and sweats for days,Claude (unverified),medium,,,,,,"IMCI: IMCI: fever, malaria risk"
+D071,draft,english,infectious_fever,URGENT,a fever and a rash all over the body,[IF05] fever with generalised rash,Claude (unverified),medium,,,,,,IMCI: IMCI: generalised rash -> MEASLES
+D072,draft,french,infectious_fever,URGENT,de la fievre et une eruption sur tout le corps,[IF05] fever with generalised rash,Claude (unverified),medium,,,,,,IMCI: IMCI: generalised rash -> MEASLES
+D073,draft,english,infectious_fever,URGENT,a fever and it burns when I pass urine,[IF06] fever with pain passing urine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D074,draft,french,infectious_fever,URGENT,de la fievre et des brulures en urinant,[IF06] fever with pain passing urine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D075,draft,english,infectious_fever,ROUTINE,a slight fever since yesterday but otherwise well,"[IF07] low fever one day, otherwise well",Claude (unverified),medium,,,,,,"IMCI: IMCI: fever, no danger sign (green)"
+D076,draft,french,infectious_fever,ROUTINE,un peu de fievre depuis hier mais sinon ca va,"[IF07] low fever one day, otherwise well",Claude (unverified),medium,,,,,,"IMCI: IMCI: fever, no danger sign (green)"
+D077,draft,english,gastrointestinal,CRITICAL,"vomiting everything, I cannot keep water down","[GI01] vomiting everything, cannot keep fluids down",Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: vomits everything
+D078,draft,french,gastrointestinal,CRITICAL,"je vomis tout, je ne garde meme pas l'eau","[GI01] vomiting everything, cannot keep fluids down",Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: vomits everything
+D079,draft,english,gastrointestinal,CRITICAL,vomiting blood,[GI02] vomiting blood,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D080,draft,french,gastrointestinal,CRITICAL,je vomis du sang,[GI02] vomiting blood,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D081,draft,english,gastrointestinal,CRITICAL,my stool is black like tar,[GI03] black tarry stool,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D082,draft,french,gastrointestinal,CRITICAL,mes selles sont noires comme du goudron,[GI03] black tarry stool,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D083,draft,english,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and the skin stays pinched,[GI04] watery diarrhoea with sunken eyes and very slow skin pinch,Claude (unverified),medium,,,,,,IMCI: IMCI: SEVERE DEHYDRATION
+D084,draft,french,gastrointestinal,CRITICAL,une diarrhee liquide avec les yeux enfonces et la peau qui reste plissee,[GI04] watery diarrhoea with sunken eyes and very slow skin pinch,Claude (unverified),medium,,,,,,IMCI: IMCI: SEVERE DEHYDRATION
+D085,draft,english,gastrointestinal,URGENT,blood in my stool,[GI05] blood in the stool,Claude (unverified),medium,,,,,,IMCI: IMCI: blood in stool -> DYSENTERY
+D086,draft,french,gastrointestinal,URGENT,du sang dans les selles,[GI05] blood in the stool,Claude (unverified),medium,,,,,,IMCI: IMCI: blood in stool -> DYSENTERY
+D087,draft,english,gastrointestinal,URGENT,diarrhoea for more than two weeks,[GI06] diarrhoea lasting more than fourteen days,Claude (unverified),medium,,,,,,IMCI: IMCI: PERSISTENT DIARRHOEA
+D088,draft,french,gastrointestinal,URGENT,une diarrhee depuis plus de deux semaines,[GI06] diarrhoea lasting more than fourteen days,Claude (unverified),medium,,,,,,IMCI: IMCI: PERSISTENT DIARRHOEA
+D089,draft,english,gastrointestinal,URGENT,severe stomach pain that will not settle,[GI07] severe abdominal pain that will not settle,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D090,draft,french,gastrointestinal,URGENT,une douleur au ventre tres forte qui ne passe pas,[GI07] severe abdominal pain that will not settle,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D091,draft,english,gastrointestinal,ROUTINE,a mild stomach upset after eating,[GI08] mild indigestion after eating,Claude (unverified),medium,,,,,,IMCI: not IMCI (minor complaint)
+D092,draft,french,gastrointestinal,ROUTINE,un petit mal de ventre apres avoir mange,[GI08] mild indigestion after eating,Claude (unverified),medium,,,,,,IMCI: not IMCI (minor complaint)
+D093,draft,english,haemorrhage_trauma,CRITICAL,bleeding that will not stop even with pressure,[HT01] bleeding not controlled by pressure,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D094,draft,french,haemorrhage_trauma,CRITICAL,un saignement qui ne s'arrete pas malgre la pression,[HT01] bleeding not controlled by pressure,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D095,draft,english,haemorrhage_trauma,CRITICAL,a deep wound and I can see the bone,[HT02] deep wound with bone visible,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D096,draft,french,haemorrhage_trauma,CRITICAL,une plaie profonde ou l'os est visible,[HT02] deep wound with bone visible,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D097,draft,english,haemorrhage_trauma,CRITICAL,hit my head and now I am vomiting and confused,[HT03] head injury with vomiting and confusion,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D098,draft,french,haemorrhage_trauma,CRITICAL,un coup a la tete puis des vomissements et de la confusion,[HT03] head injury with vomiting and confusion,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D099,draft,english,haemorrhage_trauma,CRITICAL,a burn covering a large part of the body,[HT04] large burn,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D100,draft,french,haemorrhage_trauma,CRITICAL,une brulure sur une grande partie du corps,[HT04] large burn,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D101,draft,english,haemorrhage_trauma,URGENT,my arm is bent out of shape after a fall,[HT05] limb deformed after a fall,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D102,draft,french,haemorrhage_trauma,URGENT,le bras est deforme apres une chute,[HT05] limb deformed after a fall,Claude (unverified),medium,,,,,,IMCI: not IMCI (trauma)
+D103,draft,english,haemorrhage_trauma,URGENT,"a wound that is red, swollen and leaking pus","[HT06] wound red, swollen and discharging pus",Claude (unverified),medium,,,,,,IMCI: not IMCI (adult wound infection)
+D104,draft,french,haemorrhage_trauma,URGENT,"une plaie rouge, enflee et qui coule du pus","[HT06] wound red, swollen and discharging pus",Claude (unverified),medium,,,,,,IMCI: not IMCI (adult wound infection)
+D105,draft,english,haemorrhage_trauma,URGENT,bitten by a snake,[HT07] snake bite,Claude (unverified),medium,,,,,,IMCI: not IMCI (envenomation)
+D106,draft,french,haemorrhage_trauma,URGENT,mordu par un serpent,[HT07] snake bite,Claude (unverified),medium,,,,,,IMCI: not IMCI (envenomation)
+D107,draft,english,haemorrhage_trauma,ROUTINE,a small cut that has stopped bleeding,"[HT08] small cut, bleeding stopped",Claude (unverified),medium,,,,,,IMCI: not IMCI (minor injury)
+D108,draft,french,haemorrhage_trauma,ROUTINE,une petite coupure qui ne saigne plus,"[HT08] small cut, bleeding stopped",Claude (unverified),medium,,,,,,IMCI: not IMCI (minor injury)
+D109,draft,english,neurological,CRITICAL,a fit that will not stop,[NE01] continuous convulsion,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsing now
+D110,draft,french,neurological,CRITICAL,une crise qui ne s'arrete pas,[NE01] continuous convulsion,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsing now
+D111,draft,english,neurological,CRITICAL,unconscious and cannot be woken,"[NE02] unconscious, cannot be roused",Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: lethargic or unconscious
+D112,draft,french,neurological,CRITICAL,inconscient et impossible a reveiller,"[NE02] unconscious, cannot be roused",Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: lethargic or unconscious
+D113,draft,english,neurological,CRITICAL,sudden weakness down one side of the body,[NE03] sudden one-sided weakness,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult stroke)
+D114,draft,french,neurological,CRITICAL,une faiblesse soudaine d'un cote du corps,[NE03] sudden one-sided weakness,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult stroke)
+D115,draft,english,neurological,CRITICAL,suddenly unable to speak properly,[NE04] sudden difficulty speaking,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult stroke)
+D116,draft,french,neurological,CRITICAL,une difficulte soudaine a parler,[NE04] sudden difficulty speaking,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult stroke)
+D117,draft,english,neurological,URGENT,a severe headache with vomiting and the light hurts my eyes,[NE05] severe headache with vomiting and photophobia,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D118,draft,french,neurological,URGENT,un mal de tete violent avec vomissements et la lumiere qui fait mal,[NE05] severe headache with vomiting and photophobia,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D119,draft,english,neurological,URGENT,"confused since this morning, not making sense",[NE06] new confusion today,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D120,draft,french,neurological,URGENT,"confus depuis ce matin, des propos incoherents",[NE06] new confusion today,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D121,draft,english,neurological,URGENT,fainting again and again,[NE07] repeated fainting,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D122,draft,french,neurological,URGENT,des evanouissements a repetition,[NE07] repeated fainting,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult presentation)
+D123,draft,english,neurological,ROUTINE,a mild headache that comes and goes,[NE08] intermittent mild headache,Claude (unverified),medium,,,,,,IMCI: not IMCI (minor complaint)
+D124,draft,french,neurological,ROUTINE,un mal de tete leger qui va et vient,[NE08] intermittent mild headache,Claude (unverified),medium,,,,,,IMCI: not IMCI (minor complaint)
+D125,draft,english,chronic_care,CRITICAL,"diabetic, vomiting, breathing deeply and very drowsy","[CC01] diabetic with vomiting, deep breathing and drowsiness",Claude (unverified),medium,,,,,,IMCI: not IMCI (adult DKA)
+D126,draft,french,chronic_care,CRITICAL,"diabetique, je vomis, je respire profondement et je suis tres somnolent","[CC01] diabetic with vomiting, deep breathing and drowsiness",Claude (unverified),medium,,,,,,IMCI: not IMCI (adult DKA)
+D127,draft,english,chronic_care,CRITICAL,"shaking, sweating and confused, my sugar is low",[CC02] hypoglycaemia with sweating and confusion,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D128,draft,french,chronic_care,CRITICAL,"tremblements, sueurs et confusion, mon sucre est bas",[CC02] hypoglycaemia with sweating and confusion,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D129,draft,english,chronic_care,URGENT,my blood pressure is very high and my head aches,[CC03] very high blood pressure with headache,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D130,draft,french,chronic_care,URGENT,ma tension est tres elevee et j'ai mal a la tete,[CC03] very high blood pressure with headache,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D131,draft,english,chronic_care,URGENT,my legs are swollen and I cannot breathe lying down,[CC04] swollen legs and breathless lying flat,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult heart failure)
+D132,draft,french,chronic_care,URGENT,les jambes enflees et je ne peux pas respirer allonge,[CC04] swollen legs and breathless lying flat,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult heart failure)
+D133,draft,english,chronic_care,URGENT,"a sore on my foot that will not heal, I am diabetic",[CC05] diabetic foot ulcer not healing,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D134,draft,french,chronic_care,URGENT,"une plaie au pied qui ne guerit pas, je suis diabetique",[CC05] diabetic foot ulcer not healing,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult)
+D135,draft,english,chronic_care,URGENT,I finished my HIV medicine several days ago,[CC06] ran out of antiretroviral medicine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult ART adherence)
+D136,draft,french,chronic_care,URGENT,j'ai fini mes medicaments contre le VIH il y a plusieurs jours,[CC06] ran out of antiretroviral medicine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult ART adherence)
+D137,draft,english,chronic_care,URGENT,I have run out of my TB tablets,[CC07] ran out of TB medicine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult TB adherence)
+D138,draft,french,chronic_care,URGENT,je n'ai plus mes comprimes contre la tuberculose,[CC07] ran out of TB medicine,Claude (unverified),medium,,,,,,IMCI: not IMCI (adult TB adherence)
+D139,draft,english,chronic_care,ROUTINE,I need a refill of my blood pressure tablets,[CC08] blood pressure medicine refill,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D140,draft,french,chronic_care,ROUTINE,j'ai besoin de renouveler mes comprimes pour la tension,[CC08] blood pressure medicine refill,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D141,draft,english,chronic_care,ROUTINE,my routine diabetes check-up,[CC09] routine diabetes review,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D142,draft,french,chronic_care,ROUTINE,mon controle habituel du diabete,[CC09] routine diabetes review,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D143,draft,english,chronic_care,ROUTINE,my routine visit at the HIV clinic,[CC10] routine HIV clinic follow-up,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D144,draft,french,chronic_care,ROUTINE,ma visite de routine a la clinique VIH,[CC10] routine HIV clinic follow-up,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D145,draft,english,paediatric,CRITICAL,my child is having a fit,[PA01] child convulsing,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsions
+D146,draft,french,paediatric,CRITICAL,mon enfant fait une crise convulsive,[PA01] child convulsing,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: convulsions
+D147,draft,english,paediatric,CRITICAL,my baby is too weak to breastfeed,[PA02] child too weak to breastfeed,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: not able to drink or breastfeed
+D148,draft,french,paediatric,CRITICAL,mon bebe est trop faible pour teter,[PA02] child too weak to breastfeed,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: not able to drink or breastfeed
+D149,draft,english,paediatric,CRITICAL,my child is floppy and will not wake,[PA03] child unconscious or floppy,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: lethargic or unconscious
+D150,draft,french,paediatric,CRITICAL,mon enfant est mou et ne se reveille pas,[PA03] child unconscious or floppy,Claude (unverified),medium,,,,,,IMCI: IMCI general danger sign: lethargic or unconscious
+D151,draft,english,paediatric,CRITICAL,my child breathes fast and the chest pulls in,[PA04] child breathing fast with chest indrawing,Claude (unverified),medium,,,,,,IMCI: IMCI: chest indrawing -> SEVERE PNEUMONIA
+D152,draft,french,paediatric,CRITICAL,mon enfant respire vite et le thorax se creuse,[PA04] child breathing fast with chest indrawing,Claude (unverified),medium,,,,,,IMCI: IMCI: chest indrawing -> SEVERE PNEUMONIA
+D153,draft,english,paediatric,URGENT,my child has diarrhoea and the eyes look sunken,[PA05] child with diarrhoea and sunken eyes,Claude (unverified),medium,,,,,,IMCI: IMCI: SOME/SEVERE DEHYDRATION
+D154,draft,french,paediatric,URGENT,mon enfant a la diarrhee et les yeux enfonces,[PA05] child with diarrhoea and sunken eyes,Claude (unverified),medium,,,,,,IMCI: IMCI: SOME/SEVERE DEHYDRATION
+D155,draft,english,paediatric,URGENT,my child has a fever and spots all over,[PA06] child with fever and rash,Claude (unverified),medium,,,,,,IMCI: IMCI: MEASLES
+D156,draft,french,paediatric,URGENT,mon enfant a de la fievre et des boutons partout,[PA06] child with fever and rash,Claude (unverified),medium,,,,,,IMCI: IMCI: MEASLES
+D157,draft,english,paediatric,URGENT,my child is very thin and not gaining weight,"[PA07] child very thin, not gaining weight",Claude (unverified),medium,,,,,,IMCI: IMCI: ACUTE MALNUTRITION (MUAC/oedema)
+D158,draft,french,paediatric,URGENT,mon enfant est tres maigre et ne prend pas de poids,"[PA07] child very thin, not gaining weight",Claude (unverified),medium,,,,,,IMCI: IMCI: ACUTE MALNUTRITION (MUAC/oedema)
+D159,draft,english,paediatric,URGENT,my child's ear hurts and is draining,[PA08] child with ear pain and discharge,Claude (unverified),medium,,,,,,IMCI: IMCI: ACUTE EAR INFECTION
+D160,draft,french,paediatric,URGENT,l'oreille de mon enfant fait mal et coule,[PA08] child with ear pain and discharge,Claude (unverified),medium,,,,,,IMCI: IMCI: ACUTE EAR INFECTION
+D161,draft,english,paediatric,ROUTINE,bringing my child for growth monitoring,[PA09] child growth monitoring visit,Claude (unverified),medium,,,,,,IMCI: IMCI: care of the well child
+D162,draft,french,paediatric,ROUTINE,j'amene mon enfant pour le suivi de la croissance,[PA09] child growth monitoring visit,Claude (unverified),medium,,,,,,IMCI: IMCI: care of the well child
+D163,draft,english,paediatric,ROUTINE,my child is due for vaccination,[PA10] child due for vaccination,Claude (unverified),medium,,,,,,IMCI: IMCI: immunisation schedule
+D164,draft,french,paediatric,ROUTINE,mon enfant doit recevoir ses vaccins,[PA10] child due for vaccination,Claude (unverified),medium,,,,,,IMCI: IMCI: immunisation schedule
+D165,draft,english,preventive,URGENT,someone at home has TB and I want to be checked,[PR01] household contact of a TB patient,Claude (unverified),medium,,,,,,IMCI: not IMCI (contact tracing)
+D166,draft,french,preventive,URGENT,quelqu'un a la maison a la tuberculose et je veux etre depiste,[PR01] household contact of a TB patient,Claude (unverified),medium,,,,,,IMCI: not IMCI (contact tracing)
+D167,draft,english,preventive,ROUTINE,advice about family planning,[PR02] family planning advice,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D168,draft,french,preventive,ROUTINE,des conseils sur la planification familiale,[PR02] family planning advice,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D169,draft,english,preventive,ROUTINE,I would like an HIV test,[PR03] HIV test request,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D170,draft,french,preventive,ROUTINE,je voudrais faire un test de depistage du VIH,[PR03] HIV test request,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D171,draft,english,preventive,ROUTINE,I came to collect a mosquito net,[PR04] collecting a mosquito net,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D172,draft,french,preventive,ROUTINE,je viens chercher une moustiquaire,[PR04] collecting a mosquito net,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D173,draft,english,preventive,ROUTINE,my first antenatal visit,[PR05] first antenatal booking visit,Claude (unverified),medium,,,,,,"IMCI: not IMCI (routine, maternal)"
+D174,draft,french,preventive,ROUTINE,ma premiere consultation prenatale,[PR05] first antenatal booking visit,Claude (unverified),medium,,,,,,"IMCI: not IMCI (routine, maternal)"
+D175,draft,english,preventive,ROUTINE,I want my blood pressure checked,[PR06] blood pressure screening,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D176,draft,french,preventive,ROUTINE,je veux faire verifier ma tension,[PR06] blood pressure screening,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D177,draft,english,preventive,ROUTINE,an appointment for cervical screening,[PR07] cervical screening appointment,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D178,draft,french,preventive,ROUTINE,un rendez-vous pour le depistage du col de l'uterus,[PR07] cervical screening appointment,Claude (unverified),medium,,,,,,IMCI: not IMCI (routine)
+D179,draft,english,preventive,ROUTINE,advice on what to feed my young child,[PR08] infant feeding advice,Claude (unverified),medium,,,,,,IMCI: IMCI: assess feeding / counselling
+D180,draft,french,preventive,ROUTINE,des conseils sur l'alimentation de mon jeune enfant,[PR08] infant feeding advice,Claude (unverified),medium,,,,,,IMCI: IMCI: assess feeding / counselling
+D181,draft,english,preventive,ROUTINE,deworming tablets for my child,[PR09] deworming for a child,Claude (unverified),medium,,,,,,IMCI: IMCI: routine deworming
+D182,draft,french,preventive,ROUTINE,un vermifuge pour mon enfant,[PR09] deworming for a child,Claude (unverified),medium,,,,,,IMCI: IMCI: routine deworming
+D183,draft,english,preventive,ROUTINE,advice about making our drinking water safe,[PR10] advice on safe drinking water,Claude (unverified),medium,,,,,,IMCI: not IMCI (health promotion)
+D184,draft,french,preventive,ROUTINE,des conseils pour rendre l'eau de boisson potable,[PR10] advice on safe drinking water,Claude (unverified),medium,,,,,,IMCI: not IMCI (health promotion)
