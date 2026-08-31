@@ -70,3 +70,7 @@ kinyamed/ml_model/dataset/processed/.split_*_state/
 
 # The sample stats are derived from the sample; the manifest is the evidence.
 kinyamed/ml_model/dataset/sample/*.stats.json
+
+# Private working notes — never publish under the repo owner's name.
+kinyamed/ml_model/paper/CORRECTIONS.md
+**/CORRECTIONS.md
