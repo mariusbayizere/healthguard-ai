@@ -19,7 +19,25 @@ build/
 *.bin
 *.pt
 *.pth
+*.safetensors
+*.onnx
 model_weights/
+saved_model/
+saved_model_holdout/
+
+# Training artefacts — regenerate by training; never evidence
+checkpoints/
+runs/
+wandb/
+kinyamed/ml_model/training/last_run.json
+
+# Crash debris and backups. A *.partial is a half-written file that a
+# crash left behind; it must never reach a commit, where its size alone
+# would make it look like a valid output.
+*.partial
+*.orig
+*.bak
+*~
 
 # Logs
 *.log
@@ -31,3 +49,24 @@ Thumbs.db
 
 # Node
 node_modules/
+
+# Generated datasets — regenerate with `make dataset` (seed 42).
+# Every CSV under raw/ and processed/ is derived, so none is committed; what
+# IS committed is the manifest that pins their SHA-256 digests, which is the
+# verifiable artefact. The committed sample under dataset/sample/ is the
+# exception, deliberately kept so the pipeline runs from a clean clone.
+kinyamed/ml_model/dataset/raw/*.csv
+kinyamed/ml_model/dataset/processed/*.csv
+kinyamed/ml_model/dataset/raw/*.stats.json
+kinyamed/ml_model/dataset/raw/*.validation.json
+kinyamed/ml_model/dataset/raw/*.neardup.json
+kinyamed/ml_model/dataset/generation.log
+
+# Resumable split state — rebuildable, and large (per-row phrase ids)
+kinyamed/ml_model/dataset/processed/.split_*_state/
+
+# The sample is evidence, not derived output: keep it.
+!kinyamed/ml_model/dataset/sample/*.csv
+
+# The sample stats are derived from the sample; the manifest is the evidence.
+kinyamed/ml_model/dataset/sample/*.stats.json
