@@ -1,3 +1,24 @@
-from app.services.triage_service import run_triage
-from app.services.queue_service  import get_full_queue
-from app.services.sms_service    import send_sms
+"""Business-logic layer.
+
+Services own business rules and transaction boundaries; repositories own
+queries; routes own HTTP. Import the modules rather than individual functions so
+that services can refer to each other without circular imports.
+"""
+
+from app.services import (
+    analytics_service,
+    doctor_service,
+    patient_service,
+    queue_service,
+    sms_service,
+    triage_service,
+)
+
+__all__ = [
+    "analytics_service",
+    "doctor_service",
+    "patient_service",
+    "queue_service",
+    "sms_service",
+    "triage_service",
+]

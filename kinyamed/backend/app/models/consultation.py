@@ -1,18 +1,43 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
-from sqlalchemy.orm import relationship
-from app.core.database import Base
-from datetime import datetime
+"""Clinician notes recorded against a queue entry."""
 
-class Consultation(Base):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import TimestampedModel
+
+if TYPE_CHECKING:
+    from app.models.doctor import Doctor
+    from app.models.queue import Queue
+
+
+class Consultation(TimestampedModel):
     __tablename__ = "consultations"
 
-    id             = Column(Integer, primary_key=True, index=True)
-    queue_entry_id = Column(Integer, ForeignKey("queue.id"),    nullable=False)
-    doctor_id      = Column(Integer, ForeignKey("doctors.id"),  nullable=False)
-    notes          = Column(Text)
-    diagnosis      = Column(Text)
-    outcome        = Column(String(100))
-    created_at     = Column(DateTime, default=datetime.utcnow)
+    queue_entry_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("queue.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,  # one consultation per queue entry
+        index=True,
+    )
+    # Clinical authorship must survive: Postgres refuses to delete a doctor who
+    # has consultations on record.
+    doctor_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("doctors.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+    notes: Mapped[str | None] = mapped_column(Text)
+    diagnosis: Mapped[str | None] = mapped_column(Text)
+    outcome: Mapped[str | None] = mapped_column(String(100), index=True)
 
-    queue_entry = relationship("Queue",  back_populates="consultation")
-    doctor      = relationship("Doctor", back_populates="consultations")
+    queue_entry: Mapped["Queue"] = relationship(back_populates="consultation")
+    doctor: Mapped["Doctor"] = relationship(back_populates="consultations")
+
+    def __repr__(self) -> str:
+        return f"<Consultation id={self.id} queue_entry_id={self.queue_entry_id}>"

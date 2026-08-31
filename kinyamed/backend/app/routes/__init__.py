@@ -1,5 +1,5 @@
-from app.routes.patient   import router as patient_router
-from app.routes.triage    import router as triage_router
-from app.routes.queue     import router as queue_router
-from app.routes.doctor    import router as doctor_router
-from app.routes.analytics import router as analytics_router
+"""HTTP layer."""
+
+from app.routes.v1 import api_router, health_router
+
+__all__ = ["api_router", "health_router"]
