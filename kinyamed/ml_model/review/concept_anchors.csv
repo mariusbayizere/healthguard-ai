@@ -1,69 +1,81 @@
 concept_id,domain,urgency,english_gloss,anchor,source
-CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,BEC Module 3: approach to difficulty in breathing (chest pain differential),WHO-ICRC BEC 2018
-CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,BEC Module 3: approach to difficulty in breathing,WHO-ICRC BEC 2018
-CR03,cardiac_respiratory,CRITICAL,central cyanosis - blue lips or fingertips,"IMCI: central cyanosis, severe respiratory distress",WHO IMCI 2014
-CR04,cardiac_respiratory,URGENT,fast breathing with lower chest wall indrawing,IMCI: chest indrawing -> SEVERE PNEUMONIA,WHO IMCI 2014
-CR05,cardiac_respiratory,URGENT,wheeze with chest tightness,IMCI: wheeze (assess for asthma),WHO IMCI 2014
-CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,clinician-defined (no WHO emergency-care anchor),none
-CR07,cardiac_respiratory,ROUTINE,"short mild cough, no fever","IMCI: cough, no pneumonia (green)",WHO IMCI 2014
-IF01,infectious_fever,CRITICAL,fever with stiff neck,IMCI: stiff neck -> VERY SEVERE FEBRILE DISEASE,WHO IMCI 2014
-IF02,infectious_fever,CRITICAL,fever with convulsions,IMCI general danger sign: convulsions,WHO IMCI 2014
-IF03,infectious_fever,CRITICAL,fever and unable to drink,IMCI general danger sign: not able to drink or breastfeed,WHO IMCI 2014
-IF04,infectious_fever,URGENT,fever with chills and sweats for days,"IMCI: fever, malaria risk",WHO IMCI 2014
-IF05,infectious_fever,URGENT,fever with generalised rash,IMCI: generalised rash -> MEASLES,WHO IMCI 2014
-IF06,infectious_fever,URGENT,fever with pain passing urine,clinician-defined (no WHO emergency-care anchor),none
-IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well","IMCI: fever, no danger sign (green)",WHO IMCI 2014
-GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",IMCI general danger sign: vomits everything,WHO IMCI 2014
-GI02,gastrointestinal,CRITICAL,vomiting blood,BEC Module 4: approach to shock (haemorrhage),WHO-ICRC BEC 2018
-GI03,gastrointestinal,CRITICAL,black tarry stool,BEC Module 4: approach to shock (occult GI bleeding),WHO-ICRC BEC 2018
-GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow skin pinch,IMCI: SEVERE DEHYDRATION,WHO IMCI 2014
-GI05,gastrointestinal,URGENT,blood in the stool,IMCI: blood in stool -> DYSENTERY,WHO IMCI 2014
-GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,IMCI: PERSISTENT DIARRHOEA,WHO IMCI 2014
-GI07,gastrointestinal,URGENT,severe abdominal pain that will not settle,clinician-defined (no WHO emergency-care anchor),none
-GI08,gastrointestinal,ROUTINE,mild indigestion after eating,clinician-defined (no WHO emergency-care anchor),none
-HT01,haemorrhage_trauma,CRITICAL,bleeding not controlled by pressure,BEC Module 2: approach to trauma / Module 4: shock,WHO-ICRC BEC 2018
-HT02,haemorrhage_trauma,CRITICAL,deep wound with bone visible,BEC Module 2: approach to trauma,WHO-ICRC BEC 2018
-HT03,haemorrhage_trauma,CRITICAL,head injury with vomiting and confusion,BEC Module 2: trauma + Module 5: altered mental status,WHO-ICRC BEC 2018
-HT04,haemorrhage_trauma,CRITICAL,large burn,BEC Module 2: approach to trauma (burns),WHO-ICRC BEC 2018
-HT05,haemorrhage_trauma,URGENT,limb deformed after a fall,BEC Module 2: approach to trauma,WHO-ICRC BEC 2018
-HT06,haemorrhage_trauma,URGENT,"wound red, swollen and discharging pus",clinician-defined (no WHO emergency-care anchor),none
-HT07,haemorrhage_trauma,URGENT,snake bite,BEC Module 2: trauma (snake bite),WHO-ICRC BEC 2018
-HT08,haemorrhage_trauma,ROUTINE,"small cut, bleeding stopped",clinician-defined (no WHO emergency-care anchor),none
-NE01,neurological,CRITICAL,continuous convulsion,IMCI general danger sign: convulsing now,WHO IMCI 2014
-NE02,neurological,CRITICAL,"unconscious, cannot be roused",IMCI general danger sign: lethargic or unconscious,WHO IMCI 2014
-NE03,neurological,CRITICAL,sudden one-sided weakness,BEC Module 5: altered mental status (stroke),WHO-ICRC BEC 2018
-NE04,neurological,CRITICAL,sudden difficulty speaking,BEC Module 5: altered mental status (stroke),WHO-ICRC BEC 2018
-NE05,neurological,URGENT,severe headache with vomiting and photophobia,BEC Module 5: altered mental status (meningitis differential),WHO-ICRC BEC 2018
-NE06,neurological,URGENT,new confusion today,BEC Module 5: altered mental status,WHO-ICRC BEC 2018
-NE07,neurological,URGENT,repeated fainting,BEC Module 4: shock / Module 5: altered mental status,WHO-ICRC BEC 2018
-NE08,neurological,ROUTINE,intermittent mild headache,clinician-defined (no WHO emergency-care anchor),none
-CC01,chronic_care,CRITICAL,"diabetic with vomiting, deep breathing and drowsiness",BEC Module 5: altered mental status (diabetic emergency),WHO-ICRC BEC 2018
-CC02,chronic_care,CRITICAL,hypoglycaemia with sweating and confusion,BEC Module 5: altered mental status (hypoglycaemia),WHO-ICRC BEC 2018
-CC03,chronic_care,URGENT,very high blood pressure with headache,clinician-defined (no WHO emergency-care anchor),none
-CC04,chronic_care,URGENT,swollen legs and breathless lying flat,BEC Module 3: approach to difficulty in breathing,WHO-ICRC BEC 2018
-CC05,chronic_care,URGENT,diabetic foot ulcer not healing,clinician-defined (no WHO emergency-care anchor),none
-CC06,chronic_care,URGENT,ran out of antiretroviral medicine,clinician-defined (no WHO emergency-care anchor),none
-CC07,chronic_care,URGENT,ran out of TB medicine,clinician-defined (no WHO emergency-care anchor),none
-CC08,chronic_care,ROUTINE,blood pressure medicine refill,clinician-defined (no WHO emergency-care anchor),none
-CC09,chronic_care,ROUTINE,routine diabetes review,clinician-defined (no WHO emergency-care anchor),none
-CC10,chronic_care,ROUTINE,routine HIV clinic follow-up,clinician-defined (no WHO emergency-care anchor),none
-PA01,paediatric,CRITICAL,child convulsing,IMCI general danger sign: convulsions,WHO IMCI 2014
-PA02,paediatric,CRITICAL,child too weak to breastfeed,IMCI general danger sign: not able to drink or breastfeed,WHO IMCI 2014
-PA03,paediatric,CRITICAL,child unconscious or floppy,IMCI general danger sign: lethargic or unconscious,WHO IMCI 2014
-PA04,paediatric,CRITICAL,child breathing fast with chest indrawing,IMCI: chest indrawing -> SEVERE PNEUMONIA,WHO IMCI 2014
-PA05,paediatric,URGENT,child with diarrhoea and sunken eyes,IMCI: SOME/SEVERE DEHYDRATION,WHO IMCI 2014
-PA06,paediatric,URGENT,child with fever and rash,IMCI: MEASLES,WHO IMCI 2014
-PA07,paediatric,URGENT,"child very thin, not gaining weight",IMCI: ACUTE MALNUTRITION (MUAC/oedema),WHO IMCI 2014
-PA08,paediatric,URGENT,child with ear pain and discharge,IMCI: ACUTE EAR INFECTION,WHO IMCI 2014
-PA09,paediatric,ROUTINE,child growth monitoring visit,IMCI: care of the well child,WHO IMCI 2014
-PA10,paediatric,ROUTINE,child due for vaccination,IMCI: immunisation schedule,WHO IMCI 2014
-PR01,preventive,URGENT,household contact of a TB patient,clinician-defined (no WHO emergency-care anchor),none
-PR02,preventive,ROUTINE,family planning advice,clinician-defined (no WHO emergency-care anchor),none
-PR03,preventive,ROUTINE,HIV test request,clinician-defined (no WHO emergency-care anchor),none
-PR04,preventive,ROUTINE,collecting a mosquito net,clinician-defined (no WHO emergency-care anchor),none
-PR05,preventive,ROUTINE,first antenatal booking visit,clinician-defined (no WHO emergency-care anchor),none
-PR06,preventive,ROUTINE,blood pressure screening,clinician-defined (no WHO emergency-care anchor),none
-PR07,preventive,ROUTINE,cervical screening appointment,clinician-defined (no WHO emergency-care anchor),none
-PR08,preventive,ROUTINE,infant feeding advice,IMCI: assess feeding / counselling,WHO IMCI 2014
-PR09,preventive,ROUTINE,deworming for a child,IMCI: routine deworming,WHO IMCI 2014
-PR10,preventive,ROUTINE,advice on safe drinking water,clinician-defined (no WHO emergency-care anchor),none
+CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,BEC Module 3: approach to difficulty in breathing (chest pain differential),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,BEC Module 3: approach to difficulty in breathing,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+CR03,cardiac_respiratory,CRITICAL,central cyanosis - blue lips or fingertips,"IMCI: central cyanosis, severe respiratory distress",WHO IMCI 2014 (All rights reserved)
+CR04,cardiac_respiratory,URGENT,fast breathing with lower chest wall indrawing,IMCI: chest indrawing -> SEVERE PNEUMONIA,WHO IMCI 2014 (All rights reserved)
+CR05,cardiac_respiratory,URGENT,wheeze with chest tightness,IMCI: wheeze (assess for asthma),WHO IMCI 2014 (All rights reserved)
+CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CR07,cardiac_respiratory,ROUTINE,"short mild cough, no fever","IMCI: cough, no pneumonia (green)",WHO IMCI 2014 (All rights reserved)
+IF01,infectious_fever,CRITICAL,fever with stiff neck,IMCI: stiff neck -> VERY SEVERE FEBRILE DISEASE,WHO IMCI 2014 (All rights reserved)
+IF02,infectious_fever,CRITICAL,fever with convulsions,IMCI general danger sign: convulsions,WHO IMCI 2014 (All rights reserved)
+IF03,infectious_fever,CRITICAL,fever and unable to drink,IMCI general danger sign: not able to drink or breastfeed,WHO IMCI 2014 (All rights reserved)
+IF04,infectious_fever,URGENT,fever with chills and sweats for days,"IMCI: fever, malaria risk",WHO IMCI 2014 (All rights reserved)
+IF05,infectious_fever,URGENT,fever with generalised rash,IMCI: generalised rash -> MEASLES,WHO IMCI 2014 (All rights reserved)
+IF06,infectious_fever,URGENT,fever with pain passing urine,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well","IMCI: fever, no danger sign (green)",WHO IMCI 2014 (All rights reserved)
+GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",IMCI general danger sign: vomits everything,WHO IMCI 2014 (All rights reserved)
+GI02,gastrointestinal,CRITICAL,vomiting blood,BEC Module 4: approach to shock (haemorrhage),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+GI03,gastrointestinal,CRITICAL,black tarry stool,BEC Module 4: approach to shock (occult GI bleeding),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow skin pinch,IMCI: SEVERE DEHYDRATION,WHO IMCI 2014 (All rights reserved)
+GI05,gastrointestinal,URGENT,blood in the stool,IMCI: blood in stool -> DYSENTERY,WHO IMCI 2014 (All rights reserved)
+GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,IMCI: PERSISTENT DIARRHOEA,WHO IMCI 2014 (All rights reserved)
+GI07,gastrointestinal,URGENT,severe abdominal pain that will not settle,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+GI08,gastrointestinal,ROUTINE,mild indigestion after eating,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+HT01,haemorrhage_trauma,CRITICAL,bleeding not controlled by pressure,BEC Module 2: approach to trauma / Module 4: shock,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT02,haemorrhage_trauma,CRITICAL,deep wound with bone visible,BEC Module 2: approach to trauma,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT03,haemorrhage_trauma,CRITICAL,head injury with vomiting and confusion,BEC Module 2: trauma + Module 5: altered mental status,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT04,haemorrhage_trauma,CRITICAL,large burn,BEC Module 2: approach to trauma (burns),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT05,haemorrhage_trauma,URGENT,limb deformed after a fall,BEC Module 2: approach to trauma,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT06,haemorrhage_trauma,URGENT,"wound red, swollen and discharging pus",clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+HT07,haemorrhage_trauma,URGENT,snake bite,BEC Module 2: trauma (snake bite),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+HT08,haemorrhage_trauma,ROUTINE,"small cut, bleeding stopped",clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+NE01,neurological,CRITICAL,continuous convulsion,IMCI general danger sign: convulsing now,WHO IMCI 2014 (All rights reserved)
+NE02,neurological,CRITICAL,"unconscious, cannot be roused",IMCI general danger sign: lethargic or unconscious,WHO IMCI 2014 (All rights reserved)
+NE03,neurological,CRITICAL,sudden one-sided weakness,BEC Module 5: altered mental status (stroke),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+NE04,neurological,CRITICAL,sudden difficulty speaking,BEC Module 5: altered mental status (stroke),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+NE05,neurological,URGENT,severe headache with vomiting and photophobia,BEC Module 5: altered mental status (meningitis differential),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+NE06,neurological,URGENT,new confusion today,BEC Module 5: altered mental status,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+NE07,neurological,URGENT,repeated fainting,BEC Module 4: shock / Module 5: altered mental status,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+NE08,neurological,ROUTINE,intermittent mild headache,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC01,chronic_care,CRITICAL,"diabetic with vomiting, deep breathing and drowsiness",BEC Module 5: altered mental status (diabetic emergency),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+CC02,chronic_care,CRITICAL,hypoglycaemia with sweating and confusion,BEC Module 5: altered mental status (hypoglycaemia),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+CC03,chronic_care,URGENT,very high blood pressure with headache,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC04,chronic_care,URGENT,swollen legs and breathless lying flat,BEC Module 3: approach to difficulty in breathing,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
+CC05,chronic_care,URGENT,diabetic foot ulcer not healing,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC06,chronic_care,URGENT,ran out of antiretroviral medicine,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC07,chronic_care,URGENT,ran out of TB medicine,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC08,chronic_care,ROUTINE,blood pressure medicine refill,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC09,chronic_care,ROUTINE,routine diabetes review,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+CC10,chronic_care,ROUTINE,routine HIV clinic follow-up,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PA01,paediatric,CRITICAL,child convulsing,IMCI general danger sign: convulsions,WHO IMCI 2014 (All rights reserved)
+PA02,paediatric,CRITICAL,child too weak to breastfeed,IMCI general danger sign: not able to drink or breastfeed,WHO IMCI 2014 (All rights reserved)
+PA03,paediatric,CRITICAL,child unconscious or floppy,IMCI general danger sign: lethargic or unconscious,WHO IMCI 2014 (All rights reserved)
+PA04,paediatric,CRITICAL,child breathing fast with chest indrawing,IMCI: chest indrawing -> SEVERE PNEUMONIA,WHO IMCI 2014 (All rights reserved)
+PA05,paediatric,URGENT,child with diarrhoea and sunken eyes,IMCI: SOME/SEVERE DEHYDRATION,WHO IMCI 2014 (All rights reserved)
+PA06,paediatric,URGENT,child with fever and rash,IMCI: MEASLES,WHO IMCI 2014 (All rights reserved)
+PA07,paediatric,URGENT,"child very thin, not gaining weight",IMCI: ACUTE MALNUTRITION (MUAC/oedema),WHO IMCI 2014 (All rights reserved)
+PA08,paediatric,URGENT,child with ear pain and discharge,IMCI: ACUTE EAR INFECTION,WHO IMCI 2014 (All rights reserved)
+PA09,paediatric,ROUTINE,child growth monitoring visit,IMCI: care of the well child,WHO IMCI 2014 (All rights reserved)
+PA10,paediatric,ROUTINE,child due for vaccination,IMCI: immunisation schedule,WHO IMCI 2014 (All rights reserved)
+PR01,preventive,URGENT,household contact of a TB patient,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR02,preventive,ROUTINE,family planning advice,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR03,preventive,ROUTINE,HIV test request,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR04,preventive,ROUTINE,collecting a mosquito net,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR05,preventive,ROUTINE,first antenatal booking visit,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR06,preventive,ROUTINE,blood pressure screening,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR07,preventive,ROUTINE,cervical screening appointment,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+PR08,preventive,ROUTINE,infant feeding advice,IMCI: assess feeding / counselling,WHO IMCI 2014 (All rights reserved)
+PR09,preventive,ROUTINE,deworming for a child,IMCI: routine deworming,WHO IMCI 2014 (All rights reserved)
+PR10,preventive,ROUTINE,advice on safe drinking water,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
+OB01,obstetric,CRITICAL,,MCPC: eclampsia / convulsions in pregnancy,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB02,obstetric,CRITICAL,,"MCPC: severe pre-eclampsia (headache, visual disturbance)",WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB03,obstetric,CRITICAL,,MCPC: cord prolapse,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB04,obstetric,CRITICAL,,MCPC: obstructed labour / prolonged labour,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB05,obstetric,CRITICAL,,MCPC: puerperal sepsis,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB06,obstetric,URGENT,,MCPC: reduced/absent fetal movement,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB07,obstetric,URGENT,,MCPC: prelabour rupture of membranes,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB08,obstetric,URGENT,,MCPC: preterm labour,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB09,obstetric,URGENT,,MCPC: fever in pregnancy / puerperal infection,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB10,obstetric,URGENT,,MCPC: vomiting in pregnancy,WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)
+OB11,obstetric,ROUTINE,,routine antenatal care - not a complication; PCPNC territory,clinician-defined (no WHO anchor)
+OB12,obstetric,ROUTINE,,IMCI: assess breastfeeding / counselling,WHO IMCI 2014 (All rights reserved)
