@@ -179,8 +179,21 @@ reading and can repeat it. A measurement becomes third-person only when nobody h
 told the patient — a growth curve read off a chart, a skin pinch done during the
 examination itself.
 
-This test does not override a phrase the speaker has already authored. Where it
-disagrees with one, it raises a question under rule 10; it does not settle it.
+**A patient can report an observer sign when they can perceive it directly.**
+"Observer sign" is a clinical category, not a linguistic one, and the two do not
+line up. Cyanosis and chest indrawing are signs a health worker is trained to look
+for — and a patient can still see their own lips and fingertips, and still feel
+their chest pull in as they breathe. The speaker's `CR03`
+(`Iminwa yanjye yahindutse ubururu`), `EX04` and `CR04`
+(`Iyo mpumeka, igituza cyanjye kiramanuka cyane`) are all correct first person for
+exactly that reason. What the limb excludes is what the patient has no access to:
+a skin pinch performed during the examination, a growth curve, their own
+unconsciousness, their own confusion.
+
+**Rule 11 flags; it does not overrule.** Where the test disagrees with a phrase
+the speaker has already authored, the authored phrase stands and the test has
+raised a question under rule 10 — nothing more. The test is a prompt to ask, and
+its own limbs have twice been corrected by what the speaker had already written.
 
 ## Part 3 — the consistency test
 

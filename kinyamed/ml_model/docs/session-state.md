@@ -49,7 +49,7 @@ and 5 speaker rewrites.
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | — | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely.** |
 
-### needs_clinician — 10 rows, in two kinds
+### needs_clinician — 11 rows, in three kinds
 
 **Wording settled by the speaker, clinician not consulted (4):**
 
@@ -70,6 +70,13 @@ in `suggested_kinyarwanda` as the record of what was rejected:
   no alternative invented.
 - `IF04` first — `nkabira ibyuya` for sweating is unvalidated.
 - `IF06` first — dysuria wording unvalidated and possibly the wrong register.
+
+**Nothing drafted; the question itself is clinical (1):**
+
+- `NE06` first — new confusion. `applies=yes` stands. Whether a patient who can
+  accurately report their own new confusion is meaningfully confused is a
+  clinical question, not a linguistic one, so no first-person phrase is written
+  until it is settled.
 
 ### Drafted but explicitly NOT accepted
 
@@ -174,7 +181,9 @@ strings and most third-person phrases do not exist yet.
     *receives* -> third person. An observer or measurement finding -> third
     person. The measurement limb means *has not been told*, not *was measured*:
     the speaker's EX08 and EX09 report a blood sugar and a blood pressure in
-    first person and are right to.
+    first person and are right to. **A patient can report an observer sign when
+    they perceive it directly** — their own lips, the sensation of indrawing.
+    **Rule 11 flags; it does not overrule an authored phrase.**
 
 ## 6. Row target: 1,832,000
 
@@ -290,17 +299,30 @@ its findings disagree with phrases the speaker already authored.
 | NE01 continuous convulsion | observer | high — cannot speak, as PA01 |
 | NE02 unconscious, cannot be roused | observer | high — cannot speak, as PA03 |
 | PR09 deworming for a child | service received | high — the child receives it, an adult brings them |
-| NE06 new confusion today | observer | medium |
+| ~~NE06 new confusion today~~ | observer | **ruled: applies=yes, needs_clinician** |
 | HT03 head injury with vomiting and confusion | observer | medium |
-| CC01 diabetic with vomiting, deep breathing, drowsiness | observer | medium |
-| CC02 hypoglycaemia with sweating and confusion | observer | medium |
+| CC01 diabetic with vomiting, deep breathing, drowsiness | observer / capacity | low — reclassified, see below |
+| CC02 hypoglycaemia with sweating and confusion | observer / capacity | low — reclassified, see below |
 | NE04 sudden difficulty speaking | observer | low — flagged, not proposed |
 
-**Conflicts — the test disagrees with speaker-authored phrases. These stand.**
+**`NE06` is ruled:** `applies=yes` stands, flagged `needs_clinician`. Whether a
+patient who can accurately report new confusion is meaningfully confused is a
+clinical question, not a linguistic one, so the test raised it and stops there.
 
-- `CR04`, `CR03`, `EX04` — chest indrawing and cyanosis are observer signs, but
-  the speaker authored first-person forms. A patient can see their own lips and
-  fingertips; the authored phrase is the better authority.
+**`CC01` and `CC02` reclassified by the direct-perception refinement.** A patient
+can feel drowsy and can notice they are breathing deeply, so imperceptibility is
+the wrong ground for CC01 — what excludes first person there is *capacity*, which
+is NE02's and PA03's ground and is a clinical judgement about severity. CC02 is
+mostly self-perceived apart from the confusion, which makes it NE06's question
+rather than GI04's; the same `needs_clinician` treatment probably fits.
+
+**Conflicts — resolved. The authored phrases stand and the resolution is now in
+rule 11.**
+
+- `CR04`, `CR03`, `EX04` — **resolved into the rule**: a patient can report an
+  observer sign when they perceive it directly. They can see their own lips and
+  fingertips and feel their chest pull in. "Observer sign" is a clinical
+  category, not a linguistic one, and the two do not line up.
 - `EX08`, `EX09` — these **refine rule 11** rather than falling to it. A blood
   sugar and a blood pressure are measurements reported correctly in first person
   because the patient was told the reading. `CC03` is the same shape with an
@@ -312,9 +334,11 @@ its findings disagree with phrases the speaker already authored.
   service concepts, or EX46 belongs in the third-person row. **PA09 and PA10 wait
   on exactly this question.**
 
-Beyond paediatric the test therefore proposes removing at most 9 first-person
-rows and adding none, and it identifies one row (`CC03`) it would be wrong to
-remove.
+Beyond paediatric the test proposes removing at most **8** first-person rows
+(NE06 now ruled in), adds none, and identifies one row (`CC03`) it would be wrong
+to remove. Two of its own limbs have been corrected by what the speaker had
+already written — the measurement limb by EX08/EX09, the observer limb by
+CR03/CR04/EX04.
 
 ### PA08 first person — held, and blocked on vocabulary
 
@@ -344,7 +368,8 @@ replacement invented — the ear term has to come from the speaker.**
 5. `PA08` — the ear term, which no approved phrase supplies
 6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
    first-person row the patient or the requester? One answer settles all three
-7. The 9 catches in `review/person_applicability_audit.csv`
+7. The 8 open catches in `review/person_applicability_audit.csv` — GI04, NE01,
+   NE02 and PR09 are high certainty; HT03, CC01, CC02 and NE04 are not
 8. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
