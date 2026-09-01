@@ -26,17 +26,17 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
 | obstetric | 27/28 | 1 |
 | infectious_fever | 17/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
-| gastrointestinal | 11/28 | 4 | *(+3 not-applicable: GI04 first, GI08 both)*
+| gastrointestinal | 13/28 | 4 | *(+3 not-applicable: GI04 first, GI08 both)*
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **105/254** | **18** |  *(+20 not-applicable = 125 resolved)*
+| **total** | **107/254** | **18** |  *(+20 not-applicable = 127 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 78 speaker, 25 machine_approved, 3 unresolved, 20
+**Provenance so far: 78 speaker, 27 machine_approved, 3 unresolved, 20
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
 machine_approved and one speaker rewrite. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
@@ -312,6 +312,22 @@ built, so EX17's wording survives the collapse instead of being lost by it:
 
 Run it any time: `python review/second_phrasings.py review/speaker_brief_kinyarwanda_v2.csv`.
 
+### Cost of the attribution sweep, measured rather than feared
+
+It grows with the corpus, so it was worth projecting before it becomes a problem.
+It will not.
+
+```
+frame combinations per phrase                    1,500
+now        107 phrases ->  538,500 renderings    ~135s
+complete   234 phrases ->  729,000 renderings    ~3 min   (1.4x)
+```
+
+Only 1.4x, because most rows still to be authored are **first person**, which
+renders once rather than across eight relations, while the authored set is
+already heavy on `{REL}`. The CI job's timeout is 10 minutes, so the sweep fits
+at full corpus with room to spare. **No reduction needed — keep it exhaustive.**
+
 ### Ruled: GI08 collapsed, EX16/EX17 confirmed and waiting
 
 **GI08 collapsed into EX16/EX17 — executed.** Removed from `concepts.py`
@@ -363,10 +379,19 @@ pain have no such route.
 
 ### In flight: gastrointestinal third person
 
-14 rows. **11 drafted, 2 held, 1 already `applies=no` with GI08.** All eleven
-render across all eight relations in
+14 rows. **2 accepted, 9 awaiting a ruling, 2 held, 1 `applies=no` with GI08.**
+All eleven drafts render across all eight relations in
 `review/gastrointestinal_third_render.csv`, 88 rows for individual ruling.
-Nothing accepted.
+
+Accepted -> `machine_approved`:
+
+| id | phrase |
+|---|---|
+| GI01 | `{REL} araruka ibyo arya byose kandi ntashobora no kunywa.` |
+| GI02 | `{REL} araruka amaraso.` |
+
+Still awaiting a ruling: **GI04, GI05, GI06, GI07, EX12, EX13, EX14, EX15,
+EX16.**
 
 | id | conf | draft |
 |---|---|---|
