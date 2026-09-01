@@ -256,9 +256,45 @@ in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catc
 `IF07` first is now `applies=no`. **Its third-person row is untouched** and the
 concept is not yet collapsed in `concepts.py` — see section 6.
 
-The 15 third-person infectious_fever rows are **not** drafted, per the rhythm:
-first person is ruled before third is drafted, and these rulings had to be
-recorded first.
+### In flight: infectious_fever third person
+
+14 rows (IF07 is gone). **9 drafted, 4 held, 1 flagged.** All nine render across
+all eight relations in `review/infectious_fever_third_render.csv`, 72 rows for
+individual ruling. Nothing accepted.
+
+| id | draft |
+|---|---|
+| IF02 | `{REL} afite umuriro mwinshi kandi yaragagaye.` |
+| IF05 | `{REL} afite umuriro kandi afite uduheri ku mubiri wose.` |
+| EX24 | `{REL} afite umuriro wa dogere 39.` |
+| EX25 | `{REL} afite umuriro mwinshi kandi arakorora cyane.` |
+| EX26 | `{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.` |
+| EX27 | `{REL} afite umuriro kandi yumva afite imbeho, akeka ko ari malariya.` |
+| EX28 | `{REL} afite umuriro kandi umutwe uramubabaza cyane.` |
+| EX29 | `{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.` |
+| EX31 | `{REL} amazuru ye aratemba gake.` |
+
+Every transform reuses one of the speaker's own. EX28 is the strongest: OB02
+turns the identical clause `umutwe urandya cyane` into `umutwe uramubabaza
+cyane`, changing the verb to avoid the object marker. EX31 avoids the same
+problem with the possessive, following CR03 and OB07 rather than reaching for
+`aramutemba`.
+
+**Held, not drafted (4):** `IF01`, `IF03`, `IF04`, `IF06`. Their first person is
+held for a clinician and unaccepted, so a third-person draft would be
+transforming a guess.
+
+**Flagged, not drafted (1): `EX30`.** Its transform would be
+`{REL} akorora gake ariko nta muriro afite.` — **byte-identical to the approved
+CR07 third**. The first persons differ by one word (`sinta` / `nta`). This is the
+IF07/EX29 shape, except **CR07 is cardiac_respiratory and EX30 is
+infectious_fever**, so the same utterance would carry two domain labels. That is
+worse than a within-domain duplicate and wants a ruling before either row moves.
+
+Two flagged beyond their confidence marks: **EX27**, where `nkeka` -> `akeka`
+follows the regular pattern but the speaker has not written it; and **EX26**,
+whose first person carries no person marking at all, so the two rows differ by
+nothing but `{REL} afite` — worth checking the third earns a separate phrase.
 
 ### Settled: paediatric first person — 11 of 14 rows are not applicable
 
@@ -373,10 +409,9 @@ replacement invented — the ear term has to come from the speaker.**
 5. `PA08` — the ear term, which no approved phrase supplies
 6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
    first-person row the patient or the requester? One answer settles all three
-7. `PR09` — ruled `applies=no`, but rule 12 makes its first-person row valid.
-   The one row where two rulings disagree; **not recorded either way**
-8. The rest of `review/service_speaker_audit.csv` — PA09, PA10, PR08 confirmed
-   `applies=yes` by rule 12, awaiting sign-off
+7. `CR07`/`EX30` — the same utterance in two domains; concept ruling needed
+8. The 9 infectious_fever third-person drafts, rendered in
+   `review/infectious_fever_third_render.csv`
 9. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
