@@ -31,10 +31,14 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
 
     if phrase != phrase.strip():
         problems.append("leading or trailing whitespace")
-    if phrase[:1].isupper():
-        problems.append("starts with a capital: a subject precedes it, so it is mid-sentence")
-    if phrase.rstrip()[-1:] in ".!?,;:":
-        problems.append("ends with punctuation: the closer supplies it")
+    # Capitalisation is handled by the renderer, which lowercases after a comma
+    # opener and capitalises at a sentence start, so either stored form is fine.
+    # Trailing sentence punctuation used to be an error, when a phrase was a
+    # noun phrase spliced mid-sentence. Utterances are complete sentences and the
+    # renderer collapses duplicate punctuation, so a full stop is now correct.
+    # A trailing comma or semicolon still is not.
+    if phrase.rstrip()[-1:] in ",;:":
+        problems.append("ends with a comma or colon: the following slot continues the sentence")
     if unicodedata.normalize("NFC", phrase) != phrase:
         problems.append("not NFC-normalised (breaks substring leakage detection)")
     if "’" in phrase or "‘" in phrase:

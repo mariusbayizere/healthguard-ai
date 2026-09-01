@@ -87,3 +87,38 @@ def test_render_covers_every_index_without_error(form: str) -> None:
     subjects = ("Mfite",) if form == NOUN_PHRASE else ("",)
     f = make(form, ("ndakorora cyane",), subjects)
     assert len({f.render(i) for i in range(f.combinations)}) == f.combinations
+
+
+def test_attribution_survives_capitalisation() -> None:
+    """An utterance is capitalised at a sentence start and lowercased after a
+    greeting. A case-sensitive match loses every row with an opener, and those
+    rows drop out of the phrase holdout and the leakage analysis silently."""
+    from dataset.split_dataset import attribute_phrase
+
+    phrase = "Ndakorora cyane."
+    family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
+    index = {"kinyarwanda": [phrase]}
+    f = Family(
+        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
+        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        slots=(("", "Muganga, "), ("",), (phrase,), ("",), ("",), ("", ". Nkora iki?")),
+        form=UTTERANCE,
+    )
+    for i in range(f.combinations):
+        text = f.render(i)
+        assert attribute_phrase(text, family, index) == phrase, (
+            f"attribution lost for {text!r}"
+        )
+
+
+def test_render_collapses_duplicate_sentence_punctuation() -> None:
+    f = Family(
+        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
+        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        slots=(("",), ("",), ("Ndakorora cyane.",), ("",),
+               (". Byatangiye gitunguranye.",), (". Nkora iki?",)),
+        form=UTTERANCE,
+    )
+    out = f.render(0)
+    assert ".." not in out, out
+    assert out == "Ndakorora cyane. Byatangiye gitunguranye. Nkora iki?", out

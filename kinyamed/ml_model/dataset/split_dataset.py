@@ -105,10 +105,18 @@ def substring_violations(train_phrases: set[str], eval_phrases: set[str]) -> lis
 
 
 def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]]) -> str | None:
-    """The seed phrase a row was built around; longest match wins."""
+    """The seed phrase a row was built around; longest match wins.
+
+    Matching is case-insensitive. An utterance-form phrase is capitalised when it
+    starts the sentence and lowercased when it follows a greeting, so a
+    case-sensitive match loses every row with an opener — which would drop those
+    rows out of the phrase holdout and out of the leakage analysis without any
+    error being raised.
+    """
     phrase_language = family.split("->", 1)[1].split(":", 1)[0]
+    lowered = text.lower()
     for phrase in phrase_index.get(phrase_language, ()):
-        if phrase in text:
+        if phrase.lower() in lowered:
             return phrase
     return None
 
