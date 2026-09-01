@@ -141,3 +141,15 @@ keeps the round claim honest: 2,016,000 rows from 1,008 speaker-authored phrasin
 across 126 clinician-reviewed concepts.
 
 The generator default should move to 2,016,000 once the relation sets are settled.
+
+
+## Row target: 2,016,000, subordinate to validity
+
+Set by the speaker. It restores 2,000 rows per authored phrase after the person
+split doubled the denominator.
+
+**It is a ceiling reached by valid combinations, not a quota to fill.** Where a
+relation set is restricted, a concept held for clinician validation, or a
+combination judged clinically questionable, the corpus is smaller and that is the
+correct outcome. At roughly 0.8% space usage there is no tension to resolve: no
+validity decision taken so far moves the target at all.

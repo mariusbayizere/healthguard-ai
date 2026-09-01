@@ -520,6 +520,13 @@ RELATIONS: dict[str, tuple[str, ...]] = {
     ),
 }
 
+# Relations naming a child, for paediatric presentations where the patient is
+# the child. Authored by the Kinyarwanda speaker; do not extend without them.
+CHILD_RELATIONS: tuple[str, ...] = (
+    "Umwana wanjye", "Umuhungu wanjye", "Umukobwa wanjye",
+    "Umwuzukuru wanjye", "Umwana w'umuturanyi",
+)
+
 REL_PLACEHOLDER = "{REL}"
 
 
@@ -538,6 +545,10 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
     # childbearing age; umwana wanjye, umugabo wanjye and papa cannot be
     # pregnant or newly delivered.
     "obstetric": ("Umugore wanjye", "Mama", "Mushiki wanjye", "Umuturanyi wanjye"),
+    # The patient is the child, so only child relations name them. No adult
+    # relation belongs here unless a concept explicitly describes someone
+    # reporting about the child.
+    "paediatric": CHILD_RELATIONS,
 }
 
 

@@ -118,6 +118,16 @@ and no narrowed concept threatens any row target — so when a combination is
 doubtful, drop it. A row describing a patient who does not exist is worse than a
 row that does not exist.
 
+**5. Never accept machine Kinyarwanda because the grammar looks plausible.**
+Every phrase is either speaker-approved or flagged. Plausible-looking output from
+a non-speaker is exactly the failure this process exists to prevent, and the
+provenance columns record which is which so the paper can state it.
+
+**6. Where a relation combination is uncertain, restrict the relation set.** Do not
+invent Kinyarwanda to make a combination work, and do not generate a clinically
+questionable example to fill it. The combination space is large enough that
+restriction costs nothing measurable.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:
