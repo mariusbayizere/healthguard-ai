@@ -1,0 +1,155 @@
+concept_id,domain,proposed_urgency,english_gloss,person,person_note,form,your_phrasing,second_phrasing_optional,notes
+CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,first,,utterance,,,
+CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,third,,utterance,,,
+CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,first,,utterance,,,
+CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,third,,utterance,,,
+EX01,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,mu gituza harandya cyane kandi sinshobora guhumeka neza,,first pass
+EX01,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX02,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,guhumeka birangora cyane,,first pass
+EX02,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX03,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,umutima uratera cyane kandi nkumva umeze nk'aho uhagarara,,first pass
+EX03,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX04,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara,,first pass
+EX04,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX05,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,mu gituza harandya cyane kandi ububabare bukagera no ku kuboko,,first pass
+EX05,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,first,,utterance,,,
+CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,third,,utterance,,,
+EX07,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,iyo mpumetse cyane mu gituza harandya,,first pass
+EX07,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+CC04,chronic_care,URGENT,swollen legs and breathless lying flat,first,,utterance,,,
+CC04,chronic_care,URGENT,swollen legs and breathless lying flat,third,,utterance,,,
+CC05,chronic_care,URGENT,diabetic foot ulcer not healing,first,,utterance,,,
+CC05,chronic_care,URGENT,diabetic foot ulcer not healing,third,,utterance,,,
+EX08,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,isukari yo mu maraso yanjye yazamutse cyane,,first pass
+EX08,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX09,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,umuvuduko w'amaraso wanjye wazamutse cyane,,first pass
+EX09,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+CC09,chronic_care,ROUTINE,routine diabetes review,first,,utterance,,,
+CC09,chronic_care,ROUTINE,routine diabetes review,third,,utterance,,,
+EX11,chronic_care,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,ndashaka gukomeza kujya kwa muganga kwisuzumisha,,first pass
+EX11,chronic_care,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",first,,utterance,,,
+GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",third,,utterance,,,
+GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow skin pinch,first,,utterance,,,
+GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow skin pinch,third,,utterance,,,
+EX12,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,maze iminsi itatu ndwaye impiswi zikomeye,,first pass
+EX12,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX14,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,inda irandya cyane,,first pass
+EX14,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX15,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,ndaruka cyane kandi numva mfite intege nke,,first pass
+EX15,gastrointestinal,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,first,,utterance,,,
+GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,third,,utterance,,,
+EX16,gastrointestinal,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,iyo maze kurya numva inda itameze neza,,first pass
+EX16,gastrointestinal,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX17,gastrointestinal,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,iyo maze kurya numva mu nda ntameze neza,,first pass
+EX17,gastrointestinal,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+GI08,gastrointestinal,ROUTINE,mild indigestion after eating,first,,utterance,,,
+GI08,gastrointestinal,ROUTINE,mild indigestion after eating,third,,utterance,,,
+EX19,haemorrhage_trauma,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,mfite igikomere gikomeye kirimo kuva amaraso menshi,,first pass
+EX19,haemorrhage_trauma,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX20,haemorrhage_trauma,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,ndi kuva amaraso menshi mu mazuru kandi ntahagarara,,first pass
+EX20,haemorrhage_trauma,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+HT01,haemorrhage_trauma,CRITICAL,bleeding not controlled by pressure,first,,utterance,,,
+HT01,haemorrhage_trauma,CRITICAL,bleeding not controlled by pressure,third,,utterance,,,
+HT03,haemorrhage_trauma,CRITICAL,head injury with vomiting and confusion,first,,utterance,,,
+HT03,haemorrhage_trauma,CRITICAL,head injury with vomiting and confusion,third,,utterance,,,
+HT04,haemorrhage_trauma,CRITICAL,large burn,first,,utterance,,,
+HT04,haemorrhage_trauma,CRITICAL,large burn,third,,utterance,,,
+EX23,haemorrhage_trauma,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,naraguye none ndababara cyane,,first pass
+EX23,haemorrhage_trauma,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+HT05,haemorrhage_trauma,URGENT,limb deformed after a fall,first,,utterance,,,
+HT05,haemorrhage_trauma,URGENT,limb deformed after a fall,third,,utterance,,,
+HT06,haemorrhage_trauma,URGENT,"wound red, swollen and discharging pus",first,,utterance,,,
+HT06,haemorrhage_trauma,URGENT,"wound red, swollen and discharging pus",third,,utterance,,,
+HT07,haemorrhage_trauma,URGENT,snake bite,first,,utterance,,,
+HT07,haemorrhage_trauma,URGENT,snake bite,third,,utterance,,,
+IF01,infectious_fever,CRITICAL,fever with stiff neck,first,,utterance,,,
+IF01,infectious_fever,CRITICAL,fever with stiff neck,third,,utterance,,,
+EX25,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,mfite umuriro mwinshi kandi ndakorora cyane,,first pass
+EX25,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX26,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,"ibimenyetso bya malariya, umuriro n'imbeho",,first pass
+EX26,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX28,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,,,mfite umuriro kandi umutwe urandya cyane,,first pass
+EX28,infectious_fever,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+IF04,infectious_fever,URGENT,fever with chills and sweats for days,first,,utterance,,,
+IF04,infectious_fever,URGENT,fever with chills and sweats for days,third,,utterance,,,
+IF05,infectious_fever,URGENT,fever with generalised rash,first,,utterance,,,
+IF05,infectious_fever,URGENT,fever with generalised rash,third,,utterance,,,
+IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well",first,,utterance,,,
+IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well",third,,utterance,,,
+EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,yataye ubwenge ntasubiza,,first pass
+EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,,,yagagaye kandi ahinda umushyitsi,,first pass
+EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+NE01,neurological,CRITICAL,continuous convulsion,first,,utterance,,,
+NE01,neurological,CRITICAL,continuous convulsion,third,,utterance,,,
+NE02,neurological,CRITICAL,"unconscious, cannot be roused",first,,utterance,,,
+NE02,neurological,CRITICAL,"unconscious, cannot be roused",third,,utterance,,,
+NE03,neurological,CRITICAL,sudden one-sided weakness,first,,utterance,,,
+NE03,neurological,CRITICAL,sudden one-sided weakness,third,,utterance,,,
+NE04,neurological,CRITICAL,sudden difficulty speaking,first,,utterance,,,
+NE04,neurological,CRITICAL,sudden difficulty speaking,third,,utterance,,,
+NE05,neurological,URGENT,severe headache with vomiting and photophobia,first,,utterance,,,
+NE05,neurological,URGENT,severe headache with vomiting and photophobia,third,,utterance,,,
+NE06,neurological,URGENT,new confusion today,first,,utterance,,,
+NE06,neurological,URGENT,new confusion today,third,,utterance,,,
+NE07,neurological,URGENT,repeated fainting,first,,utterance,,,
+NE07,neurological,URGENT,repeated fainting,third,,utterance,,,
+NE08,neurological,ROUTINE,intermittent mild headache,first,,utterance,,,
+NE08,neurological,ROUTINE,intermittent mild headache,third,,utterance,,,
+EX38,obstetric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",,"ndatwite, ndababara cyane mu nda kandi ndava amaraso",,first pass
+EX38,obstetric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",,,,
+EX39,obstetric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",,ndava amaraso menshi nyuma yo kubyara,,first pass
+EX39,obstetric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",,,,
+OB02,obstetric,CRITICAL,severe headache with blurred vision in pregnancy,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB02,obstetric,CRITICAL,severe headache with blurred vision in pregnancy,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB06,obstetric,URGENT,reduced or absent fetal movement,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB06,obstetric,URGENT,reduced or absent fetal movement,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB07,obstetric,URGENT,membranes ruptured preterm,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB07,obstetric,URGENT,membranes ruptured preterm,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB08,obstetric,URGENT,labour pains before term,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB08,obstetric,URGENT,labour pains before term,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB09,obstetric,URGENT,fever in pregnancy,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB09,obstetric,URGENT,fever in pregnancy,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB11,obstetric,ROUTINE,routine antenatal check,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB11,obstetric,ROUTINE,routine antenatal check,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB12,obstetric,ROUTINE,breastfeeding advice after delivery,first,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+OB12,obstetric,ROUTINE,breastfeeding advice after delivery,third,"first = the pregnant woman; third = husband, mother or neighbour reporting",utterance,,,
+EX40,paediatric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,usually third (the parent speaks); write first only if an older child would say it,,umwana ari guhinda umushyitsi kandi afite umuriro uri hejuru ya dogere 40,,first pass
+EX40,paediatric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,usually third (the parent speaks); write first only if an older child would say it,,,,
+EX41,paediatric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,usually third (the parent speaks); write first only if an older child would say it,,"umwana afite ikibazo cyo kutabasha guhumeka neza, kandi uruhu rwe rwahindutse ubururu",,first pass
+EX41,paediatric,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,usually third (the parent speaks); write first only if an older child would say it,,,,
+PA02,paediatric,CRITICAL,child too weak to breastfeed,first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA02,paediatric,CRITICAL,child too weak to breastfeed,third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA03,paediatric,CRITICAL,child unconscious or floppy,first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA03,paediatric,CRITICAL,child unconscious or floppy,third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+EX42,paediatric,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,usually third (the parent speaks); write first only if an older child would say it,,umwana afite umuriro n'uduheri ku mubiri,,first pass
+EX42,paediatric,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,usually third (the parent speaks); write first only if an older child would say it,,,,
+EX43,paediatric,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,usually third (the parent speaks); write first only if an older child would say it,,umwana afite umuriro mwinshi kandi ntabwo arimo kubasha kurya,,first pass
+EX43,paediatric,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,usually third (the parent speaks); write first only if an older child would say it,,,,
+PA05,paediatric,URGENT,child with diarrhoea and sunken eyes,first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA05,paediatric,URGENT,child with diarrhoea and sunken eyes,third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA06,paediatric,URGENT,child with fever and rash,first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA06,paediatric,URGENT,child with fever and rash,third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA07,paediatric,URGENT,"child very thin, not gaining weight",first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA07,paediatric,URGENT,"child very thin, not gaining weight",third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA08,paediatric,URGENT,child with ear pain and discharge,first,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+PA08,paediatric,URGENT,child with ear pain and discharge,third,usually third (the parent speaks); write first only if an older child would say it,utterance,,,
+EX44,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,gahunda yo kwisuzumisha buri mwaka,,first pass
+EX44,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX45,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,gusaba ko bapima amaraso,,first pass
+EX45,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+EX47,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,first,,,kugirwa inama ku biryo byo kugaburira umwana,,first pass
+EX47,preventive,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,,,,,
+PR03,preventive,ROUTINE,HIV test request,first,,utterance,,,
+PR03,preventive,ROUTINE,HIV test request,third,,utterance,,,
+PR04,preventive,ROUTINE,collecting a mosquito net,first,,utterance,,,
+PR04,preventive,ROUTINE,collecting a mosquito net,third,,utterance,,,
+PR05,preventive,ROUTINE,first antenatal booking visit,first,,utterance,,,
+PR05,preventive,ROUTINE,first antenatal booking visit,third,,utterance,,,
+PR08,preventive,ROUTINE,infant feeding advice,first,,utterance,,,
+PR08,preventive,ROUTINE,infant feeding advice,third,,utterance,,,
+PR09,preventive,ROUTINE,deworming for a child,first,,utterance,,,
+PR09,preventive,ROUTINE,deworming for a child,third,,utterance,,,

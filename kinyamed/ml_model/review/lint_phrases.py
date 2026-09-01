@@ -23,10 +23,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from dataset.vocabulary import CLOSERS, CONTEXTS, ONSETS, SUBJECTS  # noqa: E402
 
 
-def check(phrase: str, language: str) -> list[str]:
+def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
     problems: list[str] = []
+    warnings: list[str] = []
     if not phrase.strip():
-        return problems
+        return problems, warnings
 
     if phrase != phrase.strip():
         problems.append("leading or trailing whitespace")
@@ -50,17 +51,22 @@ def check(phrase: str, language: str) -> list[str]:
 
     # A CONTEXT is appended and begins with a connective. A phrase that already
     # carries its own connective clause will produce two in a row.
+    # Connective collision. This is a WARNING, not an error: a natural patient
+    # utterance often chains "kandi", and forbidding it would push the speaker
+    # back toward the stilted phrasing this whole exercise is correcting. The
+    # real fix is context fragments that do not open with the same connective.
     context_heads = {c.strip().split()[0].lower() for c in CONTEXTS[language] if c.strip()}
     for head in context_heads:
         if f" {head} " in f" {phrase.lower()} ":
-            problems.append(f"contains {head!r}, which a context clause also adds "
-                            f"-> '... {head} ... {head} ...'")
+            warnings.append(f"contains {head!r}, which a context clause also opens with. "
+                            f"Fine if it reads naturally; the context slot needs "
+                            f"non-{head!r} variants")
             break
 
     if len(phrase.split()) > 12:
         problems.append(f"{len(phrase.split())} words: long enough that it is probably "
                         "carrying its own onset or context")
-    return problems
+    return problems, warnings
 
 
 def main() -> int:
@@ -79,26 +85,36 @@ def main() -> int:
 
     print(f"Linting {col!r} in {args.csv_path} ({args.language})\n")
     seen: dict[str, int] = {}
-    flagged = checked = 0
+    flagged = checked = warned = 0
     for i, row in enumerate(rows, 2):
         phrase = (row.get(col) or "").strip()
         if not phrase:
             continue
         checked += 1
-        problems = check(phrase, args.language)
+        problems, warns = check(phrase, args.language)
         if phrase.lower() in seen:
             problems.append(f"duplicate of line {seen[phrase.lower()]}")
         seen.setdefault(phrase.lower(), i)
-        if problems:
-            flagged += 1
+        if problems or warns:
+            if problems:
+                flagged += 1
+            else:
+                warned += 1
             print(f"  line {i}: {phrase}")
             for p in problems:
-                print(f"      - {p}")
+                print(f"      ERROR   {p}")
+            for w in warns:
+                print(f"      warning {w}")
 
-    print(f"\n{checked} phrases checked, {flagged} flagged.")
+    total = len(rows)
+    print(f"\n{checked} of {total} rows filled; {flagged} errors, {warned} warnings.")
+    if checked < total:
+        print(f"{total - checked} still blank — this is a partial run, which is fine.")
     print("\nNot checked here, and not checkable here: whether a patient would say it,")
     print("whether the register is right, and whether it works after a third-person")
     print("subject such as 'Umugabo wanjye afite'. Those are the speaker's call.")
+    # Exit non-zero only when something is actually wrong, so this can be run
+    # repeatedly during a session without a blank file looking like a failure.
     return 1 if flagged else 0
 
 
