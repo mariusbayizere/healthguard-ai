@@ -284,8 +284,14 @@ def build_families() -> list[Family]:
                                 f"RELATIONS[{phrase_lang!r}]; a {{REL}} phrase there "
                                 "would render nothing"
                             )
+                    # A relation is a proper-noun-shaped phrase and is written
+                    # capitalised, but mid-sentence it is not a sentence start:
+                    # "Iyo umwana wanjye ahumeka", not "Iyo Umwana wanjye".
+                    head = phrase.startswith(REL_PLACEHOLDER)
                     expanded.extend(
-                        phrase.replace(REL_PLACEHOLDER, rel) for rel in pool
+                        phrase.replace(REL_PLACEHOLDER,
+                                       rel if head else rel[0].lower() + rel[1:])
+                        for rel in pool
                     )
                 else:
                     expanded.append(phrase)

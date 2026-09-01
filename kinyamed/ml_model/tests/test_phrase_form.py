@@ -181,3 +181,63 @@ def test_terminal_stop_kept_before_a_new_sentence() -> None:
         form=UTTERANCE,
     )
     assert f.render(0) == "Ndakorora cyane. Byatangiye gitunguranye.", f.render(0)
+
+
+def test_relation_is_lowercased_mid_sentence() -> None:
+    """A relation is written capitalised but is not always sentence-initial.
+
+    "Iyo {REL} ahumeka..." must render "Iyo umwana wanjye ahumeka", not
+    "Iyo Umwana wanjye ahumeka".
+    """
+    import dataset.vocabulary as V
+    import dataset.generate_large_dataset as G
+
+    head_phrase = "{REL} arakorora cyane."
+    mid_phrase = "Iyo {REL} ahumeka, birababaza."
+    saved_sym = V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"]
+    saved_rel = V.RELATIONS["kinyarwanda"]
+    saved_dom = V.DOMAIN_RELATIONS.pop("paediatric", None)
+    V.RELATIONS["kinyarwanda"] = ("Umwana wanjye",)
+    for p in (head_phrase, mid_phrase):
+        V.PHRASE_FORMS[p] = UTTERANCE
+    V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"] = (head_phrase, mid_phrase)
+    G.SYMPTOMS, G.PHRASE_FORMS, G.RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.RELATIONS
+    G.DOMAIN_RELATIONS = V.DOMAIN_RELATIONS
+    try:
+        f = next(x for x in build_families()
+                 if x.language == "kinyarwanda" and x.domain == "paediatric"
+                 and x.urgency == "URGENT")
+        rendered = set(f.slots[2])
+        assert "Umwana wanjye arakorora cyane." in rendered, rendered
+        assert "Iyo umwana wanjye ahumeka, birababaza." in rendered, rendered
+        assert "Iyo Umwana wanjye ahumeka, birababaza." not in rendered
+    finally:
+        V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"] = saved_sym
+        V.RELATIONS["kinyarwanda"] = saved_rel
+        if saved_dom is not None:
+            V.DOMAIN_RELATIONS["paediatric"] = saved_dom
+        for p in (head_phrase, mid_phrase):
+            V.PHRASE_FORMS.pop(p, None)
+        G.SYMPTOMS, G.RELATIONS = V.SYMPTOMS, V.RELATIONS
+
+
+def test_domain_relation_set_restricts_expansion() -> None:
+    import dataset.vocabulary as V
+    import dataset.generate_large_dataset as G
+
+    phrase = "{REL} aratwite."
+    saved = V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"]
+    V.PHRASE_FORMS[phrase] = UTTERANCE
+    V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"] = (phrase,)
+    G.SYMPTOMS, G.PHRASE_FORMS = V.SYMPTOMS, V.PHRASE_FORMS
+    try:
+        f = next(x for x in build_families()
+                 if x.language == "kinyarwanda" and x.domain == "obstetric")
+        assert len(f.slots[2]) == len(V.DOMAIN_RELATIONS["obstetric"])
+        joined = " ".join(f.slots[2])
+        for excluded in ("Umugabo wanjye", "Papa", "Umukecuru"):
+            assert excluded not in joined, f"{excluded} must not appear in obstetric"
+    finally:
+        V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"] = saved
+        V.PHRASE_FORMS.pop(phrase, None)
+        G.SYMPTOMS = V.SYMPTOMS

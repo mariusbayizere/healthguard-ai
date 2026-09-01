@@ -76,3 +76,68 @@ undercut by dividing.
 
 If a bigger headline number is wanted later, fund more phrases. Do not raise the
 row count.
+
+
+---
+
+# Revision after the utterance form and the relation audit
+
+The earlier arithmetic on this page assumed 504 phrase strings — 126 per language,
+one per concept. Two later decisions changed that.
+
+**Person moved into the phrase.** Each concept now needs a first-person and a
+third-person phrasing, because `ndakorora` and `umwana wanjye arakorora` are
+different sentences rather than one sentence with two subjects. That doubles the
+authored count.
+
+```
+concepts (language-independent)   126
+authored phrases   126 x 2 persons x 4 languages = 1,008
+v1 for comparison                  46 concepts, 184 phrases
+```
+
+**{REL} multiplies rendered variety without adding authored phrases.** A
+third-person phrase expands over its domain's relations, so one authored sentence
+becomes four to eight rendered ones. The relation audit costs almost nothing in
+space:
+
+| scenario | rendered per language | combination space | 1,008,000 uses |
+|---|---|---|---|
+| all domains 8 (pre-audit) | 1,134 | 149,688,000 | 0.67% |
+| audit: obstetric 4, paediatric 1 | 980 | 129,360,000 | 0.78% |
+| audit + paediatric 5 | 1,036 | 136,752,000 | 0.74% |
+| audit + paediatric 5, chronic_care 7 | 1,022 | 134,904,000 | 0.75% |
+
+**Space is no longer the binding constraint anywhere.** Restricting obstetric to
+four relations and paediatric to one moves usage from 0.67% to 0.78% of an enormous
+space. Nothing about the audit threatens any row target, so relation sets should be
+chosen purely for validity.
+
+## What the row target should be
+
+At **1,008,000 rows the median authored phrase accounts for 1,000 rows** — twice as
+diverse as the 2,000 originally targeted, because the person split doubled the
+denominator while the row count stayed fixed.
+
+| rows | rows per authored phrase |
+|---|---|
+| 1,008,000 | 1,000 |
+| 1,500,000 | 1,488 |
+| **2,016,000** | **2,000** |
+
+Two defensible answers:
+
+**Keep 1,008,000.** Better diversity than the target, and the paper's "1,000,000+"
+claim stands. The extra authoring already bought the improvement.
+
+**Raise to 2,016,000.** Restores exactly 2,000 rows per phrase and doubles the
+corpus, still using under 1.6% of the combination space.
+
+**Recommendation: 2,016,000.** The original argument was that row count should match
+the clinical content supporting it, and the content has doubled. 1,008,000 would now
+be leaving half the earned corpus on the table, and 2,016,000 is defensible by the
+same reasoning that produced the first figure rather than in spite of it. It also
+keeps the round claim honest: 2,016,000 rows from 1,008 speaker-authored phrasings
+across 126 clinician-reviewed concepts.
+
+The generator default should move to 2,016,000 once the relation sets are settled.
