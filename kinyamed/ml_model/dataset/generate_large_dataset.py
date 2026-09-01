@@ -37,6 +37,8 @@ from dataset.vocabulary import (  # noqa: E402
     LANGUAGES,
     MIXED_PAIRS,
     PHRASE_FORMS,
+    REL_PLACEHOLDER,
+    RELATIONS,
     ONSETS,
     OPENERS,
     SUBJECTS,
@@ -141,6 +143,7 @@ class Family:
         if subject:
             if continues:
                 subject = subject[0].lower() + subject[1:]
+            phrase = _drop_terminal_stop(phrase, f"{onset}{context}")
             return _tidy(f"{opener}{subject} {phrase}{onset}{context}{closer}")
         # Utterance form: the phrase is a complete clause and takes no subject.
         # After a greeting it continues mid-sentence ("Muganga, ndakorora...");
@@ -150,6 +153,7 @@ class Family:
             phrase = phrase[0].lower() + phrase[1:]
         else:
             phrase = phrase[0].upper() + phrase[1:]
+        phrase = _drop_terminal_stop(phrase, f"{onset}{context}")
         return _tidy(f"{opener}{phrase}{onset}{context}{closer}")
 
 
@@ -218,6 +222,25 @@ def _tidy(text: str) -> str:
     return text
 
 
+def _drop_terminal_stop(phrase: str, tail: str) -> str:
+    """Remove a phrase's final full stop when the next slot continues the sentence.
+
+    An utterance is authored as a complete sentence, but onsets and contexts are
+    mid-sentence continuations: " kuva ejo", " kandi ndahangayitse". Left alone,
+    "Ndakorora cyane." followed by " kandi..." becomes two sentences and the
+    connective is promoted to a sentence opener - "Kandi birushaho kuba bibi." -
+    which reads wrong. Dropping the stop restores the intended single sentence.
+
+    A tail that is itself a new sentence (". Byatangiye...") keeps the stop.
+    """
+    stripped = tail.lstrip()
+    if not stripped or stripped[0] in _SENTENCE_END:
+        return phrase
+    if phrase.rstrip()[-1:] in _SENTENCE_END:
+        return phrase.rstrip()[:-1]
+    return phrase
+
+
 def phrase_form(phrase: str) -> str:
     """The form a phrase takes, from the vocabulary's declaration.
 
@@ -244,6 +267,19 @@ def build_families() -> list[Family]:
             if not in_form:
                 continue
             subjects = SUBJECTS[frame] if form == NOUN_PHRASE else ("",)
+            # A {REL} phrase is one phrase for holdout purposes but renders as
+            # every relation, so the expansion happens here and the canonical
+            # form stays in the phrase inventory.
+            expanded: list[str] = []
+            for phrase in in_form:
+                if REL_PLACEHOLDER in phrase:
+                    expanded.extend(
+                        phrase.replace(REL_PLACEHOLDER, rel)
+                        for rel in RELATIONS.get(phrase_lang, ("",))
+                    )
+                else:
+                    expanded.append(phrase)
+            in_form = tuple(expanded)
             families.append(
                 Family(
                     language=label_language,

@@ -52,6 +52,7 @@ from dataset.atomicio import (  # noqa: E402
     sweep_partials,
 )
 from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
+from dataset.vocabulary import REL_PLACEHOLDER  # noqa: E402
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
@@ -116,7 +117,15 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
     phrase_language = family.split("->", 1)[1].split(":", 1)[0]
     lowered = text.lower()
     for phrase in phrase_index.get(phrase_language, ()):
-        if phrase.lower() in lowered:
+        if REL_PLACEHOLDER in phrase:
+            # The rendered row carries a concrete relation, so match on the
+            # invariant remainder. The canonical {REL} form is returned, which
+            # keeps all eight relations in one phrase group and therefore on the
+            # same side of the holdout.
+            tail = phrase.replace(REL_PLACEHOLDER, "").strip().lower()
+            if tail and tail in lowered:
+                return phrase
+        elif phrase.lower() in lowered:
             return phrase
     return None
 

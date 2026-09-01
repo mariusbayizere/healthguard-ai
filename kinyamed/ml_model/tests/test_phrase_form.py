@@ -122,3 +122,62 @@ def test_render_collapses_duplicate_sentence_punctuation() -> None:
     out = f.render(0)
     assert ".." not in out, out
     assert out == "Ndakorora cyane. Byatangiye gitunguranye. Nkora iki?", out
+
+
+def test_rel_placeholder_expands_over_every_relation() -> None:
+    """One authored sentence must render as all eight relations."""
+    import dataset.vocabulary as V
+    import dataset.generate_large_dataset as G
+
+    canonical = "{REL} ntashobora guhumeka neza."
+    V.PHRASE_FORMS[canonical] = UTTERANCE
+    G.PHRASE_FORMS = V.PHRASE_FORMS
+    saved = V.SYMPTOMS["kinyarwanda"]["URGENT"]["cardiac_respiratory"]
+    V.SYMPTOMS["kinyarwanda"]["URGENT"]["cardiac_respiratory"] = (canonical,)
+    G.SYMPTOMS = V.SYMPTOMS
+    try:
+        f = next(x for x in build_families()
+                 if x.language == "kinyarwanda" and x.domain == "cardiac_respiratory"
+                 and x.urgency == "URGENT")
+        assert len(f.slots[2]) == len(V.RELATIONS["kinyarwanda"])
+        assert "{REL}" not in " ".join(f.slots[2]), "placeholder left unexpanded"
+    finally:
+        V.SYMPTOMS["kinyarwanda"]["URGENT"]["cardiac_respiratory"] = saved
+        V.PHRASE_FORMS.pop(canonical, None)
+        G.SYMPTOMS = V.SYMPTOMS
+
+
+def test_rel_expansions_share_one_phrase_identity() -> None:
+    """All eight relations must attribute to the canonical phrase, or the
+    holdout could put 'umwana wanjye' in train and 'mama' in eval."""
+    from dataset.split_dataset import attribute_phrase
+    import dataset.vocabulary as V
+
+    canonical = "{REL} ntashobora guhumeka neza."
+    family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
+    index = {"kinyarwanda": [canonical]}
+    for rel in V.RELATIONS["kinyarwanda"]:
+        text = canonical.replace("{REL}", rel)
+        assert attribute_phrase(text, family, index) == canonical
+        assert attribute_phrase("Muganga, " + text[0].lower() + text[1:], family, index) == canonical
+
+
+def test_terminal_stop_dropped_before_a_continuation() -> None:
+    f = Family(
+        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
+        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        slots=(("",), ("",), ("Ndakorora cyane.",), (" kuva ejo",), ("",), ("",)),
+        form=UTTERANCE,
+    )
+    assert f.render(0) == "Ndakorora cyane kuva ejo", f.render(0)
+
+
+def test_terminal_stop_kept_before_a_new_sentence() -> None:
+    f = Family(
+        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
+        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        slots=(("",), ("",), ("Ndakorora cyane.",), ("",),
+               (". Byatangiye gitunguranye.",), ("",)),
+        form=UTTERANCE,
+    )
+    assert f.render(0) == "Ndakorora cyane. Byatangiye gitunguranye.", f.render(0)

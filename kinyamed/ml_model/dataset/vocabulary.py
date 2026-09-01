@@ -504,3 +504,20 @@ MIXED_PAIRS: tuple[tuple[str, str], ...] = (
 
 PHRASE_FORMS: dict[str, str] = {}
 PHRASE_PERSON: dict[str, str] = {}
+
+
+# Relations a third-person utterance can be about. A phrase written with the
+# {REL} placeholder is expanded over all of these at render time, which restores
+# the variety the old subject slot supplied without injecting a subject in front
+# of a complete sentence.
+#
+# The speaker confirms the verb phrase is invariant across all eight: only the
+# relation itself changes, so one authored sentence fits every one.
+RELATIONS: dict[str, tuple[str, ...]] = {
+    "kinyarwanda": (
+        "Umwana wanjye", "Umugore wanjye", "Umugabo wanjye", "Mama",
+        "Papa", "Mushiki wanjye", "Umuturanyi wanjye", "Umukecuru",
+    ),
+}
+
+REL_PLACEHOLDER = "{REL}"
