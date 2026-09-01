@@ -169,6 +169,12 @@ strings and most third-person phrases do not exist yet.
    has no slot for it.
 10. **Where a ruling conflicts with evidence, say so before recording it**, not
     after. A ruling made on wording does not settle a question about the concept.
+11. **Three-way test before writing any first-person row.** A symptom the patient
+    can report -> potentially first person. A routine service the patient
+    *receives* -> third person. An observer or measurement finding -> third
+    person. The measurement limb means *has not been told*, not *was measured*:
+    the speaker's EX08 and EX09 report a blood sugar and a blood pressure in
+    first person and are right to.
 
 ## 6. Row target: 1,832,000
 
@@ -269,6 +275,47 @@ whether an under-five self-presents for a routine child service at all — which
 the PA01-PA04 "would not speak" ground rather than the duplication ground.
 **Not applied unasked; it needs a ruling.**
 
+### Person-applicability audit — `review/person_applicability_audit.csv`
+
+Rule 11 applied to all 254 rows across the nine domains. **9 catches, 6
+conflicts, nothing recorded** — every row is left as it stands pending a ruling,
+because unlike rule 9 this test needs clinical judgement per concept and six of
+its findings disagree with phrases the speaker already authored.
+
+**Catches — first-person row still empty, no work lost by ruling `applies=no`:**
+
+| concept | limb | certainty |
+|---|---|---|
+| GI04 watery diarrhoea, sunken eyes, slow skin pinch | observer | high — the skin pinch is an examination manoeuvre |
+| NE01 continuous convulsion | observer | high — cannot speak, as PA01 |
+| NE02 unconscious, cannot be roused | observer | high — cannot speak, as PA03 |
+| PR09 deworming for a child | service received | high — the child receives it, an adult brings them |
+| NE06 new confusion today | observer | medium |
+| HT03 head injury with vomiting and confusion | observer | medium |
+| CC01 diabetic with vomiting, deep breathing, drowsiness | observer | medium |
+| CC02 hypoglycaemia with sweating and confusion | observer | medium |
+| NE04 sudden difficulty speaking | observer | low — flagged, not proposed |
+
+**Conflicts — the test disagrees with speaker-authored phrases. These stand.**
+
+- `CR04`, `CR03`, `EX04` — chest indrawing and cyanosis are observer signs, but
+  the speaker authored first-person forms. A patient can see their own lips and
+  fingertips; the authored phrase is the better authority.
+- `EX08`, `EX09` — these **refine rule 11** rather than falling to it. A blood
+  sugar and a blood pressure are measurements reported correctly in first person
+  because the patient was told the reading. `CC03` is the same shape with an
+  empty first-person row, so by this evidence it should be **authored, not
+  excluded**.
+- `EX46` `gukingiza umwana` — structural. The child receives the vaccination, so
+  limb 2 says third person, but the authored first-person phrase is the *carer*
+  speaking. Either "first person" means the requester rather than the patient for
+  service concepts, or EX46 belongs in the third-person row. **PA09 and PA10 wait
+  on exactly this question.**
+
+Beyond paediatric the test therefore proposes removing at most 9 first-person
+rows and adding none, and it identifies one row (`CC03`) it would be wrong to
+remove.
+
 ### PA08 first person — held, and blocked on vocabulary
 
 `applies=yes`, `hold=yes`, draft **not** approved. Substantiating the draft
@@ -295,8 +342,10 @@ replacement invented — the ear term has to come from the speaker.**
 3. `OB12` — is `Mama` plausible for a recent delivery?
 4. `CR01` first person and `CR05` third person — the `-mu-` object marker
 5. `PA08` — the ear term, which no approved phrase supplies
-6. `PA09`/`PA10` — does an under-five self-present for a routine child service?
-7. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
+6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
+   first-person row the patient or the requester? One answer settles all three
+7. The 9 catches in `review/person_applicability_audit.csv`
+8. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
 ### Then

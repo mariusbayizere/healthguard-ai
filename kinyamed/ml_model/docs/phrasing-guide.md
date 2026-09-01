@@ -137,6 +137,51 @@ mode, not the fix.
 unless the speaker says "accept". `speaker` and `needs_clinician` must stay
 distinguishable in the record, because the paper reports them separately.
 
+**9. Where a paediatric first-person row would duplicate an adult concept**, mark
+it `applies=no` rather than authoring a near-duplicate. The child-ness of the
+patient lives in `{REL}`, and first person has no slot for it — so a child saying
+"I have a fever and a rash" is the adult concept, not a paediatric one. Ruled
+against PA06/EX42 (vs IF05), EX40 (vs IF02), EX41 (vs CR03) and EX43 (vs IF03).
+
+**10. Where a ruling conflicts with evidence, say so before recording it**, not
+after. A ruling given on wording does not settle a question about the concept, and
+recording it as though it did buries the question. Raise it, then record what the
+speaker decides.
+
+**11. Three-way test before writing any first-person row.** Not every concept has
+one. Ask what kind of thing the concept is:
+
+| the concept is | first person | because |
+|---|---|---|
+| **a symptom the patient can report** | potentially yes | they feel it and can say it |
+| **a routine service the patient receives** | no — third person | someone brings them; the recipient does not present themselves |
+| **an observer or measurement finding** | no — third person | the patient cannot perceive it about themselves |
+
+The three limbs are about *who can know the thing*, not about severity.
+
+- **Symptom.** Pain, fever, bleeding, breathlessness, a rash the patient can see.
+  PA08's ear pain and discharge qualify; so does every obstetric first-person row,
+  because the pregnant woman is the patient.
+- **Service received.** Vaccination, deworming, growth monitoring — the child is
+  the recipient and an adult brings them. Distinguish this from *advice*, which is
+  received by the carer and is therefore theirs to ask for in first person: OB12
+  (`Ndashaka kugirwa inama uko nakonsa umwana`) and EX47 are correct as first
+  person, PR09 is not.
+- **Observer or measurement finding.** Sunken eyes, a slow skin pinch, chest
+  indrawing, unconsciousness, drowsiness, new confusion. The patient cannot see or
+  judge these about themselves.
+
+**The measurement limb means "has not been told", not "was measured".** The
+speaker's own EX08 (`isukari yo mu maraso yanjye yazamutse cyane`) and EX09
+(`umuvuduko w'amaraso wanjye wazamutse cyane`) report a blood sugar and a blood
+pressure in first person, and they are right to: the patient has been given the
+reading and can repeat it. A measurement becomes third-person only when nobody has
+told the patient — a growth curve read off a chart, a skin pinch done during the
+examination itself.
+
+This test does not override a phrase the speaker has already authored. Where it
+disagrees with one, it raises a question under rule 10; it does not settle it.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:
