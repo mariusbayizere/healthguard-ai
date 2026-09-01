@@ -1,7 +1,7 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, updated after the
-infectious_fever batch. All figures below were read from the files, not recalled.
+infectious_fever rulings. All figures below were read from the files, not recalled.
 
 ---
 
@@ -25,19 +25,19 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 |---|---|---|
 | cardiac_respiratory | 26/28 | 3 |
 | obstetric | 27/28 | 1 |
-| infectious_fever | 8/30 | 0 | *(+7 drafted, awaiting ruling)*
+| infectious_fever | 10/30 | 4 | *(+1 not-applicable: IF07)*
 | gastrointestinal | 6/28 | 0 |
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 0 |
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 0 |
 | preventive | 4/28 | 0 |
-| **total** | **91/254** | **4** |
+| **total** | **93/254** | **8** |  *(+1 not-applicable = 94 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 76 speaker, 13 machine_approved, 3 unresolved.** A ~85%
-speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
+**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 1
+not_applicable.** A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
 ## 3. Unresolved and held — nothing generates from these
@@ -49,21 +49,39 @@ and 5 speaker rewrites.
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | — | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely.** |
 
-### needs_clinician (6 rows, wording settled by the speaker, clinician not consulted)
+### needs_clinician — 10 rows, in two kinds
+
+**Wording settled by the speaker, clinician not consulted (4):**
+
+- `OB03` first and third — cord presentation. **Do not generate until validated.**
+- `OB05` first — puerperal sepsis discharge description
+- `CR04` first and third also carry a settled speaker phrasing, but are held
+  above for a different reason.
+
+**My draft held, nothing authored (6)** — `your_phrasing` empty, the draft left
+in `suggested_kinyarwanda` as the record of what was rejected:
 
 - `CR04` first and third — chest indrawing, a specific IMCI sign
 - `CR05` third — `ijwi ridasanzwe` is patient-understandable but not a definitive
   clinical term for wheeze
-- `OB03` first and third — cord presentation. **Do not generate until validated.**
-- `OB05` first — puerperal sepsis discharge description
+- `IF01` first — fever with stiff neck. A specific danger sign; the wording is a
+  guess. **Do not substitute a guess.**
+- `IF03` first — IMCI general danger sign (unable to drink). Draft held as-is;
+  no alternative invented.
+- `IF04` first — `nkabira ibyuya` for sweating is unvalidated.
+- `IF06` first — dysuria wording unvalidated and possibly the wrong register.
 
 ### Drafted but explicitly NOT accepted
 
 - `CR01` first — drafted to match the third after the speaker added jaw-or-arm.
   Blocked on the first-person object marker.
-- `CR05` third — as above.
+- `CR05` third, and `IF01`, `IF03`, `IF04`, `IF06` first — as above.
 
-Both sit in `suggested_kinyarwanda` with `your_phrasing` empty.
+All sit in `suggested_kinyarwanda` with `your_phrasing` empty.
+
+**needs_clinician is a legitimate outcome, not a failure.** A low-confidence
+draft is not converted into a rewrite to keep progress moving: holding beats
+manufacturing a plausible phrase that later reads as speaker-authored.
 
 ## 4. Relation-set architecture
 
@@ -151,6 +169,12 @@ rows the median authored phrase accounts for 2,000 rows, which is the diversity
 figure the project argues from. The person split doubled the denominator, so the
 earlier 1,008,000 target would now give 1,000 rows per phrase.
 
+**IF07 was ruled a duplicate of EX29** (see section 7), which takes the
+generation-eligible concept count from 126 toward 125 once its third-person row
+follows. The denominator above is not yet updated: `IF07` third is still
+`applies=yes` on disk, and collapsing the concept touches `concepts.py`,
+`concept_anchors.csv` and this figure. **Confirm before making that change.**
+
 **It is a ceiling reached by valid combinations, not a quota to fill.** At roughly
 0.8% of the combination space, no validity decision taken so far moves it at all.
 The generator default is still `TARGET_ROWS_V2 = 1_008_000` and should move to
@@ -158,35 +182,44 @@ The generator default is still `TARGET_ROWS_V2 = 1_008_000` and should move to
 
 ## 7. Current batch and what is blocked
 
-### In flight: infectious_fever first person, 7 drafts awaiting ruling
+### Settled: infectious_fever first person, all 7 ruled
 
-Drafted into `suggested_kinyarwanda`; `your_phrasing` is empty on all seven.
-**Nothing is accepted.**
-
-| id | conf | draft |
+| id | ruling | outcome |
 |---|---|---|
-| IF01 | low | `Mfite umuriro kandi ijosi ryanjye ryarakomeye.` |
-| IF02 | med | `Mfite umuriro mwinshi kandi naragagaye.` |
-| IF03 | med | `Mfite umuriro kandi sinshobora kunywa.` |
-| IF04 | low | `Maze iminsi itatu mfite umuriro n'imbeho kandi nkabira ibyuya.` |
-| IF05 | med | `Mfite umuriro kandi mfite uduheri ku mubiri wose.` |
-| IF06 | low | `Mfite umuriro kandi ndababara iyo nihagarika.` |
-| IF07 | med | `Mfite umuriro woroheje umaze umunsi umwe ariko nta kindi kibazo mfite.` |
+| IF01 | `needs_clinician` | draft held; stiff neck is a specific danger sign, no guess substituted |
+| IF02 | rewrite | `Mfite umuriro mwinshi kandi nagagaye.` — `source=speaker` |
+| IF03 | `needs_clinician` | draft held as-is; IMCI general danger sign, no alternative invented |
+| IF04 | `needs_clinician` | `nkabira ibyuya` unvalidated |
+| IF05 | accept | `Mfite umuriro kandi mfite uduheri ku mubiri wose.` — `source=machine_approved` |
+| IF06 | `needs_clinician` | dysuria wording unvalidated |
+| IF07 | duplicate of EX29 | `applies=no`, `source=not_applicable`; draft withdrawn |
 
-Three carry a flag beyond their confidence mark:
+Two suggestion notes were corrected in the same pass, both flagged before the
+ruling rather than changed silently:
 
-- **IF01** — meningeal stiffness is a specific sign and `ijosi ryarakomeye` is a
-  guess. A patient may instead say they cannot bend the neck. **Suggest
-  `needs_clinician`.**
-- **IF03** — an IMCI general danger sign (unable to drink). Worth clinician review.
-- **IF07** — **possible duplicate of the speaker's own EX29**,
-  `mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite`. The
-  difference is a comma. If they are one concept this is the CR01/EX05 pattern
-  again; the linter's duplicate check will catch it once both are accepted, but
-  the concept-level question is whether IF07 should exist at all.
+- **IF02** — the note credited `naragagaye` to OB01, but OB01 first person is
+  `Ndatwite kandi nagagaye.`; the `-ra-` form is OB01 *third* (`yaragagaye`).
+  The speaker's rewrite restores `nagagaye`.
+- **IF05** — the note quoted EX42 as `umwana ufite...`; it is `umwana afite...`.
+
+**IF07 / EX29 ruling.** They are one concept, not two. IF07's anchor is
+`IMCI: fever, no danger sign (green)`, glossed "a slight fever since yesterday
+but otherwise well"; EX29 — `mfite umuriro woroheje umaze umunsi umwe, ariko nta
+kindi kibazo mfite` — states exactly that. This is **not** the CR01/EX05 case:
+there, two real presentations existed (crushing pain with jaw-or-arm radiation
+vs the simpler chest-pain-to-arm), and both rows carry a `distinct from` note
+recording the axis. Here no axis exists in `concepts.py` or
+`concept_anchors.csv`, and inventing one would be manufacturing. The concrete
+cost of keeping both: two phrases differing by one comma enter the corpus as
+separate concepts, and the *phrase* holdout can place one in train and the other
+in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catch.
+
+`IF07` first is now `applies=no`. **Its third-person row is untouched** and the
+concept is not yet collapsed in `concepts.py` — see section 6.
 
 The 15 third-person infectious_fever rows are **not** drafted, per the rhythm:
-first person is ruled before third is drafted.
+first person is ruled before third is drafted, and these rulings had to be
+recorded first.
 
 ### Open question: is paediatric first person largely not-applicable?
 
@@ -207,12 +240,13 @@ domain.
 
 ### Blocked on the speaker, in order
 
-1. The 7 infectious_fever drafts above
+1. Paediatric first-person applicability — this is next, and it is a ruling
 2. `PR02` service-design question
 3. `OB12` — is `Mama` plausible for a recent delivery?
 4. `CR01` first person and `CR05` third person — the `-mu-` object marker
-5. Paediatric first-person applicability
-6. A clinician session for the six `needs_clinician` rows
+5. Confirm collapsing IF07 into EX29 in `concepts.py` and the row target
+6. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
+   held drafts with nothing authored
 
 ### Then
 
@@ -222,9 +256,10 @@ time, rendered across every relation for individual ruling. Never batch-accept.*
 Remaining: 163 of 254 Kinyarwanda rows, all 254 Swahili. Roughly 7-10 hours per
 language at 2-3 minutes a row.
 
-After infectious_fever, the domains with no unresolved architecture are
-gastrointestinal, haemorrhage_trauma and neurological — all at 6/28 with all eight
-relations confirmed.
+infectious_fever first person is closed. The domains with no unresolved
+architecture are gastrointestinal, haemorrhage_trauma and neurological — all at
+6/28 with all eight relations confirmed. infectious_fever third person is the
+other open front, and needs no new ruling to start.
 
 ## 8. Tooling
 
