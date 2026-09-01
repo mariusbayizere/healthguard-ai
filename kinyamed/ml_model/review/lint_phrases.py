@@ -75,9 +75,13 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
             warnings.append("{REL} is not at the head of the phrase; check it is the "
                             "grammatical subject rather than an object")
 
-    if len(phrase.split()) > 12:
-        problems.append(f"{len(phrase.split())} words: long enough that it is probably "
-                        "carrying its own onset or context")
+    # Length. Written for noun phrases, where anything long was carrying its own
+    # onset or context. An utterance is a whole sentence and is legitimately
+    # longer - the speaker's own approved phrases run to 14 words - so this is a
+    # warning at a higher threshold, not an error.
+    if len(phrase.split()) > 16:
+        warnings.append(f"{len(phrase.split())} words: check it is not carrying its own "
+                        "onset or context, which the slots also supply")
     return problems, warnings
 
 
