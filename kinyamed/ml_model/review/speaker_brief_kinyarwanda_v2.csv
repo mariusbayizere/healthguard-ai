@@ -1,9 +1,9 @@
 concept_id,domain,proposed_urgency,english_gloss,person,applies,person_note,form,your_phrasing,second_phrasing_optional,notes,suggested_kinyarwanda,confidence,suggestion_note,source
-CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,first,yes,,utterance,,,,,,,
+CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,first,yes,,utterance,,,,Mu gituza harandya cyane kandi ububabare bukagera mu kuboko.,medium,reuses your 'mu gituza harandya cyane kandi ububabare bukagera no ku kuboko'; I dropped 'no' and changed jaw->arm to match the gloss. Check which is more natural.,
 CR01,cardiac_respiratory,CRITICAL,crushing central chest pain spreading to jaw or arm,third,yes,,utterance,,,,,,,
-CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,first,yes,,utterance,,,,,,,
+CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,first,yes,,utterance,,,,Guhumeka birangora cyane ku buryo ntashobora kurangiza interuro.,low,'interuro' (sentence) may be too literary for a waiting room. A plainer version might be 'sinshobora kuvuga ngo ndangize'.,
 CR02,cardiac_respiratory,CRITICAL,too breathless to complete a sentence,third,yes,,utterance,,,,,,,
-CR03,cardiac_respiratory,CRITICAL,central cyanosis - blue lips or fingertips,first,yes,,utterance,,,,,,,
+CR03,cardiac_respiratory,CRITICAL,central cyanosis - blue lips or fingertips,first,yes,,utterance,,,,Iminwa yanjye n'intoki byahindutse ubururu.,medium,reuses your 'iminwa yanjye yahindutse ibara'; here naming the colour,
 CR03,cardiac_respiratory,CRITICAL,central cyanosis - blue lips or fingertips,third,yes,,utterance,,,,,,,
 EX01,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,mu gituza harandya cyane kandi sinshobora guhumeka neza,,first pass,,,,speaker
 EX01,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'mu gituza harandya cyane kandi sinshobora guhumeka neza',
@@ -15,17 +15,17 @@ EX04,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing 
 EX04,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara',
 EX05,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,mu gituza harandya cyane kandi ububabare bukagera no ku kuboko,,first pass,,,,speaker
 EX05,cardiac_respiratory,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'mu gituza harandya cyane kandi ububabare bukagera no ku kuboko',
-CR04,cardiac_respiratory,URGENT,fast breathing with lower chest wall indrawing,first,yes,,utterance,,,,,,,
+CR04,cardiac_respiratory,URGENT,fast breathing with lower chest wall indrawing,first,yes,,utterance,,,,Ndahumeka vuba cyane kandi mu gituza hariyo hakururwa.,low,chest indrawing is hard to say plainly; 'hakururwa' is my guess and likely wrong. A patient may just say the chest 'goes in'.,
 CR04,cardiac_respiratory,URGENT,fast breathing with lower chest wall indrawing,third,yes,,utterance,,,,,,,
-CR05,cardiac_respiratory,URGENT,wheeze with chest tightness,first,yes,,utterance,,,,,,,
+CR05,cardiac_respiratory,URGENT,wheeze with chest tightness,first,yes,,utterance,,,,Mu gituza hafunganye kandi guhumeka kurumvikana nk'ifirimbi.,low,'nk'ifirimbi' (like a whistle) for wheeze - check whether that is what people say,
 CR05,cardiac_respiratory,URGENT,wheeze with chest tightness,third,yes,,utterance,,,,,,,
-CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,first,yes,,utterance,,,,,,,
+CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,first,yes,,utterance,,,,Maze ibyumweru birenga bibiri nkorora kandi ndananutse.,medium,reuses your 'maze iminsi itatu...' duration pattern and 'nkorora',
 CR06,cardiac_respiratory,URGENT,cough over two weeks with weight loss,third,yes,,utterance,,,,,,,
 EX06,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,ndakorora cyane kandi guhumeka birangora,,first pass,,,,speaker
 EX06,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'ndakorora cyane kandi guhumeka birangora',
 EX07,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,iyo mpumetse cyane mu gituza harandya,,first pass,,,,speaker
 EX07,cardiac_respiratory,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'iyo mpumetse cyane mu gituza harandya',
-CR07,cardiac_respiratory,ROUTINE,"short mild cough, no fever",first,yes,,utterance,,,,,,,
+CR07,cardiac_respiratory,ROUTINE,"short mild cough, no fever",first,yes,,utterance,,,,Nkorora gake ariko sinta muriro mfite.,low,your existing phrase is 'nkorora gake ariko nta muriro mfite' - mine differs only by a typo I am unsure about; prefer yours,
 CR07,cardiac_respiratory,ROUTINE,"short mild cough, no fever",third,yes,,utterance,,,,,,,
 CC01,chronic_care,CRITICAL,"diabetic with vomiting, deep breathing and drowsiness",first,yes,,utterance,,,,,,,
 CC01,chronic_care,CRITICAL,"diabetic with vomiting, deep breathing and drowsiness",third,yes,,utterance,,,,,,,
