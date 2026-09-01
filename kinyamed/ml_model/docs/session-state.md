@@ -26,17 +26,17 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | cardiac_respiratory | 26/28 | 3 |
 | obstetric | 27/28 | 1 |
 | infectious_fever | 10/30 | 4 | *(+2 not-applicable: IF07 both persons)*
-| gastrointestinal | 6/28 | 0 |
+| gastrointestinal | 6/28 | 0 | *(+1 not-applicable: GI04 first)*
 | haemorrhage_trauma | 6/28 | 0 |
-| neurological | 6/28 | 0 |
+| neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **93/254** | **9** |  *(+13 not-applicable = 106 resolved)*
+| **total** | **93/254** | **13** |  *(+16 not-applicable = 109 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 13
+**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 16
 not_applicable.** A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
@@ -49,7 +49,7 @@ and 5 speaker rewrites.
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | — | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely.** |
 
-### needs_clinician — 11 rows, in three kinds
+### needs_clinician — 15 rows, in three kinds
 
 **Wording settled by the speaker, clinician not consulted (4):**
 
@@ -77,6 +77,9 @@ in `suggested_kinyarwanda` as the record of what was rejected:
   accurately report their own new confusion is meaningfully confused is a
   clinical question, not a linguistic one, so no first-person phrase is written
   until it is settled.
+- `HT03`, `CC01`, `CC02`, `NE04` first — held, `applies=yes`, **not deleted**.
+  All four turn on severity and capacity: whether a patient that unwell can still
+  report. Clinical questions, so rule 11 raised them and stopped.
 
 ### Drafted but explicitly NOT accepted
 
@@ -185,34 +188,36 @@ strings and most third-person phrases do not exist yet.
     they perceive it directly** — their own lips, the sensation of indrawing.
     **Rule 11 flags; it does not overrule an authored phrase.**
 
-## 6. Row target: 1,832,000
+## 6. Row target: 1,808,000
 
-**Ruled: size from valid content; never raise the per-phrase multiplier to reach
-a round number.** 2,000 rows per authored phrase is the invariant, and the row
-count moves whenever a ruling changes the phrase count.
+**Standing: the target is a consequence of the valid inventory, not a quota. If
+removals shrink it, that is correct — the number never drives a clinical
+decision.** 2,000 rows per authored phrase is the invariant; recompute whenever a
+ruling changes the phrase count.
 
 ```
 ceiling  125 concepts x 2 persons x 4 languages = 1,000 phrases
-minus    11 applies=no rows x 4                 =    44
+minus    14 applies=no rows x 4                 =    56
 minus    10 NO_RELATIONS thirds x 4             =    40
-net                                                 916 phrases
-                                    at 2,000/phrase -> 1,832,000 rows
+net                                                 904 phrases
+                                    at 2,000/phrase -> 1,808,000 rows
 ```
 
-126 -> 125 because IF07 collapsed into EX29. PR02 was already out.
+**`PR09` is not counted.** It is ruled `applies=no` but rule 12 makes its
+first-person row valid, and it is not recorded either way. If it is removed the
+figure is **1,800,000** (900 phrases); if rule 12 wins it stays at 1,808,000.
 
-The 11 `applies=no` rows are all paediatric first person: PA01-PA07 and
-EX40-EX43. The 40 `NO_RELATIONS` phrases are ruled in
-`routine_relation_sets.csv` but **not yet materialised in the brief** — that
-reconciliation is outstanding and does not change the figure, only where it is
-recorded.
+The 14 `applies=no` rows: PA01-PA07 and EX40-EX43 (paediatric first person),
+plus GI04, NE01 and NE02. The 40 `NO_RELATIONS` phrases are ruled in
+`routine_relation_sets.csv` but **not yet materialised in the brief**.
 
-History: 2,016,000 at 126 concepts, 2,000,000 at 125, 1,888,000 after PA01-04,
-1,832,000 after PA05-07 and EX40-43. `TARGET_ROWS_V2` is still `1_008_000` and
-moves to 1,832,000 when the relation sets are materialised.
+Held rows are *not* deducted: HT03, CC01, CC02, NE04 and NE06 keep `applies=yes`
+and are held, not deleted, so they still count as authorable phrases.
 
-**It is a ceiling reached by valid combinations, not a quota to fill.** At well
-under 1% of the combination space, no validity decision taken so far moves it.
+History: 2,016,000 at 126 concepts; 2,000,000 at 125; 1,888,000 after PA01-04;
+1,832,000 after PA05-07 and EX40-43; **1,808,000** after GI04, NE01 and NE02.
+`TARGET_ROWS_V2` is still `1_008_000` and moves when the relation sets are
+materialised.
 
 ## 7. Current batch and what is blocked
 
@@ -368,9 +373,11 @@ replacement invented — the ear term has to come from the speaker.**
 5. `PA08` — the ear term, which no approved phrase supplies
 6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
    first-person row the patient or the requester? One answer settles all three
-7. The 8 open catches in `review/person_applicability_audit.csv` — GI04, NE01,
-   NE02 and PR09 are high certainty; HT03, CC01, CC02 and NE04 are not
-8. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
+7. `PR09` — ruled `applies=no`, but rule 12 makes its first-person row valid.
+   The one row where two rulings disagree; **not recorded either way**
+8. The rest of `review/service_speaker_audit.csv` — PA09, PA10, PR08 confirmed
+   `applies=yes` by rule 12, awaiting sign-off
+9. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
 ### Then

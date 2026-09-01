@@ -190,6 +190,40 @@ exactly that reason. What the limb excludes is what the patient has no access to
 a skin pinch performed during the examination, a growth curve, their own
 unconsciousness, their own confusion.
 
+**12. SERVICE_SPEAKER — for a service concept, first person is the person
+presenting or requesting the service, not necessarily the patient.** Symptom
+concepts and service concepts do not work the same way. In a symptom concept the
+speaker is the patient, and rule 11's limbs apply. In a service concept the
+speaker is whoever walks in and asks — and for a service delivered *to* someone
+else, that is not the patient.
+
+```
+beneficiary == requester   ->  ordinary first person   (CC08 refill, PR07 screening,
+                                                        OB11 antenatal, PR03 HIV test)
+beneficiary != requester   ->  first person is the REQUESTER
+                               (EX46 gukingiza umwana, PA09, PA10, PR08, EX47)
+```
+
+The speaker's own `EX46` — `gukingiza umwana`, "vaccinating a child" — is the
+evidence this rule is built from. It sits in a first-person row, it is
+speaker-authored, and the child is plainly not the one speaking. The row is
+correct; what was missing was the rule saying why.
+
+Two consequences worth stating:
+
+- **A service concept's first-person row is not a child speaking**, so rule 9's
+  duplication test does not apply to it. `PA09` and `PA10` keep their first-person
+  rows on this ground.
+- **It does not license mixing person inside a phrase** (rule 3). `gukingiza
+  umwana` carries no person marking at all; it is a bare noun phrase in the
+  requester's mouth. A service phrase that inflects for a third-person subject
+  still breaks rule 3.
+
+Rule 11's "routine service the patient receives -> third person" limb is
+**narrowed by this**: it excludes the *patient's* first-person row, not the
+carer's. Both persons can exist for a service concept, and they are different
+speakers rather than the same speaker rephrased.
+
 **Rule 11 flags; it does not overrule.** Where the test disagrees with a phrase
 the speaker has already authored, the authored phrase stands and the test has
 raised a question under rule 10 — nothing more. The test is a prompt to ask, and

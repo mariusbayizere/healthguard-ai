@@ -220,3 +220,34 @@ Every row deducts both kinds, so the columns are comparable. The headline
 figures quoted earlier in this page's history — 2,016,000 and 2,000,000 — are
 **ceilings** that had not yet deducted the `NO_RELATIONS` thirds; they are not
 alternative targets.
+
+
+---
+
+# Recomputation after the person-applicability rulings
+
+GI04, NE01 and NE02 ruled `applies=no` for first person. HT03, CC01, CC02, NE04
+and NE06 held with `applies=yes` — held rows are not deducted, because the phrase
+is still to be authored once the clinical question is answered.
+
+```
+ceiling  125 concepts x 2 persons x 4 languages = 1,000 phrases
+minus    14 applies=no rows x 4                 =    56
+minus    10 NO_RELATIONS thirds x 4             =    40
+net                                                 904 phrases
+                                    at 2,000/phrase -> 1,808,000 rows
+```
+
+**1,808,000**, with `PR09` unresolved and uncounted: 1,800,000 if it is removed.
+
+| after | concepts | ceiling | - applies=no | - NO_RELATIONS | net | rows |
+|---|---|---|---|---|---|---|
+| person split | 126 | 1,008 | 0 | 40 | 968 | 1,936,000 |
+| IF07 collapse | 125 | 1,000 | 0 | 40 | 960 | 1,920,000 |
+| PA01-PA04 | 125 | 1,000 | 16 | 40 | 944 | 1,888,000 |
+| PA05-PA07, EX40-EX43 | 125 | 1,000 | 44 | 40 | 916 | 1,832,000 |
+| GI04, NE01, NE02 | 125 | 1,000 | 56 | 40 | 904 | **1,808,000** |
+
+**The target is a consequence of the valid inventory, not a quota.** Every step
+down this table is a clinical decision taken on its own merits; none of them was
+weighed against the row count, and none should be.
