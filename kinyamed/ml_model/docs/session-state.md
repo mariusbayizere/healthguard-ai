@@ -26,17 +26,17 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
 | obstetric | 27/28 | 1 |
 | infectious_fever | 17/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
-| gastrointestinal | 6/28 | 0 | *(+1 not-applicable: GI04 first)*
+| gastrointestinal | 11/28 | 2 | *(+1 not-applicable: GI04 first)*
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **100/254** | **14** |  *(+18 not-applicable = 118 resolved)*
+| **total** | **105/254** | **16** |  *(+18 not-applicable = 123 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 78 speaker, 20 machine_approved, 3 unresolved, 18
+**Provenance so far: 78 speaker, 25 machine_approved, 3 unresolved, 18
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
 machine_approved and one speaker rewrite. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
@@ -257,26 +257,30 @@ in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catc
 `IF07` first is now `applies=no`. **Its third-person row is untouched** and the
 concept is not yet collapsed in `concepts.py` — see section 6.
 
-### In flight: gastrointestinal first person
+### Settled: gastrointestinal first person
 
 **21 rows left in the domain, not 22** — GI04 first went `applies=no` in the
-person-applicability rulings, so it is already resolved. Seven first-person rows
-were outstanding: **5 drafted, 2 blocked.** Nothing accepted.
+person-applicability rulings. Seven first-person rows were outstanding: **5
+accepted, 2 blocked.** The domain is 11/28 filled, 12/28 resolved.
 
-| id | conf | draft |
+| id | phrase | provenance |
 |---|---|---|
-| GI01 | med | `Ndaruka ibyo ndya byose kandi sinshobora no kunywa.` |
-| GI02 | med | `Ndaruka amaraso.` |
-| GI05 | med | `Mfite impiswi zirimo amaraso.` |
-| GI06 | med | `Maze ibyumweru birenga bibiri ndwaye impiswi.` |
-| GI07 | low | `Inda irandya cyane kandi ububabare ntibuhagarara.` |
+| GI01 | `Ndaruka ibyo ndya byose kandi sinshobora no kunywa.` | machine_approved |
+| GI02 | `Ndaruka amaraso.` | machine_approved |
+| GI05 | `Mfite impiswi zirimo amaraso.` | machine_approved |
+| GI06 | `Maze ibyumweru birenga bibiri ndwaye impiswi.` | machine_approved |
+| GI07 | `Inda irandya cyane kandi ububabare ntibuhagarara.` | machine_approved |
 
 GI01 and GI06 reuse whole clauses of the speaker's: `ndaruka ibyo ndya byose`
 from OB10, `Maze ibyumweru birenga bibiri` from CR06. GI05 is phrased as bloody
 diarrhoea, which is the dysentery presentation and routes around the missing
-word for stool. Two carry a concord flag: `zirimo` on `impiswi` (GI05) and the
-class-14 negative `ntibuhagarara` (GI07); the speaker's attested `ntahagarara`
-agrees with `amaraso`, not with `ububabare`.
+word for stool.
+
+**Two concord flags are now inside accepted phrases** and stay in the record on
+their `suggestion_note`: `zirimo` on `impiswi` (GI05), and the class-14 negative
+`ntibuhagarara` (GI07), where the speaker's attested `ntahagarara` agrees with
+`amaraso` rather than with `ububabare`. The speaker accepted both; the
+uncertainty is recorded, not resolved.
 
 **GI03 blocked — no word for stool exists in the approved vocabulary.**
 `umwanda`, `amabyi`, `ubwiherero`, `kwituma`, `amase` appear in none of the
@@ -509,7 +513,9 @@ replacement invented — the ear term has to come from the speaker.**
    normalised without a ruling.**
 8. `GI03` — the word for stool, which no approved phrase supplies
 9. `GI08` vs `EX16`/`EX17` — concept ruling
-10. The 5 gastrointestinal first-person drafts
+10. Gastrointestinal **third person** — 14 rows, none drafted; the rhythm is
+    first person before third, and first person is now settled apart from GI03
+    and GI08
 11. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
