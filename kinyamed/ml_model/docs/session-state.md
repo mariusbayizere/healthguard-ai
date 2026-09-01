@@ -257,6 +257,40 @@ in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catc
 `IF07` first is now `applies=no`. **Its third-person row is untouched** and the
 concept is not yet collapsed in `concepts.py` — see section 6.
 
+### In flight: gastrointestinal first person
+
+**21 rows left in the domain, not 22** — GI04 first went `applies=no` in the
+person-applicability rulings, so it is already resolved. Seven first-person rows
+were outstanding: **5 drafted, 2 blocked.** Nothing accepted.
+
+| id | conf | draft |
+|---|---|---|
+| GI01 | med | `Ndaruka ibyo ndya byose kandi sinshobora no kunywa.` |
+| GI02 | med | `Ndaruka amaraso.` |
+| GI05 | med | `Mfite impiswi zirimo amaraso.` |
+| GI06 | med | `Maze ibyumweru birenga bibiri ndwaye impiswi.` |
+| GI07 | low | `Inda irandya cyane kandi ububabare ntibuhagarara.` |
+
+GI01 and GI06 reuse whole clauses of the speaker's: `ndaruka ibyo ndya byose`
+from OB10, `Maze ibyumweru birenga bibiri` from CR06. GI05 is phrased as bloody
+diarrhoea, which is the dysentery presentation and routes around the missing
+word for stool. Two carry a concord flag: `zirimo` on `impiswi` (GI05) and the
+class-14 negative `ntibuhagarara` (GI07); the speaker's attested `ntahagarara`
+agrees with `amaraso`, not with `ububabare`.
+
+**GI03 blocked — no word for stool exists in the approved vocabulary.**
+`umwanda`, `amabyi`, `ubwiherero`, `kwituma`, `amase` appear in none of the
+speaker's phrases, none of `dataset/vocabulary.py`, none of
+`phrase_review_sheet.csv`. Melaena needs the noun and cannot be routed around the
+way GI05 was. Same blocker shape as PA08's ear term. **No replacement invented.**
+
+**GI08 blocked — probable duplicate of EX16/EX17.** GI08 is "mild indigestion
+after eating"; EX16 `iyo maze kurya numva inda itameze neza` and EX17 `iyo maze
+kurya numva mu nda ntameze neza` both already say it. The IF07/EX29 shape, within
+one domain this time. Separately: **EX16 and EX17 are near-duplicates of each
+other**, both speaker-authored — same family so no family-holdout risk, but
+different phrase strings, so they can split across the phrase holdout.
+
 ### Settled: infectious_fever third person
 
 14 rows. **8 authored, 1 needs_clinician, 4 held on their first person, 1
@@ -427,8 +461,10 @@ replacement invented — the ear term has to come from the speaker.**
 7. `CR07` first — the form of the adopted wording: EX30's verbatim lowercase
    string, or the same words in this row's capitalised sentence form. **Not
    normalised without a ruling.**
-8. Nothing outstanding in infectious_fever beyond the held rows
-9. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
+8. `GI03` — the word for stool, which no approved phrase supplies
+9. `GI08` vs `EX16`/`EX17` — concept ruling
+10. The 5 gastrointestinal first-person drafts
+11. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
 ### Then
