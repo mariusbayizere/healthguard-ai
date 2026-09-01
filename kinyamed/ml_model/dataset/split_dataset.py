@@ -52,7 +52,7 @@ from dataset.atomicio import (  # noqa: E402
     sweep_partials,
 )
 from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
-from dataset.vocabulary import REL_PLACEHOLDER, SENTENCE_END  # noqa: E402
+from dataset.vocabulary import PHRASE_VARIANTS, REL_PLACEHOLDER, SENTENCE_END  # noqa: E402
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
@@ -91,6 +91,22 @@ def phrase_components() -> dict[str, str]:
         for inner in phrases:
             if inner != outer and inner in outer:
                 union(inner, outer)
+
+    # A concept's second phrasing joins its primary, whether or not one contains
+    # the other. Substring closure alone would leave two divergent phrasings of
+    # one concept in separate groups and let the holdout split them.
+    known = set(phrases)
+    for variant, primary in PHRASE_VARIANTS.items():
+        missing = [p for p in (variant, primary) if p not in known]
+        if missing:
+            # Silence here would put the pair in separate groups, which is the
+            # exact failure the declaration exists to prevent. Refuse instead.
+            raise SystemExit(
+                f"PHRASE_VARIANTS declares {variant!r} -> {primary!r} but "
+                f"{missing!r} is not in the symptom inventory. A declared pairing "
+                "that names an absent phrase is a misconfiguration, not a no-op."
+            )
+        union(variant, primary)
 
     return {phrase: find(phrase) for phrase in phrases}
 

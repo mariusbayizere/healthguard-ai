@@ -581,3 +581,23 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
 # to the wide set: a wrong wide set puts impossible patients into the corpus,
 # and a wrong narrow one only costs variety.
 CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}
+
+
+# A concept may carry a second phrasing: the same presentation said another way,
+# which is variety worth having rather than a duplicate to remove. Both reach the
+# corpus, so both must reach it as ONE phrase group.
+#
+# phrase_components closes over substring containment, which catches a nested
+# phrase and misses a divergent one. The speaker's two indigestion phrasings,
+#
+#     "iyo maze kurya numva inda itameze neza"
+#     "iyo maze kurya numva mu nda ntameze neza"
+#
+# share twenty-one characters and neither contains the other, so nothing unions
+# them and the phrase holdout could train on one while evaluating the other.
+# Declaring the pairing here is what stops that.
+#
+# Maps the second phrasing to the concept's primary one. Populated at v2 build
+# time from the brief's `second_phrasing_optional` column - see
+# review/second_phrasings.py.
+PHRASE_VARIANTS: dict[str, str] = {}

@@ -62,8 +62,9 @@ CONCEPTS = [
   "diarrhoea for more than two weeks","une diarrhee depuis plus de deux semaines"),
  ("gastrointestinal","URGENT","GI07","severe abdominal pain that will not settle","not IMCI (adult presentation)",
   "severe stomach pain that will not settle","une douleur au ventre tres forte qui ne passe pas"),
- ("gastrointestinal","ROUTINE","GI08","mild indigestion after eating","not IMCI (minor complaint)",
-  "a mild stomach upset after eating","un petit mal de ventre apres avoir mange"),
+ # GI08 collapsed into EX16/EX17: the same concept, "mild indigestion after
+ # eating", already carried by the speaker's own first-pass phrasings. Its
+ # anchor was "not IMCI (minor complaint)", so nothing held it apart.
 
  # ---- haemorrhage_trauma : 8 new ----
  ("haemorrhage_trauma","CRITICAL","HT01","bleeding not controlled by pressure","not IMCI (trauma)",

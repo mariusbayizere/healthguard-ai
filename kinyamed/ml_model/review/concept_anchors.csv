@@ -19,7 +19,6 @@ GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow s
 GI05,gastrointestinal,URGENT,blood in the stool,IMCI: blood in stool -> DYSENTERY,WHO IMCI 2014 (All rights reserved)
 GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,IMCI: PERSISTENT DIARRHOEA,WHO IMCI 2014 (All rights reserved)
 GI07,gastrointestinal,URGENT,severe abdominal pain that will not settle,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
-GI08,gastrointestinal,ROUTINE,mild indigestion after eating,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
 HT01,haemorrhage_trauma,CRITICAL,bleeding not controlled by pressure,BEC Module 2: approach to trauma / Module 4: shock,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
 HT02,haemorrhage_trauma,CRITICAL,deep wound with bone visible,BEC Module 2: approach to trauma,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
 HT03,haemorrhage_trauma,CRITICAL,head injury with vomiting and confusion,BEC Module 2: trauma + Module 5: altered mental status,WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)

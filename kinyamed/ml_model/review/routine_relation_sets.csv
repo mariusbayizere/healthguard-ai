@@ -22,7 +22,6 @@ C,EX29,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does no
 C,EX31,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
 C,EX36,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
 C,EX37,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
-C,GI08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
 C,HT08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
 C,NE08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
 D,PR04,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf

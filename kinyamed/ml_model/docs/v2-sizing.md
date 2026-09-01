@@ -279,3 +279,35 @@ net                                                 896 phrases
 
 **The target is a consequence of the valid inventory, not a quota.** Every step
 down this table is a clinical or structural decision taken on its own merits.
+
+
+---
+
+# Recomputation after the GI08 collapse
+
+GI08 collapsed into EX16/EX17: the same concept, already carried by the
+speaker's own first-pass phrasings, and its anchor was `not IMCI (minor
+complaint)` — no anchor to hold it apart.
+
+```
+ceiling  123 concepts x 2 persons x 4 languages =   984 phrases
+minus    14 applies=no rows x 4                 =    56
+minus    10 NO_RELATIONS thirds x 4             =    40
+net                                                 888 phrases
+                                    at 2,000/phrase -> 1,776,000 rows
+```
+
+| after | concepts | ceiling | - applies=no | - NO_RELATIONS | net | rows |
+|---|---|---|---|---|---|---|
+| person split | 126 | 1,008 | 0 | 40 | 968 | 1,936,000 |
+| IF07 collapse | 125 | 1,000 | 0 | 40 | 960 | 1,920,000 |
+| PA01-PA04 | 125 | 1,000 | 16 | 40 | 944 | 1,888,000 |
+| PA05-PA07, EX40-EX43 | 125 | 1,000 | 44 | 40 | 916 | 1,832,000 |
+| GI04, NE01, NE02 | 125 | 1,000 | 56 | 40 | 904 | 1,808,000 |
+| EX30 collapse | 124 | 992 | 56 | 40 | 896 | 1,792,000 |
+| GI08 collapse | 123 | 984 | 56 | 40 | 888 | **1,776,000** |
+| *EX16/EX17, when executed* | *122* | *976* | *56* | *40* | *880* | *1,760,000* |
+
+The last row is confirmed but not executed: it waits on the second-phrasing
+pairing being written into the brief and into `PHRASE_VARIANTS`, so EX17's
+wording survives the collapse rather than being lost by it.
