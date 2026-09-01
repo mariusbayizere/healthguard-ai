@@ -67,6 +67,14 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
                             f"non-{head!r} variants")
             break
 
+    # Standing rule: {REL} should be the grammatical subject. A weak positional
+    # check only - it cannot parse Kinyarwanda - so it warns rather than errors.
+    if "{REL}" in phrase:
+        head = phrase.split()
+        if head and not (head[0] == "{REL}" or (len(head) > 1 and head[1] == "{REL}")):
+            warnings.append("{REL} is not at the head of the phrase; check it is the "
+                            "grammatical subject rather than an object")
+
     if len(phrase.split()) > 12:
         problems.append(f"{len(phrase.split())} words: long enough that it is probably "
                         "carrying its own onset or context")
