@@ -188,3 +188,35 @@ and matches the materialised state today. 1,888,000 is what this page's own
 principle implies — the row count follows the clinical content supporting it, so
 content removed should remove rows rather than inflate the per-phrase figure to
 2,119. `TARGET_ROWS_V2` is unchanged at 1,008,000 pending that ruling.
+
+
+---
+
+# Recomputation after the paediatric rulings
+
+PA05-PA07 ruled `applies=no`, and standing rule 9 — a paediatric first-person row
+that would duplicate an adult concept is not authored — caught EX40-EX43.
+
+```
+ceiling  125 concepts x 2 persons x 4 languages = 1,000 phrases
+minus    11 applies=no rows x 4                 =    44
+minus    10 NO_RELATIONS thirds x 4             =    40
+net                                                 916 phrases
+                                    at 2,000/phrase -> 1,832,000 rows
+```
+
+**Ruled: 1,832,000.** The target is sized from valid content; the per-phrase
+multiplier stays at 2,000 and is never raised to reach a round number. Recompute
+whenever a ruling changes the phrase count.
+
+| after | concepts | ceiling | - applies=no | - NO_RELATIONS | net | rows |
+|---|---|---|---|---|---|---|
+| person split | 126 | 1,008 | 0 | 40 | 968 | 1,936,000 |
+| IF07 collapse | 125 | 1,000 | 0 | 40 | 960 | 1,920,000 |
+| PA01-PA04 | 125 | 1,000 | 16 | 40 | 944 | 1,888,000 |
+| PA05-PA07, EX40-EX43 | 125 | 1,000 | 44 | 40 | 916 | **1,832,000** |
+
+Every row deducts both kinds, so the columns are comparable. The headline
+figures quoted earlier in this page's history — 2,016,000 and 2,000,000 — are
+**ceilings** that had not yet deducted the `NO_RELATIONS` thirds; they are not
+alternative targets.

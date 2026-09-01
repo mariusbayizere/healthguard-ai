@@ -1,7 +1,7 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, updated after the
-infectious_fever rulings, the IF07 collapse and the paediatric person ruling. All figures below were read from the files, not recalled.
+infectious_fever rulings, the IF07 collapse and the paediatric person rulings. All figures below were read from the files, not recalled.
 
 ---
 
@@ -30,13 +30,13 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 0 |
 | chronic_care | 4/28 | 0 |
-| paediatric | 4/28 | 0 | *(+4 not-applicable: PA01-04 first)*
+| paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **93/254** | **8** |  *(+6 not-applicable = 99 resolved)*
+| **total** | **93/254** | **9** |  *(+13 not-applicable = 106 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 6
+**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 13
 not_applicable.** A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
@@ -163,28 +163,41 @@ strings and most third-person phrases do not exist yet.
    or leave unresolved.
 8. **A draft is a suggestion, never an approval.** Nothing is `machine_approved`
    without an explicit "accept" from the speaker.
+9. **Where a paediatric first-person row would duplicate an adult concept**
+   because the child-ness lives only in `{REL}`, mark it `applies=no` rather than
+   authoring a near-duplicate. The relation carries the distinction; first person
+   has no slot for it.
+10. **Where a ruling conflicts with evidence, say so before recording it**, not
+    after. A ruling made on wording does not settle a question about the concept.
 
-## 6. Row target: recomputed at 125 concepts
+## 6. Row target: 1,832,000
+
+**Ruled: size from valid content; never raise the per-phrase multiplier to reach
+a round number.** 2,000 rows per authored phrase is the invariant, and the row
+count moves whenever a ruling changes the phrase count.
 
 ```
-125 concepts x 2 persons x 4 languages = 1,000 authored phrases
-at 2,000 rows per phrase               -> 2,000,000 rows   (ceiling)
-minus PA01-04 first person   16 phrases   materialised
-minus 10 NO_RELATIONS thirds 40 phrases   ruled, not yet materialised
-                              944 phrases -> 1,888,000 rows
+ceiling  125 concepts x 2 persons x 4 languages = 1,000 phrases
+minus    11 applies=no rows x 4                 =    44
+minus    10 NO_RELATIONS thirds x 4             =    40
+net                                                 916 phrases
+                                    at 2,000/phrase -> 1,832,000 rows
 ```
 
 126 -> 125 because IF07 collapsed into EX29. PR02 was already out.
 
-**Which figure becomes the target is an open ruling** — see `docs/v2-sizing.md`.
-2,000,000 matches the materialised state; 1,888,000 is what the page's own
-principle implies, since the row count follows the clinical content and content
-removed should remove rows rather than push the per-phrase figure to 2,119.
+The 11 `applies=no` rows are all paediatric first person: PA01-PA07 and
+EX40-EX43. The 40 `NO_RELATIONS` phrases are ruled in
+`routine_relation_sets.csv` but **not yet materialised in the brief** — that
+reconciliation is outstanding and does not change the figure, only where it is
+recorded.
+
+History: 2,016,000 at 126 concepts, 2,000,000 at 125, 1,888,000 after PA01-04,
+1,832,000 after PA05-07 and EX40-43. `TARGET_ROWS_V2` is still `1_008_000` and
+moves to 1,832,000 when the relation sets are materialised.
 
 **It is a ceiling reached by valid combinations, not a quota to fill.** At well
 under 1% of the combination space, no validity decision taken so far moves it.
-The generator default is still `TARGET_ROWS_V2 = 1_008_000` and moves only once
-the target is ruled and the relation sets are materialised.
 
 ## 7. Current batch and what is blocked
 
@@ -227,46 +240,53 @@ The 15 third-person infectious_fever rows are **not** drafted, per the rhythm:
 first person is ruled before third is drafted, and these rulings had to be
 recorded first.
 
-### Settled: paediatric first person, ruled per concept
+### Settled: paediatric first person — 11 of 14 rows are not applicable
 
-Not domain-wide. The speaker ruled each concept:
+Ruled per concept, not domain-wide. **Only PA08, PA09 and PA10 keep a
+first-person row.** Third person is unaffected throughout.
 
-| concept | first person | reason |
+| concept | first | ground |
 |---|---|---|
-| PA01 convulsing | `applies=no` | a convulsing child cannot speak for themselves |
-| PA02 too weak to breastfeed | `applies=no` | an infant too weak to breastfeed cannot speak at all |
-| PA03 unconscious or floppy | `applies=no` | cannot speak for themselves |
-| PA04 fast breathing with indrawing | `applies=no` | severe respiratory distress; cannot speak |
-| PA05 diarrhoea | `applies=yes` | an older child could plausibly report it |
-| PA06 fever and rash | `applies=yes` | as above |
-| PA07 thin, not gaining weight | `applies=yes` | as above |
-| PA08 ear pain and discharge | `applies=yes` | as above |
+| PA01 convulsing | `no` | a convulsing child cannot speak for themselves |
+| PA02 too weak to breastfeed | `no` | an infant too weak to breastfeed cannot speak at all |
+| PA03 unconscious or floppy | `no` | cannot speak for themselves |
+| PA04 fast breathing with indrawing | `no` | severe respiratory distress; cannot speak |
+| PA05 diarrhoea, sunken eyes | `no` | sunken eyes is an observer sign; removing it leaves a weaker concept overlapping GI04/GI06 |
+| PA06 fever and rash | `no` | duplicates IF05; the distinction lives in `{REL}` |
+| PA07 thin, not gaining weight | `no` | a growth-monitoring finding, not a self-report; thinness alone overlaps CR06 |
+| EX40 convulsing with fever >40 | `no` | rule 9 — duplicates IF02 (and NE01); also cannot speak |
+| EX41 cannot breathe, skin blue | `no` | rule 9 — duplicates CR03; also cannot speak |
+| EX42 fever and rash | `no` | rule 9 — duplicates IF05, the PA06 collapse again |
+| EX43 high fever, cannot eat | `no` | rule 9 — duplicates IF03 |
+| **PA08 ear pain and discharge** | `yes` | no adult counterpart; a child can report both signs |
+| PA09 growth monitoring | `yes` | untested — see below |
+| PA10 due for vaccination | `yes` | untested — see below |
 
-Third person is unaffected throughout. The domain is 24 rows, not 28.
+**Rule 9 caught EX40-EX43** and nothing outside paediatric. It does *not* catch
+PA09 or PA10: neither duplicates an adult concept, since no adult growth-
+monitoring or vaccination concept exists. They raise a different question —
+whether an under-five self-presents for a routine child service at all — which is
+the PA01-PA04 "would not speak" ground rather than the duplication ground.
+**Not applied unasked; it needs a ruling.**
 
-**Four drafts are in `suggested_kinyarwanda`, none accepted.** Three carry a flag
-beyond the confidence mark, raised before drafting rather than after:
+### PA08 first person — held, and blocked on vocabulary
 
-- **PA06 — probable duplicate of IF05 in first person.** PA06 is `IMCI: MEASLES`,
-  IF05 is `IMCI: generalised rash -> MEASLES`. The only thing separating them is
-  that the patient is a child, which `{REL}` carries in third person and first
-  person has no slot for. This is the IF07/EX29 shape again and wants a
-  concept-level ruling, not a wording one.
-- **PA05 — sunken eyes is an observer sign.** A child cannot see their own.
-  Dropping it leaves plain diarrhoea, which is not what PA05 encodes. Also
-  overlaps GI04 and GI06, which carry the same signs for an adult.
-- **PA07 — "not gaining weight" is a growth-chart judgement**, not something a
-  child self-reports. The self-reportable half is thinness alone, which overlaps
-  CR06's weight loss.
+`applies=yes`, `hold=yes`, draft **not** approved. Substantiating the draft
+`Ugutwi kwanjye kurandya kandi hasohoka amazi.` against approved vocabulary
+only:
 
-**PA08 is the only clean one**: no adult counterpart concept, and a child can
-report both ear pain and discharge directly.
+- `hasohoka` **holds** — your OB05 `hasohoka ibintu binuka`.
+- `amazi` **does not** — it is attested only as the waters of OB07
+  `Amazi yamenetse`, a different sense entirely. The attested discharge word is
+  `amashyira`, from the v1 phrase `igikomere cyanduye kitukura kandi kirimo
+  amashyira`, in the pattern `kirimo amashyira`.
+- **Blocker: no ear term exists in the approved vocabulary at all.** `ugutwi`
+  appears in none of your phrases, none of `dataset/vocabulary.py`, none of
+  `phrase_review_sheet.csv`. The head noun cannot be substantiated, and neither
+  can the class agreement on `kurandya` that depends on it.
 
-The general pattern worth a ruling: **paediatric first person tends to collapse
-into its adult counterpart**, because the child-ness of the patient lives in the
-relation, not in the sentence. Where an adult domain already encodes the same
-presentation, the paediatric first-person row may be a duplicate rather than a
-concept.
+So one substitution is substantiable and the row still cannot be completed. **No
+replacement invented — the ear term has to come from the speaker.**
 
 ### Blocked on the speaker, in order
 
@@ -274,8 +294,8 @@ concept.
 2. `PR02` service-design question
 3. `OB12` — is `Mama` plausible for a recent delivery?
 4. `CR01` first person and `CR05` third person — the `-mu-` object marker
-5. The row target: 2,000,000 or 1,888,000 (section 6)
-6. PA06/PA05/PA07 — concept-level rulings on the overlaps flagged above
+5. `PA08` — the ear term, which no approved phrase supplies
+6. `PA09`/`PA10` — does an under-five self-present for a routine child service?
 7. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
