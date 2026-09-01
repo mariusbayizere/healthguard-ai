@@ -25,14 +25,14 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 |---|---|---|
 | cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
 | obstetric | 27/28 | 1 |
-| infectious_fever | 18/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
+| infectious_fever | 17/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
 | gastrointestinal | 6/28 | 0 | *(+1 not-applicable: GI04 first)*
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **101/254** | **14** |  *(+18 not-applicable = 119 resolved)*
+| **total** | **100/254** | **14** |  *(+18 not-applicable = 118 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
@@ -260,7 +260,11 @@ concept is not yet collapsed in `concepts.py` — see section 6.
 ### Settled: infectious_fever third person
 
 14 rows. **8 authored, 1 needs_clinician, 4 held on their first person, 1
-collapsed.** The domain is 18/30 filled.
+collapsed.** The domain is 17/30 filled and 21/30 resolved.
+
+Counting note: `EX30` first still holds the speaker's text but is `applies=no`
+after the collapse, so it counts as not-applicable rather than filled. Read
+totals from `progress.py`, not from a count of non-empty cells.
 
 | id | phrase | provenance |
 |---|---|---|
