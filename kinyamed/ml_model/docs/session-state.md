@@ -1,7 +1,7 @@
 # Session state — handover
 
-Everything a fresh session needs to continue without re-deriving it. Written
-2026-09-01. All figures below were read from the files, not recalled.
+Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, updated after the
+infectious_fever batch. All figures below were read from the files, not recalled.
 
 ---
 
@@ -25,7 +25,7 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 |---|---|---|
 | cardiac_respiratory | 26/28 | 3 |
 | obstetric | 27/28 | 1 |
-| infectious_fever | 8/30 | 0 |
+| infectious_fever | 8/30 | 0 | *(+7 drafted, awaiting ruling)*
 | gastrointestinal | 6/28 | 0 |
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 0 |
@@ -156,25 +156,75 @@ earlier 1,008,000 target would now give 1,000 rows per phrase.
 The generator default is still `TARGET_ROWS_V2 = 1_008_000` and should move to
 2,016,000 when the relation sets are materialised.
 
-## 7. The next batch
+## 7. Current batch and what is blocked
 
-Blocked on the speaker, in this order:
+### In flight: infectious_fever first person, 7 drafts awaiting ruling
 
-1. `PR02` service-design question
-2. `OB12` — is `Mama` plausible for a recent delivery?
-3. `CR01` first person and `CR05` third person — the `-mu-` object marker
-4. A clinician session for the six `needs_clinician` rows
+Drafted into `suggested_kinyarwanda`; `your_phrasing` is empty on all seven.
+**Nothing is accepted.**
 
-Then drafting resumes. **The rhythm is: first person first, then third with
-`{REL}`, one domain at a time, rendered across every relation for individual
-ruling.** Never batch-accept.
+| id | conf | draft |
+|---|---|---|
+| IF01 | low | `Mfite umuriro kandi ijosi ryanjye ryarakomeye.` |
+| IF02 | med | `Mfite umuriro mwinshi kandi naragagaye.` |
+| IF03 | med | `Mfite umuriro kandi sinshobora kunywa.` |
+| IF04 | low | `Maze iminsi itatu mfite umuriro n'imbeho kandi nkabira ibyuya.` |
+| IF05 | med | `Mfite umuriro kandi mfite uduheri ku mubiri wose.` |
+| IF06 | low | `Mfite umuriro kandi ndababara iyo nihagarika.` |
+| IF07 | med | `Mfite umuriro woroheje umaze umunsi umwe ariko nta kindi kibazo mfite.` |
 
-Remaining: 163 of 254 Kinyarwanda rows, all 254 Swahili. At 2-3 minutes a row
-that is roughly 7-10 hours per language.
+Three carry a flag beyond their confidence mark:
 
-Suggested next domain: **infectious_fever** (8/30, and the largest domain), or
-**paediatric** (4/28) since its relation set is now settled and it is the domain
-where third person is the default rather than the alternative.
+- **IF01** — meningeal stiffness is a specific sign and `ijosi ryarakomeye` is a
+  guess. A patient may instead say they cannot bend the neck. **Suggest
+  `needs_clinician`.**
+- **IF03** — an IMCI general danger sign (unable to drink). Worth clinician review.
+- **IF07** — **possible duplicate of the speaker's own EX29**,
+  `mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite`. The
+  difference is a comma. If they are one concept this is the CR01/EX05 pattern
+  again; the linter's duplicate check will catch it once both are accepted, but
+  the concept-level question is whether IF07 should exist at all.
+
+The 15 third-person infectious_fever rows are **not** drafted, per the rhythm:
+first person is ruled before third is drafted.
+
+### Open question: is paediatric first person largely not-applicable?
+
+**Rule this before drafting paediatric.** All 14 of its first-person rows would
+have *a child speaking about themselves*. The four paediatric phrases the speaker
+authored were third person (`umwana afite...`) and were moved to the third-person
+rows accordingly.
+
+If first person is not-applicable for most paediatric concepts, that domain is
+closer to 14 rows than 28, and the `applies=no` mechanism already supports it —
+`progress.py` counts such rows as resolved and the linter skips them. An older
+child speaking for themselves is plausible for some concepts (PA08 ear pain, PA06
+fever and rash) and not for others (PA02 too weak to breastfeed, PA03 unconscious).
+So this may be a per-concept ruling rather than a domain-wide one.
+
+This is a ruling, not a drafting decision, and it determines the size of the
+domain.
+
+### Blocked on the speaker, in order
+
+1. The 7 infectious_fever drafts above
+2. `PR02` service-design question
+3. `OB12` — is `Mama` plausible for a recent delivery?
+4. `CR01` first person and `CR05` third person — the `-mu-` object marker
+5. Paediatric first-person applicability
+6. A clinician session for the six `needs_clinician` rows
+
+### Then
+
+Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
+time, rendered across every relation for individual ruling. Never batch-accept.**
+
+Remaining: 163 of 254 Kinyarwanda rows, all 254 Swahili. Roughly 7-10 hours per
+language at 2-3 minutes a row.
+
+After infectious_fever, the domains with no unresolved architecture are
+gastrointestinal, haemorrhage_trauma and neurological — all at 6/28 with all eight
+relations confirmed.
 
 ## 8. Tooling
 
