@@ -291,6 +291,52 @@ one domain this time. Separately: **EX16 and EX17 are near-duplicates of each
 other**, both speaker-authored — same family so no family-holdout risk, but
 different phrase strings, so they can split across the phrase holdout.
 
+### Ruled, not executed: GI08 and EX16/EX17
+
+**GI08 is one concept with EX16/EX17, and GI08 is the one that goes.** Same
+domain, same urgency, same content, and GI08's anchor is `not IMCI (minor
+complaint)` — no anchor at all, so nothing pulls it apart the way CR07's real
+IMCI anchor decided CR07/EX30. This is the IF07/EX29 case, so the speaker's
+first-pass row survives.
+
+**EX16 and EX17 are one concept, and both phrasings are kept.** Two ways of
+saying the same thing is what the corpus wants — phrasing guide Part 3, item 5.
+Neither wording is discarded. But as two *concepts* they are two phrase groups,
+and `phrase_components` unions only on **substring containment**:
+
+```
+"iyo maze kurya numva inda itameze neza"      EX16
+"iyo maze kurya numva mu nda ntameze neza"    EX17
+neither contains the other -> not unioned
+shared prefix "iyo maze kurya numva " -> 21 characters
+```
+
+So one could train while the other evaluates, with 21 characters in common, and
+the existing safeguard would not raise it. **The substring closure catches nested
+phrases and misses divergent ones with a long shared prefix.** Worth knowing
+generally, not only here.
+
+Proposal: EX16 primary, EX17 into `second_phrasing_optional`. **Caveat that
+matters:** nothing reads that column today — `make_second_review.py` writes it
+empty and no consumer exists. Unless the v2 build reads it *and* maps both
+phrasings to one phrase group, collapsing **loses** EX17's wording rather than
+preserving it. That is the opposite of the intent, so the mechanism has to land
+before the collapse does.
+
+Neither is executed. If both are confirmed: GI08 alone takes the target to
+**1,776,000** (888 phrases, 123 concepts); with EX17 as well, **1,760,000**
+(880 phrases, 122 concepts).
+
+### Blocked on the speaker — two words that do not exist in the corpus
+
+`GI03` needs a word for stool and `PA08` needs a word for ear. Neither appears in
+any authored phrase, in `dataset/vocabulary.py`, or in
+`phrase_review_sheet.csv`. **These cannot be drafted, suggested or worked around**
+— inventing Kinyarwanda is what standing rules 5 to 8 exist to prevent, and a
+plausible-looking guess here would enter the record as a phrase rather than as a
+question. GI05 routed around the stool noun by using `impiswi`; melaena and ear
+pain have no such route.
+
 ### Settled: infectious_fever third person
 
 14 rows. **8 authored, 1 needs_clinician, 4 held on their first person, 1
