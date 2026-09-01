@@ -23,21 +23,22 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 
 | domain | filled | held |
 |---|---|---|
-| cardiac_respiratory | 26/28 | 3 |
+| cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
 | obstetric | 27/28 | 1 |
-| infectious_fever | 10/30 | 4 | *(+2 not-applicable: IF07 both persons)*
+| infectious_fever | 10/30 | 4 | *(+4 not-applicable: IF07 and EX30, both persons)*
 | gastrointestinal | 6/28 | 0 | *(+1 not-applicable: GI04 first)*
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **93/254** | **13** |  *(+16 not-applicable = 109 resolved)*
+| **total** | **93/254** | **13** |  *(+18 not-applicable = 111 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 16
-not_applicable.** A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
+**Provenance so far: 77 speaker, 13 machine_approved, 3 unresolved, 18
+not_applicable.** CR07 first moved from machine_approved to speaker when it took
+EX30's wording. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
 ## 3. Unresolved and held — nothing generates from these
@@ -139,17 +140,17 @@ rows a ruling excluded, with no error.
 
 ### ROUTINE third person — `review/routine_relation_sets.csv`
 
-33 ROUTINE concepts, ruled by group:
+32 ROUTINE concepts, ruled by group:
 
 ```
-CHILD_RELATIONS      17   group A (child services) + group C (mild symptoms)
+CHILD_RELATIONS      16   group A (child services) + group C (mild symptoms)
 NO_RELATIONS         10   group B, first person only
 HOUSEHOLD_RELATIONS   4   group D: PR04, PR10, PR03, PR05
 held                  1   OB12
 do not generate       1   PR02
 ```
 
-33 rows, down from 34: IF07 was removed with the concept.
+32 rows, down from 34: IF07 and EX30 were removed with their concepts.
 
 Group C's reasoning: a parent reports a child's mild cough; an adult does not
 usually report another adult's.
@@ -188,36 +189,32 @@ strings and most third-person phrases do not exist yet.
     they perceive it directly** — their own lips, the sensation of indrawing.
     **Rule 11 flags; it does not overrule an authored phrase.**
 
-## 6. Row target: 1,808,000
+## 6. Row target: 1,792,000
 
 **Standing: the target is a consequence of the valid inventory, not a quota. If
 removals shrink it, that is correct — the number never drives a clinical
-decision.** 2,000 rows per authored phrase is the invariant; recompute whenever a
-ruling changes the phrase count.
+decision.** 2,000 rows per authored phrase is the invariant.
 
 ```
-ceiling  125 concepts x 2 persons x 4 languages = 1,000 phrases
+ceiling  124 concepts x 2 persons x 4 languages =   992 phrases
 minus    14 applies=no rows x 4                 =    56
 minus    10 NO_RELATIONS thirds x 4             =    40
-net                                                 904 phrases
-                                    at 2,000/phrase -> 1,808,000 rows
+net                                                 896 phrases
+                                    at 2,000/phrase -> 1,792,000 rows
 ```
 
-**`PR09` is not counted.** It is ruled `applies=no` but rule 12 makes its
-first-person row valid, and it is not recorded either way. If it is removed the
-figure is **1,800,000** (900 phrases); if rule 12 wins it stays at 1,808,000.
+126 -> 125 -> 124: IF07 collapsed into EX29, EX30 into CR07. PR02 is out of
+generation on top of that.
 
 The 14 `applies=no` rows: PA01-PA07 and EX40-EX43 (paediatric first person),
-plus GI04, NE01 and NE02. The 40 `NO_RELATIONS` phrases are ruled in
-`routine_relation_sets.csv` but **not yet materialised in the brief**.
-
-Held rows are *not* deducted: HT03, CC01, CC02, NE04 and NE06 keep `applies=yes`
-and are held, not deleted, so they still count as authorable phrases.
+GI04, NE01 and NE02. Held rows are **not** deducted — HT03, CC01, CC02, NE04 and
+NE06 keep `applies=yes`, so their phrases are still to be authored once the
+clinical question is answered. The 40 `NO_RELATIONS` phrases are ruled in
+`routine_relation_sets.csv` but not yet materialised in the brief.
 
 History: 2,016,000 at 126 concepts; 2,000,000 at 125; 1,888,000 after PA01-04;
-1,832,000 after PA05-07 and EX40-43; **1,808,000** after GI04, NE01 and NE02.
-`TARGET_ROWS_V2` is still `1_008_000` and moves when the relation sets are
-materialised.
+1,832,000 after PA05-07 and EX40-43; 1,808,000 after GI04, NE01, NE02;
+**1,792,000** after the EX30 collapse. `TARGET_ROWS_V2` is still `1_008_000`.
 
 ## 7. Current batch and what is blocked
 
@@ -284,12 +281,21 @@ problem with the possessive, following CR03 and OB07 rather than reaching for
 held for a clinician and unaccepted, so a third-person draft would be
 transforming a guess.
 
-**Flagged, not drafted (1): `EX30`.** Its transform would be
-`{REL} akorora gake ariko nta muriro afite.` — **byte-identical to the approved
-CR07 third**. The first persons differ by one word (`sinta` / `nta`). This is the
-IF07/EX29 shape, except **CR07 is cardiac_respiratory and EX30 is
-infectious_fever**, so the same utterance would carry two domain labels. That is
-worse than a within-domain duplicate and wants a ruling before either row moves.
+**Collapsed (1): `EX30` into `CR07`.** Ruled and executed — one concept, kept in
+cardiac_respiratory under CR07's anchor `IMCI: cough, no pneumonia (green)`, and
+CR07 first now carries the speaker's EX30 wording with `source=speaker`.
+
+The cost of two was **not** label noise: `label` is urgency and both were
+ROUTINE. It was the **family holdout**. `family` is
+`language->language:label:domain`, so identical text under two domains sits in
+two families and `--strategy family` can put the same utterance on both sides.
+`attribute_phrase` returns one canonical phrase for identical strings, so the
+phrase holdout would have grouped them and never raised it — a family-only leak,
+quieter than the phrase one.
+
+`EX30` was never in `concepts.py` or `concept_anchors.csv` — only CR07 was ever
+the anchored concept — so the collapse touched `routine_relation_sets.csv`
+(33 -> 32 rows) and the brief only.
 
 Two flagged beyond their confidence marks: **EX27**, where `nkeka` -> `akeka`
 follows the regular pattern but the speaker has not written it; and **EX26**,
@@ -409,9 +415,13 @@ replacement invented — the ear term has to come from the speaker.**
 5. `PA08` — the ear term, which no approved phrase supplies
 6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
    first-person row the patient or the requester? One answer settles all three
-7. `CR07`/`EX30` — the same utterance in two domains; concept ruling needed
+7. `CR07` first — the form of the adopted wording: EX30's verbatim lowercase
+   string, or the same words in this row's capitalised sentence form. **Not
+   normalised without a ruling.**
 8. The 9 infectious_fever third-person drafts, rendered in
-   `review/infectious_fever_third_render.csv`
+   `review/infectious_fever_third_render.csv`. **Requested twice, arrived empty
+   both times** — IF02, IF05, EX24, EX25, EX26, EX27, EX28, EX29, EX31 are all
+   untouched and nothing is accepted.
 9. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 

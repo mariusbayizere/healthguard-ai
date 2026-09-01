@@ -251,3 +251,31 @@ net                                                 904 phrases
 **The target is a consequence of the valid inventory, not a quota.** Every step
 down this table is a clinical decision taken on its own merits; none of them was
 weighed against the row count, and none should be.
+
+
+---
+
+# Recomputation after the EX30 collapse
+
+EX30 (infectious_fever) collapsed into CR07 (cardiac_respiratory): one concept,
+kept under CR07's IMCI anchor, carrying the speaker's EX30 wording.
+
+```
+ceiling  124 concepts x 2 persons x 4 languages =   992 phrases
+minus    14 applies=no rows x 4                 =    56
+minus    10 NO_RELATIONS thirds x 4             =    40
+net                                                 896 phrases
+                                    at 2,000/phrase -> 1,792,000 rows
+```
+
+| after | concepts | ceiling | - applies=no | - NO_RELATIONS | net | rows |
+|---|---|---|---|---|---|---|
+| person split | 126 | 1,008 | 0 | 40 | 968 | 1,936,000 |
+| IF07 collapse | 125 | 1,000 | 0 | 40 | 960 | 1,920,000 |
+| PA01-PA04 | 125 | 1,000 | 16 | 40 | 944 | 1,888,000 |
+| PA05-PA07, EX40-EX43 | 125 | 1,000 | 44 | 40 | 916 | 1,832,000 |
+| GI04, NE01, NE02 | 125 | 1,000 | 56 | 40 | 904 | 1,808,000 |
+| EX30 collapse | 124 | 992 | 56 | 40 | 896 | **1,792,000** |
+
+**The target is a consequence of the valid inventory, not a quota.** Every step
+down this table is a clinical or structural decision taken on its own merits.

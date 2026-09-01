@@ -25,6 +25,9 @@ CONCEPTS = [
   "wheezing and a tight chest","une respiration sifflante et la poitrine serree"),
  ("cardiac_respiratory","URGENT","CR06","cough over two weeks with weight loss","not IMCI (TB screening, adult)",
   "coughing for more than two weeks and losing weight","une toux depuis plus de deux semaines avec une perte de poids"),
+ # EX30 (infectious_fever) collapsed into CR07: the same utterance, and "no fever" is
+ # the absence of the infectious sign rather than a reason to file it under fever.
+ # CR07 carries the speaker's EX30 wording. See docs/session-state.md.
  ("cardiac_respiratory","ROUTINE","CR07","short mild cough, no fever","IMCI: cough, no pneumonia (green)",
   "a mild cough for a few days without fever","une toux legere depuis quelques jours sans fievre"),
 
