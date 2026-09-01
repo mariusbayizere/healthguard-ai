@@ -52,7 +52,7 @@ from dataset.atomicio import (  # noqa: E402
     sweep_partials,
 )
 from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
-from dataset.vocabulary import REL_PLACEHOLDER  # noqa: E402
+from dataset.vocabulary import REL_PLACEHOLDER, SENTENCE_END  # noqa: E402
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
@@ -105,6 +105,24 @@ def substring_violations(train_phrases: set[str], eval_phrases: set[str]) -> lis
     return violations
 
 
+def _match_form(part: str) -> str:
+    """The comparable form of a phrase or phrase segment.
+
+    Lowercased, because an utterance is capitalised at a sentence start and
+    lowercased after a greeting. Stripped of a terminal stop, because the
+    generator drops one before a continuation - see _drop_terminal_stop. Both
+    transformations happen at render time, so attribution has to see through
+    them. Matching the authored form with its stop still attached misses every
+    continued row, and worse than missing: the row falls through to a SHORTER
+    phrase that happens to be a prefix, so "Guhumeka birangora cyane ku buryo
+    ntabasha no kuvuga neza." loses its rows to "guhumeka birangora cyane".
+    """
+    part = part.strip()
+    if part[-1:] in SENTENCE_END:
+        part = part[:-1]
+    return part.strip().lower()
+
+
 def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]]) -> str | None:
     """The seed phrase a row was built around; longest match wins.
 
@@ -129,7 +147,7 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
             # which never matches "Iyo Mama ahumeka". Those rows attributed to
             # None and dropped out of the phrase holdout with no error raised,
             # the same silent failure the case-sensitivity bug above caused.
-            segments = [s for s in (part.strip().lower()
+            segments = [s for s in (_match_form(part)
                                     for part in phrase.split(REL_PLACEHOLDER)) if s]
             position = 0
             for segment in segments:
@@ -140,7 +158,7 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
             else:
                 if segments:
                     return phrase
-        elif phrase.lower() in lowered:
+        elif _match_form(phrase) in lowered:
             return phrase
     return None
 

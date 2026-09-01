@@ -541,6 +541,11 @@ NO_RELATIONS: tuple[str, ...] = ()
 
 REL_PLACEHOLDER = "{REL}"
 
+# Sentence-terminal punctuation. The generator drops a phrase's final stop when
+# the next slot continues the sentence, and attribution has to know the same set
+# so it can match a phrase whose stop was dropped.
+SENTENCE_END = ".!?"
+
 
 # Which relations a third-person utterance may be about, per domain.
 #

@@ -297,10 +297,48 @@ raised** — the same silent failure as the case-sensitivity bug in section 9, i
 the same function.
 
 Fixed by matching each segment around the placeholder in order.
-`tests/test_phrase_form.py` now pins it with a mid-phrase canonical; the existing
-test only used a phrase-initial `{REL}`, which is why this survived. 60 tests,
-and v1 still reproduces 8/8 — v1 has no `{REL}` phrases, so it never exercised
-the path.
+
+### And a third, found by the standing check the moment it was written
+
+`tests/test_attribution_corpus.py` drives the real generator over the real brief
+and failed immediately on a **larger** silent leak:
+
+**A phrase authored as a complete sentence never matched its own rendering
+whenever the sentence continued.** `_drop_terminal_stop` removes the final stop
+before an onset or context, so `Ndakorora cyane.` renders as `Ndakorora cyane
+kuva ejo` — and the authored form, stop attached, is not a substring of it.
+**57 of the 100 authored phrases end in sentence punctuation**, so this reached
+most of the corpus, and every v2 utterance-form phrase is exposed to it.
+
+Worse than losing the row: it falls through to a **shorter** phrase that happens
+to be a prefix. `Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.` lost
+its rows to `guhumeka birangora cyane` — a real mis-attribution between two real
+phrases, which would have put one concept's rows in another's phrase group.
+
+Fixed by matching on a comparable form: lowercased and with a terminal stop
+removed, mirroring what the generator does at render time. `SENTENCE_END` now
+lives in `vocabulary.py` so the generator and attribution cannot drift apart.
+
+### The standing check
+
+`tests/test_attribution_corpus.py`, ~70s:
+
+- **exhaustive** — every authored phrase, expanded across the relations its
+  concept actually allows, rendered through the real `Family.render` across
+  every frame combination, must attribute back to its canonical form. A `None`
+  fails.
+- **cross-attribution** — with the whole inventory in the index, a rendering must
+  still resolve to its own phrase, so a near-duplicate cannot capture its
+  neighbour's rows.
+
+It drives `build_families` rather than reimplementing the expansion, so a change
+to the real path is what it tests. Wired into `make test-clean` and CI through
+the suite, **and** called out as its own `make check-attribution` target and CI
+step, so the guard survives someone deselecting it or marking it slow.
+
+62 tests, and v1 still reproduces 8/8 — v1 phrases are noun-phrase fragments
+with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
+digest. That is also precisely why `verify-full` never caught any of the three.
 
 ### Person-applicability audit — `review/person_applicability_audit.csv`
 
@@ -432,9 +470,14 @@ against ambient-state failures. 59 tests.
 - **`walk.py` once truncated a brief to its header.** It now writes atomically and
   refuses a zero-row write. Briefs hold hours of speaker work; never write one
   non-atomically.
-- **`attribute_phrase` has now failed the same way twice.** It was
-  case-sensitive and lost every row with an opener; then its `{REL}` match
-  deleted the placeholder and lost every phrase where `{REL}` was not at the
-  front. Both hollowed out the phrase holdout with no error. **Any change to
-  attribution needs a test over real authored phrases, not a constructed one** —
-  the existing test used a phrase-initial `{REL}` and passed throughout.
+- **`attribute_phrase` has now failed silently three times.** Case-sensitive,
+  losing every row with an opener. Then the `{REL}` match deleting the
+  placeholder, losing every phrase where `{REL}` was not at the front. Then the
+  terminal stop, losing 57 of 100 phrases to the generator's own
+  `_drop_terminal_stop` and mis-attributing some of them to shorter neighbours.
+  Every one hollowed out the phrase holdout with no error raised, and every one
+  passed a green suite, because the tests used phrases written for the test.
+  **`make check-attribution` now sweeps the real corpus and must stay wired in.**
+- **`verify-full` cannot see any of this.** v1 has no `{REL}` phrases and no
+  terminal stops, so the frozen digests are untouched by attribution bugs that
+  would wreck v2. A green 8/8 is not evidence that attribution works.

@@ -42,6 +42,7 @@ from dataset.vocabulary import (  # noqa: E402
     DOMAIN_RELATIONS,
     CONCEPT_RELATIONS,
     ONSETS,
+    SENTENCE_END,
     OPENERS,
     SUBJECTS,
     SYMPTOMS,
@@ -186,7 +187,7 @@ def assert_slots_are_distinct() -> None:
                     )
 
 
-_SENTENCE_END = ".!?"
+_SENTENCE_END = SENTENCE_END
 
 
 def _tidy(text: str) -> str:

@@ -35,6 +35,14 @@ jobs:
       - name: Install pytest only
         run: python -m pip install --disable-pip-version-check pytest==9.1.1
 
+      - name: Attribution sweep over the real authored corpus
+        # Every authored phrase, every valid relation, every frame combination,
+        # attributed back to its canonical form. Run as its own step as well as
+        # inside the suite: attribution has failed silently three times and a
+        # green suite hid all three, so this guard does not depend on the file
+        # staying selected by default.
+        run: make check-attribution
+
       - name: Dataset test suite (training tests skip without torch)
         run: cd kinyamed/ml_model && python -m pytest -q -rs
 

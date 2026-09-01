@@ -8,7 +8,7 @@ ML := kinyamed/ml_model
 PY := python3
 
 .DEFAULT_GOAL := help
-.PHONY: help install install-dev test test-clean install-hooks verify verify-full sample dataset splits freeze clean
+.PHONY: help install install-dev test test-clean check-attribution install-hooks verify verify-full sample dataset splits freeze clean
 
 help:  ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -54,6 +54,12 @@ test-clean:  ## Run the suite in a throwaway clone of HEAD — catches ambient-s
 	echo "  interpreter            : $$py"; \
 	echo ""; \
 	cd "$$tmp/clone/$(ML)" && "$$py" -m pytest -q -rs
+
+check-attribution:  ## Attribution sweep over the real authored corpus (~70s)
+	@# Runs inside `test`/`test-clean` too. Called out separately so the guard
+	@# survives someone deselecting or marking it slow: attribution has failed
+	@# silently three times, and a green suite hid every one of them.
+	cd $(ML) && $(PY) -m pytest tests/test_attribution_corpus.py -q
 
 install-hooks:  ## Make pre-push run test-clean automatically
 	git config core.hooksPath .githooks
