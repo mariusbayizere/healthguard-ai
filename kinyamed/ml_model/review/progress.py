@@ -26,11 +26,17 @@ def main() -> int:
     args = ap.parse_args()
 
     rows = list(csv.DictReader(args.brief.open(encoding="utf-8")))
-    filled = lambda r: bool((r.get(args.column) or "").strip())
+    # A row marked applies=no is deliberately empty, not outstanding work.
+    # Without this the tracker can never reach 100% on a brief where some
+    # concepts only need one person.
+    na = lambda r: (r.get("applies") or "yes").strip().lower() == "no"
+    filled = lambda r: bool((r.get(args.column) or "").strip()) or na(r)
     done, total = sum(map(filled, rows)), len(rows)
+    n_na = sum(map(na, rows))
 
     print(f"{args.brief.name}")
-    print(f"  {bar(done, total)}  {done}/{total}  ({done/total:.0%})\n")
+    print(f"  {bar(done, total)}  {done}/{total}  ({done/total:.0%})"
+          + (f"   incl. {n_na} marked not-applicable" if n_na else "") + "\n")
 
     print(f"  {'domain':<22}{'done':>6}{'left':>6}")
     print("  " + "-" * 34)

@@ -87,6 +87,8 @@ def main() -> int:
     seen: dict[str, int] = {}
     flagged = checked = warned = 0
     for i, row in enumerate(rows, 2):
+        if (row.get("applies") or "yes").strip().lower() == "no":
+            continue
         phrase = (row.get(col) or "").strip()
         if not phrase:
             continue
