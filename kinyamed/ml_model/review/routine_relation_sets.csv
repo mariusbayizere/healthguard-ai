@@ -1,0 +1,35 @@
+group,concept_id,relation_set,rationale
+A,EX46,CHILD_RELATIONS,a parent or carer brings the child
+A,EX47,CHILD_RELATIONS,a parent or carer brings the child
+A,PA09,CHILD_RELATIONS,a parent or carer brings the child
+A,PA10,CHILD_RELATIONS,a parent or carer brings the child
+A,PR08,CHILD_RELATIONS,a parent or carer brings the child
+A,PR09,CHILD_RELATIONS,a parent or carer brings the child
+B,CC08,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,CC09,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,CC10,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,EX10,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,EX11,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,EX44,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,EX45,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,OB11,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,PR06,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+B,PR07,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+C,CR07,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX16,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX17,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX29,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX30,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX31,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX36,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,EX37,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,GI08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,HT08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,IF07,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+C,NE08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
+D,PR04,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
+D,PR10,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
+D,PR03,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
+D,PR05,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
+E,OB12,HELD,"unchanged, held"
+unresolved,PR02,NONE — do not generate,unresolved pending Rwandan service-design confirmation; out of generation

@@ -527,6 +527,18 @@ CHILD_RELATIONS: tuple[str, ...] = (
     "Umwuzukuru wanjye", "Umwana w'umuturanyi",
 )
 
+# Relations within one household, for services a family member can plausibly
+# request on another's behalf. Excludes the neighbour and the unrelated elder.
+HOUSEHOLD_RELATIONS: tuple[str, ...] = (
+    "Umugore wanjye", "Umugabo wanjye", "Mama", "Papa",
+    "Mushiki wanjye", "Umwana wanjye",
+)
+
+# An explicitly empty set means this concept has no third-person form: nobody
+# presents on another's behalf for it. That is different from the concept being
+# absent, and different from a misconfiguration - see build_families.
+NO_RELATIONS: tuple[str, ...] = ()
+
 REL_PLACEHOLDER = "{REL}"
 
 

@@ -279,12 +279,17 @@ def build_families() -> list[Family]:
                     allowed = CONCEPT_RELATIONS.get(phrase, DOMAIN_RELATIONS.get(domain))
                     pool = RELATIONS.get(phrase_lang, ("",))
                     if allowed is not None:
+                        if len(allowed) == 0:
+                            # Deliberately empty: this concept has no third-person
+                            # form, because nobody presents on another's behalf for
+                            # it. The phrase contributes no rows and that is correct.
+                            continue
                         pool = tuple(r for r in pool if r in allowed)
                         if not pool:
                             raise SystemExit(
-                                f"domain {domain!r} allows no relation from "
-                                f"RELATIONS[{phrase_lang!r}]; a {{REL}} phrase there "
-                                "would render nothing"
+                                f"{domain!r} allows {allowed!r}, none of which is in "
+                                f"RELATIONS[{phrase_lang!r}]. That is a misconfiguration; "
+                                "an intentionally empty set must be NO_RELATIONS."
                             )
                     # A relation is a proper-noun-shaped phrase and is written
                     # capitalised, but mid-sentence it is not a sentence start:

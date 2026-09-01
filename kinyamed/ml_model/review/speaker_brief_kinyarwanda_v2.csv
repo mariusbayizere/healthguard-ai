@@ -46,7 +46,7 @@ EX08,chronic_care,URGENT,existing concept — your first-pass phrasing is on one
 EX09,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,umuvuduko w'amaraso wanjye wazamutse cyane,,first pass,,,,speaker,,
 EX09,chronic_care,URGENT,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,"person transform of your first-person phrase: ""umuvuduko w'amaraso wanjye wazamutse cyane""",,,
 CC08,chronic_care,ROUTINE,blood pressure medicine refill,first,yes,,utterance,,,,,,,,,
-CC08,chronic_care,ROUTINE,blood pressure medicine refill,third,no,,utterance,,,adult self-service only: a refill request is not made on someone else's behalf in this framing,,,,not_applicable,,
+CC08,chronic_care,ROUTINE,blood pressure medicine refill,third,yes,,utterance,,,"relation set NO_RELATIONS: the concept exists, it simply has no third-person form. Restricted, not deleted.",,,,,,
 CC09,chronic_care,ROUTINE,routine diabetes review,first,yes,,utterance,,,,,,,,,
 CC09,chronic_care,ROUTINE,routine diabetes review,third,yes,,utterance,,,,,,,,,
 CC10,chronic_care,ROUTINE,routine HIV clinic follow-up,first,yes,,utterance,,,,,,,,,

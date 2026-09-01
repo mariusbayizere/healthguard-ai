@@ -241,3 +241,58 @@ def test_domain_relation_set_restricts_expansion() -> None:
         V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"] = saved
         V.PHRASE_FORMS.pop(phrase, None)
         G.SYMPTOMS = V.SYMPTOMS
+
+
+def test_empty_relation_set_produces_no_third_person_rows() -> None:
+    """NO_RELATIONS means the concept has no third-person form.
+
+    That is a restriction, not a deletion: the concept keeps its first-person
+    phrase and simply contributes nothing in third person. It must not raise,
+    and it must not silently fall back to the full relation list.
+    """
+    import dataset.vocabulary as V
+    import dataset.generate_large_dataset as G
+
+    phrase = "{REL} ashaka kongererwa imiti."
+    saved = V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"]
+    V.PHRASE_FORMS[phrase] = UTTERANCE
+    V.CONCEPT_RELATIONS[phrase] = V.NO_RELATIONS
+    V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = (phrase,)
+    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.CONCEPT_RELATIONS
+    try:
+        fams = [x for x in build_families()
+                if x.language == "kinyarwanda" and x.domain == "chronic_care"
+                and x.urgency == "ROUTINE"]
+        for f in fams:
+            assert phrase not in f.slots[2], "an empty set must contribute no rows"
+            for rel in V.RELATIONS["kinyarwanda"]:
+                assert not any(rel in p for p in f.slots[2]), (
+                    f"{rel} leaked in despite NO_RELATIONS"
+                )
+    finally:
+        V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = saved
+        V.PHRASE_FORMS.pop(phrase, None)
+        V.CONCEPT_RELATIONS.pop(phrase, None)
+        G.SYMPTOMS = V.SYMPTOMS
+
+
+def test_misconfigured_relation_set_raises() -> None:
+    """A non-empty set naming nothing available is a bug, not an intention."""
+    import pytest as _pytest
+    import dataset.vocabulary as V
+    import dataset.generate_large_dataset as G
+
+    phrase = "{REL} arwaye."
+    saved = V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"]
+    V.PHRASE_FORMS[phrase] = UTTERANCE
+    V.CONCEPT_RELATIONS[phrase] = ("Somebody Who Does Not Exist",)
+    V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = (phrase,)
+    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.CONCEPT_RELATIONS
+    try:
+        with _pytest.raises(SystemExit, match="misconfiguration"):
+            build_families()
+    finally:
+        V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = saved
+        V.PHRASE_FORMS.pop(phrase, None)
+        V.CONCEPT_RELATIONS.pop(phrase, None)
+        G.SYMPTOMS = V.SYMPTOMS
