@@ -1,7 +1,7 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, updated after the
-infectious_fever rulings. All figures below were read from the files, not recalled.
+infectious_fever rulings, the IF07 collapse and the paediatric person ruling. All figures below were read from the files, not recalled.
 
 ---
 
@@ -25,18 +25,18 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 |---|---|---|
 | cardiac_respiratory | 26/28 | 3 |
 | obstetric | 27/28 | 1 |
-| infectious_fever | 10/30 | 4 | *(+1 not-applicable: IF07)*
+| infectious_fever | 10/30 | 4 | *(+2 not-applicable: IF07 both persons)*
 | gastrointestinal | 6/28 | 0 |
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 0 |
 | chronic_care | 4/28 | 0 |
-| paediatric | 4/28 | 0 |
+| paediatric | 4/28 | 0 | *(+4 not-applicable: PA01-04 first)*
 | preventive | 4/28 | 0 |
-| **total** | **93/254** | **8** |  *(+1 not-applicable = 94 resolved)*
+| **total** | **93/254** | **8** |  *(+6 not-applicable = 99 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 1
+**Provenance so far: 77 speaker, 14 machine_approved, 3 unresolved, 6
 not_applicable.** A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
@@ -129,15 +129,17 @@ rows a ruling excluded, with no error.
 
 ### ROUTINE third person — `review/routine_relation_sets.csv`
 
-34 ROUTINE concepts, ruled by group:
+33 ROUTINE concepts, ruled by group:
 
 ```
-CHILD_RELATIONS      18   group A (child services) + group C (mild symptoms)
+CHILD_RELATIONS      17   group A (child services) + group C (mild symptoms)
 NO_RELATIONS         10   group B, first person only
 HOUSEHOLD_RELATIONS   4   group D: PR04, PR10, PR03, PR05
 held                  1   OB12
 do not generate       1   PR02
 ```
+
+33 rows, down from 34: IF07 was removed with the concept.
 
 Group C's reasoning: a parent reports a child's mild cough; an adult does not
 usually report another adult's.
@@ -162,23 +164,27 @@ strings and most third-person phrases do not exist yet.
 8. **A draft is a suggestion, never an approval.** Nothing is `machine_approved`
    without an explicit "accept" from the speaker.
 
-## 6. Row target: 2,016,000
+## 6. Row target: recomputed at 125 concepts
 
-126 concepts x 2 persons x 4 languages = **1,008 authored phrases**. At 2,016,000
-rows the median authored phrase accounts for 2,000 rows, which is the diversity
-figure the project argues from. The person split doubled the denominator, so the
-earlier 1,008,000 target would now give 1,000 rows per phrase.
+```
+125 concepts x 2 persons x 4 languages = 1,000 authored phrases
+at 2,000 rows per phrase               -> 2,000,000 rows   (ceiling)
+minus PA01-04 first person   16 phrases   materialised
+minus 10 NO_RELATIONS thirds 40 phrases   ruled, not yet materialised
+                              944 phrases -> 1,888,000 rows
+```
 
-**IF07 was ruled a duplicate of EX29** (see section 7), which takes the
-generation-eligible concept count from 126 toward 125 once its third-person row
-follows. The denominator above is not yet updated: `IF07` third is still
-`applies=yes` on disk, and collapsing the concept touches `concepts.py`,
-`concept_anchors.csv` and this figure. **Confirm before making that change.**
+126 -> 125 because IF07 collapsed into EX29. PR02 was already out.
 
-**It is a ceiling reached by valid combinations, not a quota to fill.** At roughly
-0.8% of the combination space, no validity decision taken so far moves it at all.
-The generator default is still `TARGET_ROWS_V2 = 1_008_000` and should move to
-2,016,000 when the relation sets are materialised.
+**Which figure becomes the target is an open ruling** — see `docs/v2-sizing.md`.
+2,000,000 matches the materialised state; 1,888,000 is what the page's own
+principle implies, since the row count follows the clinical content and content
+removed should remove rows rather than push the per-phrase figure to 2,119.
+
+**It is a ceiling reached by valid combinations, not a quota to fill.** At well
+under 1% of the combination space, no validity decision taken so far moves it.
+The generator default is still `TARGET_ROWS_V2 = 1_008_000` and moves only once
+the target is ruled and the relation sets are materialised.
 
 ## 7. Current batch and what is blocked
 
@@ -221,22 +227,46 @@ The 15 third-person infectious_fever rows are **not** drafted, per the rhythm:
 first person is ruled before third is drafted, and these rulings had to be
 recorded first.
 
-### Open question: is paediatric first person largely not-applicable?
+### Settled: paediatric first person, ruled per concept
 
-**Rule this before drafting paediatric.** All 14 of its first-person rows would
-have *a child speaking about themselves*. The four paediatric phrases the speaker
-authored were third person (`umwana afite...`) and were moved to the third-person
-rows accordingly.
+Not domain-wide. The speaker ruled each concept:
 
-If first person is not-applicable for most paediatric concepts, that domain is
-closer to 14 rows than 28, and the `applies=no` mechanism already supports it —
-`progress.py` counts such rows as resolved and the linter skips them. An older
-child speaking for themselves is plausible for some concepts (PA08 ear pain, PA06
-fever and rash) and not for others (PA02 too weak to breastfeed, PA03 unconscious).
-So this may be a per-concept ruling rather than a domain-wide one.
+| concept | first person | reason |
+|---|---|---|
+| PA01 convulsing | `applies=no` | a convulsing child cannot speak for themselves |
+| PA02 too weak to breastfeed | `applies=no` | an infant too weak to breastfeed cannot speak at all |
+| PA03 unconscious or floppy | `applies=no` | cannot speak for themselves |
+| PA04 fast breathing with indrawing | `applies=no` | severe respiratory distress; cannot speak |
+| PA05 diarrhoea | `applies=yes` | an older child could plausibly report it |
+| PA06 fever and rash | `applies=yes` | as above |
+| PA07 thin, not gaining weight | `applies=yes` | as above |
+| PA08 ear pain and discharge | `applies=yes` | as above |
 
-This is a ruling, not a drafting decision, and it determines the size of the
-domain.
+Third person is unaffected throughout. The domain is 24 rows, not 28.
+
+**Four drafts are in `suggested_kinyarwanda`, none accepted.** Three carry a flag
+beyond the confidence mark, raised before drafting rather than after:
+
+- **PA06 — probable duplicate of IF05 in first person.** PA06 is `IMCI: MEASLES`,
+  IF05 is `IMCI: generalised rash -> MEASLES`. The only thing separating them is
+  that the patient is a child, which `{REL}` carries in third person and first
+  person has no slot for. This is the IF07/EX29 shape again and wants a
+  concept-level ruling, not a wording one.
+- **PA05 — sunken eyes is an observer sign.** A child cannot see their own.
+  Dropping it leaves plain diarrhoea, which is not what PA05 encodes. Also
+  overlaps GI04 and GI06, which carry the same signs for an adult.
+- **PA07 — "not gaining weight" is a growth-chart judgement**, not something a
+  child self-reports. The self-reportable half is thinness alone, which overlaps
+  CR06's weight loss.
+
+**PA08 is the only clean one**: no adult counterpart concept, and a child can
+report both ear pain and discharge directly.
+
+The general pattern worth a ruling: **paediatric first person tends to collapse
+into its adult counterpart**, because the child-ness of the patient lives in the
+relation, not in the sentence. Where an adult domain already encodes the same
+presentation, the paediatric first-person row may be a duplicate rather than a
+concept.
 
 ### Blocked on the speaker, in order
 
@@ -244,8 +274,9 @@ domain.
 2. `PR02` service-design question
 3. `OB12` — is `Mama` plausible for a recent delivery?
 4. `CR01` first person and `CR05` third person — the `-mu-` object marker
-5. Confirm collapsing IF07 into EX29 in `concepts.py` and the row target
-6. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
+5. The row target: 2,000,000 or 1,888,000 (section 6)
+6. PA06/PA05/PA07 — concept-level rulings on the overlaps flagged above
+7. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
 ### Then

@@ -28,7 +28,9 @@ CONCEPTS = [
  ("cardiac_respiratory","ROUTINE","CR07","short mild cough, no fever","IMCI: cough, no pneumonia (green)",
   "a mild cough for a few days without fever","une toux legere depuis quelques jours sans fievre"),
 
- # ---- infectious_fever : 7 new ----
+ # ---- infectious_fever : 6 new ----
+ # IF07 removed: it was the same concept as EX29 (IMCI fever, no danger sign),
+ # which already carries the speaker's own phrasing. See docs/session-state.md.
  ("infectious_fever","CRITICAL","IF01","fever with stiff neck","IMCI: stiff neck -> VERY SEVERE FEBRILE DISEASE",
   "a fever and my neck is stiff","de la fievre et la nuque raide"),
  ("infectious_fever","CRITICAL","IF02","fever with convulsions","IMCI general danger sign: convulsions",
@@ -41,8 +43,6 @@ CONCEPTS = [
   "a fever and a rash all over the body","de la fievre et une eruption sur tout le corps"),
  ("infectious_fever","URGENT","IF06","fever with pain passing urine","not IMCI (adult presentation)",
   "a fever and it burns when I pass urine","de la fievre et des brulures en urinant"),
- ("infectious_fever","ROUTINE","IF07","low fever one day, otherwise well","IMCI: fever, no danger sign (green)",
-  "a slight fever since yesterday but otherwise well","un peu de fievre depuis hier mais sinon ca va"),
 
  # ---- gastrointestinal : 8 new ----
  ("gastrointestinal","CRITICAL","GI01","vomiting everything, cannot keep fluids down","IMCI general danger sign: vomits everything",

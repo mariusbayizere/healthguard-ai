@@ -91,10 +91,14 @@ different sentences rather than one sentence with two subjects. That doubles the
 authored count.
 
 ```
-concepts (language-independent)   126
-authored phrases   126 x 2 persons x 4 languages = 1,008
+concepts (language-independent)   125
+authored phrases   125 x 2 persons x 4 languages = 1,000
 v1 for comparison                  46 concepts, 184 phrases
 ```
+
+**126 -> 125:** IF07 was ruled the same concept as EX29 and removed from
+`concepts.py`, `concept_anchors.csv` and `routine_relation_sets.csv`. PR02 was
+already out of generation, so the brief's 127 concepts give 125 eligible.
 
 **{REL} multiplies rendered variety without adding authored phrases.** A
 third-person phrase expands over its domain's relations, so one authored sentence
@@ -153,3 +157,34 @@ relation set is restricted, a concept held for clinician validation, or a
 combination judged clinically questionable, the corpus is smaller and that is the
 correct outcome. At roughly 0.8% space usage there is no tension to resolve: no
 validity decision taken so far moves the target at all.
+
+
+---
+
+# Recomputation at 125 concepts
+
+IF07 collapsed into EX29, and paediatric first person ruled per concept.
+
+```
+ceiling   125 concepts x 2 persons x 4 languages = 1,000 authored phrases
+          at 2,000 rows per phrase              -> 2,000,000 rows
+```
+
+That is the direct answer, and it is a **ceiling**. Two rulings already taken
+reduce the phrases below it, though only the first is materialised:
+
+| deduction | phrases | status |
+|---|---|---|
+| PA01-PA04 first person, `applies=no` — a convulsing, floppy, too-weak or severely breathless child cannot speak | 4 rows x 4 languages = 16 | materialised in the brief |
+| the 10 `NO_RELATIONS` concepts have no third-person form | 10 x 4 = 40 | ruled in `routine_relation_sets.csv`, not yet in the brief |
+
+```
+net       1,000 - 16 - 40 = 944 authored phrases
+          at 2,000 rows per phrase              -> 1,888,000 rows
+```
+
+**Which figure is the target is a ruling, not arithmetic.** 2,000,000 is round
+and matches the materialised state today. 1,888,000 is what this page's own
+principle implies — the row count follows the clinical content supporting it, so
+content removed should remove rows rather than inflate the per-phrase figure to
+2,119. `TARGET_ROWS_V2` is unchanged at 1,008,000 pending that ruling.

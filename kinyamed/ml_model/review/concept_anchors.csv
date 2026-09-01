@@ -12,7 +12,6 @@ IF03,infectious_fever,CRITICAL,fever and unable to drink,IMCI general danger sig
 IF04,infectious_fever,URGENT,fever with chills and sweats for days,"IMCI: fever, malaria risk",WHO IMCI 2014 (All rights reserved)
 IF05,infectious_fever,URGENT,fever with generalised rash,IMCI: generalised rash -> MEASLES,WHO IMCI 2014 (All rights reserved)
 IF06,infectious_fever,URGENT,fever with pain passing urine,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
-IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well","IMCI: fever, no danger sign (green)",WHO IMCI 2014 (All rights reserved)
 GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",IMCI general danger sign: vomits everything,WHO IMCI 2014 (All rights reserved)
 GI02,gastrointestinal,CRITICAL,vomiting blood,BEC Module 4: approach to shock (haemorrhage),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
 GI03,gastrointestinal,CRITICAL,black tarry stool,BEC Module 4: approach to shock (occult GI bleeding),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
