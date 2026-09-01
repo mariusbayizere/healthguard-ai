@@ -35,6 +35,7 @@ from dataset.vocabulary import (  # noqa: E402
     DOMAINS,
     LANGUAGES,
     MIXED_PAIRS,
+    PHRASE_FORMS,
     ONSETS,
     OPENERS,
     SUBJECTS,
@@ -89,6 +90,14 @@ def validate_example(text: str, language: str, label: str) -> bool:
     )
 
 
+# A phrase is either a noun phrase, which takes a subject ("afite <phrase>"), or a
+# complete patient utterance, which does not ("ndakorora cyane"). v1 declares
+# nothing and every phrase defaults to NOUN_PHRASE, so v1 output is unchanged.
+NOUN_PHRASE = "noun_phrase"
+UTTERANCE = "utterance"
+DEFAULT_FORM = NOUN_PHRASE
+
+
 @dataclass(frozen=True)
 class Family:
     """One template family: a fixed (language, urgency, domain) slot product."""
@@ -99,6 +108,7 @@ class Family:
     frame_language: str    # supplies opener/subject/onset/context/closer
     phrase_language: str   # supplies the clinical phrase
     slots: tuple[tuple[str, ...], ...] = field(repr=False)
+    form: str = DEFAULT_FORM
 
     @property
     def family_id(self) -> str:
@@ -124,11 +134,21 @@ class Family:
             index, position = divmod(index, len(slot))
             parts.append(slot[position])
         opener, subject, phrase, onset, context, closer = reversed(parts)
-        # After a greeting the sentence continues, so the subject is not a
-        # sentence start: "Muganga, umwana wanjye afite..." not "Muganga, Umwana".
+        if subject:
+            # After a greeting the sentence continues, so the subject is not a
+            # sentence start: "Muganga, umwana wanjye afite..." not "Muganga, Umwana".
+            if opener:
+                subject = subject[0].lower() + subject[1:]
+            return f"{opener}{subject} {phrase}{onset}{context}{closer}".strip()
+        # Utterance form: the phrase is a complete clause and takes no subject.
+        # After a greeting it continues mid-sentence ("Muganga, ndakorora...");
+        # with no greeting it starts the sentence and is capitalised, which is
+        # what the subject slot did in the noun-phrase form.
         if opener:
-            subject = subject[0].lower() + subject[1:]
-        return f"{opener}{subject} {phrase}{onset}{context}{closer}".strip()
+            phrase = phrase[0].lower() + phrase[1:]
+        else:
+            phrase = phrase[0].upper() + phrase[1:]
+        return f"{opener}{phrase}{onset}{context}{closer}".strip()
 
 
 def assert_slots_are_distinct() -> None:
@@ -158,6 +178,16 @@ def assert_slots_are_distinct() -> None:
                     )
 
 
+def phrase_form(phrase: str) -> str:
+    """The form a phrase takes, from the vocabulary's declaration.
+
+    Phrases that declare nothing are noun phrases, which is what every v1 phrase
+    is. The declaration lives in vocabulary.PHRASE_FORMS so that v1's SYMPTOMS
+    structure is untouched and v1 output is bit-identical.
+    """
+    return PHRASE_FORMS.get(phrase, DEFAULT_FORM)
+
+
 def build_families() -> list[Family]:
     """Every template family, pure and code-switched."""
     assert_slots_are_distinct()
@@ -165,23 +195,33 @@ def build_families() -> list[Family]:
 
     def add(label_language: str, frame: str, phrase_lang: str, urgency: str, domain: str,
             phrases: tuple[str, ...]) -> None:
-        families.append(
-            Family(
-                language=label_language,
-                urgency=urgency,
-                domain=domain,
-                frame_language=frame,
-                phrase_language=phrase_lang,
-                slots=(
-                    OPENERS[frame],
-                    SUBJECTS[frame],
-                    phrases,
-                    ONSETS[frame],
-                    CONTEXTS[frame],
-                    CLOSERS[frame],
-                ),
+        # Phrases in one cell may declare different forms. Each form becomes its
+        # own family, because they take different slot sets and therefore have
+        # different combination counts. With nothing declared this is a single
+        # NOUN_PHRASE family and identical to the previous behaviour.
+        for form in (NOUN_PHRASE, UTTERANCE):
+            in_form = tuple(p for p in phrases if phrase_form(p) == form)
+            if not in_form:
+                continue
+            subjects = SUBJECTS[frame] if form == NOUN_PHRASE else ("",)
+            families.append(
+                Family(
+                    language=label_language,
+                    urgency=urgency,
+                    domain=domain,
+                    frame_language=frame,
+                    phrase_language=phrase_lang,
+                    slots=(
+                        OPENERS[frame],
+                        subjects,
+                        in_form,
+                        ONSETS[frame],
+                        CONTEXTS[frame],
+                        CLOSERS[frame],
+                    ),
+                    form=form,
+                )
             )
-        )
 
     for language in LANGUAGES:
         for urgency, domains in SYMPTOMS[language].items():

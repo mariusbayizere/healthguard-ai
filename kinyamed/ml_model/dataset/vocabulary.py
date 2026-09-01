@@ -484,3 +484,23 @@ MIXED_PAIRS: tuple[tuple[str, str], ...] = (
     ("swahili", "english"),
     ("english", "swahili"),
 )
+
+
+# --- phrase form and person declarations (option C) -------------------------
+#
+# A phrase is either a NOUN PHRASE, which the generator places after a subject
+# ("Umwana wanjye afite <phrase>"), or a complete patient UTTERANCE, which takes
+# no subject ("Ndakorora cyane").
+#
+# Anything absent from these maps defaults to a noun phrase with no declared
+# person, which is exactly v1 behaviour. v2 populates them from the speaker
+# briefs.
+#
+# PERSON records whose symptom it is relative to the speaker:
+#   "first" - the speaker has it            ndakorora cyane
+#   "third" - someone else has it           umwana wanjye arakorora cyane
+# These are different sentences, not one sentence with two subjects, which is
+# why person belongs to the phrase rather than to the frame.
+
+PHRASE_FORMS: dict[str, str] = {}
+PHRASE_PERSON: dict[str, str] = {}
