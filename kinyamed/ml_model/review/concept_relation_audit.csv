@@ -12,7 +12,7 @@ CC10,all eight,all,confident,"routine HIV follow-up, any age",
 NE03,exclude Umwana wanjye,adults,flag,sudden one-sided weakness = stroke. Paediatric stroke exists but is rare; excluding children may lose a real presentation. Clinician call.,
 NE04,exclude Umwana wanjye,adults,flag,sudden speech difficulty = stroke. Same uncertainty as NE03.,
 PR01,all eight,all,confident,"TB household contact, any age",
-PR02,exclude Umwana wanjye,adults,flag,"family planning: adult, and whether men are included is a service-design question",
+PR02,exclude Umwana wanjye,adults,unresolved,"family planning: adult, and whether men are included is a service-design question",NEEDS REVIEW — speaker to decide after checking Rwandan service practice on whether men present for family planning
 PR03,all eight,all,confident,"HIV test, any age",
 PR04,all eight,all,confident,"mosquito net collection, any age",
 PR05,"Umugore wanjye, Mama, Mushiki wanjye, Umuturanyi wanjye",obstetric-4,confident,antenatal booking: same valid population as obstetric,
