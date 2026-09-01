@@ -1,34 +1,34 @@
-slot,status,english_gloss,shape,kinyarwanda,swahili,notes
-opener,existing,,"ends with ', ' — a comma and a space",,,
-opener,existing,,"ends with ', ' — a comma and a space","Muganga, ",,
-opener,existing,,"ends with ', ' — a comma and a space","Muraho, ",,
-opener,existing,,"ends with ', ' — a comma and a space","Mfasha, ",,
-opener,existing,,"ends with ', ' — a comma and a space","Ndakeneye ubufasha, ",,
-opener,existing,,"ends with ', ' — a comma and a space","Nyabuneka, ",,
-opener,TO WRITE,greeting to a nurse rather than a doctor,"ends with ', ' — a comma and a space",,,
-opener,TO WRITE,apologetic — sorry to bother you,"ends with ', ' — a comma and a space",,,
-opener,TO WRITE,urgent appeal — please help quickly,"ends with ', ' — a comma and a space",,,
-opener,TO WRITE,arriving with someone — I have brought my child / my mother,"ends with ', ' — a comma and a space",,,
-opener,TO WRITE,"hesitant — I don't know if this is serious, but","ends with ', ' — a comma and a space",,,
-opener,TO WRITE,returning patient — I was here before,"ends with ', ' — a comma and a space",,,
-closer,existing,,starts with '. ' — a full stop then the sentence,,,
-closer,existing,,starts with '. ' — a full stop then the sentence,. Nkora iki?,,
-closer,existing,,starts with '. ' — a full stop then the sentence,. Ndakeneye ubufasha vuba.,,
-closer,existing,,starts with '. ' — a full stop then the sentence,. Mfasha muganga.,,
-closer,existing,,starts with '. ' — a full stop then the sentence,. Murakoze.,,
-closer,TO WRITE,asking whether it is serious — is this dangerous?,starts with '. ' — a full stop then the sentence,,,
-closer,TO WRITE,asking whether to wait or be seen now,starts with '. ' — a full stop then the sentence,,,
-closer,TO WRITE,asking what medicine to take,starts with '. ' — a full stop then the sentence,,,
-closer,TO WRITE,saying they cannot afford to come back,starts with '. ' — a full stop then the sentence,,,
-closer,TO WRITE,saying they travelled a long way,starts with '. ' — a full stop then the sentence,,,
-closer,TO WRITE,"informal thanks, less formal than murakoze",starts with '. ' — a full stop then the sentence,,,
-context,existing,,starts with ' ' — continues the sentence,,,
-context,existing,,starts with ' ' — continues the sentence, kandi birushaho kuba bibi,,
-context,existing,,starts with ' ' — continues the sentence, kandi sinshobora gusinzira,,
-context,existing,,starts with ' ' — continues the sentence, kandi ndahangayitse,,
-context,existing,,starts with ' ' — continues the sentence, kandi nta miti mfite,,
-context,TO WRITE,it started suddenly (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,
-context,TO WRITE,it comes and goes (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,
-context,TO WRITE,nothing I take helps (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,
-context,TO WRITE,worse at night (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,
-context,TO WRITE,the children have it too (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,
+slot,status,english_gloss,shape,kinyarwanda,swahili,notes,suggested_kinyarwanda,confidence,suggestion_note,source
+opener,existing,,"ends with ', ' — a comma and a space",,,,,,,speaker
+opener,existing,,"ends with ', ' — a comma and a space","Muganga, ",,,,,,speaker
+opener,existing,,"ends with ', ' — a comma and a space","Muraho, ",,,,,,speaker
+opener,existing,,"ends with ', ' — a comma and a space","Mfasha, ",,,,,,speaker
+opener,existing,,"ends with ', ' — a comma and a space","Ndakeneye ubufasha, ",,,,,,speaker
+opener,existing,,"ends with ', ' — a comma and a space","Nyabuneka, ",,,,,,speaker
+opener,TO WRITE,greeting to a nurse rather than a doctor,"ends with ', ' — a comma and a space",,,,"Muforomo, ",low,nurse = umuforomo; check the vocative,
+opener,TO WRITE,apologetic — sorry to bother you,"ends with ', ' — a comma and a space",,,,"Mbabarira ko ngutwaye umwanya, ",low,lit. 'sorry I take your time'; may be too formal,
+opener,TO WRITE,urgent appeal — please help quickly,"ends with ', ' — a comma and a space",,,,"Mfasha vuba, ",medium,"extends your existing 'Mfasha, '",
+opener,TO WRITE,arriving with someone — I have brought my child / my mother,"ends with ', ' — a comma and a space",,,,"Nzanye umwana wanjye, ",low,child variant only; a mother version is a separate fragment,
+opener,TO WRITE,"hesitant — I don't know if this is serious, but","ends with ', ' — a comma and a space",,,,"Simbizi niba bikomeye ariko, ",low,check 'simbizi niba',
+opener,TO WRITE,returning patient — I was here before,"ends with ', ' — a comma and a space",,,,"Naje hano mbere, ",low,check tense,
+closer,existing,,starts with '. ' — a full stop then the sentence,,,,,,,speaker
+closer,existing,,starts with '. ' — a full stop then the sentence,. Nkora iki?,,,,,,speaker
+closer,existing,,starts with '. ' — a full stop then the sentence,. Ndakeneye ubufasha vuba.,,,,,,speaker
+closer,existing,,starts with '. ' — a full stop then the sentence,. Mfasha muganga.,,,,,,speaker
+closer,existing,,starts with '. ' — a full stop then the sentence,. Murakoze.,,,,,,speaker
+closer,TO WRITE,asking whether it is serious — is this dangerous?,starts with '. ' — a full stop then the sentence,,,,. Ese ibi birakomeye?,medium,follows your '. Nkora iki?' shape,
+closer,TO WRITE,asking whether to wait or be seen now,starts with '. ' — a full stop then the sentence,,,,. Ntegereze cyangwa nsuzumwe ubu?,low,two-option question; may be clumsy,
+closer,TO WRITE,asking what medicine to take,starts with '. ' — a full stop then the sentence,,,,. Ni imiti ki nafata?,medium,uses your 'imiti',
+closer,TO WRITE,saying they cannot afford to come back,starts with '. ' — a full stop then the sentence,,,,. Sinshobora kugaruka ukundi.,low,'afford' became 'cannot return'; money sense may be lost,
+closer,TO WRITE,saying they travelled a long way,starts with '. ' — a full stop then the sentence,,,,. Naje mvuye kure.,low,check 'mvuye kure',
+closer,TO WRITE,"informal thanks, less formal than murakoze",starts with '. ' — a full stop then the sentence,,,,. Urakoze.,medium,singular of your 'Murakoze',
+context,existing,,starts with ' ' — continues the sentence,,,,,,,speaker
+context,existing,,starts with ' ' — continues the sentence, kandi birushaho kuba bibi,,,,,,speaker
+context,existing,,starts with ' ' — continues the sentence, kandi sinshobora gusinzira,,,,,,speaker
+context,existing,,starts with ' ' — continues the sentence, kandi ndahangayitse,,,,,,speaker
+context,existing,,starts with ' ' — continues the sentence, kandi nta miti mfite,,,,,,speaker
+context,TO WRITE,it started suddenly (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,, byatangiye giturumbuka,low,check 'giturumbuka' register,
+context,TO WRITE,it comes and goes (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,, biragenda bikagaruka,low,,
+context,TO WRITE,nothing I take helps (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,, nta miti imfasha,medium,reuses your 'nta miti mfite',
+context,TO WRITE,worse at night (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,, bikarushaho nijoro,medium,reuses 'birushaho',
+context,TO WRITE,the children have it too (no 'kandi'),starts with ' ' and must NOT begin with 'kandi',,,, n'abana bafite ibimwe,low,,
