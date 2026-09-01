@@ -111,6 +111,13 @@ this — `ntabasha kuvuga neza kandi umunwa waramugoramye` opens first person an
 closes with a third-person object marker — and it was rewritten as
 `Ntashobora kuvuga neza kandi umunwa we waragoramye`, fully third.
 
+**4. Never increase dataset size by generating linguistically or clinically
+questionable combinations.** Validity and provenance matter more than row count.
+The combination space is large enough that no relation set, no not-applicable row
+and no narrowed concept threatens any row target — so when a combination is
+doubtful, drop it. A row describing a patient who does not exist is worse than a
+row that does not exist.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:
