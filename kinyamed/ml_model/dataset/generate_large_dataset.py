@@ -40,6 +40,7 @@ from dataset.vocabulary import (  # noqa: E402
     REL_PLACEHOLDER,
     RELATIONS,
     DOMAIN_RELATIONS,
+    CONCEPT_RELATIONS,
     ONSETS,
     OPENERS,
     SUBJECTS,
@@ -274,7 +275,8 @@ def build_families() -> list[Family]:
             expanded: list[str] = []
             for phrase in in_form:
                 if REL_PLACEHOLDER in phrase:
-                    allowed = DOMAIN_RELATIONS.get(domain)
+                    # A concept-level set wins over its domain's.
+                    allowed = CONCEPT_RELATIONS.get(phrase, DOMAIN_RELATIONS.get(domain))
                     pool = RELATIONS.get(phrase_lang, ("",))
                     if allowed is not None:
                         pool = tuple(r for r in pool if r in allowed)

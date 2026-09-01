@@ -539,3 +539,17 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
     # pregnant or newly delivered.
     "obstetric": ("Umugore wanjye", "Mama", "Mushiki wanjye", "Umuturanyi wanjye"),
 }
+
+
+# Per-concept override, consulted before DOMAIN_RELATIONS.
+#
+# Standing distinction from the speaker: linguistic validity is not clinical
+# applicability. A domain accepting all eight relations does not mean every
+# concept in it applies to every relation - a blood-pressure refill and a
+# cervical screening sit in the same domain as a mosquito net.
+#
+# Where a concept's valid population is narrower than its domain's, name it
+# here. Where it is uncertain, flag it for the clinician rather than defaulting
+# to the wide set: a wrong wide set puts impossible patients into the corpus,
+# and a wrong narrow one only costs variety.
+CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}
