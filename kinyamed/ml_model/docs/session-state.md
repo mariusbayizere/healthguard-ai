@@ -25,20 +25,21 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 |---|---|---|
 | cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
 | obstetric | 27/28 | 1 |
-| infectious_fever | 10/30 | 4 | *(+4 not-applicable: IF07 and EX30, both persons)*
+| infectious_fever | 18/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
 | gastrointestinal | 6/28 | 0 | *(+1 not-applicable: GI04 first)*
 | haemorrhage_trauma | 6/28 | 0 |
 | neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
 | chronic_care | 4/28 | 0 |
 | paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
 | preventive | 4/28 | 0 |
-| **total** | **93/254** | **13** |  *(+18 not-applicable = 111 resolved)*
+| **total** | **101/254** | **14** |  *(+18 not-applicable = 119 resolved)*
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 13 machine_approved, 3 unresolved, 18
+**Provenance so far: 78 speaker, 20 machine_approved, 3 unresolved, 18
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
-EX30's wording. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
+EX30's wording; the infectious_fever third-person batch added seven
+machine_approved and one speaker rewrite. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
 and 5 speaker rewrites.
 
 ## 3. Unresolved and held — nothing generates from these
@@ -50,7 +51,7 @@ and 5 speaker rewrites.
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | — | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely.** |
 
-### needs_clinician — 15 rows, in three kinds
+### needs_clinician — 16 rows, in three kinds
 
 **Wording settled by the speaker, clinician not consulted (4):**
 
@@ -71,6 +72,9 @@ in `suggested_kinyarwanda` as the record of what was rejected:
   no alternative invented.
 - `IF04` first — `nkabira ibyuya` for sweating is unvalidated.
 - `IF06` first — dysuria wording unvalidated and possibly the wrong register.
+- `EX27` third — attributing a suspicion of malaria to another person.
+  `nkeka` -> `akeka` follows the regular pattern but the speaker has not written
+  it.
 
 **Nothing drafted; the question itself is clinical (1):**
 
@@ -253,83 +257,46 @@ in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catc
 `IF07` first is now `applies=no`. **Its third-person row is untouched** and the
 concept is not yet collapsed in `concepts.py` — see section 6.
 
-### In flight: infectious_fever third person
+### Settled: infectious_fever third person
 
-14 rows (IF07 is gone). **9 drafted, 4 held, 1 flagged.** All nine render across
-all eight relations in `review/infectious_fever_third_render.csv`, 72 rows for
-individual ruling. Nothing accepted.
+14 rows. **8 authored, 1 needs_clinician, 4 held on their first person, 1
+collapsed.** The domain is 18/30 filled.
 
-| id | draft |
-|---|---|
-| IF02 | `{REL} afite umuriro mwinshi kandi yaragagaye.` |
-| IF05 | `{REL} afite umuriro kandi afite uduheri ku mubiri wose.` |
-| EX24 | `{REL} afite umuriro wa dogere 39.` |
-| EX25 | `{REL} afite umuriro mwinshi kandi arakorora cyane.` |
-| EX26 | `{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.` |
-| EX27 | `{REL} afite umuriro kandi yumva afite imbeho, akeka ko ari malariya.` |
-| EX28 | `{REL} afite umuriro kandi umutwe uramubabaza cyane.` |
-| EX29 | `{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.` |
-| EX31 | `{REL} amazuru ye aratemba gake.` |
-
-Every transform reuses one of the speaker's own. EX28 is the strongest: OB02
-turns the identical clause `umutwe urandya cyane` into `umutwe uramubabaza
-cyane`, changing the verb to avoid the object marker. EX31 avoids the same
-problem with the possessive, following CR03 and OB07 rather than reaching for
-`aramutemba`.
-
-**Held, not drafted (4):** `IF01`, `IF03`, `IF04`, `IF06`. Their first person is
-held for a clinician and unaccepted, so a third-person draft would be
-transforming a guess.
-
-**Collapsed (1): `EX30` into `CR07`.** Ruled and executed — one concept, kept in
-cardiac_respiratory under CR07's anchor `IMCI: cough, no pneumonia (green)`, and
-CR07 first now carries the speaker's EX30 wording with `source=speaker`.
-
-The cost of two was **not** label noise: `label` is urgency and both were
-ROUTINE. It was the **family holdout**. `family` is
-`language->language:label:domain`, so identical text under two domains sits in
-two families and `--strategy family` can put the same utterance on both sides.
-`attribute_phrase` returns one canonical phrase for identical strings, so the
-phrase holdout would have grouped them and never raised it — a family-only leak,
-quieter than the phrase one.
-
-`EX30` was never in `concepts.py` or `concept_anchors.csv` — only CR07 was ever
-the anchored concept — so the collapse touched `routine_relation_sets.csv`
-(33 -> 32 rows) and the brief only.
-
-Two flagged beyond their confidence marks: **EX27**, where `nkeka` -> `akeka`
-follows the regular pattern but the speaker has not written it; and **EX26**,
-whose first person carries no person marking at all, so the two rows differ by
-nothing but `{REL} afite` — worth checking the third earns a separate phrase.
-
-### Settled: paediatric first person — 11 of 14 rows are not applicable
-
-Ruled per concept, not domain-wide. **Only PA08, PA09 and PA10 keep a
-first-person row.** Third person is unaffected throughout.
-
-| concept | first | ground |
+| id | phrase | provenance |
 |---|---|---|
-| PA01 convulsing | `no` | a convulsing child cannot speak for themselves |
-| PA02 too weak to breastfeed | `no` | an infant too weak to breastfeed cannot speak at all |
-| PA03 unconscious or floppy | `no` | cannot speak for themselves |
-| PA04 fast breathing with indrawing | `no` | severe respiratory distress; cannot speak |
-| PA05 diarrhoea, sunken eyes | `no` | sunken eyes is an observer sign; removing it leaves a weaker concept overlapping GI04/GI06 |
-| PA06 fever and rash | `no` | duplicates IF05; the distinction lives in `{REL}` |
-| PA07 thin, not gaining weight | `no` | a growth-monitoring finding, not a self-report; thinness alone overlaps CR06 |
-| EX40 convulsing with fever >40 | `no` | rule 9 — duplicates IF02 (and NE01); also cannot speak |
-| EX41 cannot breathe, skin blue | `no` | rule 9 — duplicates CR03; also cannot speak |
-| EX42 fever and rash | `no` | rule 9 — duplicates IF05, the PA06 collapse again |
-| EX43 high fever, cannot eat | `no` | rule 9 — duplicates IF03 |
-| **PA08 ear pain and discharge** | `yes` | no adult counterpart; a child can report both signs |
-| PA09 growth monitoring | `yes` | untested — see below |
-| PA10 due for vaccination | `yes` | untested — see below |
+| IF02 | `{REL} afite umuriro mwinshi kandi yaragagaye.` | machine_approved |
+| IF05 | `{REL} afite umuriro n'uduheri ku mubiri wose.` | speaker rewrite |
+| EX24 | `{REL} afite umuriro wa dogere 39.` | machine_approved |
+| EX25 | `{REL} afite umuriro mwinshi kandi arakorora cyane.` | machine_approved |
+| EX26 | `{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.` | machine_approved |
+| EX28 | `{REL} afite umuriro kandi umutwe uramubabaza cyane.` | machine_approved |
+| EX29 | `{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.` | machine_approved |
+| EX31 | `{REL} amazuru ye aratemba gake.` | machine_approved |
 
-**Rule 9 caught EX40-EX43** and nothing outside paediatric. It does *not* catch
-PA09 or PA10: neither duplicates an adult concept, since no adult growth-
-monitoring or vaccination concept exists. They raise a different question —
-whether an under-five self-presents for a routine child service at all — which is
-the PA01-PA04 "would not speak" ground rather than the duplication ground.
-**Not applied unasked; it needs a ruling.**
+IF05 took the EX42 `n'` join rather than repeating `afite`. EX27 is
+`needs_clinician`, draft held, nothing authored. `IF01`, `IF03`, `IF04` and
+`IF06` third stay undrafted while their first person is held. `EX30` collapsed
+into CR07.
+
+### Bug found while checking this batch — `attribute_phrase` and mid-phrase `{REL}`
+
+Verifying that the newly accepted phrases attribute correctly turned up **24
+misattributions among phrases that were already authored**. `attribute_phrase`
+matched `{REL}` phrases by deleting the placeholder and looking for the
+remainder, which welds the two halves together with a double space:
+`Iyo {REL} ahumeka` became `Iyo  ahumeka` and never matched `Iyo Mama ahumeka`.
+
+Three authored phrases have `{REL}` mid-sentence and all three attributed to
+`None`: **`CR04` third, `EX07` third, `OB05` third**. Rows built from them would
+have dropped out of the phrase holdout and the leakage analysis **with no error
+raised** — the same silent failure as the case-sensitivity bug in section 9, in
+the same function.
+
+Fixed by matching each segment around the placeholder in order.
+`tests/test_phrase_form.py` now pins it with a mid-phrase canonical; the existing
+test only used a phrase-initial `{REL}`, which is why this survived. 60 tests,
+and v1 still reproduces 8/8 — v1 has no `{REL}` phrases, so it never exercised
+the path.
 
 ### Person-applicability audit — `review/person_applicability_audit.csv`
 
@@ -418,10 +385,7 @@ replacement invented — the ear term has to come from the speaker.**
 7. `CR07` first — the form of the adopted wording: EX30's verbatim lowercase
    string, or the same words in this row's capitalised sentence form. **Not
    normalised without a ruling.**
-8. The 9 infectious_fever third-person drafts, rendered in
-   `review/infectious_fever_third_render.csv`. **Requested twice, arrived empty
-   both times** — IF02, IF05, EX24, EX25, EX26, EX27, EX28, EX29, EX31 are all
-   untouched and nothing is accepted.
+8. Nothing outstanding in infectious_fever beyond the held rows
 9. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
    held drafts with nothing authored
 
@@ -464,6 +428,9 @@ against ambient-state failures. 59 tests.
 - **`walk.py` once truncated a brief to its header.** It now writes atomically and
   refuses a zero-row write. Briefs hold hours of speaker work; never write one
   non-atomically.
-- **`attribute_phrase` was case-sensitive** and lost every row with an opener,
-  which would have hollowed out the phrase holdout silently. It is now
-  case-insensitive and `{REL}`-aware.
+- **`attribute_phrase` has now failed the same way twice.** It was
+  case-sensitive and lost every row with an opener; then its `{REL}` match
+  deleted the placeholder and lost every phrase where `{REL}` was not at the
+  front. Both hollowed out the phrase holdout with no error. **Any change to
+  attribution needs a test over real authored phrases, not a constructed one** —
+  the existing test used a phrase-initial `{REL}` and passed throughout.

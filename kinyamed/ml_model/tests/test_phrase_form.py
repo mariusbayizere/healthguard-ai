@@ -162,6 +162,35 @@ def test_rel_expansions_share_one_phrase_identity() -> None:
         assert attribute_phrase("Muganga, " + text[0].lower() + text[1:], family, index) == canonical
 
 
+def test_rel_expansions_attribute_when_the_placeholder_is_mid_phrase() -> None:
+    """{REL} is not always phrase-initial, and the deleted-placeholder match
+    silently failed when it was not.
+
+    `phrase.replace("{REL}", "")` welds the two halves together with a double
+    space, so "Iyo {REL} ahumeka" became "Iyo  ahumeka" and never matched
+    "Iyo Mama ahumeka". Those rows attributed to None and left the phrase
+    holdout without raising anything. Three authored phrases have this shape:
+    CR04 third, EX07 third and OB05 third.
+    """
+    from dataset.split_dataset import attribute_phrase
+    import dataset.vocabulary as V
+
+    family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
+    for canonical in (
+        "Iyo {REL} ahumeka, munsi y'igituza harinjira cyane.",
+        "Nyuma yo kubyara, {REL} afite umuriro kandi hari ibintu bisohoka.",
+        "{REL} afite umuriro wa dogere 39.",
+    ):
+        index = {"kinyarwanda": [canonical]}
+        for rel in V.RELATIONS["kinyarwanda"]:
+            text = canonical.replace("{REL}", rel)
+            assert attribute_phrase(text, family, index) == canonical, (
+                f"{canonical!r} did not attribute its {rel!r} rendering"
+            )
+            lowered = "Muganga, " + text[0].lower() + text[1:]
+            assert attribute_phrase(lowered, family, index) == canonical
+
+
 def test_terminal_stop_dropped_before_a_continuation() -> None:
     f = Family(
         language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",

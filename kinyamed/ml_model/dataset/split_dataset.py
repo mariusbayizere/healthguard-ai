@@ -119,12 +119,27 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
     for phrase in phrase_index.get(phrase_language, ()):
         if REL_PLACEHOLDER in phrase:
             # The rendered row carries a concrete relation, so match on the
-            # invariant remainder. The canonical {REL} form is returned, which
-            # keeps all eight relations in one phrase group and therefore on the
-            # same side of the holdout.
-            tail = phrase.replace(REL_PLACEHOLDER, "").strip().lower()
-            if tail and tail in lowered:
-                return phrase
+            # invariant parts around it. The canonical {REL} form is returned,
+            # which keeps all eight relations in one phrase group and therefore
+            # on the same side of the holdout.
+            #
+            # Match each segment in order rather than the concatenation. Deleting
+            # the placeholder from a phrase where it sits mid-sentence leaves the
+            # two halves welded together with a double space -- "Iyo  ahumeka" --
+            # which never matches "Iyo Mama ahumeka". Those rows attributed to
+            # None and dropped out of the phrase holdout with no error raised,
+            # the same silent failure the case-sensitivity bug above caused.
+            segments = [s for s in (part.strip().lower()
+                                    for part in phrase.split(REL_PLACEHOLDER)) if s]
+            position = 0
+            for segment in segments:
+                found = lowered.find(segment, position)
+                if found < 0:
+                    break
+                position = found + len(segment)
+            else:
+                if segments:
+                    return phrase
         elif phrase.lower() in lowered:
             return phrase
     return None
