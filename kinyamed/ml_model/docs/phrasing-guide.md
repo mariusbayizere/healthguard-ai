@@ -128,6 +128,15 @@ invent Kinyarwanda to make a combination work, and do not generate a clinically
 questionable example to fill it. The combination space is large enough that
 restriction costs nothing measurable.
 
+**7. Never silently resolve low-confidence Kinyarwanda.** If a phrase cannot be
+confidently validated from speaker knowledge, it is marked `needs_clinician` or
+left unresolved. Producing a plausible-sounding fix and moving on is the failure
+mode, not the fix.
+
+**8. A draft is a suggestion, never an approval.** Nothing is `machine_approved`
+unless the speaker says "accept". `speaker` and `needs_clinician` must stay
+distinguishable in the record, because the paper reports them separately.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:

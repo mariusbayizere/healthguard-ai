@@ -1,12 +1,12 @@
 concept_id,proposed_set,set_key,certainty,rationale,your_ruling
 CC01,all eight,all,confident,"diabetic ketoacidosis: type 1 diabetes in children is real, keep children",
 CC02,all eight,all,confident,hypoglycaemia: same,
-CC03,exclude Umwana wanjye,adults,flag,"hypertension with headache — I excluded children as an adult presentation, but that is a rarity judgement, which item 3 rules out. Re-flagged.",
+CC03,all eight,adults,ruled,"hypertension with headache — I excluded children as an adult presentation, but that is a rarity judgement, which item 3 rules out. Re-flagged.",RULED: keep children. Rarity is not invalidity.
 CC04,all eight,adults,ruled,heart failure: congenital heart disease in children exists,RULED: keep children. Congenital heart disease is uncommon but real.
-CC05,exclude Umwana wanjye,adults,flag,"diabetic foot ulcer — a complication of long-standing diabetes, so arguably scope rather than rarity. Re-flagged so you decide which it is.",
+CC05,exclude Umwana wanjye,adults,ruled,"diabetic foot ulcer — a complication of long-standing diabetes, so arguably scope rather than rarity. Re-flagged so you decide which it is.","RULED: adult relations. Diabetic foot ulcer follows established disease, so this is scope, not rarity."
 CC06,all eight,all,confident,paediatric HIV and ART adherence are real,
 CC07,all eight,all,confident,paediatric TB treatment is real,
-CC08,exclude Umwana wanjye,adults,flag,blood-pressure medicine refill — children on antihypertensives exist. Re-flagged.,
+CC08,first person only,adults,ruled,blood-pressure medicine refill — children on antihypertensives exist. Re-flagged.,RULED: adult self-service only. Third person not applicable.
 CC09,all eight,all,confident,"routine diabetes review, any age",
 CC10,all eight,all,confident,"routine HIV follow-up, any age",
 NE03,all eight,adults,ruled,sudden one-sided weakness = stroke. Paediatric stroke exists but is rare; excluding children may lose a real presentation. Clinician call.,"RULED: keep children. Paediatric stroke is uncommon but real, and under-triage is the failure mode that matters."
@@ -16,7 +16,7 @@ PR02,UNRESOLVED,adults,unresolved,"family planning: adult, and whether men are i
 PR03,all eight,all,confident,"HIV test, any age",
 PR04,all eight,all,confident,"mosquito net collection, any age",
 PR05,"Umugore wanjye, Mama, Mushiki wanjye, Umuturanyi wanjye",obstetric-4,confident,antenatal booking: same valid population as obstetric,
-PR06,exclude Umwana wanjye,adults,flag,"blood-pressure screening — screening programmes are adult by design, which is scope, not rarity. Re-flagged.",
+PR06,exclude Umwana wanjye,adults,ruled,"blood-pressure screening — screening programmes are adult by design, which is scope, not rarity. Re-flagged.",RULED: adult relations. Screening programme is adult by design.
 PR07,"Umugore wanjye, Mama, Mushiki wanjye, Umuturanyi wanjye, Umukecuru",adult-female,confident,cervical screening: adult female only,
 PR08,all eight,all,confident,"infant feeding advice: the speaker is a carer, subject is a child",
 PR09,the paediatric set (not yet decided),children,confident,deworming for a child,
