@@ -141,14 +141,14 @@ EX31,infectious_fever,ROUTINE,existing concept — your first-pass phrasing is o
 EX31,infectious_fever,ROUTINE,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'amazuru arantemba gake',
 IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well",first,yes,,utterance,,,,,,,
 IF07,infectious_fever,ROUTINE,"low fever one day, otherwise well",third,yes,,utterance,,,,,,,
-EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,yataye ubwenge ntasubiza,,first pass,,,,speaker
-EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'yataye ubwenge ntasubiza',
-EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,yagagaye kandi ahinda umushyitsi,,first pass,,,,speaker
-EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'yagagaye kandi ahinda umushyitsi',
-EX34,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,uruhande rumwe rw'umubiri rwaramugaye,,first pass,,,,speaker
-EX34,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,"person transform of your first-person phrase: ""uruhande rumwe rw'umubiri rwaramugaye""",
-EX35,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,utterance,ntabasha kuvuga neza kandi umunwa waramugoramye,,first pass,,,,speaker
-EX35,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,,,,,,needs-transform,person transform of your first-person phrase: 'ntabasha kuvuga neza kandi umunwa waramugoramye',
+EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,,,,,,,,
+EX32,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,utterance,Yataye ubwenge kandi ntasubiza.,,rewritten fully third person by the speaker,,,,speaker
+EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,,,,,,,,
+EX33,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,utterance,Yagagaye kandi arimo guhinda umushyitsi.,,rewritten fully third person by the speaker,,,,speaker
+EX34,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,,,,,,,,
+EX34,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,utterance,Uruhande rumwe rw'umubiri we ntirukora.,,rewritten fully third person by the speaker,,,,speaker
+EX35,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,first,yes,,,,,,,,,
+EX35,neurological,CRITICAL,existing concept — your first-pass phrasing is on one of these two rows,third,yes,,utterance,Ntashobora kuvuga neza kandi umunwa we waragoramye.,,rewritten fully third person by the speaker,,,,speaker
 NE01,neurological,CRITICAL,continuous convulsion,first,yes,,utterance,,,,,,,
 NE01,neurological,CRITICAL,continuous convulsion,third,yes,,utterance,,,,,,,
 NE02,neurological,CRITICAL,"unconscious, cannot be roused",first,yes,,utterance,,,,,,,

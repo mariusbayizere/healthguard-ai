@@ -91,6 +91,21 @@ the borrowed term a patient would actually use is less natural, not more.
 Speech is elliptical, and a patient in a queue says less than a written summary
 would.
 
+## The speaker's standing rules
+
+Set by the Kinyarwanda speaker and binding on all drafting, mine included:
+
+**1. Clarity over sophistication.** If an older rural patient hears it and
+understands immediately, that is the better training example. A more elegant or
+more literary construction that takes a second to parse is the worse one. The
+corpus is modelling what people say in a waiting room, not what reads well.
+
+**2. Never mix first and third person inside one phrase.** A phrase is entirely
+the speaker's own symptom or entirely someone else's. The original corpus violated
+this — `ntabasha kuvuga neza kandi umunwa waramugoramye` opens first person and
+closes with a third-person object marker — and it was rewritten as
+`Ntashobora kuvuga neza kandi umunwa we waragoramye`, fully third.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:

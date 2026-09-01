@@ -20,6 +20,7 @@ import argparse
 import csv
 import json
 import random
+import re
 import sys
 import time
 from collections import Counter
@@ -134,21 +135,22 @@ class Family:
             index, position = divmod(index, len(slot))
             parts.append(slot[position])
         opener, subject, phrase, onset, context, closer = reversed(parts)
+        # An opener ending in sentence punctuation starts a new sentence, so what
+        # follows keeps its capital; one ending in a comma continues, so it does not.
+        continues = bool(opener) and opener.rstrip()[-1:] not in _SENTENCE_END
         if subject:
-            # After a greeting the sentence continues, so the subject is not a
-            # sentence start: "Muganga, umwana wanjye afite..." not "Muganga, Umwana".
-            if opener:
+            if continues:
                 subject = subject[0].lower() + subject[1:]
-            return f"{opener}{subject} {phrase}{onset}{context}{closer}".strip()
+            return _tidy(f"{opener}{subject} {phrase}{onset}{context}{closer}")
         # Utterance form: the phrase is a complete clause and takes no subject.
         # After a greeting it continues mid-sentence ("Muganga, ndakorora...");
         # with no greeting it starts the sentence and is capitalised, which is
         # what the subject slot did in the noun-phrase form.
-        if opener:
+        if continues:
             phrase = phrase[0].lower() + phrase[1:]
         else:
             phrase = phrase[0].upper() + phrase[1:]
-        return f"{opener}{phrase}{onset}{context}{closer}".strip()
+        return _tidy(f"{opener}{phrase}{onset}{context}{closer}")
 
 
 def assert_slots_are_distinct() -> None:
@@ -176,6 +178,44 @@ def assert_slots_are_distinct() -> None:
                     raise ValueError(
                         f"SYMPTOMS[{language!r}][{urgency!r}][{domain!r}] has duplicates."
                     )
+
+
+_SENTENCE_END = ".!?"
+
+
+def _tidy(text: str) -> str:
+    """Normalise punctuation where slots meet.
+
+    Slot fragments are written as natural speech, so a context or opener may be
+    a complete sentence rather than a mid-sentence continuation. Concatenating
+    those raw produces "gitunguranye.. Nkora iki?" or a lowercase word after a
+    full stop. Rather than constrain how the speaker writes, the join is made
+    punctuation-aware: duplicate sentence punctuation collapses, a sentence
+    always starts with a capital, and spacing is regular.
+
+    For v1, where every opener ends ", " and every closer is the last element,
+    this is a no-op.
+    """
+    out: list[str] = []
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if ch in _SENTENCE_END:
+            # collapse a run of sentence punctuation to the first mark
+            out.append(ch)
+            while i + 1 < len(text) and text[i + 1] in _SENTENCE_END:
+                i += 1
+            i += 1
+            continue
+        out.append(ch)
+        i += 1
+    text = "".join(out)
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+([.!?,])", r"\1", text)
+    text = re.sub(r"([.!?])(?=[^\s])", r"\1 ", text)
+    # capitalise the first letter, and any letter opening a new sentence
+    text = re.sub(r"(^|[.!?]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), text)
+    return text
 
 
 def phrase_form(phrase: str) -> str:
