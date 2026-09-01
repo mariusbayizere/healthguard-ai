@@ -39,6 +39,7 @@ from dataset.vocabulary import (  # noqa: E402
     PHRASE_FORMS,
     REL_PLACEHOLDER,
     RELATIONS,
+    DOMAIN_RELATIONS,
     ONSETS,
     OPENERS,
     SUBJECTS,
@@ -273,9 +274,18 @@ def build_families() -> list[Family]:
             expanded: list[str] = []
             for phrase in in_form:
                 if REL_PLACEHOLDER in phrase:
+                    allowed = DOMAIN_RELATIONS.get(domain)
+                    pool = RELATIONS.get(phrase_lang, ("",))
+                    if allowed is not None:
+                        pool = tuple(r for r in pool if r in allowed)
+                        if not pool:
+                            raise SystemExit(
+                                f"domain {domain!r} allows no relation from "
+                                f"RELATIONS[{phrase_lang!r}]; a {{REL}} phrase there "
+                                "would render nothing"
+                            )
                     expanded.extend(
-                        phrase.replace(REL_PLACEHOLDER, rel)
-                        for rel in RELATIONS.get(phrase_lang, ("",))
+                        phrase.replace(REL_PLACEHOLDER, rel) for rel in pool
                     )
                 else:
                     expanded.append(phrase)

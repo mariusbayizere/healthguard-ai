@@ -521,3 +521,21 @@ RELATIONS: dict[str, tuple[str, ...]] = {
 }
 
 REL_PLACEHOLDER = "{REL}"
+
+
+# Which relations a third-person utterance may be about, per domain.
+#
+# This is a data-validity constraint, not a grammatical one: {REL} substitutes
+# cleanly everywhere, but some substitutions describe patients who do not exist.
+# "Umugabo wanjye aratwite" is "my husband is pregnant". A row like that is not
+# merely odd - the classifier learns it as a real presentation, and in obstetric
+# CRITICAL, the cell where under-triage kills someone, it weakens exactly what
+# can least afford weakening.
+#
+# A domain absent from this map accepts every relation.
+DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
+    # Decided by the Kinyarwanda speaker. Umukecuru is excluded as past
+    # childbearing age; umwana wanjye, umugabo wanjye and papa cannot be
+    # pregnant or newly delivered.
+    "obstetric": ("Umugore wanjye", "Mama", "Mushiki wanjye", "Umuturanyi wanjye"),
+}
