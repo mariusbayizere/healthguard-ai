@@ -902,6 +902,54 @@ rows) — 3 contexts, 3 closers, English glosses and shapes only,
 to author. They are what lets ROUTINE be fixed by *adding* frame material instead
 of removing it, which the capacity analysis says is the only safe direction.
 
+### STOPPED before drafting neurological — five concepts may duplicate v1
+
+`neurological` was next, and surveying it before drafting found that **five of its
+eight new concepts restate concepts already in v1**, whose phrases the speaker has
+already authored as EX32-EX36:
+
+| new concept | v1 phrase, authored as | |
+|---|---|---|
+| `NE01` continuous convulsion | `EX33` `Yagagaye kandi arimo guhinda umushyitsi.` | v1: `kugagara no guhinda umushyitsi` |
+| `NE02` unconscious, cannot be roused | `EX32` `Yataye ubwenge kandi ntasubiza.` | v1: `yataye ubwenge ntiyasubiza` |
+| `NE03` sudden one-sided weakness | `EX34` `Uruhande rumwe rw'umubiri we ntirukora.` | v1: `uruhande rumwe rw'umubiri rutagikora` |
+| `NE04` sudden difficulty speaking | `EX35` `Ntashobora kuvuga neza kandi umunwa we waragoramye.` | v1: `kutabasha kuvuga neza n'umunwa wagoramye` |
+| `NE08` intermittent mild headache | `EX36` `umutwe urandya ariko ntabwo cyane` | v1: `uburibwe buke mu mutwe budakabije` |
+
+**No `distinct from` note exists on any of them.** That is the IF07/EX29 test
+exactly: the only concepts in the corpus carrying a recorded axis are CR01/EX05,
+and inventing one here would be manufacturing. Possible axes are visible —
+*sudden* for NE03/NE04, *intermittent* for NE08, *continuous* for NE01 — but none
+is recorded in `concepts.py` or `concept_anchors.csv`, and the speaker's authored
+EX34 already says the side "no longer works", which is the sudden reading.
+
+**Corroborating evidence from rule 11.** `NE01` and `NE02` first person are already
+`applies=no` — a convulsing or unconscious patient cannot report. `EX33` and `EX32`
+first person are still open, and would fall to the same test. Two concepts that
+take the same rule-11 outcome on the same ground are hard to tell apart.
+
+**If all five collapse: 120 -> 115 concepts, and the target falls to roughly
+1,648,000.** Not executed; five concept rulings are the speaker's.
+
+**Drafted anyway, because they are not entangled: `NE05` and `NE07`.** `NE06` is
+`needs_clinician` and deliberately not drafted. `NE05` carries only **two of its
+three signs** — no word for light exists in any source (`urumuri` attested nowhere,
+`izuba` once meaning sunbathing), so photophobia is vocabulary-blocked, the fourth
+instance after GI03, PA08 and HT05.
+
+### Eight authored third-person phrases carry no `{REL}` and sit outside the relation architecture
+
+Found in the same survey. `EX32`-`EX35` are bare third-person sentences whose
+subject prefix carries the person (`Yataye ubwenge...`), and `EX40`-`EX43` hard-code
+`umwana` as a lexical subject. **None of the eight expands over relations** — each
+contributes one phrase instance where a `{REL}` phrase contributes four to eight.
+
+Two consequences: they are invisible to every relation ruling, including
+`CHILD_RELATIONS` on the paediatric EX40-EX43 where varying the child term is
+exactly what the set is for; and they depress the capacity of their classes in the
+way `docs/urgency-frame-coupling.md` describes. Whether that is intended — the
+speaker authored all eight — is a question for them.
+
 ### LIVE BUG found while designing the closure rule — `phrase_components` misses containments
 
 `phrase_components` unions on **raw substring containment**, and every v2 phrase
