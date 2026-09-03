@@ -33,12 +33,12 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | obstetric | 27/28 | 2 | 27 | *(OB12 and OB11, both held)* |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
 | gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
-| haemorrhage_trauma | 10/28 | 2 | 14 | *(+4 not-applicable: HT01 and HT06, both persons)* |
+| haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable: HT01 and HT06, both persons)* |
 | neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
 | chronic_care | 4/28 | 2 | 4 | |
 | paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
 | preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
-| **total** | **118/254** | **25** | **144** | *(+26 not-applicable = 144 resolved)* |
+| **total** | **128/254** | **25** | **154** | *(+26 not-applicable = 154 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -51,13 +51,13 @@ python -c "import csv,collections; print(collections.Counter(r['domain'] for r i
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 39 machine_approved, 5 unresolved, 26
+**Provenance so far: 77 speaker, 49 machine_approved, 5 unresolved, 26
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
 machine_approved and one speaker rewrite. The two PR02 rows became `unresolved`
 when its exclusion was recorded in the brief (section 3).
 
-**Speaker rate: 77 of 116 authored rows, 66%.** 116 is `speaker +
+**Speaker rate: 77 of 126 authored rows, 61%.** 126 is `speaker +
 machine_approved`; the not-applicable and unresolved rows are not authored and do
 not belong in the denominator. The rate fell from 74% because the gastrointestinal
 third-person batch added eight machine_approved rows, and because EX17 first — a
@@ -816,39 +816,61 @@ replacement invented — the ear term has to come from the speaker.**
    held drafts with nothing authored, 5 are undrafted, and GI04 third is the
    newest (section 3)
 
-### In flight: haemorrhage_trauma third person — 10 drafts
+### Settled: haemorrhage_trauma third person — all ten ruled, all accepted
 
-Rendered in `review/haemorrhage_trauma_third_render.csv`, **77 rows** — 9 concepts
-on eight relations and **HT08 on five**, because HT08 is the domain's only concept
-with a relation ruling (`CHILD_RELATIONS`, ROUTINE group C). Produced by
-`render_third_person.py`, which resolved that automatically; the EX16 class of bug
-cannot recur here.
+10 rows ruled one at a time against `haemorrhage_trauma_third_render.csv` (77
+rows: 9 concepts on eight relations, HT08 on five). **All ten accepted**; nothing
+batch-accepted. **The domain is closed apart from HT03 and HT05**, both held on
+their first person.
 
-`HT03` and `HT05` are **not drafted** — their first person is held, and a third
-person is not written ahead of it. Same rule that kept IF01/IF03/IF04/IF06 third
-undrafted.
+| id | phrase |
+|---|---|
+| EX18 | `{REL} ari kuva amaraso menshi kandi ntahagarara.` |
+| EX19 | `{REL} afite igikomere gikomeye kirimo kuva amaraso menshi.` |
+| EX20 | `{REL} ari kuva amaraso menshi mu mazuru kandi ntahagarara.` |
+| EX21 | `{REL} afite igikomere ku mutwe nyuma yo kugwa.` |
+| EX22 | `{REL} afite igikomere cyanduye, kiratukura kandi kirimo amashyira.` |
+| EX23 | `{REL} yaraguye none arababara cyane.` |
+| HT02 | `{REL} afite igikomere gikomeye ku buryo igufa rigaragara.` |
+| HT04 | `{REL} afite ubushye bunini ku mubiri.` |
+| HT07 | `{REL} yarumwe n'inzoka.` |
+| HT08 | `{REL} afite igikomere gito kandi amaraso yarahagaze.` — **five relations** |
 
-Most are `mfite` -> `{REL} afite`, the OB09 pattern, with nothing else moved. Three
-worth reading before ruling:
+**Most of this batch was inert.** Eight of the ten are `mfite` -> `afite` and
+nothing else, because the descriptors agree with the *wound* rather than with the
+patient — `kirimo`, `gito`, `cyanduye`, `rigaragara`, `bunini` all transfer
+untouched, and `nyuma yo kugwa` is a nominalisation with no person marking at all.
+Worth knowing as a general property: **a phrase whose predicates agree with the
+complaint rather than the speaker transforms for free.**
 
-- **`EX18` and `EX20` are a phrase-holdout pair.** They differ only by `mu mazuru`
-  inserted mid-phrase, so **neither contains the other** and `phrase_components`
-  will not union them — a 24-character shared prefix that can split across the
-  holdout. The third instance of this shape, after EX16/EX17 (fixed by the
-  second-phrasing declaration) and HT02/EX19 (accepted knowingly). Unlike
-  EX16/EX17 these are genuinely different concepts, so a second phrasing is not
-  the answer.
-- **`EX23`'s `yaraguye` is not attested** anywhere. The precedent for the shape is
-  the speaker's own: OB01 first `nagagaye` / OB01 third `yaragagaye`, the same
-  1sg/3sg `-ra-` alternation, attested twice in their writing. So the pattern is
-  theirs even though this instance is not. A fully-attested alternative is offered
-  on the row (`{REL} arababara cyane nyuma yo kugwa.`), at the cost of the
-  parallel with their first person.
-- **`HT07` third is better attested than its first person.** `yarumwe n'inzoka` is
-  the exact construction in the corpus's real snake-bite consultations, across 3
-  records, while the first-person `narumwe` was the unattested transform. That is
-  the third-person register of the attestation corpus working *for* a draft rather
-  than against it.
+Three that did not:
+
+- **`EX18`/`EX20` are the worst shared-prefix pair in the corpus.** They share a
+  24-char head *and* a 19-char tail, differing only by `mu mazuru` inserted
+  mid-phrase, so neither contains the other and `phrase_components` will not union
+  them — 16 rendered rows across two CRITICAL concepts. Fourth instance of the
+  shape (EX16/EX17 21 chars, HT02/EX19 25 chars). **A second phrasing is not the
+  fix**: EX16/EX17 were one concept said two ways, these are two concepts. A
+  rewrite following the speaker's own EX31 third pattern (`{REL} amazuru ye ...`)
+  was offered and declined in favour of parallelism with the first person.
+- **`EX23`'s `yaraguye` is unattested anywhere**, but the alternation is the
+  speaker's own: IF02 third and OB01 third both carry `yaragagaye` from a first
+  person `nagagaye`. Materially different from GI04's `yinjiye` (attested once, in
+  the wrong sense) and HT05's deformity term (no candidate at all) — here the stem
+  `kugwa` is attested three ways over and only the inflection is unseen.
+- **`HT07` is the one row that rests on attestation rather than transform.**
+  `yarumwe n'inzoka` IS the corpus construction across three real snake-bite
+  consultations; the first-person `Narumwe` was derived from it. The direction is
+  reversed from every other row because the attestation corpus is CHW case-report
+  register. Standing caution: `inzoka` means intestinal worms in most hits, and
+  the verb `-rumwe` is what disambiguates — a future phrase using the noun without
+  a biting verb loses that protection.
+
+**`HT08` is the fix's first clean win.** It rendered on five relations because
+`render_third_person.py` resolved `CHILD_RELATIONS` from
+`routine_relation_sets.csv` unprompted. The equivalent row before the bridge
+existed would have been rendered on eight and ruled on three wrong ones — which is
+precisely what happened to EX16.
 
 ### Ruled: CRITICAL frame restriction — mechanism built, applies at v2 build
 
@@ -962,24 +984,38 @@ Flags carried on the rows rather than resolved:
 Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
 time, rendered across every relation for individual ruling. Never batch-accept.**
 
-Remaining: **110 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
+Remaining: **100 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
 per language at 2-3 minutes a row.
 
 **Gastrointestinal is closed** apart from GI03 and GI04, both blocked on
 vocabulary or a clinician rather than on drafting. infectious_fever first and
 third are both closed.
 
-**haemorrhage_trauma first person is drafted and awaiting rulings** (5 live
-drafts; see above). After it: its third person, then `neurological`, which is at
-6/28 with all eight relations confirmed and no unresolved architecture.
-`chronic_care` and `preventive` are at 4/28 but carry open questions (CC01/CC02
-held, PR02 out of generation, and the service concepts now settled by rule 12),
-so they need reading before drafting.
+**haemorrhage_trauma is closed** apart from HT03 and HT05. Four domains are now
+effectively done — cardiac_respiratory, obstetric, gastrointestinal,
+haemorrhage_trauma — leaving only blocked rows in each.
+
+**Next, in this order:**
+
+1. **`neurological`** — 6/28 filled, 20 left, all eight relations confirmed, one
+   concept ruling to check (`NE08` is `CHILD_RELATIONS`). No unresolved
+   architecture. The obvious next domain.
+2. **`paediatric`** — 4/28 filled but only 13 left, because 11 rows are already
+   `applies=no`. Rule 12 settled PA09/PA10, so the blocker that stalled it is
+   gone; PA08 stays vocabulary-blocked on the ear term.
+3. **`infectious_fever`** — 9 left, but **all nine are held**: IF01/IF03/IF04/IF06
+   both persons and EX27 third. Nothing to draft until a clinician session.
+4. **`chronic_care`** and **`preventive`** — 24 left each, the two biggest blocks
+   and the least done. Both carry open questions to read first: CC01/CC02 held,
+   PR02 out of generation, CC08/CC09/CC10 and six preventive concepts ruled
+   `NO_RELATIONS` (first person only), four ruled `HOUSEHOLD_RELATIONS`, and the
+   service concepts settled by rule 12. **Check `relation_sets.py` output before
+   drafting either** — they carry more relation rulings than every other domain
+   combined.
 
 **Render any third-person batch with `review/render_third_person.py <domain>`**,
-never by hand — that is what the EX16 bug cost. `HT08` is the one
-haemorrhage_trauma concept with a relation ruling (`CHILD_RELATIONS`), so its
-third person renders on five relations, not eight.
+never by hand — that is what the EX16 bug cost, and HT08 is the proof it now works
+unprompted.
 
 ## 8. Tooling
 
