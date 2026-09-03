@@ -80,23 +80,13 @@ CONCEPTS = [
  ("haemorrhage_trauma","ROUTINE","HT08","small cut, bleeding stopped","not IMCI (minor injury)",
   "a small cut that has stopped bleeding","une petite coupure qui ne saigne plus"),
 
- # ---- neurological : 8 new ----
- ("neurological","CRITICAL","NE01","continuous convulsion","IMCI general danger sign: convulsing now",
-  "a fit that will not stop","une crise qui ne s'arrete pas"),
- ("neurological","CRITICAL","NE02","unconscious, cannot be roused","IMCI general danger sign: lethargic or unconscious",
-  "unconscious and cannot be woken","inconscient et impossible a reveiller"),
- ("neurological","CRITICAL","NE03","sudden one-sided weakness","not IMCI (adult stroke)",
-  "sudden weakness down one side of the body","une faiblesse soudaine d'un cote du corps"),
- ("neurological","CRITICAL","NE04","sudden difficulty speaking","not IMCI (adult stroke)",
-  "suddenly unable to speak properly","une difficulte soudaine a parler"),
+ # ---- neurological : 3 new ----  (NE01->EX33, NE02->EX32, NE03->EX34, NE04->EX35, NE08->EX36, all collapsed)
  ("neurological","URGENT","NE05","severe headache with vomiting and photophobia","not IMCI (adult presentation)",
   "a severe headache with vomiting and the light hurts my eyes","un mal de tete violent avec vomissements et la lumiere qui fait mal"),
  ("neurological","URGENT","NE06","new confusion today","not IMCI (adult presentation)",
   "confused since this morning, not making sense","confus depuis ce matin, des propos incoherents"),
  ("neurological","URGENT","NE07","repeated fainting","not IMCI (adult presentation)",
   "fainting again and again","des evanouissements a repetition"),
- ("neurological","ROUTINE","NE08","intermittent mild headache","not IMCI (minor complaint)",
-  "a mild headache that comes and goes","un mal de tete leger qui va et vient"),
 
  # ---- chronic_care : 10 new ----
  ("chronic_care","CRITICAL","CC01","diabetic with vomiting, deep breathing and drowsiness","not IMCI (adult DKA)",

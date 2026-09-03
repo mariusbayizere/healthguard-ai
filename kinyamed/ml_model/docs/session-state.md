@@ -331,28 +331,37 @@ the guide is the record.
 2,000 rows per authored phrase is the invariant.
 
 ```
-ceiling  120 concepts x 2 persons x 4 languages =   960 phrases
+ceiling  115 concepts x 2 persons x 4 languages =   920 phrases
 minus    14 applies=no rows x 4                 =    56
 minus    10 NO_RELATIONS thirds x 4             =    40
-net                                                 864 phrases
-                                    at 2,000/phrase -> 1,728,000 rows
+net                                                 824 phrases
+                                    at 2,000/phrase -> 1,648,000 rows
 ```
 
-126 -> 125 -> 124 -> 123 -> 122 -> 121 -> 120: IF07 into EX29, EX30 into CR07,
-GI08 into EX16/EX17, EX17 into EX16, **HT06 into EX22 and HT01 into EX18 (all
-executed 2026-09-03)**. PR02 is out of generation on top of that.
+126 -> ... -> 120 -> **115**: IF07 into EX29, EX30 into CR07, GI08 into EX16/EX17,
+EX17 into EX16, HT06 into EX22, HT01 into EX18, and **NE01/NE02/NE03/NE04/NE08
+into EX33/EX32/EX34/EX35/EX36** — eleven collapses, all executed 2026-09-03. PR02
+is out of generation on top of that.
 
 **How 123 and 14 reconcile with the brief**, because they look wrong next to it:
 
 ```
 127  concept ids in the brief
- -6  IF07, EX30, GI08, EX17, HT01, HT06 collapsed into other concepts
+-11  IF07, EX30, GI08, EX17, HT01, HT06, NE01-NE04, NE08 collapsed
  -1  PR02, out of generation pending the service-design ruling
-120  concepts in the ceiling
+115  concepts in the ceiling
 
- 26  applies=no rows on disk
--12  the twelve rows of the six collapsed concepts, already outside the ceiling
+ 36  applies=no rows on disk
+-22  the twenty-two rows of the eleven collapsed concepts, outside the ceiling
  14  applies=no rows the ceiling still counts
+```
+
+**The 14 held by exact offset through the neurological collapse.** NE01 and NE02
+first were already `applies=no` and left the count as collapsed concepts; EX32 and
+EX33 first entered it, ruled `applies=no` on the identical rule-11 ground. That
+the same two rows swapped in and out is itself evidence the concepts were one.
+
+```
 ```
 
 **PR02 is subtracted once, as a concept, not again as two rows.** Its rows stay
@@ -366,8 +375,8 @@ pairing is now declared in the brief and `second_phrasings.py` emits it.
 
 History: 2,016,000 at 126; 2,000,000 at 125; 1,888,000 after PA01-04; 1,832,000
 after PA05-07 and EX40-43; 1,808,000 after GI04, NE01, NE02; 1,792,000 after the
-EX30 collapse; 1,776,000 after GI08; 1,760,000 after EX17; **1,728,000** after HT01 and HT06.
-`TARGET_ROWS_V2` is still `1_008_000`.
+EX30 collapse; 1,776,000 after GI08; 1,760,000 after EX17; 1,728,000 after HT01 and HT06; **1,648,000** after the five
+neurological collapses. `TARGET_ROWS_V2` is still `1_008_000`.
 
 ## 7. Current batch and what is blocked
 
@@ -902,7 +911,41 @@ rows) — 3 contexts, 3 closers, English glosses and shapes only,
 to author. They are what lets ROUTINE be fixed by *adding* frame material instead
 of removing it, which the capacity analysis says is the only safe direction.
 
-### STOPPED before drafting neurological — five concepts may duplicate v1
+### RULED: five neurological concepts collapsed into their v1 originals
+
+`NE01 -> EX33`, `NE02 -> EX32`, `NE03 -> EX34`, `NE04 -> EX35`, `NE08 -> EX36`, all
+executed 2026-09-03. **No authored text was lost** — every collapsed row was empty;
+the speaker's phrases live on the surviving EX concepts. Removed from
+`concepts.py` (64 -> 59), `concept_anchors.csv` (76 -> 71) and
+`routine_relation_sets.csv` (30 -> 29, NE08's `CHILD_RELATIONS` ruling already
+duplicated on EX36).
+
+**`EX33` and `EX32` first person are now `applies=no`** under rule 11 — a
+convulsing or unconscious patient cannot report. That is the same ground on which
+NE01 and NE02 first were *already* `applies=no`, which was itself part of the
+evidence that the concepts were one.
+
+**115 concepts, 824 phrases, 1,648,000 rows.**
+
+### RULED: `{REL}` added to seven of the eight placeholder-less phrases
+
+`EX40`-`EX43` had `umwana` hard-coded as a lexical subject, so each generated **one**
+instance where the paediatric `CHILD_RELATIONS` set should have varied the child
+term across five. Substituting `{REL}` is mechanical — no word changed, only the
+subject slot parameterised — so **provenance stays `speaker`**. They now render
+across *Umwana wanjye · Umuhungu wanjye · Umukobwa wanjye · Umwuzukuru wanjye ·
+Umwana w'umuturanyi*.
+
+`EX32`, `EX33`, `EX35` took `{REL}` as a **fronted subject**: the person was already
+marked in the verb prefix, so the subject is additional rather than substituted,
+and the verb is lowercased because it no longer starts the sentence.
+
+**`EX34` was deliberately left as authored.** Its subject is `uruhande` (the side)
+and the patient is a possessor, so it needs `rw'umubiri wa {REL}` — a rewrite for
+the speaker's ear, not a substitution. **It is the one authored third-person phrase
+still outside the relation architecture**, generating a single instance.
+
+### The survey that prompted all of this
 
 `neurological` was next, and surveying it before drafting found that **five of its
 eight new concepts restate concepts already in v1**, whose phrases the speaker has
