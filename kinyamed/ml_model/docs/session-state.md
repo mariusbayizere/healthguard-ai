@@ -32,13 +32,13 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | cardiac_respiratory | 26/28 | 3 | 26 | *(CR07 now carries EX30's wording)* |
 | obstetric | 27/28 | 1 | 27 | |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
-| gastrointestinal | 13/28 | 3 | 16 | *(+3 not-applicable: GI04 first, GI08 both)* |
+| gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
 | haemorrhage_trauma | 6/28 | 1 | 6 | |
 | neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
 | chronic_care | 4/28 | 2 | 4 | |
 | paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
-| preventive | 4/28 | 2 | 4 | *(both holds are PR02, newly marked)* |
-| **total** | **107/254** | **23** | **127** | *(+20 not-applicable = 127 resolved)* |
+| preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
+| **total** | **114/254** | **23** | **136** | *(+22 not-applicable = 136 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -51,15 +51,20 @@ python -c "import csv,collections; print(collections.Counter(r['domain'] for r i
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 78 speaker, 27 machine_approved, 5 unresolved, 20
+**Provenance so far: 77 speaker, 35 machine_approved, 5 unresolved, 22
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
 machine_approved and one speaker rewrite. The two PR02 rows became `unresolved`
 when its exclusion was recorded in the brief (section 3).
 
-**Speaker rate: 78 of 105 authored rows, 74%** — not the ~85% an earlier draft
-claimed. 105 is `speaker + machine_approved`; the not-applicable and unresolved
-rows are not authored and do not belong in the denominator.
+**Speaker rate: 77 of 112 authored rows, 69%.** 112 is `speaker +
+machine_approved`; the not-applicable and unresolved rows are not authored and do
+not belong in the denominator. The rate fell from 74% because the gastrointestinal
+third-person batch added eight machine_approved rows, and because EX17 first — a
+speaker row — became not_applicable in the collapse. **A falling rate here is the
+third-person transform working as designed**, not a loss of speaker authorship: a
+regular transform of a phrase the speaker wrote is `machine_approved` by
+definition.
 
 Frame fragments are complete: 17/17 of the rows marked `TO WRITE`, of which 12
 machine_approved and 5 speaker rewrites. The file has 33 rows — the other 16 are
@@ -74,7 +79,7 @@ machine_approved and 5 speaker rewrites. The file has 33 rows — the other 16 a
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | both | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely** — and now marked as such in the brief, not only here (see below). |
 
-### needs_clinician — 16 rows, in three kinds
+### needs_clinician — 17 rows, in three kinds
 
 Split by whether the row is authored, which is what decides if it can generate.
 An earlier version of this list put `CR04` in both groups and labelled the second
@@ -270,26 +275,27 @@ the guide is the record.
 2,000 rows per authored phrase is the invariant.
 
 ```
-ceiling  123 concepts x 2 persons x 4 languages =   984 phrases
+ceiling  122 concepts x 2 persons x 4 languages =   976 phrases
 minus    14 applies=no rows x 4                 =    56
 minus    10 NO_RELATIONS thirds x 4             =    40
-net                                                 888 phrases
-                                    at 2,000/phrase -> 1,776,000 rows
+net                                                 880 phrases
+                                    at 2,000/phrase -> 1,760,000 rows
 ```
 
-126 -> 125 -> 124 -> 123: IF07 into EX29, EX30 into CR07, GI08 into EX16/EX17.
-PR02 is out of generation on top of that.
+126 -> 125 -> 124 -> 123 -> 122: IF07 into EX29, EX30 into CR07, GI08 into
+EX16/EX17, **EX17 into EX16 (executed 2026-09-03)**. PR02 is out of generation on
+top of that.
 
 **How 123 and 14 reconcile with the brief**, because they look wrong next to it:
 
 ```
 127  concept ids in the brief
- -3  IF07, EX30, GI08 collapsed into other concepts
+ -4  IF07, EX30, GI08, EX17 collapsed into other concepts
  -1  PR02, out of generation pending the service-design ruling
-123  concepts in the ceiling
+122  concepts in the ceiling
 
- 20  applies=no rows on disk
- -6  the six rows of the three collapsed concepts, already outside the ceiling
+ 22  applies=no rows on disk
+ -8  the eight rows of the four collapsed concepts, already outside the ceiling
  14  applies=no rows the ceiling still counts
 ```
 
@@ -298,13 +304,14 @@ PR02 is out of generation on top of that.
 marks them `applies=no` must drop the concept subtraction at the same time or
 the target silently loses eight phrases.
 
-**The EX16/EX17 collapse is confirmed but deliberately not executed** — it waits
-on the consumer, which now exists (section 7). Once it runs, 122 concepts, 880
-phrases, **1,760,000**.
+**The EX16/EX17 collapse is executed** (2026-09-03). The consumer was built
+first so EX17's wording would survive the collapse rather than be lost by it; the
+pairing is now declared in the brief and `second_phrasings.py` emits it.
 
 History: 2,016,000 at 126; 2,000,000 at 125; 1,888,000 after PA01-04; 1,832,000
 after PA05-07 and EX40-43; 1,808,000 after GI04, NE01, NE02; 1,792,000 after the
-EX30 collapse; **1,776,000** after GI08. `TARGET_ROWS_V2` is still `1_008_000`.
+EX30 collapse; 1,776,000 after GI08; **1,760,000** after EX17. `TARGET_ROWS_V2` is
+still `1_008_000`.
 
 ## 7. Current batch and what is blocked
 
@@ -389,8 +396,10 @@ different phrase strings, so they can split across the phrase holdout.
 
 ### Second phrasings — the consumer now exists
 
-The EX16/EX17 collapse was blocked on this and is still not executed. What was
-built, so EX17's wording survives the collapse instead of being lost by it:
+The EX16/EX17 collapse was blocked on this. **The consumer was built first, then
+the collapse executed on 2026-09-03** — which is the order that mattered, because
+collapsing before the consumer existed would have lost EX17's wording rather than
+preserved it. What was built:
 
 - **`vocabulary.PHRASE_VARIANTS`** — maps a second phrasing to its concept's
   primary. Empty today, populated at v2 build time. v1 is untouched.
@@ -472,17 +481,25 @@ the existing safeguard would not raise it. **The substring closure catches neste
 phrases and misses divergent ones with a long shared prefix.** Worth knowing
 generally, not only here.
 
-Proposal: EX16 primary, EX17 into `second_phrasing_optional`. **Caveat that
-matters:** nothing reads that column today — `make_second_review.py` writes it
-empty and no consumer exists. Unless the v2 build reads it *and* maps both
-phrasings to one phrase group, collapsing **loses** EX17's wording rather than
-preserving it. That is the opposite of the intent, so the mechanism has to land
-before the collapse does.
+**Executed 2026-09-03.** EX16 primary, EX17's wording written into EX16 first's
+`second_phrasing_optional`; EX17 both persons `applies=no` / `not_applicable` with
+the wording kept as the record; EX17 removed from `routine_relation_sets.csv`
+(31 -> 30 rows). `second_phrasings.py` now reports one second phrasing and emits:
 
-The EX16/EX17 collapse is confirmed and **still not executed**: the consumer
-exists now, but the pairing has to be written into the brief's
-`second_phrasing_optional` column and into `PHRASE_VARIANTS` at build time. Doing
-it takes the target to **1,760,000** (880 phrases, 122 concepts).
+```
+PHRASE_VARIANTS = {
+    'iyo maze kurya numva mu nda ntameze neza':
+        'iyo maze kurya numva inda itameze neza',
+}
+```
+
+The caveat that made the ordering matter: nothing read that column before the
+consumer existed, so collapsing first would have **lost** EX17's wording instead
+of preserving it. The mechanism landed first, deliberately. `PHRASE_VARIANTS`
+itself is still populated at v2 build time from this column — the declaration
+lives in the brief, not in `vocabulary.py`.
+
+Target moved to **1,760,000** (880 phrases, 122 concepts).
 
 ### Blocked on the speaker — two words that do not exist in the corpus
 
@@ -494,58 +511,61 @@ plausible-looking guess here would enter the record as a phrase rather than as a
 question. GI05 routed around the stool noun by using `impiswi`; melaena and ear
 pain have no such route.
 
-### In flight: gastrointestinal third person
+### Settled: gastrointestinal third person — all nine ruled 2026-09-03
 
-14 rows. **2 accepted, 9 awaiting a ruling, 2 held, 1 `applies=no` with GI08.**
-All eleven drafts render across all eight relations in
-`review/gastrointestinal_third_render.csv`, 88 rows for individual ruling.
+14 rows. **10 accepted, 2 held, 2 `applies=no`.** The domain is 20/28 filled and
+25/28 resolved. Ruled one at a time against the rendered relations; nothing
+batch-accepted.
 
-Accepted -> `machine_approved`:
-
-| id | phrase |
-|---|---|
-| GI01 | `{REL} araruka ibyo arya byose kandi ntashobora no kunywa.` |
-| GI02 | `{REL} araruka amaraso.` |
-
-Still awaiting a ruling: **GI04, GI05, GI06, GI07, EX12, EX13, EX14, EX15,
-EX16.**
-
-| id | conf | draft |
+| id | ruling | phrase |
 |---|---|---|
-| GI01 | med | `{REL} araruka ibyo arya byose kandi ntashobora no kunywa.` |
-| GI02 | med | `{REL} araruka amaraso.` |
-| GI04 | low | `{REL} afite impiswi zikomeye kandi amaso ye yinjiye.` |
-| GI05 | med | `{REL} afite impiswi zirimo amaraso.` |
-| GI06 | med | `{REL} amaze ibyumweru birenga bibiri arwaye impiswi.` |
-| GI07 | med | `{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.` |
-| EX12 | med | `{REL} amaze iminsi itatu arwaye impiswi zikomeye.` |
-| EX13 | med | `{REL} arakomeza kuruka kandi ntashobora kurya.` |
-| EX14 | med | `{REL} arababara cyane mu nda.` |
-| EX15 | med | `{REL} araruka cyane kandi yumva afite intege nke.` |
-| EX16 | med | `Iyo {REL} amaze kurya, yumva inda itameze neza.` |
+| GI01 | accept | `{REL} araruka ibyo arya byose kandi ntashobora no kunywa.` |
+| GI02 | accept | `{REL} araruka amaraso.` |
+| EX14 | accept | `{REL} arababara cyane mu nda.` |
+| GI07 | accept | `{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.` |
+| GI05 | accept | `{REL} afite impiswi zirimo amaraso.` |
+| GI06 | accept | `{REL} amaze ibyumweru birenga bibiri arwaye impiswi.` |
+| EX12 | accept | `{REL} amaze iminsi itatu arwaye impiswi zikomeye.` |
+| EX13 | accept | `{REL} arakomeza kuruka kandi ntashobora kurya.` |
+| EX15 | accept | `{REL} araruka cyane kandi yumva afite intege nke.` |
+| EX16 | accept, after the collapse | `Iyo {REL} amaze kurya, yumva inda itameze neza.` |
+| GI03 | held | blocked on the missing word for stool |
+| GI04 | **held, `needs_clinician`** | see below |
+| GI08 | `applies=no` | collapsed into EX16/EX17 earlier |
+| EX17 | `applies=no` | collapsed into EX16 in this batch |
 
-Three worth reading before ruling:
+**EX14 was ruled before GI07 on purpose.** GI07 properly contains it, so
+`phrase_components` unions them into one phrase group; settling the contained
+phrase first makes that union concrete rather than theoretical. Verified after
+both were recorded.
 
-- **GI04 is drafted from the concept, not transformed** — its first person is
-  `applies=no`, and the caregiver realisation is what stays. Two flags: `amaso`
-  appears in **no approved phrase**, only in an unapproved draft (D005 on the
-  phrase review sheet); and GI04's third sign, the very slow skin pinch, is an
-  examination manoeuvre a caregiver cannot report either. The draft carries two
-  of three signs.
-- **GI07 properly contains EX14** (`{REL} arababara cyane mu nda`), so
-  `phrase_components` will union them into one phrase group. That is the
-  substring closure working as intended, and worth knowing rather than
-  discovering later.
-- **EX16 puts `{REL}` mid-phrase**, the shape that silently broke attribution
-  twice over. The sweep covers it now and passes.
+**GI04 held.** Two of three elements substantiate — `impiswi zikomeye` is the
+speaker's own EX12, and `amaso`/`amaso ye` are now attested (20 distinct CHW
+records), which **clears** the flag that said `amaso` appeared only in unapproved
+draft D005. The verb carrying the clinical sign does not: **`yinjiye` has one hit
+in 445k characters of real clinical Kinyarwanda and it means oxygen entering the
+lungs.** No replacement invented — there is no attested candidate, and the 524 CHW
+questions, which cover ICCM and childhood diarrhoea densely, describe dehydration
+as `kubura amazi mu mubiri` and never by sunken eyes. Whether that is how the sign
+is actually reported in Rwanda or an artefact of a 524-row sample cannot be told
+from the sample. Separately unchanged: the very slow skin pinch is an examination
+manoeuvre a caregiver cannot report, so the draft carries two of three signs
+whatever the wording. **Same shape as PA08's ear term, in a different domain.**
 
-GI07 and EX14 both take `arababara cyane mu nda` from EX38 third rather than
-transforming the first person's `irandya` idiom, which would need an object
-marker — the speaker already uses different idioms across the two persons here.
+### The render CSV can be wrong for a concept with a relation ruling — caught on EX16
 
-**Held (2):** `GI03` third, blocked on the same missing word for stool as its
-first person; `EX17` third, pending the collapse — if EX17 becomes a second
-phrasing of EX16, the concept has one third-person row, not two.
+`gastrointestinal_third_render.csv` rendered **EX16 across all eight relations**.
+Its ROUTINE group-C ruling is `CHILD_RELATIONS`, five. The render fell back to the
+gastrointestinal domain default because **`CONCEPT_RELATIONS` is still `{}`** — the
+ROUTINE rulings in `routine_relation_sets.csv` have not been materialised into it,
+which section 4 says must happen at v2 build time and has not happened yet.
+
+Caught before EX16 was ruled; it was re-rendered against `CHILD_RELATIONS` and
+ruled on the correct five. **The general risk stands for any concept with a
+concept-level ruling**: the renderer consults `CONCEPT_RELATIONS`, and while that
+map is empty it silently shows the domain default instead. Of the nine in this
+batch only EX16 had such a ruling, so only EX16 was affected. Check
+`routine_relation_sets.csv` before ruling any ROUTINE concept's third person.
 
 ### Settled: infectious_fever third person
 
@@ -727,24 +747,32 @@ replacement invented — the ear term has to come from the speaker.**
    string, or the same words in this row's capitalised sentence form. **Not
    normalised without a ruling.**
 8. `GI03` — the word for stool, which no approved phrase supplies
-9. `GI08` vs `EX16`/`EX17` — concept ruling
-10. The 11 gastrointestinal third-person drafts, rendered in
-    `review/gastrointestinal_third_render.csv`
-11. A clinician session for the `needs_clinician` rows — **16**, of which 6 are
-   held drafts with nothing authored and 5 are undrafted (section 3)
+9. ~~`GI08` vs `EX16`/`EX17`~~ — **ruled and executed**; both collapses done
+10. ~~The gastrointestinal third-person drafts~~ — **all nine ruled 2026-09-03**;
+    eight accepted, GI04 held. The domain's only open rows are GI03 (both
+    persons) and GI04 third
+11. A clinician session for the `needs_clinician` rows — **17**, of which 6 are
+   held drafts with nothing authored, 5 are undrafted, and GI04 third is the
+   newest (section 3)
 
 ### Then
 
 Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
 time, rendered across every relation for individual ruling. Never batch-accept.**
 
-Remaining: 163 of 254 Kinyarwanda rows, all 254 Swahili. Roughly 7-10 hours per
-language at 2-3 minutes a row.
+Remaining: **118 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
+per language at 2-3 minutes a row.
 
-infectious_fever first person is closed. The domains with no unresolved
-architecture are gastrointestinal, haemorrhage_trauma and neurological — all at
-6/28 with all eight relations confirmed. infectious_fever third person is the
-other open front, and needs no new ruling to start.
+**Gastrointestinal is closed** apart from GI03 and GI04, both blocked on
+vocabulary or a clinician rather than on drafting. infectious_fever first and
+third are both closed.
+
+**Next, and needing no new ruling to start: `haemorrhage_trauma` and
+`neurological`** — both at 6/28 with all eight relations confirmed and no
+unresolved architecture. `chronic_care` and `preventive` are at 4/28 but carry
+open questions (CC01/CC02 held, PR02 out of generation, and the service concepts
+now settled by rule 12), so they need reading before drafting. Take
+haemorrhage_trauma first person first.
 
 ## 8. Tooling
 
