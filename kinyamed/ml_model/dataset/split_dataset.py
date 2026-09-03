@@ -39,6 +39,7 @@ import random
 import sys
 from array import array
 from collections import Counter, defaultdict
+from itertools import combinations
 from multiprocessing import Pool
 from pathlib import Path
 
@@ -55,6 +56,12 @@ from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
 from dataset.vocabulary import PHRASE_VARIANTS, REL_PLACEHOLDER, SENTENCE_END  # noqa: E402
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
+# Two phrases sharing this many leading characters join one phrase group even
+# when neither contains the other. Measured, not chosen: 25 and above leaves v1's
+# partition byte-identical so the frozen splits survive, 22 and below changes it.
+# 30 sits above the domain grammar and catches all eight near-duplicate pairs
+# found at 128 authored phrases - six of which a reviewer missed by hand.
+PREFIX_UNION_CHARS = 30
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
 # stays negligible, small enough that the in-flight queue is bounded.
 BATCH_ROWS = 20_000
@@ -72,9 +79,29 @@ def phrase_components() -> dict[str, str]:
 
     Matching is deliberately cross-language: leakage is textual, and a shared
     substring leaks regardless of which language list the phrases came from.
+
+    Comparison goes through `_match_form`, not the raw string. Every v2 phrase is
+    an utterance ending in a full stop and often capitalised, and both defeat a
+    raw `in`:
+
+        "{REL} arababara cyane mu nda."   is NOT a substring of
+        "{REL} arababara cyane mu nda kandi ububabare ntibuhagarara."
+
+    yet `_drop_terminal_stop` removes exactly that period at render time, so the
+    rendered rows DO contain one another. Comparing raw strings missed five
+    authored pairs. This is the fourth time a terminal stop has defeated a string
+    match here; `attribute_phrase` failed the same way three times.
+
+    Beyond containment, two phrases are also unioned when they share
+    PREFIX_UNION_CHARS leading characters. Containment catches a nested phrase and
+    misses a divergent one with a long shared head - "{REL} ari kuva amaraso
+    menshi kandi ntahagarara." against "... mu mazuru kandi ntahagarara." - which
+    can then split across the phrase holdout. See docs/phrase-group-closure.md for
+    why the threshold is where it is.
     """
     phrases = sorted({p for values in all_symptom_phrases().values() for p in values})
     parent = {phrase: phrase for phrase in phrases}
+    comparable = {phrase: _match_form(phrase) for phrase in phrases}
 
     def find(node: str) -> str:
         while parent[node] != node:
@@ -89,8 +116,26 @@ def phrase_components() -> dict[str, str]:
 
     for outer in phrases:
         for inner in phrases:
-            if inner != outer and inner in outer:
+            if inner != outer and comparable[inner] in comparable[outer]:
                 union(inner, outer)
+
+    # A long shared head is not containment, so the closure above misses it, but
+    # it leaks the same way: a model that has trained on one has seen most of the
+    # characters of the other. The threshold sits above the domain grammar -
+    # "{REL} afite umuriro", "{REL} aratwite kandi" - and below every real
+    # near-duplicate measured. Not a principle, a measurement; re-derive it when
+    # the corpus is complete.
+    for left, right in combinations(phrases, 2):
+        if find(left) == find(right):
+            continue
+        a, b = comparable[left], comparable[right]
+        shared = 0
+        for x, y in zip(a, b):
+            if x != y:
+                break
+            shared += 1
+        if shared >= PREFIX_UNION_CHARS:
+            union(left, right)
 
     # A concept's second phrasing joins its primary, whether or not one contains
     # the other. Substring closure alone would leave two divergent phrasings of

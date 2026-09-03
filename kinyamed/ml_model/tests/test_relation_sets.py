@@ -143,9 +143,12 @@ def test_a_held_row_neither_generates_nor_blocks():
     ob11 = next(r for r in brief if r["concept_id"] == "OB11" and r["person"] == "third")
     assert ob11["hold"] == "yes", "this test is about OB11 being held"
     assert ob11["your_phrasing"].strip(), "and about it still carrying its accepted phrase"
-    assert ob11["source"] == "machine_approved", (
+    assert ob11["source"] not in ("", "unresolved", "not_applicable"), (
         "the acceptance record must survive the hold; hold and provenance are "
-        "orthogonal and overwriting one with the other loses information"
+        "orthogonal and overwriting one with the other loses information. "
+        f"OB11 third is {ob11['source']!r} — it is a person-transform of the "
+        "speaker's own first person, so speaker_derived is the right category "
+        "and PR02's 'unresolved' treatment would have erased that."
     )
 
     mapping, conflicts = materialise()

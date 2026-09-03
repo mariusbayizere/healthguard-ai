@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import collections
 import csv
+import sys
 from pathlib import Path
 
 
@@ -67,6 +68,29 @@ def main() -> int:
               f"{left*2//60}h{left*2%60:02d}m to {left*3//60}h{left*3%60:02d}m.")
     else:
         print("\n  Complete. Run the linter, then review/make_second_review.py.")
+
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from provenance import (CATEGORIES, LABELS, NEWLY_COMPOSED,
+                                SPEAKERS_OWN_WORDS, classified)
+        auth = [(r, c) for r, c in classified(args.brief)
+                if (r.get("your_phrasing") or "").strip()
+                and (r.get("applies") or "yes").strip().lower() != "no"]
+        if auth:
+            counts = collections.Counter(c for _, c in auth)
+            n_auth = len(auth)
+            print("\n  provenance of the authored phrases")
+            for category in CATEGORIES:
+                if counts.get(category):
+                    n = counts[category]
+                    print(f"    {n:3}  {100 * n / n_auth:5.1f}%  {LABELS[category]}")
+            own = sum(counts.get(c, 0) for c in SPEAKERS_OWN_WORDS)
+            fresh = sum(counts.get(c, 0) for c in NEWLY_COMPOSED)
+            print(f"    speaker's own words {own}/{n_auth} = {100 * own / n_auth:.0f}%"
+                  f"   |   newly composed {fresh}/{n_auth} = {100 * fresh / n_auth:.0f}%")
+    except Exception as exc:                      # a report must never block the count
+        print(f"\n  (provenance report unavailable: {exc})")
+
     return 0
 
 

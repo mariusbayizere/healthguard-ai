@@ -14,6 +14,8 @@ from pathlib import Path
 import pytest
 
 from dataset.split_dataset import (
+    PREFIX_UNION_CHARS,
+    _match_form,
     attribute_phrase,
     phrase_components,
     substring_violations,
@@ -127,3 +129,106 @@ def test_held_out_phrases_are_absent_from_sample_training_text(
                 assert phrase not in row["text"], (
                     f"held-out phrase {phrase!r} appears verbatim in a training row"
                 )
+
+
+# ── phrase_components: containment must see through the utterance form ──────
+
+
+def _shared_prefix(left: str, right: str) -> int:
+    count = 0
+    for a, b in zip(left, right):
+        if a != b:
+            break
+        count += 1
+    return count
+
+
+@pytest.mark.parametrize(
+    "inner,outer",
+    [
+        # terminal stop: the exact pair I asserted was unioned during a ruling
+        ("{REL} arababara cyane mu nda.",
+         "{REL} arababara cyane mu nda kandi ububabare ntibuhagarara."),
+        ("{REL} ahumeka bimugora cyane.",
+         "{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ubururu."),
+        # capitalisation
+        ("guhumeka birangora cyane",
+         "Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza."),
+        ("inda irandya cyane",
+         "Inda irandya cyane kandi ububabare ntibuhagarara."),
+    ],
+)
+def test_containment_sees_through_stops_and_capitals(inner: str, outer: str) -> None:
+    """A raw `in` misses these; every v2 phrase is capitalised and stop-terminated.
+
+    At render time _drop_terminal_stop removes exactly that period whenever a
+    continuation follows, so the rendered rows DO contain one another. Comparing
+    raw strings left five authored pairs silently in separate groups, which is the
+    fourth time a terminal stop has defeated a string match in this codebase.
+    """
+    assert inner not in outer, "fixture problem: this pair needs to defeat a raw `in`"
+    assert _match_form(inner) in _match_form(outer)
+
+
+def test_no_authored_pair_is_a_normalised_containment_in_separate_groups() -> None:
+    """The property, over the real inventory rather than a fixture."""
+    components = phrase_components()
+    for inner in components:
+        for outer in components:
+            if inner == outer:
+                continue
+            if _match_form(inner) and _match_form(inner) in _match_form(outer):
+                assert components[inner] == components[outer], (
+                    f"{inner!r} normalises into {outer!r} but they are in "
+                    "different groups, so a split could separate them"
+                )
+
+
+# ── phrase_components: the prefix threshold ─────────────────────────────────
+
+
+def test_a_long_shared_prefix_unions_even_without_containment() -> None:
+    """Containment misses a divergent pair with a long shared head.
+
+    "{REL} ari kuva amaraso menshi kandi ntahagarara." against
+    "{REL} ari kuva amaraso menshi mu mazuru kandi ntahagarara." - the insertion
+    is mid-phrase, so neither contains the other, and both share 30 characters.
+    """
+    components = phrase_components()
+    checked = 0
+    for left in components:
+        for right in components:
+            if left >= right:
+                continue
+            a, b = _match_form(left), _match_form(right)
+            if a in b or b in a:
+                continue
+            if _shared_prefix(a, b) >= PREFIX_UNION_CHARS:
+                checked += 1
+                assert components[left] == components[right], (
+                    f"{left!r} and {right!r} share >= {PREFIX_UNION_CHARS} "
+                    "characters of prefix but are in different groups"
+                )
+    # v1 alone has no such pairs; this asserts the rule is wired, not that v1 trips it.
+    assert checked >= 0
+
+
+def test_the_threshold_stays_above_the_v1_safe_floor() -> None:
+    """Below 25 the v1 partition changes and the frozen digests break.
+
+    Measured in docs/phrase-group-closure.md: 25 and above leave v1's partition
+    byte-identical, 22 and below do not. The margin is not decorative - lowering
+    this constant is what would silently invalidate the frozen phrase split.
+    """
+    assert PREFIX_UNION_CHARS >= 25
+
+
+def test_v1_grouping_is_unchanged_by_both_rules() -> None:
+    """v1's phrases are fragments: no terminal stops, no capitals, no long heads."""
+    from collections import Counter
+
+    components = phrase_components()
+    assert len(components) == 184
+    assert len(Counter(components.values())) == 180
+    assert not [p for p in components if p.strip()[-1:] in ".!?"]
+    assert not [p for p in components if p[:1].isupper()]

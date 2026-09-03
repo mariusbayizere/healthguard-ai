@@ -33,6 +33,29 @@ HELP = """
 """
 
 
+def _reclassify(rows: list[dict]) -> None:
+    """Re-derive the provenance categories after a decision.
+
+    speaker_derived and machine_derived depend on the OTHER person's row, so they
+    cannot be set at the moment of accepting one. Deriving them here means the
+    operator never has to classify, and the headline can never drift from the
+    rows the way the old speaker/machine_approved split did.
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from provenance import classify
+        by_key = {(r["concept_id"], r["person"]): r for r in rows
+                  if "concept_id" in r and "person" in r}
+        if not by_key:
+            return                       # frame-fragment brief: no concepts
+        for row in rows:
+            new = classify(row, by_key)
+            if new:
+                row["source"] = new
+    except Exception:
+        pass                             # never block a save on the report
+
+
 def save(path: Path, fields: list[str], rows: list[dict]) -> None:
     """Write via a temp file and rename, and never write an empty file.
 
@@ -144,8 +167,10 @@ def main() -> int:
         else:
             r[args.phrase_col] = sug; r["source"] = "machine_approved"
 
+        _reclassify(rows)
         save(args.brief, fields, rows)
 
+    _reclassify(rows)
     save(args.brief, fields, rows)
     done = sum(1 for r in rows if (r.get(args.phrase_col) or "").strip()
                or (r.get("applies") or "yes").lower() == "no")
