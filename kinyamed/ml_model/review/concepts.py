@@ -66,9 +66,7 @@ CONCEPTS = [
  # eating", already carried by the speaker's own first-pass phrasings. Its
  # anchor was "not IMCI (minor complaint)", so nothing held it apart.
 
- # ---- haemorrhage_trauma : 8 new ----
- ("haemorrhage_trauma","CRITICAL","HT01","bleeding not controlled by pressure","not IMCI (trauma)",
-  "bleeding that will not stop even with pressure","un saignement qui ne s'arrete pas malgre la pression"),
+ # ---- haemorrhage_trauma : 6 new ----  (HT01 -> EX18, HT06 -> EX22, both collapsed)
  ("haemorrhage_trauma","CRITICAL","HT02","deep wound with bone visible","not IMCI (trauma)",
   "a deep wound and I can see the bone","une plaie profonde ou l'os est visible"),
  ("haemorrhage_trauma","CRITICAL","HT03","head injury with vomiting and confusion","not IMCI (trauma)",
@@ -77,8 +75,6 @@ CONCEPTS = [
   "a burn covering a large part of the body","une brulure sur une grande partie du corps"),
  ("haemorrhage_trauma","URGENT","HT05","limb deformed after a fall","not IMCI (trauma)",
   "my arm is bent out of shape after a fall","le bras est deforme apres une chute"),
- ("haemorrhage_trauma","URGENT","HT06","wound red, swollen and discharging pus","not IMCI (adult wound infection)",
-  "a wound that is red, swollen and leaking pus","une plaie rouge, enflee et qui coule du pus"),
  ("haemorrhage_trauma","URGENT","HT07","snake bite","not IMCI (envenomation)",
   "bitten by a snake","mordu par un serpent"),
  ("haemorrhage_trauma","ROUTINE","HT08","small cut, bleeding stopped","not IMCI (minor injury)",

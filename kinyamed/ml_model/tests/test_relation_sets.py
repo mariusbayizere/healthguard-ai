@@ -130,12 +130,34 @@ def test_the_renderer_honours_a_concept_ruling():
     assert len(per_concept["GI05"]) == len(V.RELATIONS["kinyarwanda"])
 
 
+def test_a_held_row_neither_generates_nor_blocks():
+    """OB11's shape: a ruling and an accepted phrase that contradict each other.
+
+    Holding is how both are kept alive until the question is answered, so a held
+    row must be excluded from the mapping (it must not generate) AND must not be
+    reported as a conflict (it must not block the other rulings). Before this,
+    OB11 blocked materialisation for every other concept.
+    """
+    brief = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
+                                .open(encoding="utf-8")))
+    ob11 = next(r for r in brief if r["concept_id"] == "OB11" and r["person"] == "third")
+    assert ob11["hold"] == "yes", "this test is about OB11 being held"
+    assert ob11["your_phrasing"].strip(), "and about it still carrying its accepted phrase"
+    assert ob11["source"] == "machine_approved", (
+        "the acceptance record must survive the hold; hold and provenance are "
+        "orthogonal and overwriting one with the other loses information"
+    )
+
+    mapping, conflicts = materialise()
+    assert ob11["your_phrasing"].strip() not in mapping, "a held row must not generate"
+    assert not any("OB11" in c for c in conflicts), "a held row must not block"
+    assert mapping, "the other rulings must still materialise"
+
+
 @pytest.mark.parametrize("concept_id", ["CR07", "EX16", "EX29", "EX31"])
 def test_the_already_authored_child_rulings_are_in_force_once_materialised(concept_id):
     """Four accepted phrases carry CHILD_RELATIONS. Materialisation must apply it."""
-    ruled = dict(rulings())
-    ruled["OB11"] = "CHILD_RELATIONS"   # park the real OB11 conflict; tested above
-    mapping, conflicts = materialise(ruled=ruled)
+    mapping, conflicts = materialise()
     assert not conflicts, conflicts
 
     brief = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")

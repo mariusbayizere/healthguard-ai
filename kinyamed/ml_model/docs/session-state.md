@@ -30,15 +30,15 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | domain | filled | held | resolved | |
 |---|---|---|---|---|
 | cardiac_respiratory | 26/28 | 3 | 26 | *(CR07 now carries EX30's wording)* |
-| obstetric | 27/28 | 1 | 27 | |
+| obstetric | 27/28 | 2 | 27 | *(OB12 and OB11, both held)* |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
 | gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
-| haemorrhage_trauma | 6/28 | 1 | 6 | |
+| haemorrhage_trauma | 6/28 | 1 | 10 | *(+4 not-applicable: HT01 and HT06, both persons)* |
 | neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
 | chronic_care | 4/28 | 2 | 4 | |
 | paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
 | preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
-| **total** | **114/254** | **23** | **136** | *(+22 not-applicable = 136 resolved)* |
+| **total** | **114/254** | **24** | **140** | *(+26 not-applicable = 140 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -245,17 +245,30 @@ exposure, not a future one: `CR07`, `EX16`, `EX29`, `EX31` are all ruled
 `OB11` is ruled `NO_RELATIONS` (see the conflict below). Nothing has generated
 yet, so nothing is wrong in the corpus; it would have been wrong at v2 build.
 
-**Materialisation is currently BLOCKED by one conflict, deliberately:**
+**`OB11` — ruled HELD, 2026-09-03, and materialisation is unblocked.** The
+conflict was: ruled `NO_RELATIONS`, so it generates no third person, but a
+third-person phrase is authored (`machine_approved`):
+`{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.` Applying the ruling
+would have zeroed an accepted phrase silently; overriding it would have
+contradicted a speaker ruling.
 
-> `OB11`: ruled `NO_RELATIONS`, so it generates no third person, but a
-> third-person phrase is authored (`machine_approved`):
-> `{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.`
+**Held, so both survive** — the same treatment PR02 got, and the same underlying
+question: whether anyone presents on another's behalf for a first antenatal
+booking is service design, not language.
 
-Applying the ruling would zero an accepted phrase's output silently. **Either the
-ruling or the phrase is wrong and the speaker has to say which** — OB11 is the
-first antenatal booking, and whether someone books on a pregnant woman's behalf is
-a service-design question, close to PR02's. `--materialise` exits non-zero while
-it stands rather than picking a side.
+Two details worth keeping:
+
+- **`source` stays `machine_approved`, not `unresolved`.** PR02 became
+  `unresolved` because it had nothing authored to record. Provenance says how a
+  phrase came to be; `hold` says it must not generate. They are orthogonal and
+  overwriting the first with the second destroys the acceptance record.
+- **`materialise()` now understands `hold`**: a held row is excluded from the
+  mapping *and* is not reported as a conflict, so one open question no longer
+  blocks every other ruling. It is listed as `HELD — not in force, not blocking`.
+  Pinned by `test_a_held_row_neither_generates_nor_blocks`.
+
+`python review/relation_sets.py --materialise` now emits the four
+`CHILD_RELATIONS` mappings (CR07, EX16, EX29, EX31) and exits 0.
 
 Two further record conflicts, both on rows with nothing authored so nothing is at
 risk yet:
@@ -318,27 +331,27 @@ the guide is the record.
 2,000 rows per authored phrase is the invariant.
 
 ```
-ceiling  122 concepts x 2 persons x 4 languages =   976 phrases
+ceiling  120 concepts x 2 persons x 4 languages =   960 phrases
 minus    14 applies=no rows x 4                 =    56
 minus    10 NO_RELATIONS thirds x 4             =    40
-net                                                 880 phrases
-                                    at 2,000/phrase -> 1,760,000 rows
+net                                                 864 phrases
+                                    at 2,000/phrase -> 1,728,000 rows
 ```
 
-126 -> 125 -> 124 -> 123 -> 122: IF07 into EX29, EX30 into CR07, GI08 into
-EX16/EX17, **EX17 into EX16 (executed 2026-09-03)**. PR02 is out of generation on
-top of that.
+126 -> 125 -> 124 -> 123 -> 122 -> 121 -> 120: IF07 into EX29, EX30 into CR07,
+GI08 into EX16/EX17, EX17 into EX16, **HT06 into EX22 and HT01 into EX18 (all
+executed 2026-09-03)**. PR02 is out of generation on top of that.
 
 **How 123 and 14 reconcile with the brief**, because they look wrong next to it:
 
 ```
 127  concept ids in the brief
- -4  IF07, EX30, GI08, EX17 collapsed into other concepts
+ -6  IF07, EX30, GI08, EX17, HT01, HT06 collapsed into other concepts
  -1  PR02, out of generation pending the service-design ruling
-122  concepts in the ceiling
+120  concepts in the ceiling
 
- 22  applies=no rows on disk
- -8  the eight rows of the four collapsed concepts, already outside the ceiling
+ 26  applies=no rows on disk
+-12  the twelve rows of the six collapsed concepts, already outside the ceiling
  14  applies=no rows the ceiling still counts
 ```
 
@@ -353,8 +366,8 @@ pairing is now declared in the brief and `second_phrasings.py` emits it.
 
 History: 2,016,000 at 126; 2,000,000 at 125; 1,888,000 after PA01-04; 1,832,000
 after PA05-07 and EX40-43; 1,808,000 after GI04, NE01, NE02; 1,792,000 after the
-EX30 collapse; 1,776,000 after GI08; **1,760,000** after EX17. `TARGET_ROWS_V2` is
-still `1_008_000`.
+EX30 collapse; 1,776,000 after GI08; 1,760,000 after EX17; **1,728,000** after HT01 and HT06.
+`TARGET_ROWS_V2` is still `1_008_000`.
 
 ## 7. Current batch and what is blocked
 
@@ -803,24 +816,69 @@ replacement invented — the ear term has to come from the speaker.**
    held drafts with nothing authored, 5 are undrafted, and GI04 third is the
    newest (section 3)
 
+### Drafted: haemorrhage_trauma first person — 7 rows, awaiting rulings
+
+Suggestions only; nothing authored. **Two of the nine concepts collapsed before
+any wording was ruled**, which is why drafting a domain starts with the concept
+questions:
+
+- **`HT06` into `EX22`** — one word apart (`kirabyimbye` swollen vs `cyanduye`
+  infected). HT06 was clinician-defined with no WHO anchor; EX22 is a v1 concept
+  and speaker-authored. **The "swollen" second phrasing was NOT written**: that
+  wording is an unaccepted machine draft, and `second_phrasing_optional` feeds
+  `PHRASE_VARIANTS` into the corpus, so putting a draft there would generate
+  machine Kinyarwanda as corpus content without an accept. EX22's slot is left
+  empty and open for the speaker to author if they want it kept.
+- **`HT01` into `EX18`** — EX18's `ntahagarara` already carries uncontrolled
+  bleeding; HT01's only axis was that pressure had been applied and failed. The
+  attestation corpus could not settle whether a patient frames it that way: all
+  seven pressure-plus-bleeding sentences are clinicians *instructing* a CHW
+  (`shyiraho umwenda`, `bandeji ikanda`), never a lay self-report — and that
+  corpus is CHW register, so patient speech is absent by construction. **The
+  corpus was the wrong instrument for the question**, which is worth knowing
+  before reaching for it again on a first-person concept.
+
+Five drafts stand: `HT02`, `HT04`, `HT05`, `HT07`, `HT08`. `HT03` stays held.
+
+Flags carried on the rows rather than resolved:
+
+- **`nkanda` and `narumwe` are not attested.** Their 3sg counterparts are
+  (`bandeji ikanda`; `yarumwe n'inzoka` in real snake-bite cases) and the 1sg
+  forms are regular transforms. **This is systematic: the CHW corpus is
+  third-person register, so it under-attests first-person inflection.** For
+  first-person drafting it supplies nouns and stems, not inflections.
+- **`inzoka` is a false friend** — most hits mean intestinal worms (deworming,
+  albendazole); the snake sense is real but only visible by reading contexts. A
+  first read of three hits had it wrong in the other direction.
+- **`ubushye` is the mirror case** — attested as a real burn in a clinician's
+  scald description, but most hits are the simile `bimeze nk'ubushye` for a rash.
+- `bunini` on `ubushye` and `kwavunitse` on `ukuguru` are concord inferences.
+- **`HT05` says BROKEN where its gloss says DEFORMED.** Deformity is what a
+  patient sees, a fracture is the diagnosis — substantive, and the speaker's.
+
 ### Then
 
 Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
 time, rendered across every relation for individual ruling. Never batch-accept.**
 
-Remaining: **118 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
+Remaining: **114 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
 per language at 2-3 minutes a row.
 
 **Gastrointestinal is closed** apart from GI03 and GI04, both blocked on
 vocabulary or a clinician rather than on drafting. infectious_fever first and
 third are both closed.
 
-**Next, and needing no new ruling to start: `haemorrhage_trauma` and
-`neurological`** — both at 6/28 with all eight relations confirmed and no
-unresolved architecture. `chronic_care` and `preventive` are at 4/28 but carry
-open questions (CC01/CC02 held, PR02 out of generation, and the service concepts
-now settled by rule 12), so they need reading before drafting. Take
-haemorrhage_trauma first person first.
+**haemorrhage_trauma first person is drafted and awaiting rulings** (5 live
+drafts; see above). After it: its third person, then `neurological`, which is at
+6/28 with all eight relations confirmed and no unresolved architecture.
+`chronic_care` and `preventive` are at 4/28 but carry open questions (CC01/CC02
+held, PR02 out of generation, and the service concepts now settled by rule 12),
+so they need reading before drafting.
+
+**Render any third-person batch with `review/render_third_person.py <domain>`**,
+never by hand — that is what the EX16 bug cost. `HT08` is the one
+haemorrhage_trauma concept with a relation ruling (`CHILD_RELATIONS`), so its
+third person renders on five relations, not eight.
 
 ## 8. Tooling
 

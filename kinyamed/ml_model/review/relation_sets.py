@@ -116,7 +116,16 @@ def materialise(brief: Path = BRIEF, ruled: dict[str, str] | None = None
         row = third.get(concept_id)
         phrase = (row or {}).get("your_phrasing", "").strip()
         applies = ((row or {}).get("applies") or "yes").strip().lower()
+        held = ((row or {}).get("hold") or "").strip().lower() == "yes"
         authored = bool(phrase) and applies != "no"
+
+        if held:
+            # A held row is an open question, not a settled one. It must not
+            # generate and it must not block: holding is how OB11's ruling and
+            # its accepted phrase are both kept alive until the question is
+            # answered. Excluded from the mapping, and reported as pending by
+            # the CLI rather than passed over in silence.
+            continue
 
         if name in SENTINELS:
             if authored:
@@ -180,7 +189,10 @@ def main() -> int:
             row = third.get(concept_id, {})
             phrase = (row.get("your_phrasing") or "").strip()
             applies = (row.get("applies") or "yes").lower()
-            if name in SENTINELS:
+            held = (row.get("hold") or "").strip().lower() == "yes"
+            if held:
+                state = "HELD — not in force, not blocking"
+            elif name in SENTINELS:
                 state = "no third person"
             elif phrase and applies != "no":
                 state = f"IN FORCE on {len(resolve(concept_id, row['domain'], ruled))} relations"
