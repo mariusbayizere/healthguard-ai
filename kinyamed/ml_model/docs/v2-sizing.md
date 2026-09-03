@@ -1,5 +1,44 @@
 # v2 corpus sizing
 
+## Read this first: "rows per phrase" is a corpus MEDIAN, not a per-phrase property
+
+Every figure in this document of the form "N rows per phrase" is a **corpus-wide
+median**. It is not a guarantee that any given phrase yields N rows, and for a
+large class of phrases it cannot be.
+
+**Rows are drawn without replacement and quotas are capped at a family's
+combination count.** `allocate()` gives each family
+`min(bucket_target x share, family.combinations)` and `generate()` draws with
+`rng.sample(range(family.combinations), quota)`. Nothing ever repeats, and a
+family that runs out simply under-fills — the shortfall is redistributed to
+families that still have headroom.
+
+**A first-person phrase has 1,500 frame combinations and can never reach 2,000
+rows on its own.**
+
+```
+openers x onsets x contexts x closers = 6 x 10 x 5 x 5 = 1,500
+```
+
+That is the whole space available to one first-person phrase instance. The corpus
+reaches a median of 2,000 because a third-person `{REL}` phrase is **one phrase in
+the inventory but expands to one instance per allowed relation** — four to eight
+of them — so it carries 6,000 to 12,000 combinations and pulls the average up.
+
+Two consequences worth holding onto:
+
+- **The median is carried by third-person phrases.** A domain or class whose
+  concepts are mostly first-person sits below it, structurally and permanently.
+- **The relation rulings therefore move the sizing.** `NO_RELATIONS` and
+  `CHILD_RELATIONS` reduce instances per phrase, and they concentrate on ROUTINE:
+  2.6 instances per phrase against 4.3 for CRITICAL and URGENT. ROUTINE is the
+  class furthest below the median and the least able to absorb any further
+  narrowing — see `docs/urgency-frame-coupling.md`, where that is what decides a
+  design question.
+
+Where this document says "at 2,000 rows per phrase", read "at a corpus median of
+2,000 rows per phrase".
+
 ## The arithmetic, computed from the generator
 
 ```
@@ -48,7 +87,8 @@ gets worse as rows go up and better only as phrases go up.
 
 ## If you want a genuinely larger corpus
 
-The lever is phrases, not rows. Holding 2,000 rows per phrase:
+The lever is phrases, not rows. Holding a **median** of 2,000 rows per phrase
+(see the note at the top — first-person phrases cannot individually reach it):
 
 | phrase strings | per language | per domain per language | supports |
 |---|---|---|---|

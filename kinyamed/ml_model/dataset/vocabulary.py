@@ -598,6 +598,36 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
 CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}
 
 
+# Frame slots may be narrowed for one urgency class, because a frame can
+# contradict the label the row is trained on. A ROUTINE phrase rendering as
+# "...a small cut and the bleeding has stopped ... I cannot sleep. I need help
+# quickly." teaches the classifier that the closer carries no information; a
+# CRITICAL phrase closing ". Murakoze." ("Thank you.") does the same in reverse.
+#
+# EMPTY MEANS NO NARROWING - every urgency uses the full CONTEXTS/CLOSERS set,
+# which is exactly v1's behaviour, so v1 output stays bit-identical. Applying a
+# restriction here NOW would change CRITICAL family sizes, change the sample, and
+# break the frozen digests: v1's CRITICAL families draw on all five closers.
+# These are populated at v2 build time, like PHRASE_FORMS and CONCEPT_RELATIONS.
+#
+# See docs/urgency-frame-coupling.md for the capacity analysis behind the values.
+CONTEXTS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {}
+CLOSERS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {}
+
+# The restriction RULED for v2 (2026-09-03), recorded here so it is not lost
+# between now and the build. CRITICAL drops the closers that read as casual after
+# an emergency: "Ndi kuva amaraso menshi kandi ntahagarara. Murakoze." - bleeding
+# heavily, then "Thank you."
+#
+# Only ". Murakoze." qualifies in the current set. ". Nkora iki?" ("What do I
+# do?") is a real question in an emergency and stays. When the frame-fragment
+# brief's ". Urakoze." lands in CLOSERS it is the same sign-off and joins this.
+#
+# URGENT is deliberately NOT restricted: the same argument applies more weakly,
+# and the mechanism is here if the speaker wants it later.
+V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = (". Murakoze.",)
+
+
 # A concept may carry a second phrasing: the same presentation said another way,
 # which is variety worth having rather than a duplicate to remove. Both reach the
 # corpus, so both must reach it as ONE phrase group.

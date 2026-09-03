@@ -710,7 +710,7 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-**81 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
+**86 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
@@ -815,6 +815,70 @@ replacement invented — the ear term has to come from the speaker.**
 11. A clinician session for the `needs_clinician` rows — **17**, of which 6 are
    held drafts with nothing authored, 5 are undrafted, and GI04 third is the
    newest (section 3)
+
+### In flight: haemorrhage_trauma third person — 10 drafts
+
+Rendered in `review/haemorrhage_trauma_third_render.csv`, **77 rows** — 9 concepts
+on eight relations and **HT08 on five**, because HT08 is the domain's only concept
+with a relation ruling (`CHILD_RELATIONS`, ROUTINE group C). Produced by
+`render_third_person.py`, which resolved that automatically; the EX16 class of bug
+cannot recur here.
+
+`HT03` and `HT05` are **not drafted** — their first person is held, and a third
+person is not written ahead of it. Same rule that kept IF01/IF03/IF04/IF06 third
+undrafted.
+
+Most are `mfite` -> `{REL} afite`, the OB09 pattern, with nothing else moved. Three
+worth reading before ruling:
+
+- **`EX18` and `EX20` are a phrase-holdout pair.** They differ only by `mu mazuru`
+  inserted mid-phrase, so **neither contains the other** and `phrase_components`
+  will not union them — a 24-character shared prefix that can split across the
+  holdout. The third instance of this shape, after EX16/EX17 (fixed by the
+  second-phrasing declaration) and HT02/EX19 (accepted knowingly). Unlike
+  EX16/EX17 these are genuinely different concepts, so a second phrasing is not
+  the answer.
+- **`EX23`'s `yaraguye` is not attested** anywhere. The precedent for the shape is
+  the speaker's own: OB01 first `nagagaye` / OB01 third `yaragagaye`, the same
+  1sg/3sg `-ra-` alternation, attested twice in their writing. So the pattern is
+  theirs even though this instance is not. A fully-attested alternative is offered
+  on the row (`{REL} arababara cyane nyuma yo kugwa.`), at the cost of the
+  parallel with their first person.
+- **`HT07` third is better attested than its first person.** `yarumwe n'inzoka` is
+  the exact construction in the corpus's real snake-bite consultations, across 3
+  records, while the first-person `narumwe` was the unattested transform. That is
+  the third-person register of the attestation corpus working *for* a draft rather
+  than against it.
+
+### Ruled: CRITICAL frame restriction — mechanism built, applies at v2 build
+
+`CONTEXTS_BY_URGENCY` and `CLOSERS_BY_URGENCY` in `vocabulary.py`, consulted by
+`build_families`. **Both are empty, and that is deliberate: empty means no
+narrowing, which is v1's behaviour exactly.** Applying the restriction now would
+change CRITICAL family sizes, change what `rng.sample` draws, and break the frozen
+digests — v1's CRITICAL families draw on all five closers. Populated at v2 build
+time, like `PHRASE_FORMS` and `CONCEPT_RELATIONS`.
+
+The ruled value is recorded as `V2_CRITICAL_CLOSER_EXCLUSIONS = ('. Murakoze.',)`
+so it is not lost between now and the build.
+
+```
+CRITICAL closers   5 -> 4      frame 1,500 -> 1,200
+capacity   5,250,000 -> 4,200,000
+headroom        9.21x -> 7.37x     (needs 570,240)
+```
+
+Only `. Murakoze.` qualifies: `. Nkora iki?` ("What do I do?") is a real question
+in an emergency and stays. When the fragment brief's `. Urakoze.` reaches
+`CLOSERS` it is the same sign-off and joins the exclusion. URGENT is deliberately
+not restricted. `tests/test_urgency_frames.py` pins empty-means-untouched,
+restriction-shrinks-only-CRITICAL, and that CRITICAL still clears its bucket.
+
+**Six de-escalating fragments added to `frame_fragments_brief.csv`** (33 -> 39
+rows) — 3 contexts, 3 closers, English glosses and shapes only,
+`kinyarwanda` and `suggested_kinyarwanda` deliberately **empty** for the speaker
+to author. They are what lets ROUTINE be fixed by *adding* frame material instead
+of removing it, which the capacity analysis says is the only safe direction.
 
 ### Open design question: urgency/frame coupling — `docs/urgency-frame-coupling.md`
 
@@ -959,7 +1023,7 @@ review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. **81 tests** — this section and section 7 once
+against ambient-state failures. **86 tests** — this section and section 7 once
 said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 

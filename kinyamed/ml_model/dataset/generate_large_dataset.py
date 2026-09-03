@@ -41,6 +41,8 @@ from dataset.vocabulary import (  # noqa: E402
     RELATIONS,
     DOMAIN_RELATIONS,
     CONCEPT_RELATIONS,
+    CONTEXTS_BY_URGENCY,
+    CLOSERS_BY_URGENCY,
     ONSETS,
     SENTENCE_END,
     OPENERS,
@@ -316,8 +318,11 @@ def build_families() -> list[Family]:
                         subjects,
                         in_form,
                         ONSETS[frame],
-                        CONTEXTS[frame],
-                        CLOSERS[frame],
+                        # A class may narrow its contexts/closers where the frame
+                        # would contradict the label. Empty maps mean no
+                        # narrowing, which is v1's behaviour exactly.
+                        CONTEXTS_BY_URGENCY.get(urgency, {}).get(frame, CONTEXTS[frame]),
+                        CLOSERS_BY_URGENCY.get(urgency, {}).get(frame, CLOSERS[frame]),
                     ),
                     form=form,
                 )
