@@ -56,6 +56,10 @@ def main() -> int:
     ap.add_argument("--phrase-col", default="your_phrasing")
     ap.add_argument("--suggest-col", default="suggested_kinyarwanda")
     ap.add_argument("--domain", help="Work through one domain only.")
+    ap.add_argument("--include-held", action="store_true",
+                    help="Also present rows marked hold=yes. The hold is there "
+                         "because a ruling is outstanding; lift it in the brief "
+                         "rather than authoring past it.")
     args = ap.parse_args()
 
     rows = list(csv.DictReader(args.brief.open(encoding="utf-8")))
@@ -69,10 +73,23 @@ def main() -> int:
     todo = [r for r in rows
             if not (r.get(args.phrase_col) or "").strip()
             and (r.get("applies") or "yes").strip().lower() != "no"
+            # A held row is an open question, not outstanding work. Presenting it
+            # invites exactly the authored-over-a-hold that rules 7 and 8 exist to
+            # prevent, so it is skipped unless asked for explicitly.
+            and (args.include_held
+                 or (r.get("hold") or "").strip().lower() != "yes")
             # rows already in the corpus are legitimately empty (the no-opener
             # variant is an empty string) and are not outstanding work
             and (r.get("status") or "").strip().lower() != "existing"
             and (not args.domain or r.get("domain") == args.domain)]
+    held = sum(1 for r in rows
+               if not (r.get(args.phrase_col) or "").strip()
+               and (r.get("applies") or "yes").strip().lower() != "no"
+               and (r.get("hold") or "").strip().lower() == "yes"
+               and (not args.domain or r.get("domain") == args.domain))
+    if held and not args.include_held:
+        print(f"skipping {held} held row(s) — a ruling lifts the hold, "
+              f"not --include-held")
     if not todo:
         print("Nothing outstanding.")
         return 0

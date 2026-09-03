@@ -1,7 +1,13 @@
 # Session state — handover
 
-Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, updated after the
-infectious_fever rulings, the IF07 collapse and the paediatric person rulings. All figures below were read from the files, not recalled.
+Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, reconciled
+against disk 2026-09-03. All figures below were re-derived from the files by running the tooling, not recalled.
+
+**Every count here is reproducible.** `held` is `hold=yes`; `filled` is a non-empty `your_phrasing`
+on a row that is **not** `applies=no` (EX30 first keeps the speaker's text but was collapsed, so it
+counts as not-applicable — see section 7's counting note); `resolved` is filled-or-not-applicable,
+which is what `progress.py` prints. Where a number appears twice in this document it has been made
+to agree; where it disagrees with the files, the files win.
 
 ---
 
@@ -21,26 +27,43 @@ suggestions only.
 Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 (127 concepts x first/third person).
 
-| domain | filled | held |
-|---|---|---|
-| cardiac_respiratory | 26/28 | 3 | *(CR07 now carries EX30's wording)*
-| obstetric | 27/28 | 1 |
-| infectious_fever | 17/30 | 5 | *(+4 not-applicable: IF07 and EX30, both persons)*
-| gastrointestinal | 13/28 | 4 | *(+3 not-applicable: GI04 first, GI08 both)*
-| haemorrhage_trauma | 6/28 | 0 |
-| neurological | 6/28 | 2 | *(+2 not-applicable: NE01, NE02 first)*
-| chronic_care | 4/28 | 0 |
-| paediatric | 4/28 | 1 | *(+11 not-applicable: only PA08-PA10 first survive)*
-| preventive | 4/28 | 0 |
-| **total** | **107/254** | **18** |  *(+20 not-applicable = 127 resolved)*
+| domain | filled | held | resolved | |
+|---|---|---|---|---|
+| cardiac_respiratory | 26/28 | 3 | 26 | *(CR07 now carries EX30's wording)* |
+| obstetric | 27/28 | 1 | 27 | |
+| infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
+| gastrointestinal | 13/28 | 3 | 16 | *(+3 not-applicable: GI04 first, GI08 both)* |
+| haemorrhage_trauma | 6/28 | 1 | 6 | |
+| neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
+| chronic_care | 4/28 | 2 | 4 | |
+| paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
+| preventive | 4/28 | 2 | 4 | *(both holds are PR02, newly marked)* |
+| **total** | **107/254** | **23** | **127** | *(+20 not-applicable = 127 resolved)* |
+
+The `held` column counts **every** `hold=yes` row, including the eight
+infectious_fever and gastrointestinal third-person rows held only because their
+first person is held. An earlier version of this table counted the first-person
+holds alone, summed to 16 and printed 18. Read it from the brief, not from here:
+
+```
+python -c "import csv,collections; print(collections.Counter(r['domain'] for r in csv.DictReader(open('review/speaker_brief_kinyarwanda_v2.csv')) if r['hold']=='yes'))"
+```
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 78 speaker, 27 machine_approved, 3 unresolved, 20
+**Provenance so far: 78 speaker, 27 machine_approved, 5 unresolved, 20
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
-machine_approved and one speaker rewrite. A ~85% speaker rate. Frame fragments are complete: 17/17, of which 12 machine_approved
-and 5 speaker rewrites.
+machine_approved and one speaker rewrite. The two PR02 rows became `unresolved`
+when its exclusion was recorded in the brief (section 3).
+
+**Speaker rate: 78 of 105 authored rows, 74%** — not the ~85% an earlier draft
+claimed. 105 is `speaker + machine_approved`; the not-applicable and unresolved
+rows are not authored and do not belong in the denominator.
+
+Frame fragments are complete: 17/17 of the rows marked `TO WRITE`, of which 12
+machine_approved and 5 speaker rewrites. The file has 33 rows — the other 16 are
+`existing` and were already in v1.
 
 ## 3. Unresolved and held — nothing generates from these
 
@@ -49,21 +72,24 @@ and 5 speaker rewrites.
 | CR04 | both | chest indrawing. `igituza kiramanuka` and `munsi y'igituza harinjira` are different descriptions. **Do not choose between them.** Held for a Rwandan clinician. |
 | CR05 | third | wheeze. Redrafted to restore chest tightness alongside the sound; not accepted. The `-mu-` object marker is the uncertain part. |
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
-| PR02 | — | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely.** |
+| PR02 | both | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely** — and now marked as such in the brief, not only here (see below). |
 
 ### needs_clinician — 16 rows, in three kinds
 
-**Wording settled by the speaker, clinician not consulted (4):**
+Split by whether the row is authored, which is what decides if it can generate.
+An earlier version of this list put `CR04` in both groups and labelled the second
+"(6)" while listing eight rows; the counts below are from the brief.
+
+**Authored — wording settled by the speaker, clinician not consulted (5):**
 
 - `OB03` first and third — cord presentation. **Do not generate until validated.**
 - `OB05` first — puerperal sepsis discharge description
-- `CR04` first and third also carry a settled speaker phrasing, but are held
-  above for a different reason.
+- `CR04` first and third — a settled speaker phrasing, but held above for a
+  different reason: two rival descriptions, neither chosen.
 
 **My draft held, nothing authored (6)** — `your_phrasing` empty, the draft left
 in `suggested_kinyarwanda` as the record of what was rejected:
 
-- `CR04` first and third — chest indrawing, a specific IMCI sign
 - `CR05` third — `ijwi ridasanzwe` is patient-understandable but not a definitive
   clinical term for wheeze
 - `IF01` first — fever with stiff neck. A specific danger sign; the wording is a
@@ -76,7 +102,8 @@ in `suggested_kinyarwanda` as the record of what was rejected:
   `nkeka` -> `akeka` follows the regular pattern but the speaker has not written
   it.
 
-**Nothing drafted; the question itself is clinical (1):**
+**Nothing drafted; the question itself is clinical (5)** — `suggested_kinyarwanda`
+empty too, so there is nothing to hold:
 
 - `NE06` first — new confusion. `applies=yes` stands. Whether a patient who can
   accurately report their own new confusion is meaningfully confused is a
@@ -85,6 +112,33 @@ in `suggested_kinyarwanda` as the record of what was rejected:
 - `HT03`, `CC01`, `CC02`, `NE04` first — held, `applies=yes`, **not deleted**.
   All four turn on severity and capacity: whether a patient that unwell can still
   report. Clinical questions, so rule 11 raised them and stopped.
+
+5 authored + 6 drafted-and-held + 5 undrafted = 16, `NE06` counted in the last
+group. Re-derive rather than trusting the split:
+
+```
+python -c "import csv; r=[x for x in csv.DictReader(open('review/speaker_brief_kinyarwanda_v2.csv')) if x['needs_clinician'].strip()]; print(len(r), sum(1 for x in r if x['your_phrasing'].strip()))"
+```
+
+### PR02 — recorded in the brief, not just in this document
+
+`PR02` was described here as "out of generation entirely" while both its brief
+rows sat `applies=yes` with no hold, no source and no note. Nothing outside this
+paragraph knew, and `walk.py` would have presented both rows for authoring like
+any other blank. They now carry `hold=yes`, `source=unresolved`, and the reason
+in `notes`.
+
+**It is deliberately not `applies=no`.** That value means *this person does not
+apply to this concept* — rule 9 and rule 11's outcome — and pairs with
+`source=not_applicable`, which `progress.py` counts as **resolved**. PR02 is the
+opposite of resolved: the concept is waiting on a service-design ruling. Marking
+it `applies=no` would have moved the resolved count to 129 and recorded a settled
+answer where there is an open question. `hold=yes` + `unresolved` is OB12's
+shape, and it is the honest one.
+
+The third person is additionally pinned `NONE — do not generate` in
+`review/routine_relation_sets.csv`. That covers only the third; the brief now
+covers both.
 
 ### Drafted but explicitly NOT accepted
 
@@ -165,6 +219,11 @@ strings and most third-person phrases do not exist yet.
 
 ## 5. Standing rules — `docs/phrasing-guide.md`
 
+**Twelve rules, not eleven.** Rule 12 (SERVICE_SPEAKER) landed in `122b4a7` and
+was missing from this section for four commits while section 7 went on listing
+the question it answers as an open blocker. If the guide and this list disagree,
+the guide is the record.
+
 1. **Clarity over sophistication.** If an older rural patient understands it
    immediately, that is the better training example.
 2. **Prefer `{REL}` as grammatical subject**, not an object marker.
@@ -192,6 +251,18 @@ strings and most third-person phrases do not exist yet.
     first person and are right to. **A patient can report an observer sign when
     they perceive it directly** — their own lips, the sensation of indrawing.
     **Rule 11 flags; it does not overrule an authored phrase.**
+12. **SERVICE_SPEAKER — for a service concept, first person is the person
+    presenting or requesting the service, not necessarily the patient.** Where
+    the beneficiary and the requester are the same (CC08 refill, PR07 screening,
+    OB11 antenatal, PR03 HIV test) first person is ordinary. Where they differ
+    (`EX46 gukingiza umwana`, PA09, PA10, PR08, EX47) **first person is the
+    requester** — the carer who walks in, not the child. Two consequences: a
+    service concept's first-person row is not a child speaking, so rule 9's
+    duplication test does not apply to it; and it does not license mixing person
+    inside one phrase, which rule 3 still forbids. This **narrows rule 11's**
+    "routine service the patient receives -> third person" limb: that limb
+    excludes the *patient's* first-person row, not the carer's, and both persons
+    can exist for a service concept as two different speakers.
 
 ## 6. Row target: 1,776,000
 
@@ -208,6 +279,24 @@ net                                                 888 phrases
 
 126 -> 125 -> 124 -> 123: IF07 into EX29, EX30 into CR07, GI08 into EX16/EX17.
 PR02 is out of generation on top of that.
+
+**How 123 and 14 reconcile with the brief**, because they look wrong next to it:
+
+```
+127  concept ids in the brief
+ -3  IF07, EX30, GI08 collapsed into other concepts
+ -1  PR02, out of generation pending the service-design ruling
+123  concepts in the ceiling
+
+ 20  applies=no rows on disk
+ -6  the six rows of the three collapsed concepts, already outside the ceiling
+ 14  applies=no rows the ceiling still counts
+```
+
+**PR02 is subtracted once, as a concept, not again as two rows.** Its rows stay
+`applies=yes` (section 3), so they never enter the 14. A future session that
+marks them `applies=no` must drop the concept subtraction at the same time or
+the target silently loses eight phrases.
 
 **The EX16/EX17 collapse is confirmed but deliberately not executed** — it waits
 on the consumer, which now exists (section 7). Once it runs, 122 concepts, 880
@@ -251,14 +340,20 @@ cost of keeping both: two phrases differing by one comma enter the corpus as
 separate concepts, and the *phrase* holdout can place one in train and the other
 in eval — the leakage `near_duplicates.py` and `test_leakage.py` exist to catch.
 
-`IF07` first is now `applies=no`. **Its third-person row is untouched** and the
-concept is not yet collapsed in `concepts.py` — see section 6.
+`IF07` first is now `applies=no`. **Its third-person row is also `applies=no` /
+`not_applicable`** — the whole concept went, as section 2's "+4 not-applicable:
+IF07 and EX30, both persons" says. An earlier version of this paragraph claimed
+the third was untouched; the brief disagrees, and the brief is right. The concept
+is not yet collapsed in `concepts.py` — see section 6.
 
 ### Settled: gastrointestinal first person
 
 **21 rows left in the domain, not 22** — GI04 first went `applies=no` in the
 person-applicability rulings. Seven first-person rows were outstanding: **5
-accepted, 2 blocked.** The domain is 11/28 filled, 12/28 resolved.
+accepted, 2 blocked.** That took the domain to 11/28 filled, 12/28 resolved *at
+the time of this batch*; the GI01/GI02 third-person acceptances below have since
+moved it to **13/28 filled, 16/28 resolved**, which is what section 2 and
+`progress.py` show.
 
 | id | phrase | provenance |
 |---|---|---|
@@ -319,14 +414,36 @@ It will not.
 
 ```
 frame combinations per phrase                    1,500
-now        107 phrases ->  538,500 renderings    ~135s
-complete   234 phrases ->  729,000 renderings    ~3 min   (1.4x)
+now        107 phrases ->  538,500 renderings    ~170s   (measured 2026-09-03)
+complete   234 phrases ->  729,000 renderings    ~4 min   (1.4x, projected)
 ```
 
 Only 1.4x, because most rows still to be authored are **first person**, which
 renders once rather than across eight relations, while the authored set is
-already heavy on `{REL}`. The CI job's timeout is 10 minutes, so the sweep fits
-at full corpus with room to spare. **No reduction needed — keep it exhaustive.**
+already heavy on `{REL}`. **No reduction needed — keep it exhaustive.**
+
+**But the CI headroom is gone, and this is worth watching.** The
+"Reproducibility and dataset tests" job has `timeout-minutes: 10` and runs the
+sweep **twice**: once as its own `make check-attribution` step, and again inside
+`pytest -q`, which selects `test_attribution_corpus.py` like any other test.
+Measured locally at the current 107 phrases:
+
+```
+make check-attribution   ~170s
+full suite (68 tests)    ~250s   <- includes the same sweep again
+                         ~420s   + make verify + pip install
+```
+
+That was ~7.5 of the old 10 minutes, on a machine that is not a shared runner,
+and the projection above puts the sweep at ~4 min each at full corpus — roughly
+11 minutes for the pair, over the limit.
+
+**Ruled: keep both runs, raise the limit.** `timeout-minutes` on the
+`reproducibility` job is now **20**. The duplication is deliberate — attribution
+has failed silently three times and a green suite hid all three, so the
+standalone step exists precisely so the guard survives someone deselecting the
+file. Deselecting it from the suite to save time would give back the failure mode
+the step was built to prevent. **Do not deselect, and do not shrink the sweep.**
 
 ### Ruled: GI08 collapsed, EX16/EX17 confirmed and waiting
 
@@ -494,7 +611,10 @@ lives in `vocabulary.py` so the generator and attribution cannot drift apart.
 
 ### The standing check
 
-`tests/test_attribution_corpus.py`, ~70s:
+`tests/test_attribution_corpus.py`, **~170s on an idle machine** and longer under
+load (it took 473s while other work ran alongside it). The "~70s" this section and
+the Makefile both used to quote was measured at a much smaller authored set; both
+now say ~3 min. Re-measure rather than trusting either:
 
 - **exhaustive** — every authored phrase, expanded across the relations its
   concept actually allows, rendered through the real `Family.render` across
@@ -509,16 +629,19 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-62 tests, and v1 still reproduces 8/8 — v1 phrases are noun-phrase fragments
+**68 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
 ### Person-applicability audit — `review/person_applicability_audit.csv`
 
 Rule 11 applied to all 254 rows across the nine domains. **9 catches, 6
-conflicts, nothing recorded** — every row is left as it stands pending a ruling,
+conflicts** (15 rows, matching the file) — recorded as findings, not as edits,
 because unlike rule 9 this test needs clinical judgement per concept and six of
 its findings disagree with phrases the speaker already authored.
+
+**Two have since been ruled**: `NE06` (`applies=yes`, needs_clinician) and `PR09`
+(`applies=yes` under rule 12). The rest still stand as raised.
 
 **Catches — first-person row still empty, no work lost by ruling `applies=no`:**
 
@@ -527,7 +650,7 @@ its findings disagree with phrases the speaker already authored.
 | GI04 watery diarrhoea, sunken eyes, slow skin pinch | observer | high — the skin pinch is an examination manoeuvre |
 | NE01 continuous convulsion | observer | high — cannot speak, as PA01 |
 | NE02 unconscious, cannot be roused | observer | high — cannot speak, as PA03 |
-| PR09 deworming for a child | service received | high — the child receives it, an adult brings them |
+| ~~PR09 deworming for a child~~ | service received | **superseded by rule 12: `applies=yes`.** The catch reasoned from the patient; SERVICE_SPEAKER reasons from the requester, and PR09 is EX46's shape exactly |
 | ~~NE06 new confusion today~~ | observer | **ruled: applies=yes, needs_clinician** |
 | HT03 head injury with vomiting and confusion | observer | medium |
 | CC01 diabetic with vomiting, deep breathing, drowsiness | observer / capacity | low — reclassified, see below |
@@ -557,15 +680,16 @@ rule 11.**
   because the patient was told the reading. `CC03` is the same shape with an
   empty first-person row, so by this evidence it should be **authored, not
   excluded**.
-- `EX46` `gukingiza umwana` — structural. The child receives the vaccination, so
-  limb 2 says third person, but the authored first-person phrase is the *carer*
-  speaking. Either "first person" means the requester rather than the patient for
-  service concepts, or EX46 belongs in the third-person row. **PA09 and PA10 wait
-  on exactly this question.**
+- `EX46` `gukingiza umwana` — structural, and **since answered**. The child
+  receives the vaccination, so limb 2 said third person, but the authored
+  first-person phrase is the *carer* speaking. That became **rule 12
+  (SERVICE_SPEAKER)**: for a service concept first person is the requester. EX46
+  stands as authored, and PA09, PA10, PR08 and PR09 were ruled `applies=yes` with
+  it. Rulings are recorded per concept in `review/service_speaker_audit.csv`.
 
-Beyond paediatric the test proposes removing at most **8** first-person rows
-(NE06 now ruled in), adds none, and identifies one row (`CC03`) it would be wrong
-to remove. Two of its own limbs have been corrected by what the speaker had
+Beyond paediatric the test now proposes removing at most **7** first-person rows
+(NE06 and PR09 both ruled in), adds none, and identifies one row (`CC03`) it
+would be wrong to remove. Two of its own limbs have been corrected by what the speaker had
 already written — the measurement limb by EX08/EX09, the observer limb by
 CR03/CR04/EX04.
 
@@ -595,8 +719,10 @@ replacement invented — the ear term has to come from the speaker.**
 3. `OB12` — is `Mama` plausible for a recent delivery?
 4. `CR01` first person and `CR05` third person — the `-mu-` object marker
 5. `PA08` — the ear term, which no approved phrase supplies
-6. `PA09`/`PA10`, and `EX46` with them — for a service concept, is the
-   first-person row the patient or the requester? One answer settles all three
+6. ~~`PA09`/`PA10`, and `EX46`~~ — **resolved by rule 12 (SERVICE_SPEAKER)**: the
+   first-person row is the requester. All three ruled, along with PR08 and PR09,
+   in `review/service_speaker_audit.csv`. Their phrases are still unauthored, so
+   they are ordinary outstanding rows now, not blockers
 7. `CR07` first — the form of the adopted wording: EX30's verbatim lowercase
    string, or the same words in this row's capitalised sentence form. **Not
    normalised without a ruling.**
@@ -604,8 +730,8 @@ replacement invented — the ear term has to come from the speaker.**
 9. `GI08` vs `EX16`/`EX17` — concept ruling
 10. The 11 gastrointestinal third-person drafts, rendered in
     `review/gastrointestinal_third_render.csv`
-11. A clinician session for the `needs_clinician` rows — now 10, of which 6 are
-   held drafts with nothing authored
+11. A clinician session for the `needs_clinician` rows — **16**, of which 6 are
+   held drafts with nothing authored and 5 are undrafted (section 3)
 
 ### Then
 
@@ -625,14 +751,36 @@ other open front, and needs no new ruling to start.
 ```
 review/progress.py          completion by domain, respects applies=no
 review/lint_phrases.py      structural checks; errors vs warnings; partial-file safe
-review/walk.py              row-by-row accept/edit/rewrite, atomic writes
+review/walk.py              row-by-row accept/edit/rewrite, atomic writes; SKIPS hold=yes
 review/bulk_declare.py      bulk form/person declaration
 review/split_authoring.py   two-author split preserving a blind overlap
 review/make_second_review.py  second-speaker RATE and BLIND arms
+review/second_phrasings.py  reads second_phrasing_optional into PHRASE_VARIANTS
+```
+
+**`walk.py` now skips `hold=yes` rows.** It filtered on `applies` alone, so all 23
+held rows were still offered for authoring — the hold lived in a column nothing
+read, and authoring past it was one keystroke away. It prints how many it skipped;
+`--include-held` overrides, but the intended move is to lift the hold in the brief
+after a ruling.
+
+Ruling records, none of them generated from — read before re-opening a settled
+question:
+
+```
+review/service_speaker_audit.csv        22 rows; rule 12, per concept
+review/person_applicability_audit.csv   15 rows; rule 11, 9 catches + 6 conflicts
+review/concept_relation_audit.csv       per-concept relation-set rulings
+review/routine_third_person_audit.csv   the 31 ROUTINE concepts by group
+review/routine_relation_sets.csv        the resulting sets, incl. PR02 'do not generate'
+review/gastrointestinal_third_render.csv  88 rows, 11 drafts x 8 relations
+review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. 59 tests.
+against ambient-state failures. **68 tests** — this section and section 7 said 59
+and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
+it.
 
 ## 9. Cautions learned the hard way
 
@@ -654,6 +802,21 @@ against ambient-state failures. 59 tests.
   Every one hollowed out the phrase holdout with no error raised, and every one
   passed a green suite, because the tests used phrases written for the test.
   **`make check-attribution` now sweeps the real corpus and must stay wired in.**
+- **A blank `form` cell silently defaults to `NOUN_PHRASE`.** Six authored
+  infectious_fever third-person phrases (EX24, EX25, EX26, EX28, EX29, EX31) were
+  recorded as done in section 7 with `form` empty. `build_families` defaults an
+  undeclared phrase to `NOUN_PHRASE`, which takes a subject — so
+  `{REL} afite umuriro wa dogere 39.` would have rendered as
+  `afite {REL} afite umuriro wa dogere 39.`, a doubled subject on a complete
+  sentence, across every relation and frame. **Nothing raised**: `verify-full`
+  cannot see it (v1 declares no forms and defaults correctly), the attribution
+  sweep passes because it compares a rendering to itself, and the linter did not
+  look at the column. Only `progress.py`'s "N completed rows have no form
+  declared" line mentioned it, and it was read as cosmetic. Caught before v2 was
+  ever generated, so nothing downstream was affected. **`lint_phrases.py` now
+  errors on an authored row with no declared form**, which is the guard that was
+  missing. Same shape as the attribution bugs: a wrong default is worse than a
+  crash, because it produces plausible output.
 - **`verify-full` cannot see any of this.** v1 has no `{REL}` phrases and no
   terminal stops, so the frozen digests are untouched by attribution bugs that
   would wreck v2. A green 8/8 is not evidence that attribution works.

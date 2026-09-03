@@ -110,6 +110,15 @@ def main() -> int:
             continue
         checked += 1
         problems, warns = check(phrase, args.language)
+        # An authored row with no declared form silently defaults to NOUN_PHRASE
+        # at build time, which prefixes a subject onto what may be a complete
+        # sentence ("afite {REL} afite umuriro ..."). Nothing downstream raises,
+        # so the miss has to be caught here.
+        if "form" in row and not (row.get("form") or "").strip():
+            problems.append(
+                "no form declared; the build defaults to noun_phrase and will "
+                "prefix a subject. Declare 'utterance' or 'noun_phrase'."
+            )
         if phrase.lower() in seen:
             problems.append(f"duplicate of line {seen[phrase.lower()]}")
         seen.setdefault(phrase.lower(), i)

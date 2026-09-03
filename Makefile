@@ -55,7 +55,7 @@ test-clean:  ## Run the suite in a throwaway clone of HEAD — catches ambient-s
 	echo ""; \
 	cd "$$tmp/clone/$(ML)" && "$$py" -m pytest -q -rs
 
-check-attribution:  ## Attribution sweep over the real authored corpus (~70s)
+check-attribution:  ## Attribution sweep over the real authored corpus (~3 min)
 	@# Runs inside `test`/`test-clean` too. Called out separately so the guard
 	@# survives someone deselecting or marking it slow: attribution has failed
 	@# silently three times, and a green suite hid every one of them.

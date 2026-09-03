@@ -18,7 +18,13 @@ jobs:
     # release — which is exactly what makes the badge worth reading.
     name: Reproducibility and dataset tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 20, not 10: the attribution sweep runs TWICE here on purpose — as its own
+    # step, and again inside the suite. Attribution has failed silently three
+    # times and a green suite hid all three, so the standalone step exists to
+    # survive someone deselecting the file. At the current 107 authored phrases
+    # that is ~170s + ~250s; at full corpus the projection is ~4 min each, which
+    # does not fit in 10. Keep both runs and raise the limit — do not deselect.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
