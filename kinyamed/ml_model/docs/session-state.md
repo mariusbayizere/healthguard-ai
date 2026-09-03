@@ -33,12 +33,12 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | obstetric | 27/28 | 2 | 27 | *(OB12 and OB11, both held)* |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
 | gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
-| haemorrhage_trauma | 6/28 | 1 | 10 | *(+4 not-applicable: HT01 and HT06, both persons)* |
+| haemorrhage_trauma | 10/28 | 2 | 14 | *(+4 not-applicable: HT01 and HT06, both persons)* |
 | neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
 | chronic_care | 4/28 | 2 | 4 | |
 | paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
 | preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
-| **total** | **114/254** | **24** | **140** | *(+26 not-applicable = 140 resolved)* |
+| **total** | **118/254** | **25** | **144** | *(+26 not-applicable = 144 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -51,13 +51,13 @@ python -c "import csv,collections; print(collections.Counter(r['domain'] for r i
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 35 machine_approved, 5 unresolved, 22
+**Provenance so far: 77 speaker, 39 machine_approved, 5 unresolved, 26
 not_applicable.** CR07 first moved from machine_approved to speaker when it took
 EX30's wording; the infectious_fever third-person batch added seven
 machine_approved and one speaker rewrite. The two PR02 rows became `unresolved`
 when its exclusion was recorded in the brief (section 3).
 
-**Speaker rate: 77 of 112 authored rows, 69%.** 112 is `speaker +
+**Speaker rate: 77 of 116 authored rows, 66%.** 116 is `speaker +
 machine_approved`; the not-applicable and unresolved rows are not authored and do
 not belong in the denominator. The rate fell from 74% because the gastrointestinal
 third-person batch added eight machine_approved rows, and because EX17 first — a
@@ -79,7 +79,7 @@ machine_approved and 5 speaker rewrites. The file has 33 rows — the other 16 a
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | both | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely** — and now marked as such in the brief, not only here (see below). |
 
-### needs_clinician — 17 rows, in three kinds
+### needs_clinician — 18 rows, in three kinds
 
 Split by whether the row is authored, which is what decides if it can generate.
 An earlier version of this list put `CR04` in both groups and labelled the second
@@ -816,6 +816,31 @@ replacement invented — the ear term has to come from the speaker.**
    held drafts with nothing authored, 5 are undrafted, and GI04 third is the
    newest (section 3)
 
+### Open design question: urgency/frame coupling — `docs/urgency-frame-coupling.md`
+
+Raised while ruling HT08 and analysed, **not implemented**. A ROUTINE phrase
+renders with escalating contexts and closers (`sinshobora gusinzira`,
+`Ndakeneye ubufasha vuba`), contradicting the label the row is trained on. It
+runs the other way too — CRITICAL with `. Murakoze.` trivialises.
+
+**The answer is capacity, not language.** Rows are sampled *without replacement*
+and quotas are capped at a family's combinations, so nothing repeats — the only
+question is whether each class can still fill its bucket. Restricting ROUTINE's
+frames takes its headroom from **3.24x to 1.16x** (drop 2 contexts + 2 closers) or
+to **0.78x** (also drop 2 openers), and 0.78x fails the 28% `CLASS_TARGETS` floor.
+Restricting CRITICAL costs almost nothing — it has 9.21x.
+
+**ROUTINE is structurally thin because the relation rulings concentrate there**:
+2.6 instances per phrase against 4.3 for the other classes, because ten ROUTINE
+concepts are `NO_RELATIONS` and eight more `CHILD_RELATIONS`. Recommendation:
+restrict CRITICAL, and fix ROUTINE by having the speaker author *de-escalating*
+contexts and closers rather than by removing frames.
+
+**Also surfaced: "2,000 rows per phrase" is a corpus median, not a per-phrase
+property.** A first-person phrase has only 1,500 combinations and can never reach
+2,000 alone; `{REL}` phrases expanding over 4-8 relations carry the average up.
+Worth stating in `v2-sizing.md` before someone reads the invariant as a guarantee.
+
 ### Drafted: haemorrhage_trauma first person — 7 rows, awaiting rulings
 
 Suggestions only; nothing authored. **Two of the nine concepts collapsed before
@@ -838,7 +863,19 @@ questions:
   corpus was the wrong instrument for the question**, which is worth knowing
   before reaching for it again on a first-person concept.
 
-Five drafts stand: `HT02`, `HT04`, `HT05`, `HT07`, `HT08`. `HT03` stays held.
+**Ruled 2026-09-03: 4 accepted, 1 held.** `HT02`, `HT04`, `HT07`, `HT08` accepted
+`machine_approved`; `HT05` held. `HT03` stays held. **First person is closed for
+this domain.**
+
+**`HT05` held, vocabulary-blocked — a third instance of the GI03/PA08 shape.** The
+draft says BROKEN (`kwavunitse`); the gloss and the English seed say DEFORMED
+("my arm is bent out of shape after a fall"). Those are different claims —
+deformity is what a patient perceives, a fracture is the diagnosis, which is
+exactly rule 11's axis. No attested Kinyarwanda for "bent out of shape" exists in
+any source; only the fracture vocabulary is attested, which is what pulled the
+draft off its own concept. Needs the speaker's word, or a ruling that the concept
+becomes "broken limb after a fall" — in which case `concepts.py` and the anchor
+gloss must move with it rather than be left disagreeing.
 
 Flags carried on the rows rather than resolved:
 
@@ -861,7 +898,7 @@ Flags carried on the rows rather than resolved:
 Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
 time, rendered across every relation for individual ruling. Never batch-accept.**
 
-Remaining: **114 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
+Remaining: **110 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
 per language at 2-3 minutes a row.
 
 **Gastrointestinal is closed** apart from GI03 and GI04, both blocked on
