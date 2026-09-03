@@ -756,7 +756,15 @@ review/bulk_declare.py      bulk form/person declaration
 review/split_authoring.py   two-author split preserving a blind overlap
 review/make_second_review.py  second-speaker RATE and BLIND arms
 review/second_phrasings.py  reads second_phrasing_optional into PHRASE_VARIANTS
+review/attest.py            is a Kinyarwanda word attested? all sources at once
 ```
+
+**`attest.py` before writing any phrase with an uncertain word.** It searches the
+speaker's own phrases, v1 vocabulary, the review sheet, and the 524 CC BY 4.0 CHW
+questions in `review/attestation/`, and says which tier the hit is in — because a
+hit in the CHW corpus is a *lead for the speaker*, not permission to write the
+phrase. Matching is substring by default, since a stem hides behind noun-class
+prefixes; read the contexts before believing a hit.
 
 **`walk.py` now skips `hold=yes` rows.** It filtered on `applies` alone, so all 23
 held rows were still offered for authoring — the hold lived in a column nothing

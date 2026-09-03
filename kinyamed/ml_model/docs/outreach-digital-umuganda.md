@@ -1,8 +1,9 @@
 # Outreach — Digital Umuganda / C4IR Rwanda
 
 Drafted 2026-09-03 off the investigation in `language-resources.md` section 2a.
-**Not sent.** Read the notes under the draft before sending — two of them change
-what you should ask for.
+**Not sent.** The licence question that gated it is settled (`licensing.md` Q5:
+target CC BY 4.0), so the draft is clear to send — but read notes 2 and 4 first,
+which change what you should ask for.
 
 ---
 
@@ -80,11 +81,18 @@ the RBC contact who gave you this lead is the better opener.
 
 ## Notes before sending
 
-**1. Decide the licence question before you ask.** The email offers an openly
-licensed corpus as the value exchange. `docs/licensing.md` has not settled
-whether the dataset lands on CC BY 4.0 / CC0 or is forced to CC BY-NC-SA 4.0 by
-the WHO-derived concepts. If it lands on NC, "openly licensed" is still true but
-weaker, and it is better to say so up front than to be corrected later.
+**1. The licence question is settled — the email is clear to send.**
+`docs/licensing.md` Q5 (2026-09-03) determines that **WHO material does not force
+CC BY-NC-SA**: no WHO-derived expression reaches the corpus (verified — the output
+has five columns, none WHO-derived; nothing in the generator reads the anchor
+file; 0 of 67 anchor glosses appear among the 46 English corpus phrases). The
+target is **CC BY 4.0**, conditional on running the clinician session
+concepts-first and a lawyer's sign-off before release.
+
+So "openly licensed and returned to Rwandan use" in the draft is accurate. If
+asked to be specific, say **CC BY 4.0, pending clinical re-derivation and legal
+review** — and do not offer CC0, which the WHO question is not settled enough to
+support.
 
 **2. The figshare subset needs no permission.** It is CC BY 4.0 and can be used
 today with attribution. **Nothing in this request blocks that work** — do not

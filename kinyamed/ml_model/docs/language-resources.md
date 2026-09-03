@@ -2,8 +2,10 @@
 
 ## 1. What exists, and what is actually usable
 
-Licence checked in each case; "usable" means usable for a public, non-commercial
-research corpus with attribution.
+Licence checked in each case, from the issuing record rather than an abstract.
+"Usable" means usable for a public research corpus with attribution — the target
+is **CC BY 4.0** as of `licensing.md` Q5 (2026-09-03), so a share-alike or
+non-commercial source is now a constraint to weigh, not a free addition.
 
 | resource | licence | usable? | for what |
 |---|---|---|---|
@@ -179,6 +181,9 @@ the abstract did not say.
 1. **Use the figshare 524 as a substantiation corpus**, alongside
    `phrase_review_sheet.csv` — to confirm a word exists in real Rwandan clinical
    Kinyarwanda before the speaker authors with it. Never as phrases to lift.
+   **Done:** vendored to `review/attestation/` (six columns of the 43, human text
+   only, provenance and CC BY 4.0 attribution in `SOURCE.md`) and searchable with
+   `python review/attest.py <word>`.
 2. **Take `kwituma` to the speaker for GI03**, framed as a lead with its attested
    contexts, along with the fact that the noun and the colour term are still
    missing. `PA08` stays blocked; nothing was found.

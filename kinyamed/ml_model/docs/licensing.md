@@ -146,6 +146,98 @@ Keep `review/concept_anchors.csv` as an internal cross-check — useful for show
 that clinician-derived concepts align with international guidance, which is a
 strength in a paper — but do not ship it as the dataset's provenance.
 
+## Q5: Does WHO material force CC BY-NC-SA on us? Settled 2026-09-03.
+
+Asked because it gates the C4IR outreach (`outreach-digital-umuganda.md`) and the
+Waxal decision. **REASONING**, but resting on checks that are empirical rather
+than interpretive.
+
+### The answer: no, and the reason is stronger than the Q1 argument
+
+Q1 argued from copyright doctrine that a concept taxonomy is probably not an
+adaptation. That argument still holds, but it is no longer the load-bearing one.
+**The decisive fact is that no WHO-derived expression reaches the released
+corpus at all**, which was checked rather than assumed:
+
+```
+1. Corpus columns                 text, language, label, domain, family
+                                  — no anchor, no gloss, no WHO field
+2. grep for concept_anchors /
+   anchor / english_gloss in
+   dataset/*.py                   no matches. Nothing in the generator
+                                  reads the anchor file.
+3. English corpus phrases (46)
+   vs anchor glosses (67)         0 exact matches; 1 pair above 0.80
+                                  similarity, and that concept (CR01) is
+                                  anchored "not IMCI (adult presentation)",
+                                  so it is not WHO-derived either.
+```
+
+`review/concept_anchors.csv` is a **review artefact that is not shipped and is
+not read by the build**. The WHO documents functioned as a post-hoc clinical
+cross-check, which is citation, not licensing — as Q1 already said.
+
+### Current exposure, re-derived (Q1's figures were from 80 concepts; there are now 127)
+
+```
+WHO IMCI 2014 (All rights reserved)         28
+clinician-defined (no WHO anchor)           22
+WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)     18
+WHO MCPC 2017 (CC BY-NC-SA 3.0 IGO)         10
+                                            --
+                                            78 anchored; 49 concepts have no anchor row
+```
+
+So 28 of 127 concepts (22%) carry a share-alike-licensed anchor. That is the set
+Q1 is about, and it has not grown.
+
+### The point that changes the decision
+
+**Accepting CC BY-NC-SA would not cure the largest exposure anyway.** The biggest
+anchored group is **WHO IMCI 2014, which is All rights reserved** — it offers no
+Creative Commons grant at all. There is no share-alike obligation there to comply
+with by adopting NC-SA; there is only an obligation not to copy its expression,
+which the corpus already satisfies (check 3 above).
+
+So NC-SA buys nothing. It would not make IMCI-anchored concepts safer, it would
+not remove the need for the Q4 re-derivation, and it would import every cost in
+Q3 — reduced adoption, a blocker on any commercial deployment path, and virality
+through share-alike. **Adopting NC-SA defensively is the worst of both: all of
+the cost, none of the protection.**
+
+### Recommendation: target CC BY 4.0. Do not pre-emptively accept NC-SA.
+
+Conditions, unchanged from Q4 and still worth doing:
+
+1. **Run the clinician session concepts-first**, before showing the BEC mapping,
+   so the 28 anchored concepts get an independent origin. This removes the Q1
+   question rather than answering it.
+2. **Never ship `concept_anchors.csv` as dataset provenance.** Keep it as the
+   internal cross-check it is. Its value in the paper is showing alignment with
+   international guidance, which is a strength; its cost as a shipped provenance
+   file is inviting the adaptation argument.
+3. **Get a lawyer's twenty minutes before release.** Unchanged from Q1. This
+   section lowers the risk; it does not remove the need for a real opinion.
+
+### Consequences
+
+**For the C4IR email:** you can honestly offer an openly licensed corpus, target
+CC BY 4.0, and say the licence is pending the clinician session and legal
+sign-off. Do not offer CC0 — the WHO question is not settled enough for a rights
+waiver.
+
+**For Waxal: ruled out either way, which is the useful part.** Waxal's Kinyarwanda
+does not exist, so the question only ever concerned Swahili, and that is
+`CC-BY-SA-4.0`:
+
+- Against a **CC BY 4.0** target, incorporating BY-SA material forces the result
+  to BY-SA. The permissive target is lost.
+- Against a **CC BY-NC-SA 4.0** target, BY-SA forbids adding the NC restriction,
+  so it cannot be incorporated at all.
+
+**The conclusion does not depend on which branch you take**, so Waxal can be
+dropped now without waiting on the licence decision.
+
 ## Recommendation
 
 1. **Re-derive in the clinician session, concepts first, BEC comparison second.**
