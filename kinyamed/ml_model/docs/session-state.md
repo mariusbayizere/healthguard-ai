@@ -222,6 +222,49 @@ usually report another adult's.
 `CONCEPT_RELATIONS` at v2 build time**, because the generator keys on phrase
 strings and most third-person phrases do not exist yet.
 
+**The bridge now exists: `review/relation_sets.py`** (2026-09-03). Before it,
+the rulings sat in a CSV no code path read, and every consumer fell back to
+`DOMAIN_RELATIONS` without an error — which is how EX16 was rendered across eight
+relations for ruling when its ruling allows five.
+
+```
+python review/relation_sets.py               # every ruling and whether it is in force
+python review/relation_sets.py --materialise # emit CONCEPT_RELATIONS for the v2 build
+python review/render_third_person.py <domain>  # render via the SAME resolver
+```
+
+`resolve(concept_id, domain)` is the single source of truth; `render_third_person.py`
+uses it, so **a render can no longer disagree with a ruling**. Renders were ad hoc
+before, which is why the EX16 one was wrong. `tests/test_relation_sets.py` (13
+tests) pins the resolver, the materialiser and the renderer's substitution against
+`build_families`.
+
+**Five authored phrases carry a ruling that is not yet in force** — this is a live
+exposure, not a future one: `CR07`, `EX16`, `EX29`, `EX31` are all ruled
+`CHILD_RELATIONS` and would otherwise expand over their domain's eight, and
+`OB11` is ruled `NO_RELATIONS` (see the conflict below). Nothing has generated
+yet, so nothing is wrong in the corpus; it would have been wrong at v2 build.
+
+**Materialisation is currently BLOCKED by one conflict, deliberately:**
+
+> `OB11`: ruled `NO_RELATIONS`, so it generates no third person, but a
+> third-person phrase is authored (`machine_approved`):
+> `{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.`
+
+Applying the ruling would zero an accepted phrase's output silently. **Either the
+ruling or the phrase is wrong and the speaker has to say which** — OB11 is the
+first antenatal booking, and whether someone books on a pregnant woman's behalf is
+a service-design question, close to PR02's. `--materialise` exits non-zero while
+it stands rather than picking a side.
+
+Two further record conflicts, both on rows with nothing authored so nothing is at
+risk yet:
+
+- **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult
+  relations" in the concept rulings above. There is no `ADULT_RELATIONS` set in
+  `vocabulary.py`.
+- **`CC05`** appears in the concept rulings above and is absent from the CSV.
+
 ## 5. Standing rules — `docs/phrasing-guide.md`
 
 **Twelve rules, not eleven.** Rule 12 (SERVICE_SPEAKER) landed in `122b4a7` and
@@ -552,7 +595,7 @@ from the sample. Separately unchanged: the very slow skin pinch is an examinatio
 manoeuvre a caregiver cannot report, so the draft carries two of three signs
 whatever the wording. **Same shape as PA08's ear term, in a different domain.**
 
-### The render CSV can be wrong for a concept with a relation ruling — caught on EX16
+### The render CSV can be wrong for a concept with a relation ruling — FIXED at the cause
 
 `gastrointestinal_third_render.csv` rendered **EX16 across all eight relations**.
 Its ROUTINE group-C ruling is `CHILD_RELATIONS`, five. The render fell back to the
@@ -561,11 +604,16 @@ ROUTINE rulings in `routine_relation_sets.csv` have not been materialised into i
 which section 4 says must happen at v2 build time and has not happened yet.
 
 Caught before EX16 was ruled; it was re-rendered against `CHILD_RELATIONS` and
-ruled on the correct five. **The general risk stands for any concept with a
-concept-level ruling**: the renderer consults `CONCEPT_RELATIONS`, and while that
-map is empty it silently shows the domain default instead. Of the nine in this
-batch only EX16 had such a ruling, so only EX16 was affected. Check
-`routine_relation_sets.csv` before ruling any ROUTINE concept's third person.
+ruled on the correct five. Of the nine in that batch only EX16 had such a ruling.
+
+**The cause is fixed rather than the instance** (2026-09-03). Renders were ad hoc
+scripts consulting the empty `CONCEPT_RELATIONS`;
+`review/render_third_person.py` now resolves through `relation_sets.resolve()`,
+the same function the v2 build materialises from, so a render cannot disagree
+with a ruling again. It reproduces the hand-corrected gastrointestinal file
+exactly — 85 rows, EX16 on five relations — and `tests/test_relation_sets.py`
+carries the EX16 case as a regression test. **No need to check the CSV by hand
+before a batch any more; use the renderer.** See section 4.
 
 ### Settled: infectious_fever third person
 
@@ -649,7 +697,7 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-**68 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
+**81 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
@@ -785,6 +833,8 @@ review/split_authoring.py   two-author split preserving a blind overlap
 review/make_second_review.py  second-speaker RATE and BLIND arms
 review/second_phrasings.py  reads second_phrasing_optional into PHRASE_VARIANTS
 review/attest.py            is a Kinyarwanda word attested? all sources at once
+review/relation_sets.py     concept ruling -> relations; --materialise for the build
+review/render_third_person.py  render a domain's thirds via the SAME resolver
 ```
 
 **`attest.py` before writing any phrase with an uncertain word.** It searches the
@@ -814,8 +864,8 @@ review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. **68 tests** — this section and section 7 said 59
-and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
+against ambient-state failures. **81 tests** — this section and section 7 once
+said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 
 ## 9. Cautions learned the hard way

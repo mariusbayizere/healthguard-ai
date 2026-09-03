@@ -580,6 +580,21 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
 # here. Where it is uncertain, flag it for the clinician rather than defaulting
 # to the wide set: a wrong wide set puts impossible patients into the corpus,
 # and a wrong narrow one only costs variety.
+#
+# EMPTY IS NOT "NO RULINGS". The speaker's rulings live in
+# review/routine_relation_sets.csv, keyed by concept id; this map is keyed by
+# phrase string, because there are no concept ids in this file. Nothing bridged
+# the two, so every consumer silently fell back to DOMAIN_RELATIONS - which is
+# how EX16 was rendered across eight relations for ruling when its own ruling
+# allows five.
+#
+# Populate it at v2 build time from the rulings:
+#
+#     python review/relation_sets.py --materialise
+#
+# That refuses to emit while a ruling would silently discard an authored phrase,
+# and tests/test_relation_sets.py pins the behaviour. Do not hand-write entries
+# here; the CSV is the record.
 CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}
 
 
