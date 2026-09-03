@@ -902,6 +902,66 @@ rows) — 3 contexts, 3 closers, English glosses and shapes only,
 to author. They are what lets ROUTINE be fixed by *adding* frame material instead
 of removing it, which the capacity analysis says is the only safe direction.
 
+### LIVE BUG found while designing the closure rule — `phrase_components` misses containments
+
+`phrase_components` unions on **raw substring containment**, and every v2 phrase
+is an utterance ending in a full stop. The stop defeats the `in` check:
+
+```
+EX14 third  {REL} arababara cyane mu nda.
+GI07 third  {REL} arababara cyane mu nda kandi ububabare ntibuhagarara.
+            -> NOT a containment today, because of the period
+```
+
+At render time `_drop_terminal_stop` removes exactly that period, so the *rendered
+rows* do contain one another. **Five authored pairs are silently not unioned**
+(CR02/EX02 both persons, EX02/EX04 third, EX14/GI07 both persons) — two by the
+terminal stop, two by capitalisation.
+
+**This is the fourth time a terminal stop has defeated a string match here.**
+`attribute_phrase` failed the same way three times (section 9). The fix,
+`_match_form`, already exists **in the same file** and is not used by
+`phrase_components`. **v1 cannot be affected**: 0 of its 184 phrases end in a stop
+or begin capitalised, and the full partition is provably identical, so the frozen
+split survives. **Fix this before the next batch.**
+
+### Open design question: phrase-group closure — `docs/phrase-group-closure.md`
+
+Four near-duplicate pairs were noticed by hand across four rulings. Measuring found
+**85 pairs sharing 15+ characters of prefix** — which is not a defect list, it is
+the domain's grammar (`{REL} aratwite kandi`, `{REL} afite umuriro`,
+`{REL} afite igikomere`).
+
+Recommendation: fix the containment bug above, then add a **prefix threshold of
+30**, which is **v1-safe** (partition identical; below 22 it breaks the frozen
+digests) and catches **eight pairs of which six were missed by deliberate
+inspection**. Emit the merges as a report rather than silently. Keep
+`PHRASE_VARIANTS` for same-concept variants and do not overload it.
+
+### Open design question: provenance categories — `docs/provenance-categories.md`
+
+**The 61% speaker rate understates the corpus and should not be quoted.** It counts
+a `ndi` -> `ari` transform of a sentence the speaker wrote as machine-authored, so
+the rate falls every time third-person work lands even though nothing about the
+speaker's involvement changed (74% -> 66% -> 61% across three batches).
+
+Proposed five categories with mechanical tests:
+
+```
+speaker-authored                     77   60.2%
+speaker-derived (person transform)   27   21.1%
+machine-drafted, speaker-approved    11    8.6%
+machine-derived                      11    8.6%
+unresolved (CR04)                     2    1.6%
+
+the speaker's own words   104/128 = 81%
+newly composed by me       22/128 = 17%, every row with an explicit accept
+```
+
+The split is deliberately conservative — clauses reused from a *different* concept
+(GI06 from CR06, GI01 from OB10) still count as machine-drafted, which
+under-counts speaker-derived rather than flattering it.
+
 ### Open design question: urgency/frame coupling — `docs/urgency-frame-coupling.md`
 
 Raised while ruling HT08 and analysed, **not implemented**. A ROUTINE phrase
