@@ -27,9 +27,10 @@ CLOSERS   5   ''  . Nkora iki?   . Murakoze.         | . Ndakeneye ubufasha vuba
 
 `6 x 10 x 5 x 5 = 1,500` frame combinations per phrase instance.
 
-**Onsets never escalate** — a time expression is orthogonal to urgency, and
-`kuva hashize icyumweru` on a CRITICAL phrase is clinically interesting rather
-than contradictory. So the whole question is contexts, closers and two openers.
+~~**Onsets never escalate**~~ — **this was wrong, and section 7 corrects it.** A
+time expression is orthogonal to *urgency*, which is what I checked. It is not
+orthogonal to *coherence*: a service request has no onset at all, so every "since
+X" onset is incoherent against it before any context or closer is added.
 
 ## 2. It runs both ways, and the two directions are not symmetric
 
@@ -50,6 +51,12 @@ identical exposure today.
 **The asymmetry that matters is not linguistic, it is capacity.** See §4.
 
 ## 3. How many rows this affects
+
+> **The figures in sections 3 and 4 predate the eleven concept collapses.** They
+> were computed at 120 concepts and a 1,728,000 target; the corpus is now 115 and
+> 1,648,000, and ROUTINE has 117 instances rather than 123. The *conclusions* are
+> unchanged — ROUTINE is thin, CRITICAL is not — and section 8 carries current
+> numbers. Re-derive before acting on any single figure here.
 
 Rows are not assigned per phrase. `allocate()` gives each family a quota from
 `target x language_share x CLASS_SHARES[urgency]`, capped at
@@ -167,3 +174,86 @@ That is fine, but it means **"2,000 rows per phrase" is a corpus median, not a
 per-phrase property**, and the ROUTINE class — which is where the `NO_RELATIONS`
 rulings concentrate — sits furthest below it. Worth stating plainly in
 `v2-sizing.md` before someone reads the invariant as a guarantee.
+
+---
+
+## 8. Correction: onsets are not neutral — added 2026-09-04
+
+Section 1 said onsets never escalate and set them aside. That is true of urgency
+and false of coherence, which CC09 exposed the moment it was rendered:
+
+> *Muganga, ndashaka kujya kwa muganga kwisuzumisha diyabete **kuva ubu gitondo
+> cya kare** kandi birushaho kuba bibi.*
+> "Doctor, I want to go for a diabetes check-up **since early this morning** and
+> it is getting worse."
+
+**A scheduled review has no onset.** The incoherence is in the onset alone — it
+does not need a context or a closer to appear. Nine of the ten onsets are "since
+X" expressions and **all nine fail the same way** on a request; only the empty
+onset works.
+
+### Which concepts, and this is the part that decides it
+
+The affected set is the **service concepts** — rule 12's category, plus the ten
+ruled `NO_RELATIONS` (first person only, nobody presents on another's behalf).
+22 concepts. Where they sit:
+
+```
+CRITICAL   314 instances,   0 service   ( 0%)
+URGENT     371 instances,   0 service   ( 0%)
+ROUTINE    117 instances,  75 service   (64%)
+```
+
+**Every service concept is ROUTINE**, and they are 64% of it. So the onset problem
+lands entirely on the class with the least capacity headroom — the same class the
+context/closer restriction was already going to squeeze. The two proposals collide.
+
+### What each option costs
+
+ROUTINE needs 543,840 rows.
+
+| | capacity | headroom |
+|---|---|---|
+| today | 1,755,000 | 3.23x |
+| service concepts: **empty onset only** | 742,500 | **1.37x** |
+| that **plus** the section 5 context/closer cut | 339,300 | **0.62x — fails** |
+| service: empty **+ 3 authored service onsets** | 1,080,000 | **1.99x** |
+| **the full package** (see below) | 1,555,200 | **2.86x** |
+
+**Restricting alone is viable but thin; restricting twice fails.** Empty-onset-only
+takes a service phrase from 1,500 frame combinations to 150 — a tenfold cut on
+two-thirds of the class. Add the context/closer cut on top and ROUTINE cannot fill
+its bucket, the shortfall redistributes, and the 28% `CLASS_TARGETS` floor breaks.
+
+### Recommendation: the additions have to land before the cuts
+
+This is the same conclusion section 5 reached about contexts and closers, now with
+a second instance and a sharper edge. **Fix ROUTINE by adding frame material, and
+treat every cut as conditional on the additions existing first.**
+
+Concretely, the package that holds at 2.86x:
+
+1. **3 service-appropriate onsets**, authored by the speaker — the sense wanted is
+   *scheduled* rather than *since*: "for my appointment", "this month", "as I was
+   told to". These are what make a request coherent with a time expression at all.
+2. **3 de-escalating contexts and 3 de-escalating closers** — already written into
+   `frame_fragments_brief.csv` as English glosses awaiting Kinyarwanda.
+3. **Then** apply the cuts: service concepts drop the nine "since X" onsets;
+   ROUTINE drops the two escalating contexts and two escalating closers.
+
+Order matters and is not negotiable: applying step 3 before steps 1 and 2 is the
+0.62x row.
+
+### What this does not settle
+
+**Whether an onset is incoherent is a property of the concept, not the class.**
+CC06 and CC07 — "ran out of ARV medicine", "ran out of TB medicine" — are service-
+adjacent but URGENT, and a duration works perfectly on them ("I ran out a week
+ago"). They are correctly outside the 22. But that means the restriction cannot be
+keyed on urgency alone; it needs the service-concept list, which is
+`service_speaker_audit.csv` plus the `NO_RELATIONS` rulings. **A
+`ONSETS_BY_CONCEPT` map, not `ONSETS_BY_URGENCY`** — unlike contexts and closers,
+which really are a class property.
+
+That is a different mechanism from the one section 6 sketched, and it is the reason
+this correction is worth its own section rather than a line in section 1.

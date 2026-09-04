@@ -892,6 +892,72 @@ Every draft is built from the speaker's own clauses. Four flags:
   will union**, which is correct but means the holdout cannot test whether the
   model separates the two clinics.
 
+### Settled: chronic_care first person — 7 accepted, CC04 held
+
+`CC03`, `CC05`, `CC06`, `CC07`, `CC08`, `CC09`, `CC10` accepted; **`CC04` held**.
+`CC01` and `CC02` stay held on clinical capacity.
+
+**`CC04` held, and the flag is heavier than the usual one.** `nryamye` — the 1sg of
+`kuryama` — is attested nowhere; all 8 corpus hits are infinitive or third person.
+That would be routine, except **orthopnoea is the entire clinical signal**: swollen
+legs alone is unremarkable, swollen legs plus breathlessness lying flat is heart
+failure, and that is why the concept is URGENT. A wrong inflection here does not
+make one phrase slightly off — it removes the concept's reason to exist, and the
+rest of the phrase still reads as mild. The question is **positional versus
+temporal**, not grammatical: does `iyo nryamye` mean *lying flat* or *when I go to
+bed*? Outreach question 6.
+
+Three things recorded at the rulings, none of them phrase problems:
+
+- **`CC09`/`CC10` exposed that ONSETS are not urgency-neutral** — a scheduled
+  review has no onset, so `kuva ubu gitondo cya kare` is incoherent before any
+  context is added. `docs/urgency-frame-coupling.md` **section 8** now carries that
+  analysis: service concepts are 0% of CRITICAL, 0% of URGENT and **64% of
+  ROUTINE**, so the fix lands entirely on the thinnest class. Empty-onset-only
+  takes ROUTINE to 1.37x; combined with the section 5 context/closer cut it falls
+  to **0.62x and fails**. The package that holds at 2.86x needs three authored
+  service onsets *plus* the six de-escalating fragments **before** any cut. It also
+  needs `ONSETS_BY_CONCEPT`, not `ONSETS_BY_URGENCY` — CC06/CC07 are service-
+  adjacent but URGENT and a duration works perfectly on them.
+- **`CC06`/`CC07` collide with a frame fragment.** ` kandi nta miti mfite` is an
+  existing CONTEXT, so 1 in 5 renderings read *"Nta miti ya SIDA mfite ... kandi
+  nta miti mfite."* Accepted knowingly; the clean fix is a per-concept context
+  restriction, the same shape section 8 argues for on onsets.
+- **`CC08` sits four characters under the union threshold.** It shares 26 with
+  EX10 against a threshold of 30, so they stay in separate phrase groups —
+  intended, but the first row in the corpus to sit on that boundary, and a
+  reminder that a character count is arbitrary at the margin. `CC09`/`CC10` share
+  40 and **do** union, correctly, at the cost that the holdout cannot test whether
+  the model separates the two clinics.
+
+### Drafted: chronic_care third person — 6 rows, and 5 that should not exist
+
+Rendered to 48 rows in `review/chronic_care_third_render.csv`, all on eight
+relations. Drafts for `CC03`, `CC05`, `CC06`, `CC07`, `EX08`, `EX09`. `CC01`,
+`CC02` and `CC04` wait on their held first person.
+
+Mostly the speaker's own transforms: `nta ... mfite` -> `nta ... afite` is CR07
+third verbatim; `umutwe urandya cyane` -> `umutwe uramubabaza cyane` is OB02 third
+verbatim; the `{REL} ... we` possessive is EX03 third. **One judgement flagged:**
+`EX08`'s possessive placement — `isukari yo mu maraso ye` — is the first phrase
+where the head noun is three words, and the speaker's precedents (`umutima we`,
+`iminwa ye`) all follow a single-word head.
+
+**Five concepts should have no third person at all**: `CC08`, `CC09`, `CC10`,
+`EX10`, `EX11` are ruled `NO_RELATIONS` — nobody presents on another's behalf for
+a refill or a routine review. Their third rows are still `applies=yes` and open, so
+`walk.py` will offer them for authoring, which is the PR02 failure shape.
+**Recommend marking them `applies=no` / `not_applicable`.** The arithmetic is
+neutral, which is why it is safe:
+
+```
+now    920 - (14 applies=no x 4) - (10 NO_RELATIONS thirds x 4) = 824
+after  920 - (24 applies=no x 4)                               = 824
+```
+
+The separate `NO_RELATIONS` line folds into the `applies=no` line for the identical
+total. Not executed — it is a ruling, even though a bookkeeping-neutral one.
+
 ### Two record conflicts, both on unauthored rows
 
 - **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"

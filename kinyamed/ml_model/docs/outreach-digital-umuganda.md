@@ -5,6 +5,9 @@ Drafted 2026-09-03 off the investigation in `language-resources.md` section 2a.
 target CC BY 4.0), so the draft is clear to send — but read notes 2 and 4 first,
 which change what you should ask for.
 
+**Send the seven questions first, and separately.** They cost a reply, not an
+agreement, and they unblock more rows today than the full dataset would.
+
 ---
 
 ## Who to write to
@@ -76,6 +79,65 @@ the RBC contact who gave you this lead is the better opener.
 >
 > Bayizere Marius
 > mariusbayizere119@gmail.com
+
+---
+
+## The seven questions — answerable in five minutes
+
+**This is the highest-value thing to send, and it is much smaller than the data
+request.** Seven words and idioms that do not exist in any source available to the
+project. Each has stalled a specific row for weeks; none needs a dataset, a licence
+or an agreement — only someone who speaks Kinyarwanda and has worked in a Rwandan
+health post.
+
+Send it as its own short message, or as an appendix to the access request below. A
+single reply resolves more than the full 5,609 questions would.
+
+> **Seven Kinyarwanda questions from a clinical triage corpus**
+>
+> Each of these is a word or idiom we could not confirm from any written source, so
+> we have left the row blank rather than guess. Short answers are perfect — a word
+> or a phrase, however a patient would actually say it.
+>
+> 1. **Stool.** The everyday word a patient would use — specifically for **black,
+>    tarry stool**. We have `impiswi` for diarrhoea and `kwituma` as the verb, but
+>    no ordinary noun.
+> 2. **Sunken eyes.** How a Rwandan describes **a child's eyes having sunken** in
+>    dehydration. We have `amaso` for eyes but no verb we can confirm.
+> 3. **Ear.** The ordinary word, and how **a child says their ear hurts and is
+>    running**. We could not confirm any ear term at all.
+> 4. **A limb bent out of shape after a fall** — the visible deformity, not the
+>    diagnosis "fracture". We have the fracture vocabulary and not the deformity.
+> 5. **Light hurting the eyes** (photophobia), as a patient with a severe headache
+>    would say it. We have no word for light we can confirm.
+> 6. **Breathless when lying flat.** We need the **positional** sense — flat versus
+>    propped up — rather than "when I go to bed" as a time of day. Does
+>    `iyo nryamye` carry that, or is there a better way to say it?
+> 7. **Medicine having run out**, as distinct from simply not having any. A patient
+>    who finished a course and one who never collected it are different cases for
+>    us, and we could not find a verb that separates them.
+>
+> If any question is malformed — if a distinction we are drawing does not exist in
+> Kinyarwanda, or is not one a patient would make — that is just as useful an
+> answer, and we would rather hear it than build the distinction into the data.
+
+**That last paragraph matters.** Two of the seven may be false distinctions
+imported from English clinical writing rather than real Rwandan usage — the
+positional/temporal split in 6 and the ran-out/never-had split in 7. Being told so
+is a result, not a failure, and it stops the corpus encoding a category that only
+exists in the source language.
+
+Which rows each question unblocks, for your reference rather than theirs:
+
+| question | rows |
+|---|---|
+| 1 stool | `GI03` both persons — melaena, blocked since the first gastrointestinal batch |
+| 2 sunken eyes | `GI04` third — `yinjiye` has one corpus hit and it means oxygen entering the lungs |
+| 3 ear | `PA08` first — the oldest block in the project |
+| 4 deformed limb | `HT05` first — the draft says "broken", the concept says "deformed" |
+| 5 light | `NE05` first — drafted carrying two of its three signs |
+| 6 lying flat | `CC04` first — orthopnoea is the entire clinical signal in that concept |
+| 7 ran out | `CC06`, `CC07` — both accepted saying "I have no X medicine" instead |
 
 ---
 
