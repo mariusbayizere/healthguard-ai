@@ -110,7 +110,7 @@ CONCEPTS = [
  ("chronic_care","ROUTINE","CC10","routine HIV clinic follow-up","not IMCI (routine)",
   "my routine visit at the HIV clinic","ma visite de routine a la clinique VIH"),
 
- # ---- paediatric : 10 new ----
+ # ---- paediatric : 10 new ----  (PA10 -> EX46, collapsed; child immunisation is in preventive)
  ("paediatric","CRITICAL","PA01","child convulsing","IMCI general danger sign: convulsions",
   "my child is having a fit","mon enfant fait une crise convulsive"),
  ("paediatric","CRITICAL","PA02","child too weak to breastfeed","IMCI general danger sign: not able to drink or breastfeed",
@@ -129,8 +129,6 @@ CONCEPTS = [
   "my child's ear hurts and is draining","l'oreille de mon enfant fait mal et coule"),
  ("paediatric","ROUTINE","PA09","child growth monitoring visit","IMCI: care of the well child",
   "bringing my child for growth monitoring","j'amene mon enfant pour le suivi de la croissance"),
- ("paediatric","ROUTINE","PA10","child due for vaccination","IMCI: immunisation schedule",
-  "my child is due for vaccination","mon enfant doit recevoir ses vaccins"),
 
  # ---- preventive : 10 new ----
  ("preventive","URGENT","PR01","household contact of a TB patient","not IMCI (contact tracing)",

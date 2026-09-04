@@ -1,8 +1,6 @@
 group,concept_id,relation_set,rationale
 A,EX46,CHILD_RELATIONS,a parent or carer brings the child
-A,EX47,CHILD_RELATIONS,a parent or carer brings the child
 A,PA09,CHILD_RELATIONS,a parent or carer brings the child
-A,PA10,CHILD_RELATIONS,a parent or carer brings the child
 A,PR08,CHILD_RELATIONS,a parent or carer brings the child
 A,PR09,CHILD_RELATIONS,a parent or carer brings the child
 B,CC08,NO_RELATIONS,first person only; nobody presents on another's behalf for this

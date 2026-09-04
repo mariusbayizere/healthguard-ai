@@ -47,7 +47,6 @@ PA06,paediatric,URGENT,child with fever and rash,IMCI: MEASLES,WHO IMCI 2014 (Al
 PA07,paediatric,URGENT,"child very thin, not gaining weight",IMCI: ACUTE MALNUTRITION (MUAC/oedema),WHO IMCI 2014 (All rights reserved)
 PA08,paediatric,URGENT,child with ear pain and discharge,IMCI: ACUTE EAR INFECTION,WHO IMCI 2014 (All rights reserved)
 PA09,paediatric,ROUTINE,child growth monitoring visit,IMCI: care of the well child,WHO IMCI 2014 (All rights reserved)
-PA10,paediatric,ROUTINE,child due for vaccination,IMCI: immunisation schedule,WHO IMCI 2014 (All rights reserved)
 PR01,preventive,URGENT,household contact of a TB patient,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
 PR02,preventive,ROUTINE,family planning advice,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
 PR03,preventive,ROUTINE,HIV test request,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
