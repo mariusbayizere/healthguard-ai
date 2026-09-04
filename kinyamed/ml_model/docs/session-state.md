@@ -1,7 +1,7 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, reconciled
-against disk 2026-09-04 (second pass, end of session). All figures below were re-derived from the files by running the tooling, not recalled.
+against disk 2026-09-04 (third pass, end of session). All figures below were re-derived from the files by running the tooling, not recalled.
 
 **Since the last reconciliation:** `phrase_components` was fixed (it was missing
 containments — section 9), a 30-character prefix union was added, the provenance
@@ -43,8 +43,8 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | neurological | 6/28 | 0 | 18 | *(+12 not-applicable: NE01-NE04 and NE08 collapsed, EX32/EX33 first)* |
 | chronic_care | 17/28 | 3 | 22 | *(CC01, CC02, CC04 held)* |
 | paediatric | 4/28 | 1 | 17 | *(+13 not-applicable; PA10 collapsed into EX46)* |
-| preventive | 13/28 | 3 | 17 | *(PR02 both persons, PR07 vocabulary-blocked)* |
-| **total** | **150/254** | **25** | **197** | *(+47 not-applicable = 197 resolved)* |
+| preventive | 21/28 | 3 | 25 | *(PR02 both persons, PR07 vocabulary-blocked)* |
+| **total** | **158/254** | **25** | **205** | *(+47 not-applicable = 205 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -63,14 +63,14 @@ Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254
 run `python review/provenance.py`.**
 
 ```
-speaker-authored     80   53.3%   the speaker wrote the words
-speaker-derived      26   17.3%   person-transform of their OWN phrase, third person only
-machine-approved     27   18.0%   I composed it, the speaker accepted it unchanged
-machine-derived      15   10.0%   person-transform of a machine-drafted phrase
+speaker-authored     80   50.6%   the speaker wrote the words
+speaker-derived      27   17.1%   person-transform of their OWN phrase, third person only
+machine-approved     28   17.7%   I composed it, the speaker accepted it unchanged
+machine-derived      21   13.3%   person-transform of a machine-drafted phrase
 unresolved            2    1.3%   wording settled, concept open (CR04)
 
-the speaker's own words   106/150 = 71%
-newly composed by me       42/150 = 28%   every row with an explicit accept
+the speaker's own words   107/158 = 68%
+newly composed by me       49/158 = 31%   every row with an explicit accept
 ```
 
 **Re-run `python review/provenance.py` rather than reading these.** The figures
@@ -822,7 +822,7 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-**108 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
+**111 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
@@ -1127,7 +1127,30 @@ screenings) — the axis is recorded in the glosses. `PR05`/`OB11` is the same s
 first antenatal booking against routine antenatal check, a real axis both glosses
 carry, but the phrases will share a long head.
 
-### Drafted: preventive third person — 5 rows, and a group-A contradiction found
+### Settled: preventive — first and third both closed bar two blocks
+
+**21/28 filled, 25/28 resolved.** First person: 8 accepted, `PR07` held
+(vocabulary-blocked, outreach question 8), `PR02` out of generation. Third person:
+`PR01 PR03 PR04 PR05 PR08 PR09 PR10` accepted this session, `EX46 EX47` earlier.
+
+**`PR08` was ruled as a concept, both persons together.** Its third had been
+drafted first on request, which inverts the method; it was held and its first
+back-formed so the pair could be ruled at once. That is the shape to repeat —
+**`PA09` is in exactly the same state and is drafted both persons, awaiting one
+ruling.**
+
+**`PR08` recovers the speaker's own wording.** `inama ku biryo byo kugaburira
+umwana` was their v2 rewrite of EX47, freed when EX47's scope was restored to
+generic nutrition, and it landed on the IMCI child-feeding concept it actually
+described.
+
+Worth carrying: **service concepts transform for free.** `ko bapima`, `guhabwa`,
+`kugirwa` and `nyuma yo kugwa` are impersonal or passive, so the request verb is
+the only person-marked element — unlike the symptom domains, where every descriptor
+needed a concord check. That is also *why* the `Ndashaka`/`ashaka` collision hit
+this domain hardest.
+
+### Superseded: the group-A contradiction, as first found
 
 `PR01`, `PR03`, `PR04`, `PR05`, `PR10` drafted; rendered to 45 rows in
 `review/preventive_third_render.csv`. Every one is `Ndashaka` -> `{REL} ashaka`,
@@ -1215,6 +1238,37 @@ consistent with these.
 
 `PA09` carries a clinical flag: growth monitoring is weight plotted against age
 plus MUAC, and `gupima ibiro` says only the weighing.
+
+### CI WAS RED FOR SIX COMMITS — read this before trusting a green local run
+
+`8ab5737` through `e6e6490`. Both pytest jobs red, both dependency-free jobs green.
+**Raw job logs need admin auth** (anonymous API returns 403), but
+`/actions/runs/<id>/jobs` names the failing step without auth, which was enough:
+*"Attribution sweep over the real authored corpus"*.
+
+**The error, reproduced locally by running that step:**
+
+```
+'Ndashaka inama ku mirire myiza.' attributed elsewhere
+  rendered: 'Ndashaka inama ku mirire myiza.'
+  got     : '{REL} ashaka inama ku mirire myiza.'
+```
+
+**`Ndashaka` ends with `ashaka`.** The third person's post-`{REL}` segment is a
+substring of the first person, and being the longer index entry it captured the
+first person's rows. **Four pairs collided — EX47, PR03, PR04, PR10** — every one
+from the same `Ndashaka` -> `{REL} ashaka` transform that had been praised three
+times that day for touching only one word.
+
+**Fixed as a class, not four instances.** `_find_at_word_boundary` requires a match
+to begin *and* end on a word boundary. Rewording the phrases was considered and
+rejected: it would have left the trap set for every future `Nd-` verb. An
+apostrophe is deliberately not a word character — Kinyarwanda writes `n'uduheri`.
+
+**Why six commits reached main: the local command was
+`pytest --ignore=tests/test_attribution_corpus.py`**, to save two minutes. Every
+"tests pass" report excluded the only test that catches this.
+**Run the full suite or `make test-clean` before every push. No exceptions.**
 
 ### RULED: PR05 and OB11 take the obstetric four — and the audit that followed is clean
 
@@ -1608,13 +1662,17 @@ a code path reads, not only in this document. `verify-full` 8/8, 108 tests, lint
 **Awaiting your ruling — three rendered batches, walk them one at a time:**
 
 ```
-preventive third   review/preventive_third_render.csv   61 rows, 9 concepts
-                   PR01 PR03 PR04 PR05 PR10 drafted; PR08 PR09 drafted;
-                   EX46 EX47 already accepted
-paediatric third   review/paediatric_third_render.csv   27 rows, 5 concepts
-                   EX40-EX43 authored; PA09 drafted
-chronic_care       nothing outstanding — first and third both ruled
+PA09 both persons  review/paediatric_third_render.csv   the only pair left in
+                   preventive/paediatric. Drafted TOGETHER so the concept is
+                   ruled in the right order, as PR08 was.
+CR01 first         drafted long ago, blocked on the -mu- object marker
+NE05 first         drafted, blocked on the light term (outreach question 5)
+NE07 first         drafted and rulable — nothing blocks it
 ```
+
+**preventive is closed** apart from PR02 (out of generation) and PR07
+(vocabulary-blocked): 21/28 filled, 25/28 resolved. `chronic_care` and
+`gastrointestinal` are closed apart from held rows.
 
 **Then draft, in this order:**
 
@@ -1693,7 +1751,7 @@ review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. **108 tests** — this section and section 7 once
+against ambient-state failures. **111 tests** — this section and section 7 once
 said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 
