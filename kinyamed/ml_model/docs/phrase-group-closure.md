@@ -1,10 +1,12 @@
 # Closing the phrase holdout over near-duplicates
 
-**Design proposal, 2026-09-03. Nothing implemented.** Prompted by four pairs of
-concepts noticed by hand during rulings, none of them containments, all able to
-split across the phrase holdout.
+**Sections 1-5 IMPLEMENTED 2026-09-03** (containment fixed, `PREFIX_UNION_CHARS =
+30`). **Sections 6-7 are open design**, and section 7 is the larger of the two —
+it found that a concept's own two persons split across the holdout in 60 of 61
+cases, which no similarity rule catches and no similarity rule should.
 
-Measuring it first changed the proposal twice.
+Prompted by four pairs of concepts noticed by hand during rulings. Measuring it
+changed the proposal three times.
 
 ---
 
@@ -163,3 +165,97 @@ corpus shows tail-sharing pairs, the measure should become longest common
 substring normalised by the shorter phrase, not prefix length. Not proposed now
 because there is no evidence of it yet, and an unmeasured generalisation is how
 the 85-pair number gets mistaken for a defect list.
+
+---
+
+## 7. Two more blind spots, found 2026-09-04 — and the larger one is not about similarity
+
+Section 6 guessed that a shared *tail* would be the next gap. It is not. Two
+different blind spots turned up, and the big one has a cleaner fix than any
+threshold.
+
+### 7a. A concept's own two persons are in different phrase groups — 60 of 61
+
+```
+concepts with BOTH persons authored          61
+  their two phrases land in one group         1
+  their two phrases SPLIT                    60
+```
+
+```
+CR03 first   Iminwa yanjye yahindutse ubururu.
+CR03 third   {REL} iminwa ye yahindutse ubururu.
+             containment: no      shared prefix: 0
+```
+
+**The prefix rule can never catch a first/third pair**, because a third-person
+phrase begins with `{REL}` and a first-person one begins with a letter — the shared
+prefix is 0 by construction. Containment fails on the verb morphology. So the two
+persons of the same concept can land on opposite sides of the phrase holdout, with
+the model having seen three of the four content words of the held-out phrase.
+
+That is precisely the leak the substring closure was written for: *"an exact-match
+check reports zero overlap while the model has plainly seen the string."*
+
+**Fix: union by concept id, not by similarity.** The brief knows which phrases
+belong to the same concept; this is a *declaration* like `PHRASE_VARIANTS`, not an
+inference, and it needs no threshold. It should be materialised at v2 build from
+the brief alongside `CONCEPT_RELATIONS` and `PHRASE_VARIANTS`.
+
+Cost: the phrase holdout's unit becomes the concept rather than the phrase, which
+is what it should have been — holding out a concept means holding out everything
+said about it. It roughly halves the number of independent holdout units, and that
+is a real reduction in eval granularity, paid to remove a leak affecting 60 of 61
+concepts.
+
+### 7b. Reordering defeats both rules — the token-overlap check
+
+```
+OB11  Ndatwite kandi ndashaka kujya kwa muganga kwisuzumisha.
+PR05  Ndatwite kandi ndashaka kwisuzumisha kwa muganga.
+
+shared prefix   25   (threshold 30)   -> no union
+containment     no
+token overlap   86%,  ZERO words unique to PR05
+```
+
+PR05 was a strict subset of OB11's vocabulary, reordered. **A character measure
+cannot see that; a token measure sees it immediately.** (That pair was resolved by
+rewriting PR05 rather than unioning, but the blind spot is general.)
+
+Measured over the corpus, excluding same-concept pairs (7a covers those):
+
+| token overlap | cross-concept pairs unioned | of which zero unique words |
+|---|---|---|
+| >= 75% | 1 | 1 |
+| >= 70% | 3 | 1 |
+| >= 65% | 5 | 2 |
+| >= 60% | 11 | 3 |
+| >= 55% | 18 | 5 |
+
+**Recommend two rules, not one threshold:**
+
+1. **Zero unique words on either side unions, at any overlap.** If every word of
+   one phrase appears in the other, the shorter is a vocabulary subset of the
+   longer and there is nothing for a model to learn from the held-out one that it
+   has not seen. This catches EX18/EX20, EX02/EX06 both persons, EX14/EX38 and
+   CR03/EX04 — five pairs — and it needs no tuned number.
+2. **Token overlap >= 70% unions.** Three pairs today, and it degrades gracefully:
+   65% would add two and 60% would add six, so the rule is not perched on a cliff
+   the way `PREFIX_UNION_CHARS` is at 25.
+
+**Do not lower `PREFIX_UNION_CHARS` to reach these.** 25 is the v1-safe floor, and
+the pairs above are missed by *shape*, not by a few characters — a shorter prefix
+would union unrelated domain-grammar pairs without catching a single one of these.
+
+### 7c. What this says about the design
+
+Four blind spots have now been found, in this order: terminal stops and capitals
+(fixed), long shared heads (fixed by the prefix rule), a concept's own two persons,
+and reordering. Each was invisible to the safeguard in place at the time.
+
+The pattern is that **every rule so far measures the wrong thing slightly** —
+characters when the leak is in words, position when the leak is in content. The
+concept-level union in 7a is the first proposed rule that is not a similarity
+measure at all, and it covers the largest class. **Prefer a declaration over a
+measurement wherever the brief already knows the answer.**

@@ -15,7 +15,7 @@ EX10,chronic_care,ndashaka kongererwa imiti mfata — medicine refill,the patien
 EX11,chronic_care,ndashaka gukomeza kujya kwa muganga — continuing follow-up,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
 EX44,preventive,gahunda yo kwisuzumisha buri mwaka — annual check-up,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
 EX45,preventive,gusaba ko bapima amaraso — requesting a blood test,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
-PR03,preventive,HIV test request,the patient,the patient,not caught — adult self-service,,
+PR03,preventive,HIV test request,the patient,the patient,not caught — adult self-service,,"SUPERSEDED 2026-09-04. This audit said 'not caught — adult self-service'; the group-D ruling in routine_relation_sets.csv says HOUSEHOLD_RELATIONS and STANDS, as the later and more specific ruling. HIV testing in Rwanda is routinely partner and family testing, unlike BP or cervical screening which remain NO_RELATIONS. Rule 12's beneficiary/requester test is the right instrument for whether a CARER speaks; it does not settle whether a household member may ask on an adult's behalf."
 PR05,preventive,first antenatal booking visit,the pregnant woman,the pregnant woman,not caught — requester is the patient,,
 PR06,preventive,blood pressure screening,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,"RULED NO_RELATIONS 2026-09-04. Confirms this audit's verdict over an earlier handover line that said 'adult relations'; that line predated rule 12 and paired PR06 with CC05, a symptom concept."
 PR07,preventive,cervical screening appointment,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,

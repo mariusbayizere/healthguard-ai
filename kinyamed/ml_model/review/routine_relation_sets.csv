@@ -10,7 +10,7 @@ B,EX10,NO_RELATIONS,first person only; nobody presents on another's behalf for t
 B,EX11,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,EX44,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,EX45,NO_RELATIONS,first person only; nobody presents on another's behalf for this
-B,OB11,NO_RELATIONS,first person only; nobody presents on another's behalf for this
+D,OB11,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf. RE-RULED 2026-09-04 from NO_RELATIONS: the group-D ruling on PR05 (first antenatal visit) settles it — if a household member can ask about the first visit they can ask about a routine one. Closes the held conflict between this ruling and OB11's authored third person.
 B,PR06,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,PR07,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 C,CR07,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's

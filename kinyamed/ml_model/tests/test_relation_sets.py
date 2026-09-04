@@ -163,31 +163,62 @@ def test_the_renderer_honours_a_concept_ruling():
     assert len(per_concept["GI05"]) == len(V.RELATIONS["kinyarwanda"])
 
 
-def test_a_held_row_neither_generates_nor_blocks():
-    """OB11's shape: a ruling and an accepted phrase that contradict each other.
+def test_a_held_row_neither_generates_nor_blocks(tmp_path):
+    """A ruling and an accepted phrase that contradict each other must both survive.
 
-    Holding is how both are kept alive until the question is answered, so a held
-    row must be excluded from the mapping (it must not generate) AND must not be
-    reported as a conflict (it must not block the other rulings). Before this,
-    OB11 blocked materialisation for every other concept.
+    Holding is how that is done: the row must be excluded from the mapping (it must
+    not generate) AND must not be reported as a conflict (it must not block every
+    other ruling).
+
+    OB11 was the real instance — ruled NO_RELATIONS while carrying an accepted
+    third person — and it blocked materialisation for every other concept until
+    materialise() learned about `hold`. It was resolved on 2026-09-04 (re-ruled
+    HOUSEHOLD_RELATIONS, hold lifted), so this test builds the situation instead of
+    depending on a row staying held: a fixture that depends on an open question
+    fails the day the question is answered, which is what happened here.
     """
-    brief = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                                .open(encoding="utf-8")))
-    ob11 = next(r for r in brief if r["concept_id"] == "OB11" and r["person"] == "third")
-    assert ob11["hold"] == "yes", "this test is about OB11 being held"
-    assert ob11["your_phrasing"].strip(), "and about it still carrying its accepted phrase"
-    assert ob11["source"] not in ("", "unresolved", "not_applicable"), (
-        "the acceptance record must survive the hold; hold and provenance are "
-        "orthogonal and overwriting one with the other loses information. "
-        f"OB11 third is {ob11['source']!r} — it is a person-transform of the "
-        "speaker's own first person, so speaker_derived is the right category "
-        "and PR02's 'unresolved' treatment would have erased that."
-    )
+    source = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
+                                 .open(encoding="utf-8")))
+    fields = list(source[0])
+    victim = next(r for r in source
+                  if r["concept_id"] == "GI05" and r["person"] == "third")
+    assert victim["your_phrasing"].strip(), "fixture needs an authored third person"
+    phrase = victim["your_phrasing"].strip()
+    victim["hold"] = "yes"
 
-    mapping, conflicts = materialise()
-    assert ob11["your_phrasing"].strip() not in mapping, "a held row must not generate"
-    assert not any("OB11" in c for c in conflicts), "a held row must not block"
+    brief = tmp_path / "brief.csv"
+    with brief.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(source)
+
+    ruled = dict(rulings())
+    ruled["GI05"] = "NO_RELATIONS"          # a ruling that contradicts the phrase
+    mapping, conflicts = materialise(brief=brief, ruled=ruled)
+
+    assert phrase not in mapping, "a held row must not generate"
+    assert not any("GI05" in c for c in conflicts), "a held row must not block"
     assert mapping, "the other rulings must still materialise"
+
+
+def test_ob11_is_no_longer_in_conflict():
+    """The conflict this module was built around is closed; keep it closed.
+
+    OB11 is HOUSEHOLD_RELATIONS with an authored third person, and the two agree.
+    If a future ruling puts it back to NO_RELATIONS while the phrase stands, the
+    conflict returns and materialise() will report it — this asserts the resolved
+    state so that regression is visible.
+    """
+    rows = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
+                               .open(encoding="utf-8")))
+    ob11 = next(r for r in rows if r["concept_id"] == "OB11" and r["person"] == "third")
+    assert ob11["hold"] != "yes", "the hold was lifted when the conflict was resolved"
+    assert ob11["your_phrasing"].strip(), "its third person is authored"
+    assert rulings().get("OB11") == "HOUSEHOLD_RELATIONS"
+    assert resolve("OB11", "obstetric") == V.HOUSEHOLD_RELATIONS
+
+    _, conflicts = materialise()
+    assert not conflicts, f"materialisation must be clean: {conflicts}"
 
 
 @pytest.mark.parametrize("concept_id", ["CR07", "EX16", "EX29", "EX31"])

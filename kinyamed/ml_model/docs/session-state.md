@@ -405,7 +405,7 @@ the guide is the record.
     excludes the *patient's* first-person row, not the carer's, and both persons
     can exist for a service concept as two different speakers.
 
-## 6. Row target: 1,632,000
+## 6. Row target: 1,640,000
 
 **Standing: the target is a consequence of the valid inventory, not a quota.**
 2,000 rows per authored phrase is the invariant.
@@ -413,10 +413,15 @@ the guide is the record.
 ```
 ceiling  114 concepts x 2 persons x 4 languages =   912 phrases
 minus    23 applies=no rows x 4                 =    92
-minus     1 NO_RELATIONS third x 4              =     4
-net                                                 816 phrases
-                                    at 2,000/phrase -> 1,632,000 rows
+minus     0 NO_RELATIONS thirds x 4             =     0
+net                                                 820 phrases
+                                    at 2,000/phrase -> 1,640,000 rows
 ```
+
+**The NO_RELATIONS line is now empty**, and the target went *up* by 4 phrases:
+`OB11` was re-ruled `HOUSEHOLD_RELATIONS` on 2026-09-04, so its authored third
+person generates instead of being subtracted. Every other `NO_RELATIONS` third is
+marked `applies=no` and counted in the line above.
 
 **The two subtraction lines are interchangeable and the split will keep moving.**
 On 2026-09-04 five `NO_RELATIONS` third rows (CC08, CC09, CC10, EX10, EX11) were
@@ -1337,6 +1342,43 @@ rule can touch them.
 
 Design reasoning, the 85-pair measurement and the rejected options are in
 `docs/phrase-group-closure.md`.
+
+### STILL OPEN, and the largest leak found so far: a concept's two persons split
+
+`phrase-group-closure.md` **section 7**. **60 of the 61 concepts with both persons
+authored have their two phrases in different phrase groups**, so the holdout can
+train on one person and evaluate on the other:
+
+```
+CR03 first   Iminwa yanjye yahindutse ubururu.
+CR03 third   {REL} iminwa ye yahindutse ubururu.
+             containment: no      shared prefix: 0
+```
+
+**The prefix rule can never catch this**: a third-person phrase starts with `{REL}`
+and a first-person one with a letter, so the shared prefix is 0 by construction.
+Containment fails on the verb morphology.
+
+**The fix is a declaration, not a measurement — union by concept id.** The brief
+already knows which phrases belong to the same concept, so it needs no threshold;
+materialise it at v2 build alongside `CONCEPT_RELATIONS` and `PHRASE_VARIANTS`.
+Cost: the holdout's unit becomes the concept rather than the phrase, roughly
+halving the independent units — which is the right unit anyway, since holding out a
+concept should mean holding out everything said about it.
+
+**Plus a token-overlap rule for the cross-concept residual** (7b): reordering
+defeats both existing rules. `OB11`/`PR05` shared **86% of their tokens with zero
+words unique to PR05**, at a 25-character prefix. Two rules recommended —
+zero-unique-words unions at any overlap (5 pairs, no tuned number), and token
+overlap >= 70% (3 pairs, degrading gracefully). **Do not lower
+`PREFIX_UNION_CHARS`** to reach them: 25 is the v1-safe floor, and these pairs are
+missed by shape rather than by a few characters.
+
+**Four blind spots, in the order found** — terminal stops and capitals, long shared
+heads, a concept's own two persons, reordering. Each was invisible to the safeguard
+in place at the time, and every rule so far measures the wrong thing slightly:
+characters when the leak is in words, position when it is in content. **Prefer a
+declaration over a measurement wherever the brief already knows the answer.**
 
 ### Open design question: urgency/frame coupling — `docs/urgency-frame-coupling.md`
 
