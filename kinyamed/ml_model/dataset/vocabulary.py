@@ -660,3 +660,29 @@ V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = (". Murakoze.",)
 # time from the brief's `second_phrasing_optional` column - see
 # review/second_phrasings.py.
 PHRASE_VARIANTS: dict[str, str] = {}
+
+
+# Which concept each phrase belongs to. Everything said about one concept - its
+# first person, its third person, any second phrasing - must land in ONE phrase
+# group, or the holdout can train on one and evaluate on another.
+#
+# THIS IS THE LARGEST LEAK FOUND SO FAR, and no similarity rule can close it:
+#
+#     CR03 first   Iminwa yanjye yahindutse ubururu.
+#     CR03 third   {REL} iminwa ye yahindutse ubururu.
+#                  containment: no      shared prefix: 0
+#
+# The shared prefix is 0 BY CONSTRUCTION - a third-person phrase begins with
+# {REL} and a first-person one with a letter - so PREFIX_UNION_CHARS can never
+# catch a first/third pair however low it is set, and containment fails on the
+# verb morphology. 60 of the 61 concepts with both persons authored were split.
+#
+# The fix is a DECLARATION, not a measurement: the brief already knows which
+# phrases belong to the same concept, so this needs no threshold and cannot be
+# tuned wrong. Prefer a declaration over a measurement wherever the brief
+# already knows the answer.
+#
+# Empty for v1, whose 184 phrases have no concept ids and are one phrase per
+# concept anyway - so v1's partition is untouched and the frozen splits survive.
+# Populated at v2 build time from the brief - see review/second_phrasings.py.
+PHRASE_CONCEPTS: dict[str, str] = {}

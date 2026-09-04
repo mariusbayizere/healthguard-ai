@@ -5,7 +5,7 @@ Drafted 2026-09-03 off the investigation in `language-resources.md` section 2a.
 target CC BY 4.0), so the draft is clear to send — but read notes 2 and 4 first,
 which change what you should ask for.
 
-**Send the seven questions first, and separately.** They cost a reply, not an
+**Send the eight questions first, and separately.** They cost a reply, not an
 agreement, and they unblock more rows today than the full dataset would.
 
 ---
@@ -82,10 +82,10 @@ the RBC contact who gave you this lead is the better opener.
 
 ---
 
-## The seven questions — answerable in five minutes
+## The eight questions — answerable in five minutes
 
 **This is the highest-value thing to send, and it is much smaller than the data
-request.** Seven words and idioms that do not exist in any source available to the
+request.** Eight words and idioms that do not exist in any source available to the
 project. Each has stalled a specific row for weeks; none needs a dataset, a licence
 or an agreement — only someone who speaks Kinyarwanda and has worked in a Rwandan
 health post.
@@ -93,7 +93,7 @@ health post.
 Send it as its own short message, or as an appendix to the access request below. A
 single reply resolves more than the full 5,609 questions would.
 
-> **Seven Kinyarwanda questions from a clinical triage corpus**
+> **Eight Kinyarwanda questions from a clinical triage corpus**
 >
 > Each of these is a word or idiom we could not confirm from any written source, so
 > we have left the row blank rather than guess. Short answers are perfect — a word
@@ -116,6 +116,9 @@ single reply resolves more than the full 5,609 questions would.
 > 7. **Medicine having run out**, as distinct from simply not having any. A patient
 >    who finished a course and one who never collected it are different cases for
 >    us, and we could not find a verb that separates them.
+> 8. **The cervix**, as distinct from the womb — the everyday word a woman would use
+>    asking for a cervical screening appointment. The only term we found,
+>    `nyababyeyi`, is used for the womb in both the examples we have.
 >
 > If any question is malformed — if a distinction we are drawing does not exist in
 > Kinyarwanda, or is not one a patient would make — that is just as useful an
@@ -138,6 +141,7 @@ Which rows each question unblocks, for your reference rather than theirs:
 | 5 light | `NE05` first — drafted carrying two of its three signs |
 | 6 lying flat | `CC04` first — orthopnoea is the entire clinical signal in that concept |
 | 7 ran out | `CC06`, `CC07` — both accepted saying "I have no X medicine" instead |
+| 8 cervix | `PR07` first — the draft says "examine my womb", a different request |
 
 ---
 

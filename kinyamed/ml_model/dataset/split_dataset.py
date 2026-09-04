@@ -53,7 +53,8 @@ from dataset.atomicio import (  # noqa: E402
     sweep_partials,
 )
 from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
-from dataset.vocabulary import PHRASE_VARIANTS, REL_PLACEHOLDER, SENTENCE_END  # noqa: E402
+from dataset.vocabulary import (PHRASE_CONCEPTS, PHRASE_VARIANTS,  # noqa: E402
+                                REL_PLACEHOLDER, SENTENCE_END)
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
 # Two phrases sharing this many leading characters join one phrase group even
@@ -152,6 +153,25 @@ def phrase_components() -> dict[str, str]:
                 "that names an absent phrase is a misconfiguration, not a no-op."
             )
         union(variant, primary)
+
+    # Everything said about one concept joins one group: its first person, its
+    # third person, any second phrasing. A similarity rule cannot do this - a
+    # third-person phrase starts with {REL} and a first-person one with a letter,
+    # so their shared prefix is 0 however low the threshold goes, and containment
+    # fails on the verb morphology. The brief knows the answer, so it declares it.
+    by_concept: dict[str, list[str]] = {}
+    for phrase, concept in PHRASE_CONCEPTS.items():
+        if phrase not in known:
+            raise SystemExit(
+                f"PHRASE_CONCEPTS assigns {phrase!r} to concept {concept!r} but that "
+                "phrase is not in the symptom inventory. A declaration naming an "
+                "absent phrase is a misconfiguration, not a no-op - it would leave "
+                "the concept's other phrases unjoined and silently reopen the leak."
+            )
+        by_concept.setdefault(concept, []).append(phrase)
+    for members in by_concept.values():
+        for other in members[1:]:
+            union(members[0], other)
 
     return {phrase: find(phrase) for phrase in phrases}
 

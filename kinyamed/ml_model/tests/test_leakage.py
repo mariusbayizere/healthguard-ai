@@ -232,3 +232,93 @@ def test_v1_grouping_is_unchanged_by_both_rules() -> None:
     assert len(Counter(components.values())) == 180
     assert not [p for p in components if p.strip()[-1:] in ".!?"]
     assert not [p for p in components if p[:1].isupper()]
+
+
+# ── phrase_components: a concept's phrases are one group ────────────────────
+
+
+def test_concept_union_is_empty_for_v1_and_leaves_it_untouched():
+    """v1 has no concept ids and one phrase per concept, so nothing to join."""
+    from collections import Counter
+
+    from dataset import vocabulary as V
+    assert V.PHRASE_CONCEPTS == {}
+    components = phrase_components()
+    assert len(components) == 184
+    assert len(Counter(components.values())) == 180
+
+
+def test_a_concepts_two_persons_join_one_group():
+    """The leak no similarity rule can close.
+
+    A third-person phrase begins with {REL} and a first-person one with a letter,
+    so their shared prefix is 0 BY CONSTRUCTION - PREFIX_UNION_CHARS can never
+    catch the pair however low it is set - and containment fails on the verb
+    morphology. 60 of 61 concepts with both persons authored were split.
+    """
+    from dataset import vocabulary as V
+    from dataset import split_dataset as S
+
+    first = "Iminwa yanjye yahindutse ubururu."
+    third = "{REL} iminwa ye yahindutse ubururu."
+    # the premise: neither existing rule joins them
+    assert _match_form(first) not in _match_form(third)
+    assert _match_form(third) not in _match_form(first)
+    assert _shared_prefix(_match_form(first), _match_form(third)) == 0
+
+    real = dict(V.PHRASE_CONCEPTS)
+    try:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS.update({first: "CR03", third: "CR03"})
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+        # both phrases are absent from v1's inventory, so the declaration must raise
+        with pytest.raises(SystemExit, match="not in the symptom inventory"):
+            phrase_components()
+    finally:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS.update(real)
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+
+
+def test_a_declaration_naming_an_absent_phrase_raises():
+    """Silence there would leave the concept's other phrases unjoined.
+
+    That is the same failure shape as the empty CONCEPT_RELATIONS: a ruling
+    recorded where no code path reads it, reopening the leak without an error.
+    """
+    from dataset import vocabulary as V
+    from dataset import split_dataset as S
+
+    real = dict(V.PHRASE_CONCEPTS)
+    try:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS["a phrase that is not in the inventory"] = "XX99"
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+        with pytest.raises(SystemExit, match="XX99"):
+            phrase_components()
+    finally:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS.update(real)
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+
+
+def test_real_v1_phrases_union_when_declared_one_concept():
+    """The mechanism itself, on phrases that ARE in the inventory."""
+    from dataset import vocabulary as V
+    from dataset import split_dataset as S
+
+    inventory = sorted(phrase_components())
+    a, b = inventory[0], inventory[-1]
+    assert phrase_components()[a] != phrase_components()[b], "fixture needs two groups"
+
+    real = dict(V.PHRASE_CONCEPTS)
+    try:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS.update({a: "ZZ01", b: "ZZ01"})
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+        joined = phrase_components()
+        assert joined[a] == joined[b], "one concept must mean one phrase group"
+    finally:
+        V.PHRASE_CONCEPTS.clear()
+        V.PHRASE_CONCEPTS.update(real)
+        S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS

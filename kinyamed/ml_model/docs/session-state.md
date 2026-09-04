@@ -1343,7 +1343,7 @@ rule can touch them.
 Design reasoning, the 85-pair measurement and the rejected options are in
 `docs/phrase-group-closure.md`.
 
-### STILL OPEN, and the largest leak found so far: a concept's two persons split
+### FIXED: a concept's two persons now join one phrase group
 
 `phrase-group-closure.md` **section 7**. **60 of the 61 concepts with both persons
 authored have their two phrases in different phrase groups**, so the holdout can
@@ -1359,12 +1359,25 @@ CR03 third   {REL} iminwa ye yahindutse ubururu.
 and a first-person one with a letter, so the shared prefix is 0 by construction.
 Containment fails on the verb morphology.
 
-**The fix is a declaration, not a measurement — union by concept id.** The brief
-already knows which phrases belong to the same concept, so it needs no threshold;
-materialise it at v2 build alongside `CONCEPT_RELATIONS` and `PHRASE_VARIANTS`.
-Cost: the holdout's unit becomes the concept rather than the phrase, roughly
-halving the independent units — which is the right unit anyway, since holding out a
-concept should mean holding out everything said about it.
+**Fixed 2026-09-04 by a declaration, not a measurement.**
+`vocabulary.PHRASE_CONCEPTS` maps phrase -> concept id and `phrase_components`
+unions on it, raising if a declaration names an absent phrase. It needs no
+threshold and cannot be tuned wrong. `review/second_phrasings.py` emits it — 151
+phrases across 89 concepts, **62 unions no similarity rule can make**.
+
+```
+phrase groups WITHOUT it   131   largest 3
+phrase groups WITH it       77   largest 6
+reduction                   54   (41%)
+```
+
+**v1 untouched** — its 184 phrases have no concept ids and are one phrase per
+concept, so the map is empty and the partition is identical.
+
+The holdout's unit is now the concept rather than the phrase, which is the right
+unit: holding out a concept should mean holding out everything said about it. The
+41% reduction in independent units is the price, paid to close a leak affecting 60
+of 61 concepts.
 
 **Plus a token-overlap rule for the cross-concept residual** (7b): reordering
 defeats both existing rules. `OB11`/`PR05` shared **86% of their tokens with zero
@@ -1505,7 +1518,7 @@ review/walk.py              row-by-row accept/edit/rewrite, atomic writes; SKIPS
 review/bulk_declare.py      bulk form/person declaration
 review/split_authoring.py   two-author split preserving a blind overlap
 review/make_second_review.py  second-speaker RATE and BLIND arms
-review/second_phrasings.py  reads second_phrasing_optional into PHRASE_VARIANTS
+review/second_phrasings.py  brief -> PHRASE_VARIANTS and PHRASE_CONCEPTS
 review/attest.py            is a Kinyarwanda word attested? all sources at once
 review/relation_sets.py     concept ruling -> relations; --materialise for the build
 review/render_third_person.py  render a domain's thirds via the SAME resolver

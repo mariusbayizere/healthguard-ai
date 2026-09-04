@@ -197,10 +197,25 @@ the model having seen three of the four content words of the held-out phrase.
 That is precisely the leak the substring closure was written for: *"an exact-match
 check reports zero overlap while the model has plainly seen the string."*
 
-**Fix: union by concept id, not by similarity.** The brief knows which phrases
-belong to the same concept; this is a *declaration* like `PHRASE_VARIANTS`, not an
-inference, and it needs no threshold. It should be materialised at v2 build from
-the brief alongside `CONCEPT_RELATIONS` and `PHRASE_VARIANTS`.
+**Fix: union by concept id, not by similarity. IMPLEMENTED 2026-09-04.**
+`vocabulary.PHRASE_CONCEPTS` maps phrase -> concept id; `phrase_components` unions
+every phrase sharing a concept and **raises** if a declaration names a phrase not
+in the inventory — silence there would leave the concept's other phrases unjoined
+and reopen the leak, the same failure shape as the empty `CONCEPT_RELATIONS`.
+`review/second_phrasings.py` emits it from the brief.
+
+**It needs no threshold and cannot be tuned wrong**, which is the point.
+
+Measured on the 150 authored phrases:
+
+```
+phrase groups WITHOUT the concept union   131   largest 3
+phrase groups WITH it                      77   largest 6
+reduction                                  54   (41%)
+```
+
+**v1 is untouched**: `PHRASE_CONCEPTS` is empty for v1, whose 184 phrases have no
+concept ids and are one phrase per concept anyway.
 
 Cost: the phrase holdout's unit becomes the concept rather than the phrase, which
 is what it should have been — holding out a concept means holding out everything
