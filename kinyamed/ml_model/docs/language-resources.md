@@ -194,6 +194,22 @@ the abstract did not say.
 4. **Drop Waxal** from the Kinyarwanda plan entirely, and treat it as
    conditional-at-best for Swahili.
 
+## 2b. Swahili sources — audited 2026-09-04
+
+**`docs/swahili-source-audit.md`.** Short version: Digital Umuganda holds no Swahili
+health *text* (their health text is Kinyarwanda/English; every Swahili holding is ASR
+speech), there is no Swahili equivalent of the 524 — the Kenyan sibling study is
+**English-only, measured at 0 Swahili tokens in 348,726 characters** — and the best
+Swahili terminology source, Hesperian's Swahili *Where There Is No Doctor*, is not
+openly licensed. **Swahili would rest on less evidence than Kinyarwanda.**
+
+**Correction to section 2 above, from the same audit:** the RBC Kinyarwanda CHW
+training material this document calls "not found in machine-readable form" **is**
+machine-readable — `DigitalUmuganda/Monolingual_health_dataset` on HuggingFace,
+ungated, 2,480,884 characters, declared CC BY 2.0. Confirm the grant with RBC before
+relying on it, and use only `rbc_kinyarwanda_health_dataset.txt`; the repo's other
+file is 42,576 GPT-4-generated sentences.
+
 ## 3. Drafting status
 
 Obstetric is complete: 12 new concepts x 4 languages = 48 drafts, taking obstetric

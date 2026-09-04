@@ -145,6 +145,138 @@ Which rows each question unblocks, for your reference rather than theirs:
 
 ---
 
+## Re-checked against the RBC corpus — 2026-09-04, AFTER the questions were sent
+
+`review/attestation/rbc_kinyarwanda_health.txt` was added as the `rbc` tier of
+`attest.py` on 2026-09-04: 2,509,528 characters of Rwanda Biomedical Centre health
+and CHW training curriculum, CC BY 2.0, provenance in that directory's `SOURCE.md`.
+All eight questions were re-run against it.
+
+**The questions were already sent, so nothing here is withdrawn.** Read this as how
+to interpret the replies: for the three marked ANSWERED, a reply that disagrees with
+the corpus is more interesting than one that confirms it, and should win — the
+corpus is written curriculum, the contacts are speakers.
+
+| # | question | after the RBC corpus |
+|---|---|---|
+| 1 | stool | **ANSWERED** |
+| 2 | sunken eyes | still open — and the evidence against the sign got stronger |
+| 3 | ear | **partly** — the noun exists; the rest of the row does not |
+| 4 | deformed limb | still open, unchanged |
+| 5 | light | **partly** — the noun exists; photophobia does not |
+| 6 | lying flat | **ANSWERED**, including the distinction the question asked about |
+| 7 | ran out | **ANSWERED** |
+| 8 | cervix | **ANSWERED**, and the ambiguity that caused it is resolved |
+
+### 1. Stool — answered, and more fully than asked
+
+`amabyi` is attested as a **gloss of `umwanda`**, twice: *"Utwo dukoko dukwirakwizwa
+mu mwanda (amabyi)"*. `umukara` is attested 9 lines, and once **on stool directly**:
+*"atuma uruhinja rwituma ya mabyi ya mbere y'umukara"* — the newborn's first black
+stool. Noun, colour, and a precedent for combining them.
+
+Blood-in-stool is attested repeatedly and **inside RBC's own danger-sign list**,
+which appears three times in the curriculum: *"Kwituma umusarane uvanze n'amaraso"*.
+Also *"Kwituma ibivanze n'amaraso"*, *"Kwituma umusarani uvanzemo amaraso"*,
+*"kwituma umwanda uvanzemo amaraso"*, *"Kuva amaraso umaze kwituma"*.
+
+**A noun nobody had considered: `umusarane` / `umusarani`.** It is used as the head
+noun in those danger-sign lines. Elsewhere in the corpus the same string means
+latrine, so this is a lead for the speaker and not a reading I can make.
+
+### 6. Lying flat — answered, and the positional/temporal question is settled
+
+*"Kunanirwa guhumeka igihe umurwayi **aryamye agaramye** kandi **adaseguye**"* —
+inability to breathe when the patient is lying supine and not propped up. **That is
+orthopnoea, defined in the national CHW curriculum**, and `aryamye agaramye` is
+explicitly positional, with `adaseguye` carrying the propped-up contrast the question
+asked for. Corroborated by *"Iyo umwana aryamye agaramye"*.
+
+So question 6's distinction is **real in Kinyarwanda and already lexicalised**. What
+remains for `CC04` is only the first-person inflection — `nryamye` is still attested
+nowhere — but the construction to inflect is now known, which it was not.
+
+### 7. Ran out — answered
+
+`gushira` in the medicines sense: *"ku miti igiye **gushira**"* (medicines about to
+run out) and *"Inombe (RUTF) y'icyumweru yatahanye imaze **gushira**"* (the week's
+RUTF has run out). `yarangiye` too: *"gusaba imiti no gusubiza imiti **yarangiye**"*.
+
+The earlier flag was that `yarangiye`'s only two hits meant "when all that is
+finished", a different sense. Both verbs now appear in the supply sense. `CC06`/`CC07`
+can be rewritten from "I have no X medicine" to the running-out sense.
+
+### 8. Cervix — answered, and the ambiguity is resolved rather than tolerated
+
+**`inkondo y'umura`** is the cervix: 41 RBC lines and 3 CHW records, and it appears in
+`PR07`'s exact concept — *"isuzuma ry'ibimenyetso bibanziriza kanseri y'inkondo
+y'umura ku badamu bafite hagati ya (30-65)"*, cervical screening for women 30–65.
+
+And `nyababyeyi`, the term the question worried about, is settled as the **womb**:
+*"Agapira gashyirwa muri nyababyeyi"* (an IUD placed in the uterus), *"kanseri yo muri
+nyababyeyi"*. **They are two organs with two words.** The draft that said "examine my
+womb" was wrong for the reason suspected, and the right word now exists.
+
+### 3. Ear — the block moves rather than clears
+
+**`ugutwi` is attested**, which it was not anywhere before: *"indwara zitandura
+zifata ibice bitandukanye by'ugutwi"* and *"Gukomereka ingoma y'ugutwi"* (eardrum
+injury). `indwara z'amatwi` is a standing curriculum topic with its own lesson unit.
+The old finding — *"no ear term exists in the approved vocabulary at all"* — no
+longer holds.
+
+Two of the row's three elements are still unsubstantiated, so `PA08` stays held:
+
+- **The possessive agreement.** `kwanjye` appears **0 times** in the corpus, so the
+  class-15 agreement the draft depends on is still a guess.
+- **Ear discharge.** No line pairs an ear term with `amashyira`, `hasohoka` or any
+  discharge word. The `amazi` problem from the original analysis is unchanged.
+
+Note the CHW-corpus warning still applies to `amatwi`: 182 RBC hits, and the ones
+sampled are `gutega amatwi`, "to lend an ear". The anatomical sense lives in
+`ugutwi`, not in the hit count.
+
+### 5. Light — the noun exists, the sign does not
+
+`urumuri` is attested 15 lines. **Every one is physical light** — sunlight
+degrading condoms, torches in an equipment list. `umucyo` appears twice and both are
+lightning in a storm-safety passage. **No line connects light to the eyes, to pain,
+or to headache.** So `NE05` gains its noun and keeps its block: photophobia as a
+symptom is not attested, and question 5 is still worth a speaker's answer.
+
+### 2. Sunken eyes — still blocked, and the negative is now much stronger
+
+`amaso` is richly attested (137 RBC lines, 30 CHW). **Not one is a sunken-eye
+dehydration sign.** Searched directly for the sign and for the sign-lists it would
+appear in; the curriculum's dehydration language is `kubura amazi mu mubiri` and
+`umwuma`, never the eyes. `yinjiye` remains wrong-sense — in RBC it is a head
+submerged in water (the drowning definition) and a dose of medicine entering.
+
+**This changes the standing of the question.** The earlier note said a 524-row
+sample could not tell whether the sign is simply not how Rwandans report
+dehydration, or whether the sample was too small. It is now **two independent
+corpora**, one of them a 28,621-line *national CHW curriculum that teaches childhood
+diarrhoea in detail*, and neither uses it. That is no longer a sampling artefact.
+
+**Question 2 may be malformed**, in exactly the way the covering note invited — the
+distinction may be imported from IMCI's English rather than used in Rwandan
+practice. If a contact says so, `GI04` should lose the sign rather than gain a word,
+and the concept keeps the two signs it can substantiate.
+
+### 4. Deformed limb — unchanged
+
+`kwavunitse` is **still attested nowhere**, in any of the five tiers. `ukuguru` is
+attested (leg), and the CHW hits are all fracture framing — *"umwana aguye hasi
+akaba avunitse ukuguru"* — which is the diagnosis, and is what pulled the draft off
+its own concept in the first place.
+
+One lead, and it is only a lead: **the deformity stem is attested, on a different
+body part.** `-goramye` is speaker-approved in `EX35` and v1 — *"umunwa wagoramye"*,
+a twisted mouth after stroke. Whether it extends to a limb, and with what class
+agreement, is a speaker question and not one the corpus answers.
+
+---
+
 ## Notes before sending
 
 **1. The licence question is settled — the email is clear to send.**

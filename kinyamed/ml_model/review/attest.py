@@ -17,12 +17,22 @@ Sources, in descending authority:
     review_sheet review/phrase_review_sheet.csv, including unapproved drafts
     chw          review/attestation/ — 524 real CHW questions and clinician
                  answers, CC BY 4.0, see that directory's SOURCE.md
+    rbc          review/attestation/ — 2.5M characters of Rwanda Biomedical
+                 Centre health and CHW training curriculum, CC BY 2.0
 
-A hit in `speaker` or `approved` settles it. A hit in `chw` means the word is
-real Rwandan clinical Kinyarwanda but nobody on this project has authored with
-it — it is a lead to put to the speaker, never a licence to write the phrase
-yourself. A hit only in `review_sheet` with status `draft` is not evidence at
-all: that is my own unapproved drafting coming back around.
+A hit in `speaker` or `approved` settles it. A hit in `chw` or `rbc` means the
+word is real Rwandan health Kinyarwanda but nobody on this project has authored
+with it — it is a lead to put to the speaker, never a licence to write the
+phrase yourself. A hit only in `review_sheet` with status `draft` is not
+evidence at all: that is my own unapproved drafting coming back around.
+
+`chw` and `rbc` are separate tiers because they fail differently. `chw` is
+CHW-to-clinician case reports that passed through speech-to-text, so a lone odd
+hit may be a transcription artefact and the count of distinct CHWs is what
+matters. `rbc` is written, edited curriculum with no ASR layer, so a single
+clean hit is worth more — but it is instructional register throughout ("teach
+the mother to..."), so it attests a TERM and says nothing about how a patient
+would phrase it. Neither corpus is patient speech.
 
 MATCHING IS SUBSTRING BY DEFAULT, deliberately. A Kinyarwanda stem hides behind
 noun-class prefixes and verbal morphology, so a word-boundary regex misses
@@ -47,6 +57,7 @@ csv.field_size_limit(10**9)
 BRIEF = ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv"
 SHEET = ROOT / "review" / "phrase_review_sheet.csv"
 CHW = ROOT / "review" / "attestation" / "chw_questions_kinyarwanda.csv"
+RBC = ROOT / "review" / "attestation" / "rbc_kinyarwanda_health.txt"
 
 
 def _rows(path: Path) -> list[dict]:
@@ -108,12 +119,33 @@ def chw_texts() -> list[tuple[str, str]]:
     return out
 
 
+def rbc_texts() -> list[tuple[str, str]]:
+    """(label, text) per line of the RBC training corpus.
+
+    Plain text, one sentence or heading per line. The line number is the label
+    so a hit can be found again in the file.
+    """
+    if not RBC.exists():
+        return []
+    out = []
+    for n, line in enumerate(RBC.read_text(encoding="utf-8").splitlines(), 1):
+        line = line.strip()
+        if line:
+            out.append((f"rbc:{n}", line))
+    return out
+
+
 SOURCES = [
     ("speaker", "the speaker authored or accepted it", speaker_texts),
     ("approved", "v1 vocabulary, already in the corpus", approved_texts),
     ("review_sheet", "phrase review sheet (includes unapproved drafts)", review_sheet_texts),
-    ("chw", "real CHW/clinician Kinyarwanda, CC BY 4.0", chw_texts),
+    ("chw", "real CHW/clinician Kinyarwanda, CC BY 4.0 — ASR transcript", chw_texts),
+    ("rbc", "RBC health/CHW training curriculum, CC BY 2.0 — written, instructional", rbc_texts),
 ]
+
+# Corpora of real Kinyarwanda that this project has not authored with. A hit
+# here is a lead for the speaker, never permission to write the phrase.
+LEAD_SOURCES = ("chw", "rbc")
 
 
 def find(term: str, pairs: list[tuple[str, str]], whole: bool) -> list[tuple[str, str]]:
@@ -168,6 +200,11 @@ def main() -> int:
                 # artefact; several is a real term.
                 who = {l.split()[0] for l, _ in hits}
                 extra = f", {len(who)} distinct CHW/clinician record(s)"
+            elif name == "rbc":
+                # No ASR layer here, so the useful count is how many distinct
+                # lines carry it — a term repeated across the curriculum is
+                # settled vocabulary, one hit in a heading may be incidental.
+                extra = f", {len({t for _, t in hits})} distinct line(s)"
             print(f"  {name:13} {len(hits)} hit(s){extra}   ({why})")
             shown = hits if args.context else hits[:args.max]
             for label, text in shown:
@@ -178,10 +215,14 @@ def main() -> int:
         if "speaker" in verdict or "approved" in verdict:
             print("  VERDICT: attested in project-approved language. Safe to use.")
             exit_code = 0
-        elif "chw" in verdict:
-            print("  VERDICT: attested in real Rwandan clinical Kinyarwanda, but NOT in")
-            print("           any phrase this project has approved. This is a lead for")
-            print("           the speaker — it does not authorise writing the phrase.")
+        elif any(s in verdict for s in LEAD_SOURCES):
+            where = " and ".join(s for s in LEAD_SOURCES if s in verdict)
+            print(f"  VERDICT: attested in real Rwandan health Kinyarwanda ({where}), but")
+            print("           NOT in any phrase this project has approved. This is a lead")
+            print("           for the speaker — it does not authorise writing the phrase.")
+            if "rbc" in verdict and "chw" not in verdict:
+                print("           rbc only: instructional register, so this attests the term")
+                print("           and says nothing about how a patient would phrase it.")
             exit_code = 0
         elif "review_sheet" in verdict:
             print("  VERDICT: only in the review sheet. If those rows are drafts, this")

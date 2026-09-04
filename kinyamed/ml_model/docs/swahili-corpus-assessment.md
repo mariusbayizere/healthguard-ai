@@ -3,6 +3,12 @@
 **Verdict: not usable as a source of patient-facing Swahili. Usable for terminology
 only.**
 
+**Extended 2026-09-04 by `docs/swahili-source-audit.md`**, which audits Digital
+Umuganda's whole catalogue, the Kenyan CHW analogue and every Swahili licence at
+source. This document's findings stand; one caveat was added there — the Mendeley
+record itself notes that further permission may be required for third-party content
+inside the corpus.
+
 ## Method
 
 Retrieved the file list via the Mendeley public API, downloaded `AFYA_Cleaned.txt`

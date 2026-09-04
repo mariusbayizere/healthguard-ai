@@ -1,6 +1,14 @@
 # Attestation corpus — provenance and licence
 
-`chw_questions_kinyarwanda.csv` is a **derived subset**, redistributed here under
+Two sources, licensed separately. `attest.py` reports them as separate tiers
+(`chw` and `rbc`) so a hit always says which corpus it came from — they differ in
+register, in provenance, and in how much a hit is worth.
+
+---
+
+## 1. `chw_questions_kinyarwanda.csv` — 524 CHW questions, CC BY 4.0
+
+A **derived subset**, redistributed here under
 the terms of its licence.
 
 | field | value |
@@ -57,3 +65,75 @@ Two properties limit it, and both matter when reading a hit:
   hit is weak evidence; a term used consistently across several CHWs is strong.
 
 `attest.py` reports the CHW count behind every hit for that reason.
+
+
+---
+
+## 2. `rbc_kinyarwanda_health.txt` — RBC health/CHW training text, CC BY 2.0
+
+Retrieved 2026-09-04, unmodified.
+
+| field | value |
+|---|---|
+| **Source** | `DigitalUmuganda/Monolingual_health_dataset` on HuggingFace, file `rbc_kinyarwanda_health_dataset.txt` |
+| **URL** | https://huggingface.co/datasets/DigitalUmuganda/Monolingual_health_dataset |
+| **Originating body** | Rwanda Biomedical Centre (RBC), per the dataset card: *"Rwanda Biomedical Center (RBC) (26,390 sentences)"* |
+| **Licence** | **CC BY 2.0**, declared in the dataset card's `license` field — https://creativecommons.org/licenses/by/2.0/ |
+| **Retrieved** | 2026-09-04, ungated, no authentication |
+| **sha256** | `b02375186cbdb1e7180f8adc71619a7dcdc1550a5698277e457cd36b78f61100` |
+| **Size** | 2,509,528 characters, 28,621 non-empty lines (28,539 unique), 330,232 words |
+
+**Changes made to the source: none.** The file is byte-identical to the one
+published. CC BY 2.0 requires attribution and that changes be indicated; there are
+no changes to indicate.
+
+### The companion file is deliberately NOT vendored
+
+The same repository ships `gpt_generated_medical_data.txt` — **42,576 sentences of
+GPT-4 output**, per the dataset card. It was never downloaded and must not be.
+This directory exists to attest **human** Kinyarwanda; adding model-generated text
+would make `attest.py` confirm the project's own machine drafting back to it, which
+is the precise failure standing rules 5 to 8 exist to prevent. The card's own line
+is the record: *"Rwanda Biomedical Center (RBC) (26,390 sentences) / GPT-4 prompting
+(42,576 sentences)"*.
+
+Verified after download: **0% of lines are English prose**, and no model-style
+scaffolding appears.
+
+### Licence caveat — read before relying on this
+
+**The CC BY 2.0 grant is Digital Umuganda's, not RBC's.** Digital Umuganda deposited
+the file and set the licence field; nothing in the record shows RBC granting those
+terms on its own training material. This is the same shape as the
+figshare-versus-GitHub split in section 1, where the identical CSV was CC BY 4.0 in
+one place and all-rights-reserved in another — and that one was caught only by
+reading both records.
+
+**Treat the licence as provisional until RBC confirms it.** Using it as an internal
+substantiation check is low risk; redistributing it or citing it as corpus
+provenance is not, and this file is not part of the generated corpus.
+
+### What it is, and what it is not
+
+RBC health and community-health-worker **training curriculum**: lesson units
+(*ICYIGWA 3.2*), learning outcomes, counselling-form instructions, service
+descriptions. Written and edited Kinyarwanda, so unlike section 1 there is **no ASR
+layer** and no transcription artefacts — a single clean hit is worth more here.
+
+Measured register, on the same test used for every other source:
+
+```
+symptom-word lines                     1,229
+first-person patient marker lines         12
+BOTH first-person and a symptom            2
+English prose lines                        0
+```
+
+**It is instructional, not clinical narrative and not patient speech.** It says what
+a CHW should do and teach, in the second person and the infinitive. So it
+substantiates **terminology and its noun-class behaviour** — which is what the
+vocabulary blockers need — and it substantiates **nothing about how a patient
+phrases a complaint**. Do not read a term's presence here as evidence of register.
+
+Same standing as section 1 in every other respect: **a hit is a lead for the
+speaker, never permission to write a phrase.**
