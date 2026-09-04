@@ -17,7 +17,7 @@ EX44,preventive,gahunda yo kwisuzumisha buri mwaka — annual check-up,the patie
 EX45,preventive,gusaba ko bapima amaraso — requesting a blood test,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
 PR03,preventive,HIV test request,the patient,the patient,not caught — adult self-service,,
 PR05,preventive,first antenatal booking visit,the pregnant woman,the pregnant woman,not caught — requester is the patient,,
-PR06,preventive,blood pressure screening,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
+PR06,preventive,blood pressure screening,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,"RULED NO_RELATIONS 2026-09-04. Confirms this audit's verdict over an earlier handover line that said 'adult relations'; that line predated rule 12 and paired PR06 with CC05, a symptom concept."
 PR07,preventive,cervical screening appointment,the patient,the patient,not caught — adult self-service,NO_RELATIONS.,
 OB11,obstetric,routine antenatal check,the pregnant woman,the pregnant woman,not caught — requester is the patient,NO_RELATIONS.,
 PR02,preventive,family planning advice,—,—,excluded — out of generation,unresolved pending the service-design question.,

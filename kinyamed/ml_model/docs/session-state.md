@@ -235,7 +235,15 @@ rows a ruling excluded, with no error.
 - **NE03, NE04, CC04**: keep children. Paediatric stroke and congenital heart
   disease are uncommon but real, and under-triage is the failure that matters.
 - **CC03**: keep children — rarity is not invalidity.
-- **CC05, PR06**: adult relations. Scope, not rarity.
+- **CC05**: adult relations. Scope, not rarity. Materialised 2026-09-04 as
+  `ADULT_RELATIONS`.
+- ~~**PR06**: adult relations~~ — **superseded 2026-09-04, ruled `NO_RELATIONS`.**
+  This line was the earliest of three records and the only one saying adult
+  relations; `routine_relation_sets.csv` (group B) and `service_speaker_audit.csv`
+  (rule 12: beneficiary = requester = the patient, adult self-service) both said
+  `NO_RELATIONS`, independently and later. It was a stale pairing — PR06 was
+  grouped with CC05 before rule 12 existed to separate a service concept from a
+  symptom concept, and CC05 does not appear in the service audit at all.
 - **CC08**: `NO_RELATIONS`.
 
 **`ADULT_RELATIONS` now exists** (2026-09-04): every relation except
@@ -253,14 +261,20 @@ sees** (2026-09-04):
 | `CC04` keep children | absent | 8 | correct — absent means the domain default, which includes children |
 | `CC03` keep children | absent | 8 | correct, same reason |
 | `CC05` adult relations | `ADULT_RELATIONS` | 7 | **materialised 2026-09-04** |
-| `PR06` adult relations | **`NO_RELATIONS`** | 0 | **CONFLICT — unresolved** |
+| `PR06` ~~adult relations~~ | `NO_RELATIONS` | 0 | **ruled `NO_RELATIONS` 2026-09-04** |
 | `CC08` `NO_RELATIONS` | `NO_RELATIONS` | 0 | correct |
 
-**Only `PR06` still has a gap, and it is a contradiction rather than an omission.**
-This list says *adult relations* (someone may present on another's behalf for blood
-pressure screening); `routine_relation_sets.csv` says `NO_RELATIONS` (nobody does).
-Both are recorded rulings and they cannot both hold. Nothing is authored on PR06,
-so nothing is at risk yet — but it must be settled before preventive is drafted.
+**Every ruling in this list is now materialised and consistent.** PR06 was the last
+gap and it turned out not to be a live contradiction: three records, all written
+2026-09-01, of which the *earliest* said adult relations and the two later ones —
+reached by different tests, the ROUTINE group sweep and rule 12's
+beneficiary/requester analysis — both said `NO_RELATIONS`. Ruled `NO_RELATIONS`.
+
+**The lesson is about where a ruling gets recorded, not about PR06.** A prose line
+in this document outlived two later machine-readable rulings that contradicted it,
+and looked like a live conflict for a day. When a ruling narrows a relation set it
+belongs in `routine_relation_sets.csv`, where `relation_sets.py` reads it; prose
+here is a summary, not a record.
 
 **A "keep children" ruling needs no CSV entry**, because absence means the domain
 default and the domain default includes children. Only a *narrowing* has to be
