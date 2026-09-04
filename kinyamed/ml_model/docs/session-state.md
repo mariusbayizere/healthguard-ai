@@ -1,7 +1,7 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, reconciled
-against disk 2026-09-04. All figures below were re-derived from the files by running the tooling, not recalled.
+against disk 2026-09-04 (second pass, end of session). All figures below were re-derived from the files by running the tooling, not recalled.
 
 **Since the last reconciliation:** `phrase_components` was fixed (it was missing
 containments — section 9), a 30-character prefix union was added, the provenance
@@ -36,15 +36,15 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | domain | filled | held | resolved | |
 |---|---|---|---|---|
 | cardiac_respiratory | 26/28 | 3 | 26 | *(CR07 now carries EX30's wording)* |
-| obstetric | 27/28 | 2 | 27 | *(OB12 and OB11, both held)* |
+| obstetric | 27/28 | 1 | 27 | *(OB12 only — OB11's conflict closed 2026-09-04)* |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
 | gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
 | haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable: HT01 and HT06, both persons)* |
 | neurological | 6/28 | 0 | 18 | *(+12 not-applicable: NE01-NE04 and NE08 collapsed, EX32/EX33 first)* |
-| chronic_care | 4/28 | 2 | 4 | |
-| paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
-| preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
-| **total** | **128/254** | **24** | **164** | *(+36 not-applicable = 164 resolved)* |
+| chronic_care | 17/28 | 3 | 22 | *(CC01, CC02, CC04 held)* |
+| paediatric | 4/28 | 1 | 17 | *(+13 not-applicable; PA10 collapsed into EX46)* |
+| preventive | 13/28 | 3 | 17 | *(PR02 both persons, PR07 vocabulary-blocked)* |
+| **total** | **150/254** | **25** | **197** | *(+47 not-applicable = 197 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -63,14 +63,14 @@ Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254
 run `python review/provenance.py`.**
 
 ```
-speaker-authored     77   54.6%   the speaker wrote the words
-speaker-derived      26   18.4%   person-transform of their OWN phrase, third person only
-machine-approved     21   14.9%   I composed it, the speaker accepted it unchanged
-machine-derived      15   10.6%   person-transform of a machine-drafted phrase
-unresolved            2    1.4%   wording settled, concept open (CR04)
+speaker-authored     80   53.3%   the speaker wrote the words
+speaker-derived      26   17.3%   person-transform of their OWN phrase, third person only
+machine-approved     27   18.0%   I composed it, the speaker accepted it unchanged
+machine-derived      15   10.0%   person-transform of a machine-drafted phrase
+unresolved            2    1.3%   wording settled, concept open (CR04)
 
-the speaker's own words   103/141 = 73%
-newly composed by me       36/141 = 26%   every row with an explicit accept
+the speaker's own words   106/150 = 71%
+newly composed by me       42/150 = 28%   every row with an explicit accept
 ```
 
 **Re-run `python review/provenance.py` rather than reading these.** The figures
@@ -116,7 +116,7 @@ from v1, and **six new de-escalating fragments awaiting the speaker's Kinyarwand
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | both | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely** — and now marked as such in the brief, not only here (see below). |
 
-### needs_clinician — 18 rows, in three kinds
+### needs_clinician — 20 rows, in three kinds
 
 Split by whether the row is authored, which is what decides if it can generate.
 An earlier version of this list put `CR04` in both groups and labelled the second
@@ -822,7 +822,7 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-**101 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
+**108 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
@@ -1184,6 +1184,38 @@ Affects the four group-A concepts still live: `EX46` (third authored, circular),
 was resolved by restoring EX47's generic scope, so PR08 is free to be the IMCI
 child-feeding concept. It waits only on this group-A ruling.
 
+### RULED: group A is ADULT_RELATIONS — the carer speaks, the child stays lexical
+
+`EX46`, `PR09`, `PA09`, `PR08` re-ruled from `CHILD_RELATIONS` on 2026-09-04. The
+rationale always said *"a parent or carer brings the child"* — naming the carer —
+while `CHILD_RELATIONS` made `{REL}` a child, so wherever the phrase also named the
+child it appeared twice and went circular.
+
+**`HOUSEHOLD_RELATIONS` was proposed and rejected on measurement: it INCLUDES
+`Umwana wanjye`**, so one relation would have stayed circular. `ADULT_RELATIONS`
+excludes the child and adds `Umukecuru` and `Umuturanyi wanjye` — a grandmother or
+neighbour bringing a child for vaccination is a real presentation, so the wider set
+is better here rather than merely cleaner.
+
+**`EX46`'s third stands as authored** and renders coherently across all seven. The
+phrase was never wrong; the ruling was.
+
+### Drafted: PR09, PA09, PR08 third — two of them composed, not transformed
+
+`PR08` third **recovers EX47's original wording**: `kugirwa inama ku biryo byo
+kugaburira umwana` was the speaker's own v2 rewrite of EX47, set aside when EX47's
+scope was restored to generic nutrition — because that wording *is* child feeding,
+which is exactly PR08. The phrase the rewrite created landed on the concept it
+actually described.
+
+**`PA09` and `PR08` have no first person**, so their thirds are **composed rather
+than transformed** — the usual order is first then third and it was inverted on
+request. Their first persons are still open and should be written next, and kept
+consistent with these.
+
+`PA09` carries a clinical flag: growth monitoring is weight plotted against age
+plus MUAC, and `gupima ibiro` says only the weighing.
+
 ### Two record conflicts, both on unauthored rows
 
 - **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"
@@ -1527,44 +1559,56 @@ Flags carried on the rows rather than resolved:
 - **`HT05` says BROKEN where its gloss says DEFORMED.** Deformity is what a
   patient sees, a fracture is the diagnosis — substantive, and the speaker's.
 
-### Then
+### Then — where to pick up after a restart
 
-Resume the rhythm: **first person first, then third with `{REL}`, one domain at a
-time, rendered across every relation for individual ruling. Never batch-accept.**
+**Nothing is half-applied.** Every ruling in this session is executed in the files
+a code path reads, not only in this document. `verify-full` 8/8, 108 tests, linter
+0 errors on both columns.
 
-Remaining: **100 of 254** Kinyarwanda rows, all 254 Swahili. Roughly 5-8 hours
-per language at 2-3 minutes a row.
+**Awaiting your ruling — three rendered batches, walk them one at a time:**
 
-**Gastrointestinal is closed** apart from GI03 and GI04, both blocked on
-vocabulary or a clinician rather than on drafting. infectious_fever first and
-third are both closed.
+```
+preventive third   review/preventive_third_render.csv   61 rows, 9 concepts
+                   PR01 PR03 PR04 PR05 PR10 drafted; PR08 PR09 drafted;
+                   EX46 EX47 already accepted
+paediatric third   review/paediatric_third_render.csv   27 rows, 5 concepts
+                   EX40-EX43 authored; PA09 drafted
+chronic_care       nothing outstanding — first and third both ruled
+```
 
-**Five domains are effectively done** — cardiac_respiratory, obstetric,
-gastrointestinal, haemorrhage_trauma and now neurological — leaving only blocked
-rows in each. **Neurological shrank from 8 new concepts to 3** (NE05, NE06, NE07)
-in the collapse, so the domain that looked like 20 rows of work is closer to 6, and
-two of those three are blocked: NE05 on the light term, NE06 on `needs_clinician`.
+**Then draft, in this order:**
 
-**Next, in this order:**
+1. **`PA09` and `PR08` FIRST person** — their thirds were drafted ahead of them on
+   request, which inverts the usual order. Write these next and keep them
+   consistent with the accepted thirds.
+2. **`paediatric` first person** — 11 rows left, but 13 are already `applies=no`,
+   so the domain is smaller than it looks. `PA08` stays vocabulary-blocked.
+3. **`neurological`** — only 3 concepts survive the collapses. `NE05` is drafted
+   but photophobia-blocked, `NE06` is `needs_clinician`, `NE07` is drafted and
+   rulable.
+4. **`infectious_fever`** — 9 rows left and **all nine are held** pending a
+   clinician. Nothing to draft.
 
-1. ~~`neurological`~~ — **collapsed to 3 concepts**; NE05 drafted but blocked on
-   the light term, NE06 `needs_clinician`, NE07 drafted and rulable.
-2. **`paediatric`** — 4/28 filled but only 13 left, because 11 rows are already
-   `applies=no`. Rule 12 settled PA09/PA10, so the blocker that stalled it is
-   gone; PA08 stays vocabulary-blocked on the ear term.
-3. **`infectious_fever`** — 9 left, but **all nine are held**: IF01/IF03/IF04/IF06
-   both persons and EX27 third. Nothing to draft until a clinician session.
-4. **`chronic_care`** and **`preventive`** — 24 left each, the two biggest blocks
-   and the least done. Both carry open questions to read first: CC01/CC02 held,
-   PR02 out of generation, CC08/CC09/CC10 and six preventive concepts ruled
-   `NO_RELATIONS` (first person only), four ruled `HOUSEHOLD_RELATIONS`, and the
-   service concepts settled by rule 12. **Check `relation_sets.py` output before
-   drafting either** — they carry more relation rulings than every other domain
-   combined.
+**Six vocabulary blocks, all outreach questions** — `GI03` stool, `PA08` ear,
+`HT05` deformed limb, `NE05` light, `CC04` positional "lying flat", `PR07` cervix.
+`docs/outreach-digital-umuganda.md` carries them as an eight-question list a
+Kinyarwanda speaker can answer in five minutes, with a table mapping each to the
+rows it unblocks. **Send that before the data request** — it costs a reply rather
+than an agreement.
 
-**Render any third-person batch with `review/render_third_person.py <domain>`**,
-never by hand — that is what the EX16 bug cost, and HT08 is the proof it now works
-unprompted.
+**Three design proposals, measured but not implemented:**
+
+- `docs/urgency-frame-coupling.md` — ROUTINE frames contradict the label, and
+  §8 shows onsets are affected too. **The additions must land before any cut**:
+  cutting first takes ROUTINE to 0.62x and fails the class floor. Needs the six
+  de-escalating fragments and three service onsets, all awaiting Kinyarwanda.
+- `docs/phrase-group-closure.md` §7b — a token-overlap rule for the cross-concept
+  residual. §7a is now implemented.
+- `docs/provenance-categories.md` — implemented; kept for the reasoning.
+
+**Always render a third-person batch with `review/render_third_person.py <domain>`,
+never by hand.** Four relation rulings have now been materialised only because that
+resolver exists, and the EX16 bug is what hand-rendering costs.
 
 ## 8. Tooling
 
@@ -1609,7 +1653,7 @@ review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. **101 tests** — this section and section 7 once
+against ambient-state failures. **108 tests** — this section and section 7 once
 said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 
