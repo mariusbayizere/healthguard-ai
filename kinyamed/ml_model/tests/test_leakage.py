@@ -383,3 +383,68 @@ def test_every_authored_first_person_attributes_to_itself():
             "A first-person row would be recorded under another phrase."
         )
     assert checked > 50, "fixture problem: the brief should hold many first persons"
+
+
+def test_subsequence_union_catches_reordering_and_insertion():
+    """7b(a): every word of one phrase in the other, in order, unions them.
+
+    EX14 sits inside EX38 with a clause inserted before it, so neither
+    containment nor a shared prefix sees it - EX14 third shares six leading
+    characters with EX38 third and is not a substring of it.
+    """
+    from dataset.split_dataset import _is_subsequence, _words, _match_form
+
+    inner = _words(_match_form("{REL} arababara cyane mu nda."))
+    outer = _words(_match_form(
+        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."))
+    assert _is_subsequence(inner, outer)
+    assert _match_form("{REL} arababara cyane mu nda.") not in _match_form(
+        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso.")
+
+
+def test_subsequence_is_ordered_not_a_set_subset():
+    """The ordering requirement is what keeps the v1 freeze intact.
+
+    These two Swahili v1 phrases mean OPPOSITE things - severe stomach pain
+    against slight stomach pain that is not severe - but every word of the
+    first appears in the second, because the negation carries the negated
+    word with it. A set-subset rule unions them and takes v1 from 180 phrase
+    groups to 179, breaking every frozen digest. Requiring the order to hold
+    refuses the pair.
+    """
+    from dataset.split_dataset import _is_subsequence, _words, _match_form
+
+    severe = _words(_match_form("maumivu makali ya tumbo"))
+    not_severe = _words(_match_form("maumivu kidogo ya tumbo yasiyo makali"))
+    assert set(severe) <= set(not_severe)          # a set test would union them
+    assert not _is_subsequence(severe, not_severe)  # ordering refuses
+    assert not _is_subsequence(not_severe, severe)
+
+
+def test_subsequence_catches_the_pair_the_prefix_rule_exists_for():
+    """EX18/EX20 in BOTH persons, including the one the prefix rule misses.
+
+    The third persons share exactly PREFIX_UNION_CHARS characters and union
+    today. The FIRST persons share only 24 and do not - a live leak that the
+    subsequence rule closes.
+    """
+    from dataset.split_dataset import (_is_subsequence, _words, _match_form,
+                                       PREFIX_UNION_CHARS)
+
+    first_a = "ndi kuva amaraso menshi kandi ntahagarara"
+    first_b = "ndi kuva amaraso menshi mu mazuru kandi ntahagarara"
+    shared = 0
+    for x, y in zip(_match_form(first_a), _match_form(first_b)):
+        if x != y:
+            break
+        shared += 1
+    assert shared < PREFIX_UNION_CHARS      # the prefix rule does not catch it
+    assert _is_subsequence(_words(_match_form(first_a)),
+                           _words(_match_form(first_b)))
+
+
+def test_v1_partition_is_unchanged_by_the_subsequence_rule():
+    """180 groups, as before the rule landed. The freeze depends on this."""
+    from dataset.split_dataset import phrase_components
+
+    assert len(set(phrase_components().values())) == 180

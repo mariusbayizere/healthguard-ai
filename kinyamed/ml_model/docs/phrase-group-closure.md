@@ -394,3 +394,87 @@ the union section 5 calls correct — losing it is the entire cost.
 **Do not act on this without `verify-full`.** Any change to the union rules moves
 the v1 partition unless it provably cannot, which is why section 3 fixes 25 as the
 v1-safe floor.
+
+---
+
+## 10. 7b(a) ADOPTED as an ordered subsequence; 7b(b) DROPPED — 2026-09-04
+
+**7b(b), token overlap >= 70%, is dropped** on the section 9 measurement: the three
+`umuriro mwinshi` grammar folds all score 80%, so it unions exactly what it was
+meant to separate. Grammar is shared words, and any overlap ratio rewards shared
+words.
+
+**7b(a) is adopted, but NOT in the form 7b specified**, and the difference is
+load-bearing. As written — *"zero unique words unions at any overlap"*, a set-subset
+test — it **breaks the v1 freeze**, and the counterexample is a real pair already in
+the shipped corpus:
+
+```
+maumivu makali ya tumbo                  severe stomach pain
+maumivu kidogo ya tumbo yasiyo makali    slight stomach pain, NOT severe
+```
+
+Every word of the first is in the second, so a set test unions two phrases that mean
+**opposite things**. The reason is general and worth keeping: **negation carries the
+negated word with it**, so a phrase saying "not severe" contains "severe", and a set
+has no way to see the `yasiyo`. Measured, this takes v1 from 180 phrase groups to
+179 and breaks every frozen digest.
+
+**Requiring the words to appear in ORDER fixes it without a tuned number and without
+a morphological guess.** `ya` precedes `makali` in one phrase and follows it in the
+other, so the ordered test refuses the pair — while still catching `EX18`/`EX20`,
+which is the pair `PREFIX_UNION_CHARS` exists for.
+
+```
+                              v1 groups   frozen digests
+containment + prefix 30            180    (current)
++ 7b(a) as a SET subset            179    BREAK
++ 7b(a) as a SUBSEQUENCE           180    intact      <- adopted
+containment + subsequence,
+  prefix rule REMOVED              180    intact      <- proposed, section 10a
+```
+
+Implemented in `split_dataset.py` as `_is_subsequence`; four tests in
+`test_leakage.py` pin the ordering requirement, the v1 group count, and both pairs
+above. `verify-full` passes 8/8 with the rule in force.
+
+### 10a. Proposal: remove the prefix rule. Measured cost, on the 163 authored phrases
+
+| | today | proposed |
+|---|---|---|
+| rules | containment + prefix 30 | containment + ordered subsequence |
+| direct unions | 22 | 14 |
+| v1 partition | 180 groups | **180 groups, identical** |
+
+**Eleven unions lost. Only one is a real loss.**
+
+| lost pair | verdict |
+|---|---|
+| `CC09`+`CC10` first | **the real loss** — section 5 calls this union correct |
+| `PR01` first+third | **not a loss** — same concept, already unioned by `PHRASE_CONCEPTS` (7a) |
+| `EX01`+`EX05`, both persons | good to lose — the recorded chest-pain axis the project deliberately keeps distinct |
+| `CR06`+`GI06`, both persons | good to lose — two-week cough-and-weight-loss against two-week diarrhoea, different domains |
+| `EX25`/`EX43`/`IF02` third, 3 pairs | good to lose — the `umuriro mwinshi` grammar folds |
+| `EX19`+`HT02` third | good to lose — a bleeding wound against a wound with visible bone |
+| `CR02`+`EX04` third | good to lose — they share only "breathing is hard" |
+
+**And three unions gained, all of them right:**
+
+- **`EX18`+`EX20` FIRST person** — a live leak today. The third persons share exactly
+  30 characters and union; the **first persons share 24 and do not**. The pair the
+  prefix rule was built for is only half-caught by it.
+- `EX14`+`EX38` third — `{REL} arababara cyane mu nda.` sits inside
+  `{REL} aratwite, arababara cyane mu nda kandi arava amaraso.` with a clause
+  inserted before it, so it is neither a substring nor a shared prefix (6 characters).
+- `OB07` first+third — same concept, also covered by 7a.
+
+**Recommendation: remove `PREFIX_UNION_CHARS` and its loop.** It costs one correct
+union (`CC09`/`CC10`), removes eight wrong ones, and the rule replacing it closes a
+leak the prefix rule leaves open in the very pair it was written for. If `CC09`/`CC10`
+matters, it is a two-line `PHRASE_CONCEPTS`-style declaration, which is what section
+7 argues for anyway: **prefer a declaration over a measurement wherever the brief
+already knows the answer.**
+
+**Not executed.** Removing the constant changes `test_leakage.py`'s
+`PREFIX_UNION_CHARS >= 25` assertion and the section 3 reasoning, and it is a
+ruling rather than a fix.

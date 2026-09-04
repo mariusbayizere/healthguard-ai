@@ -39,6 +39,7 @@ import random
 import sys
 from array import array
 from collections import Counter, defaultdict
+import re
 from itertools import combinations
 from multiprocessing import Pool
 from pathlib import Path
@@ -67,6 +68,18 @@ PREFIX_UNION_CHARS = 30
 # stays negligible, small enough that the in-flight queue is bounded.
 BATCH_ROWS = 20_000
 MAX_WORKERS = 2
+
+
+
+def _words(comparable: str) -> list[str]:
+    """Word list of an already `_match_form`ed phrase, placeholder removed."""
+    return re.findall(r"[a-z0-9']+", comparable.replace(REL_PLACEHOLDER.lower(), " "))
+
+
+def _is_subsequence(small: list[str], big: list[str]) -> bool:
+    """Every word of `small` appears in `big`, in the same order."""
+    it = iter(big)
+    return all(word in it for word in small)
 
 
 def phrase_components() -> dict[str, str]:
@@ -136,6 +149,32 @@ def phrase_components() -> dict[str, str]:
                 break
             shared += 1
         if shared >= PREFIX_UNION_CHARS:
+            union(left, right)
+
+    # 7b(a): one phrase's words all appear in the other, IN ORDER. Reordering and
+    # insertion defeat both rules above - "{REL} arababara cyane mu nda." is not a
+    # substring of "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."
+    # and shares only 6 leading characters with it, yet every word of the first is
+    # in the second and a model trained on the second has seen all of the first.
+    #
+    # SUBSEQUENCE, NOT SET SUBSET, and the difference is not cosmetic. The set
+    # form breaks the v1 freeze on a real pair:
+    #
+    #     "maumivu makali ya tumbo"                 severe stomach pain
+    #     "maumivu kidogo ya tumbo yasiyo makali"   slight stomach pain, NOT severe
+    #
+    # Every word of the first is in the second, so a set test unions two phrases
+    # that mean opposite things - negation puts the negated word in the phrase,
+    # and a set cannot see the "yasiyo". Requiring the order to hold refuses that
+    # pair (ya precedes makali in one and follows it in the other) while still
+    # catching EX18/EX20, which is the pair PREFIX_UNION_CHARS exists for.
+    # Measured: the set form takes v1 from 180 groups to 179, the ordered form
+    # leaves it byte-identical. See docs/phrase-group-closure.md section 10.
+    for left, right in combinations(phrases, 2):
+        if find(left) == find(right):
+            continue
+        a, b = _words(comparable[left]), _words(comparable[right])
+        if a and b and (_is_subsequence(a, b) or _is_subsequence(b, a)):
             union(left, right)
 
     # A concept's second phrasing joins its primary, whether or not one contains
