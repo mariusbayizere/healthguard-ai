@@ -1,25 +1,72 @@
-# EX concept drift — what the speaker's rewrites did to the v1 concepts
+# EX concept drift — the merged record
 
-**Re-opened 2026-09-04 at the speaker's instruction.** Two collapses were ruled
-against phrases that no longer mean what their v1 originals meant. Both were
-re-examined from the v1 phrase forward. **Both stand — and both stand on the
-rewrite, which is what the original rulings failed to say.**
+**Two analyses, run independently and merged 2026-09-04.** The Kinyarwanda arm
+worked backwards from the collapse rulings; the English arm read all 47 EX rows by
+hand while attaching English text to concepts. Neither knew what the other was
+doing. This document supersedes both — the English arm's copy at
+`review/ex-concept-drift.md` and the earlier Kinyarwanda-only version at this path.
 
-## Method
-
-The v2 brief's EX rows carry no v1 phrase. The link is
-`review/speaker_brief_kinyarwanda.csv`, the v1 brief, whose `VALIDATE existing`
-rows pair `original_corpus_phrase` with the speaker's first-pass `speaker_phrase`.
-Joining on the normalised first pass links 35 of 47 EX ids directly; the rest were
-resolved by domain and urgency against the same file. Every chain below is
-`v1 corpus phrase -> speaker's first pass -> phrase today`, read off disk.
+**An EX id names the *position* a v1 phrase occupied.** The speaker was asked
+whether each v1 phrase was natural and to give their own phrasing; they were **not
+asked to hold the concept fixed**, and several rewrites landed on a different
+presentation. Nothing was done wrong — the brief never asked for concept stability.
+But the ids now denote the rewritten concept, and **anything keyed on "EX*n* means
+what v1 slot *n* meant" is wrong.**
 
 ---
 
-## 1. The three-way rotation — EX29, EX30, EX31
+## 1. Where the two analyses disagreed — read this first
 
-This is the finding, and it is bigger than either collapse. **The rewrites did not
-lose concepts. They moved three concepts across three ids.**
+They **contradict each other nowhere.** Every fact each asserts survives the other.
+The disagreement is entirely in *coverage*, and the coverage gaps are structural,
+which makes them worth stating rather than quietly unioning.
+
+### The Kinyarwanda arm missed three, and the reason is a defect in its method
+
+`EX11`, `EX27` and `EX43` were **not found** by the Kinyarwanda pass. It seeded its
+candidate list from two filters — concepts that absorbed a collapse, and rows whose
+v2 phrase differs from the speaker's first pass — and asked "did the *v2 rewrite*
+move off the first pass?"
+
+**The wrong question.** For all three of these the drift happened **at the first
+pass** and was never touched again, so `v2 == first pass` and both filters passed
+them through as unchanged. The English arm asked "does the phrase today mean what
+the v1 phrase meant?", which is the question, and read every row rather than
+filtering.
+
+The same defect explains a second gap: **the Kinyarwanda arm cannot find a vacated
+concept at all.** `EX27` and `EX17` left v1 concepts with no row anywhere (§4), and
+a string comparison between v1 and v2 phrases has no way to notice that a *meaning*
+is now unrepresented. Only reading finds that.
+
+**Conclusion: prefer the hand-read.** The 47 rows are a morning's work and the
+filter approach missed 3 of 7 real movements plus 2 vacancies.
+
+### The English arm did not have three things
+
+- **The rotation, and with it the evidence that nothing was lost.** The English doc
+  records EX30 as moving "onto old EX29" but not that **`EX31` now carries the runny
+  nose**, nor that **`CR07` already existed in `concepts.py` glossed "short mild
+  cough, no fever"** — v1 EX29's concept exactly. Those two facts are what turn
+  "EX30 drifted" into "EX30's rewrite landed on a concept that already existed, and
+  the sign it vacated survives elsewhere". They strengthen its EX30 row rather than
+  contradicting it. §2.
+- **The six absorbed-axis concepts.** `EX18`, `EX22`, `EX33`, `EX34`, `EX35`, `EX36`
+  each absorbed a collapsed concept whose distinguishing axis their phrase does not
+  carry. That is a different question from drift and the English pass did not ask
+  it. §5.
+- **The two collapse re-openings**, which are the reason any of this was
+  commissioned. §3.
+
+### The English arm had one thing entirely outside the Kinyarwanda scope
+
+**A v1 defect running the other way** — three positions where English, French and
+Swahili say something the Kinyarwanda never said. §6. It is the most serious finding
+in either document and neither arm was looking for it.
+
+---
+
+## 2. The three-way rotation — EX29, EX30, EX31
 
 ```
 v1 EX29   inkorora yoroheje nta muriro        mild cough, NO fever
@@ -37,122 +84,175 @@ v1 EX30   amazuru atemba yoroheje             mild RUNNY NOSE
                                               = v1 EX30's concept
 ```
 
-**Nothing was lost, and that is checkable rather than reassuring.** `CR07` already
-existed independently in `concepts.py` with the gloss **"short mild cough, no
-fever"** and the anchor **"IMCI: cough, no pneumonia (green)"** — which is v1 EX29's
-concept exactly. EX30's rewrite produced a phrase for it. `EX31` carries the runny
-nose. `EX29`'s id carries what IF07 described.
+**No sign was lost here, and it is checkable rather than reassuring.** `CR07`
+already existed independently in `concepts.py`, glossed **"short mild cough, no
+fever"**, anchor **"IMCI: cough, no pneumonia (green)"** — v1 EX29's concept word
+for word. EX30's rewrite produced a phrase for a concept that was already there.
+`EX31` carries the runny nose.
 
-### 1a. `IF07 -> EX29` — STANDS, on the rewrite
+**One loose end, stated rather than papered over:** `EX31`'s own v1 position could
+not be linked by either arm. So *this* rotation loses nothing, but what EX31 itself
+may have vacated is unresolved. Do not read "nothing was lost" more widely than the
+three ids above.
+
+## 3. The two collapses, re-opened at the speaker's instruction — both STAND
+
+### `IF07 -> EX29`
 
 ```
-the ruling said   IF07 ("a slight fever since yesterday but otherwise well",
-                  IMCI: fever, no danger sign) and EX29 are one concept,
+the ruling said   IF07 (IMCI: fever, no danger sign; "a slight fever since
+                  yesterday but otherwise well") and EX29 are one concept,
                   because EX29 "states exactly that"
 against v1        FALSE. v1 EX29 is "mild cough, no fever" - IF07's presenting
                   sign is the one v1 EX29 explicitly EXCLUDES
-against today     TRUE. The rewritten EX29 is "mild fever one day, otherwise
-                  well", which is IF07 word for word in substance
+against today     TRUE. The rewritten EX29 IS IF07, in substance
 ```
 
-**Verdict: the collapse stands.** The corpus contains phrases, not v1 glosses, and
-the phrase that exists says what IF07 said. Keeping both would put two phrases of
-one concept into the inventory, which is the near-duplicate leak
-`near_duplicates.py` and `test_leakage.py` exist to catch — the original argument,
-still sound. **But it is sound about the rewrite, and the ruling presented it as a
-fact about EX29 as such.**
+**Stands.** The corpus contains phrases, not v1 glosses, and keeping both would put
+two phrases of one concept into the inventory — the near-duplicate leak
+`near_duplicates.py` and `test_leakage.py` exist to catch. The argument was sound;
+it was sound *about the rewrite*, and the ruling presented it as a fact about EX29.
 
-### 1b. `EX30 -> CR07` — STANDS, on the rewrite
+### `EX30 -> CR07`
 
 ```
-the ruling said   EX30 and CR07 are one concept; CR07 carries the anchor
-                  "IMCI: cough, no pneumonia (green)"
-against v1        FALSE. v1 EX30 is "mild runny nose". Collapsing a runny-nose
-                  concept into a cough concept would have deleted a sign.
-against today     TRUE. The rewritten EX30 is "mild cough, no fever", and CR07's
+against v1        FALSE. v1 EX30 is "mild runny nose". Collapsing that into a
+                  cough concept would have deleted a sign.
+against today     TRUE. The rewritten EX30 is "mild cough, no fever" and CR07's
                   gloss is "short mild cough, no fever" - the same sentence
 ```
 
-**Verdict: the collapse stands**, and it is the tidier of the two: the rewrite
-landed EX30 on a concept that already existed with that exact gloss, so the collapse
-removed a genuine duplicate. **The runny nose survives on `EX31`** — which is the
-only reason no sign was lost, and it was nowhere in the ruling.
+**Stands**, and is the tidier of the two: the rewrite landed on a pre-existing
+concept, so the collapse removed a real duplicate. The runny nose survives on
+`EX31` — nowhere in the ruling, and the only reason no sign was lost.
 
-### 1c. What this actually costs
+## 4. Everything that moved — the union of both passes
 
-Not the concepts — those are all present. Two things:
-
-- **An id no longer means what its v1 phrase meant**, so any reasoning that reaches
-  for `phrase_review_sheet.csv` (`E098 amazuru atemba yoroheje`,
-  `E099 inkorora yoroheje nta muriro`) or the v1 brief and assumes the id still
-  carries it will be wrong. Those rows are history, not error, and they are the
-  evidence this rotation happened at all.
-- **Two rulings were recorded as facts about a concept when they were facts about a
-  rewrite.** Had either v1 phrase been the live one, the same ruling would have
-  deleted a sign.
-
----
-
-## 2. The six tier-2 concepts — none rests on a rewrite
-
-`EX18`, `EX22`, `EX33`, `EX34`, `EX35`, `EX36` each absorbed a concept whose
-distinguishing axis their phrase does not carry. Checked the same way, and the
-result is different from section 1: **their v1 meanings are intact, so those
-collapses rest on the phrase the ruling actually examined.**
-
-| | v1 | first pass | today | drift |
+| id | v1 concept | after the rewrite | how far | found by |
 |---|---|---|---|---|
-| `EX18` | `amaraso menshi adahagarara` | *unchanged* | *unchanged* | **none** |
-| `EX22` | `igikomere cyanduye kitukura kandi kirimo amashyira` | *unchanged* | *unchanged* | **none** |
-| `EX33` | `kugagara no guhinda umushyitsi` | `yagagaye kandi ahinda umushyitsi` | `{REL} yagagaye kandi **arimo** guhinda umushyitsi.` | toward the absorbed concept |
-| `EX34` | `uruhande rumwe rw'umubiri rutagikora` | `rwaramugaye` (*became disabled*) | `ntirukora` (*does not work*) | drifted, then returned |
-| `EX35` | `kutabasha kuvuga neza n'umunwa wagoramye` | *preserved* | *preserved* | none |
-| `EX36` | `uburibwe buke mu mutwe budakabije` | `umutwe urandya ariko ntabwo cyane` | *same* | none |
+| `EX27` | fever and aching all over | fever + chills + "I suspect malaria" | **onto EX26** | English |
+| `EX29` | mild cough, no fever | mild fever one day, nothing else | cough → fever | both |
+| `EX30` | mild runny nose | mild cough, no fever | onto old EX29 | both |
+| `EX17` | slight abdominal pain, not severe | unwell in the belly after eating | onto EX16 | English |
+| `EX47` | a question about healthy diet | advice on feeding a child | **very close to PR08** | both |
+| `EX43` | high fever, **refusing** to eat | high fever, **not able** to eat | toward an IMCI danger sign | English |
+| `EX11` | follow-up after previous treatment | wanting to keep coming for check-ups | broadened | English |
 
-**EX18 and EX22 did not change at all** — first pass and today are byte-identical to
-each other, and mean what v1 meant. `HT01`'s collapse was ruled on exactly the
-phrase that is in the corpus now, and its reasoning is untouched by any of this: the
-attestation corpus could not settle whether a patient frames bleeding as
-"pressure applied and failed", and the axis was never in `concepts.py`.
+### Two v1 concepts are now vacant
 
-**`EX33` moved slightly TOWARD `NE01`, not away.** `arimo` — the progressive, "is in
-the process of" — is in neither v1 nor the first pass. NE01's axis was *continuous*
-convulsion. So the rewrite partially supplies the axis the collapse was accused of
-dropping. **Not a claim that the axis is carried**, only that the drift runs the
-helpful way and the concern is smaller here than for the other three.
+- **`EX27` duplicates `EX26`**, which is the one row of the 47 the speaker left
+  byte-identical: `ibimenyetso bya malariya, umuriro n'imbeho` against
+  `mfite umuriro kandi numva mfite imbeho, nkeka ko ari malariya`. Fever, chills,
+  malaria suspected — twice, one domain, one urgency. The EX16/EX17 shape, and the
+  same remedy applies. **The concept EX27 vacated — fever with generalised body
+  aches — has no row in any language.** IF04 is fever + chills + sweats, not aches.
+- **`EX17` vacated "slight abdominal pain, not severe"** on its way onto EX16, and
+  was then collapsed into EX16. Same shape: the collapse was right about the
+  phrases and the v1 concept is unrepresented.
 
-**`EX34` is the one to watch, and it self-corrected.** The first pass
-`rwaramugaye` — *became disabled/crippled* — is a permanent-disability claim that v1
-did not make and that a sudden stroke presentation does not support. The authored
-form went back to `ntirukora`, which is v1's *no longer works*. Worth recording
-because it is the one place a rewrite made a concept **worse** and the speaker caught
-it themselves.
+### `EX43` — RULED 2026-09-04, and applied
 
-### The open gap, which is not a drift
+`ntarya` (*does not eat*) became `ntabwo arimo kubasha kurya` (*is not able to
+eat*). Not able to eat is an IMCI general danger sign — the ground `IF03` and `PA02`
+stand on — while the row is labelled URGENT.
 
-**`EX22` has no second phrasing and `HT06`'s axis is therefore unrepresented.** The
-collapse ruled "keep the swollen wording as a second phrasing", the slot is empty
-because the only candidate was an unaccepted machine draft, and
-`second_phrasing_optional` feeds `PHRASE_VARIANTS` into the corpus. So *swollen*
-versus *infected* currently exists nowhere. Already item 3 of section 7's blocked
-list; repeated here because this is where someone will look for it.
+**Speaker's ruling: revert the wording to not-eating, keep URGENT, flag
+`needs_clinician`.** Their reasoning, recorded because it is the general principle
+and not just this row: *the danger sign is drinking, not eating, and moving toward
+it without landing on it is worse than either position.* A phrase that straddles two
+urgency classes is worse than one that sits clearly in the wrong one, because the
+wrong one is at least visible.
 
----
+```
+EX43 third   {REL} afite umuriro mwinshi kandi ntarya.
+```
 
-## 3. What to carry forward
+`ntarya` is v1 corpus vocabulary and sits in `attest.py`'s **approved** tier. Only
+the second clause changed. The first person stays `applies=no` under rule 9. The
+open clinician question — whether *high fever and not eating* is URGENT, or close
+enough to the drinking danger sign to be CRITICAL, with `PA02` next door — is on
+the row.
 
-**The failure mode is general, and it is not about these two rulings.** A collapse
-compares two phrases and asks whether they say the same thing. That is the right
-test. But the *record* of the ruling names concepts, and a concept id is stable
-while its phrase is not — so a ruling written as "IF07 and EX29 are one concept"
-silently becomes a claim about whatever EX29 says next.
+### `EX47` — already closed
 
-**Both collapses stand.** Section 1 changes their justification, not their outcome,
-and the justification is now written down. **Where a ruling turns on a phrase, say
-which phrase**, and quote it — the two rulings that needed re-opening are the two
-that named only ids.
+Drifted child-specific, restored to generic nutrition, and the child-feeding wording
+rehomed to `PR08`, which is the concept it actually described.
 
-Worth a check, not implemented: for every EX concept, does the phrase in the corpus
-still mean what `phrase_review_sheet.csv` says the original meant? The rotation in
-section 1 was found by accident, while listing drift for the English arm. Three ids
-moved and nobody noticed for a month.
+## 5. The six absorbed-axis concepts — checked, and NOT affected by drift
+
+Each absorbed a collapsed concept whose distinguishing axis its phrase does not
+carry. The question is whether those collapses also rest on rewrites. **They do
+not.**
+
+| | v1 → today | absorbed | the axis that is in neither |
+|---|---|---|---|
+| `EX18` | **byte-identical** | `HT01` | pressure was applied and failed |
+| `EX22` | **byte-identical** | `HT06` | the wound is **swollen** |
+| `EX33` | `arimo` added | `NE01` | **continuous** convulsion |
+| `EX34` | drifted, then returned | `NE03` | **sudden** weakness |
+| `EX35` | preserved | `NE04` | **sudden** difficulty speaking |
+| `EX36` | preserved | `NE08` | **intermittent** headache |
+
+`EX18` and `EX22` are byte-identical across v1, first pass and today, so `HT01` and
+`HT06` were ruled on exactly the phrase in the corpus now.
+
+**`EX33` drifted TOWARD its absorbed concept.** `arimo` — the progressive, *is in
+the process of* — is in neither v1 nor the first pass, and NE01's axis was
+*continuous*. Not a claim the axis is carried; only that the concern is smaller here
+than for EX34, EX35 and EX36.
+
+**`EX34` is the one place a rewrite made a concept worse, and the speaker caught it
+themselves.** The first pass `rwaramugaye` — *became disabled* — is a
+permanent-disability claim v1 never made and a sudden stroke does not support. The
+authored form went back to v1's `ntirukora`.
+
+**Still open, and not a drift:** `EX22`'s second-phrasing slot is empty, so HT06's
+swollen-versus-infected axis is unrepresented anywhere. Blocked-list item 3.
+
+## 6. A v1 defect in the other direction — the most serious thing in either document
+
+Not about the rewrites. **At three v1 positions the English, French and Swahili
+phrases say something the Kinyarwanda never said** — and the three agree with each
+other, so the Kinyarwanda is the outlier, not the mistranslation:
+
+| position | kinyarwanda | english / french / swahili |
+|---|---|---|
+| `EX15` | `kuruka no gucika intege bikabije` — vomiting and severe **weakness** | vomiting and signs of **dehydration** |
+| `EX35` | `kutabasha kuvuga neza n'umunwa wagoramye` — a twisted **mouth** | a drooping **face** / `le visage deforme` / `uso umepinda` |
+| `EX37` | `umunaniro woroheje` — mild tiredness | mild tiredness **during the day** |
+
+Weakness is not dehydration; a twisted mouth is not a drooping face. **These are in
+the shipped v1 corpus**, under one label and one concept id, so a model trained on
+them learns a different presentation depending on which language the row is in.
+That is a direct hit on the cross-lingual parity the corpus exists to demonstrate.
+
+The pattern suggests all four languages were drafted from a shared clinical idea
+rather than translated from the Kinyarwanda, with the Kinyarwanda drafted more
+conservatively. **Three found while looking for something else — the other 43
+positions have not been checked.** Detail in `review/v1-cross-language-parity.md`.
+
+## 7. The detector, stated so nobody trusts it
+
+`build_english_brief.py`'s stem-overlap check flagged 8 of 46. **4 real**
+(EX11, EX17, EX30, EX47), 4 paraphrases (`EX14`, `EX23`, `EX36`, `EX37` — all keep
+the sign and the severity and change only the words). It **missed 3** — EX27, EX29,
+EX43 — each of which kept a shared word (`umuriro`, `umwana`) while changing what
+the sentence claims.
+
+Precision 4/8, recall 4/7. **A lead generator, never a verdict.** Zero stem overlap
+is routine in Kinyarwanda, which can say the same thing from an entirely different
+root.
+
+## 8. What to carry forward
+
+**A collapse compares two phrases — the right test. The *record* names concept ids,
+and an id is stable while its phrase is not.** "IF07 and EX29 are one concept"
+silently became a claim about whatever EX29 says next. The two rulings that needed
+re-opening are exactly the two that named only ids and quoted no phrase. **Where a
+ruling turns on a phrase, quote the phrase.**
+
+**Two checks worth running before v2, neither implemented:**
+
+1. For every EX position, does the phrase today mean what the v1 phrase meant? The
+   rotation was found by accident; three ids moved and it went unnoticed.
+2. For every v1 position, do the four languages agree? §6 is three of 46 checked.

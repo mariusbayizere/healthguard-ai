@@ -274,3 +274,33 @@ characters when the leak is in words, position when the leak is in content. The
 concept-level union in 7a is the first proposed rule that is not a similarity
 measure at all, and it covers the largest class. **Prefer a declaration over a
 measurement wherever the brief already knows the answer.**
+
+---
+
+## 8. Measured 2026-09-04: the PR05/OB11 pair clears the threshold by one character
+
+```
+PR05 third   {REL} aratwite kandi ashaka kwisuzumisha kwa muganga bwa mbere.
+OB11 third   {REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.
+             ^-------- shared prefix, 29 chars --------^
+             PREFIX_UNION_CHARS = 30   ->  independent, by ONE character
+             containment: neither contains the other
+```
+
+Section 7b already names this pair as the worst cross-concept residual — 86% token
+overlap with zero words unique to PR05 — and recommends a token-overlap rule that is
+**not implemented**. What is new is the margin: the only thing keeping the two in
+separate phrase groups today is a single character.
+
+**Consequences worth stating plainly.** Any edit that lengthens the shared head by
+one character silently unions a first antenatal booking with a routine antenatal
+check, and the holdout stops being able to test whether the model separates them. It
+would not raise; union is the safe-looking direction. **Re-measure both phrases
+after any edit to either.**
+
+**Do not reach for the threshold.** 25 is the v1-safe floor (section 3) and 30 was
+measured, not chosen. Lowering it to catch this pair would union a great deal else
+and put the frozen v1 partition at risk; raising it to separate them by more would
+give back the EX18/EX20 union it was introduced for. The fix, if one is wanted, is
+7b's token-overlap rule — which unions this pair on content rather than on position
+and needs no tuned number.

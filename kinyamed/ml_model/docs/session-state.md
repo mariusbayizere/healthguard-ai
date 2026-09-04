@@ -1415,6 +1415,48 @@ rows) — 3 contexts, 3 closers, English glosses and shapes only,
 to author. They are what lets ROUTINE be fixed by *adding* frame material instead
 of removing it, which the capacity analysis says is the only safe direction.
 
+### MERGED 2026-09-04: the two drift analyses are now one document
+
+**`docs/ex-concept-drift.md`** supersedes both this section's earlier summary and the
+English arm's `review/ex-concept-drift.md`. Two independent passes: the Kinyarwanda
+arm worked backwards from the collapse rulings, the English arm read all 47 EX rows
+by hand. **They contradict each other nowhere; the gaps are coverage.**
+
+**The Kinyarwanda pass missed three — EX11, EX27, EX43 — and the reason is a method
+defect worth remembering.** It filtered on "did the v2 rewrite move off the
+speaker's first pass" and on the collapse list. For all three the drift happened
+**at the first pass** and was never touched again, so `v2 == first pass` and both
+filters passed them through. The right question is "does the phrase today mean what
+the v1 phrase meant", which needs a reading, not a diff. The same defect means a
+string method **cannot find a vacated concept at all** — and two are vacant: EX27's
+*fever with generalised body aches* and EX17's *slight abdominal pain*, neither of
+which has a row in any language.
+
+**The English pass did not have** the rotation evidence (that `EX31` carries the
+runny nose and `CR07` pre-existed with v1 EX29's gloss, which is what makes "nothing
+was lost" checkable), the six absorbed-axis concepts, or the two collapse
+re-openings.
+
+**RULED 2026-09-04 — `EX43` wording reverted.** `ntarya` (*does not eat*) had become
+`ntabwo arimo kubasha kurya` (*is not able to eat*), which is an IMCI general danger
+sign — IF03's and PA02's ground — on a row labelled URGENT. Speaker's ruling: revert
+to not-eating, keep URGENT, flag `needs_clinician`. **The principle, worth carrying:
+the danger sign is drinking, not eating, and moving toward it without landing on it
+is worse than either position.** `EX43` third is now
+`{REL} afite umuriro mwinshi kandi ntarya.`; `ntarya` is v1 vocabulary in the
+approved tier. The open question is on the row: is *high fever and not eating*
+URGENT, or close enough to the drinking danger sign to be CRITICAL, with PA02 next
+door.
+
+**A v1 defect the Kinyarwanda arm was not looking for and which outranks the drift
+work:** at `EX15`, `EX35` and `EX37` the English, French and Swahili phrases say
+something the Kinyarwanda never said, and the three agree with each other — vomiting
+with **dehydration** against *severe weakness*, a drooping **face** against a
+*twisted mouth*, tiredness **during the day** against plain mild tiredness. These
+are in the **shipped v1 corpus** under one concept id, so the presentation a model
+learns depends on the language of the row. Three of 46 positions checked.
+`review/v1-cross-language-parity.md`.
+
 ### RE-OPENED 2026-09-04: two collapses rested on rewrites, not on their v1 concepts
 
 **`docs/ex-concept-drift.md`.** Both stand; the justification changes, not the
@@ -1881,6 +1923,16 @@ Kinyarwanda only. `docs/swahili-source-audit.md` carries the source audit and th
 ruling. `speaker_brief_swahili_v2.csv` stays at 0/254 and nothing generates from it.
 **Do not re-open this by finding a better corpus** — a corpus removes one of the two
 blocks.
+
+**`PR05`/`OB11` clear the union threshold by ONE character** — measured 2026-09-04.
+Their thirds share a 29-character prefix against `PREFIX_UNION_CHARS = 30`, and
+neither contains the other. Any edit lengthening the shared head by one character
+unions a first antenatal booking with a routine antenatal check and the holdout
+stops separating them; it would not raise, because union looks like the safe
+direction. **Re-measure after any edit to either phrase.** Recorded on PR05's row in
+`routine_relation_sets.csv` and as section 8 of `docs/phrase-group-closure.md`. Do
+not reach for the threshold: 25 is the v1-safe floor and 30 was measured — 7b's
+token-overlap rule is the fix, and it is still unimplemented.
 
 **Three design proposals, measured but not implemented:**
 
