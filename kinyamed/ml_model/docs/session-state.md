@@ -1,7 +1,13 @@
 # Session state — handover
 
 Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, reconciled
-against disk 2026-09-03. All figures below were re-derived from the files by running the tooling, not recalled.
+against disk 2026-09-04. All figures below were re-derived from the files by running the tooling, not recalled.
+
+**Since the last reconciliation:** `phrase_components` was fixed (it was missing
+containments — section 9), a 30-character prefix union was added, the provenance
+categories were replaced (section 2a), eleven concepts have now collapsed and the
+target is **1,648,000**, and `{REL}` was parameterised into seven phrases that had
+none.
 
 **Every count here is reproducible.** `held` is `hold=yes`; `filled` is a non-empty `your_phrasing`
 on a row that is **not** `applies=no` (EX30 first keeps the speaker's text but was collapsed, so it
@@ -34,11 +40,11 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
 | gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
 | haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable: HT01 and HT06, both persons)* |
-| neurological | 6/28 | 1 | 8 | *(+2 not-applicable: NE01, NE02 first)* |
+| neurological | 6/28 | 0 | 18 | *(+12 not-applicable: NE01-NE04 and NE08 collapsed, EX32/EX33 first)* |
 | chronic_care | 4/28 | 2 | 4 | |
 | paediatric | 4/28 | 1 | 15 | *(+11 not-applicable: only PA08-PA10 first survive)* |
 | preventive | 4/28 | 2 | 4 | *(both holds are PR02)* |
-| **total** | **128/254** | **25** | **154** | *(+26 not-applicable = 154 resolved)* |
+| **total** | **128/254** | **24** | **164** | *(+36 not-applicable = 164 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -51,24 +57,48 @@ python -c "import csv,collections; print(collections.Counter(r['domain'] for r i
 
 Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254.
 
-**Provenance so far: 77 speaker, 49 machine_approved, 5 unresolved, 26
-not_applicable.** CR07 first moved from machine_approved to speaker when it took
-EX30's wording; the infectious_fever third-person batch added seven
-machine_approved and one speaker rewrite. The two PR02 rows became `unresolved`
-when its exclusion was recorded in the brief (section 3).
+## 2a. Provenance — five categories, derived not asserted
 
-**Speaker rate: 77 of 126 authored rows, 61%.** 126 is `speaker +
-machine_approved`; the not-applicable and unresolved rows are not authored and do
-not belong in the denominator. The rate fell from 74% because the gastrointestinal
-third-person batch added eight machine_approved rows, and because EX17 first — a
-speaker row — became not_applicable in the collapse. **A falling rate here is the
-third-person transform working as designed**, not a loss of speaker authorship: a
-regular transform of a phrase the speaker wrote is `machine_approved` by
-definition.
+**Adopted 2026-09-04. Do not quote a "speaker rate" from `source` counts by hand;
+run `python review/provenance.py`.**
 
-Frame fragments are complete: 17/17 of the rows marked `TO WRITE`, of which 12
-machine_approved and 5 speaker rewrites. The file has 33 rows — the other 16 are
-`existing` and were already in v1.
+```
+speaker-authored     77   60.2%   the speaker wrote the words
+speaker-derived      24   18.8%   person-transform of their OWN phrase, third person only
+machine-approved     14   10.9%   I composed it, the speaker accepted it unchanged
+machine-derived      11    8.6%   person-transform of a machine-drafted phrase
+unresolved            2    1.6%   wording settled, concept open (CR04)
+
+the speaker's own words   101/128 = 79%
+newly composed by me       25/128 = 20%   every row with an explicit accept
+```
+
+**The old scheme reported 60% and was wrong in both directions.** It had one
+bucket for everything the speaker did not type, so `ndi` -> `ari` on a sentence
+they wrote counted the same as a phrase I composed — and the headline then fell
+every time third-person work landed (74% -> 66% -> 61%) although nothing about
+their involvement had changed. That was a measurement artefact, not a trend.
+
+Every category is a **pure function of the brief**, so anyone can recompute it and
+none depends on how a note was worded. `walk.py` re-derives after every decision —
+the two derived categories depend on the *other* person's row and so cannot be set
+when one row is accepted. `tests/test_provenance.py` pins that the stored column
+matches what the classifier derives, so the cache cannot drift from the function.
+
+Two honesty properties worth keeping: **`machine-derived` is a new and
+unflattering category** — neither person is speaker wording, and the old scheme
+hid those rows inside `machine_approved`; and the split is **deliberately
+conservative**, since a phrase reusing the speaker's clause from a *different*
+concept (GI06 from CR06, GI01 from OB10) still counts as machine-drafted.
+
+Full reasoning and the correction history in `docs/provenance-categories.md` — the
+first draft of that document said 81%, from a looser test that ignored transform
+direction.
+
+Frame fragments: 17/17 of the original `TO WRITE` rows are complete (12
+machine_approved, 5 speaker rewrites). **The file is now 39 rows** — 16 `existing`
+from v1, and **six new de-escalating fragments awaiting the speaker's Kinyarwanda**
+(3 contexts, 3 closers; section 7).
 
 ## 3. Unresolved and held — nothing generates from these
 
@@ -325,7 +355,7 @@ the guide is the record.
     excludes the *patient's* first-person row, not the carer's, and both persons
     can exist for a service concept as two different speakers.
 
-## 6. Row target: 1,776,000
+## 6. Row target: 1,648,000
 
 **Standing: the target is a consequence of the valid inventory, not a quota.**
 2,000 rows per authored phrase is the invariant.
@@ -564,9 +594,15 @@ of preserving it. The mechanism landed first, deliberately. `PHRASE_VARIANTS`
 itself is still populated at v2 build time from this column — the declaration
 lives in the brief, not in `vocabulary.py`.
 
-Target moved to **1,760,000** (880 phrases, 122 concepts).
+Target moved to 1,760,000 (880 phrases, 122 concepts) **at the time of this
+collapse**; six further collapses have since taken it to **1,648,000** — section 6.
 
-### Blocked on the speaker — two words that do not exist in the corpus
+### Superseded: "two words that do not exist in the corpus" — it is now four
+
+**Read the blocked list instead.** `GI03`, `PA08`, `HT05` and `NE05` are all
+vocabulary-blocked, in four different domains, and the CC BY 4.0 attestation
+corpus resolved none of them outright. Kept below as the original statement of
+the shape.
 
 `GI03` needs a word for stool and `PA08` needs a word for ear. Neither appears in
 any authored phrase, in `dataset/vocabulary.py`, or in
@@ -719,7 +755,7 @@ to the real path is what it tests. Wired into `make test-clean` and CI through
 the suite, **and** called out as its own `make check-attribution` target and CI
 step, so the guard survives someone deselecting it or marking it slow.
 
-**86 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
+**101 tests**, and v1 still reproduces 8/8 (re-run 2026-09-03) — v1 phrases are noun-phrase fragments
 with no terminal stop and no `{REL}`, so none of these fixes can move a frozen
 digest. That is also precisely why `verify-full` never caught any of the three.
 
@@ -804,26 +840,65 @@ replacement invented — the ear term has to come from the speaker.**
 
 ### Blocked on the speaker, in order
 
-1. Paediatric first-person applicability — this is next, and it is a ruling
-2. `PR02` service-design question
-3. `OB12` — is `Mama` plausible for a recent delivery?
-4. `CR01` first person and `CR05` third person — the `-mu-` object marker
-5. `PA08` — the ear term, which no approved phrase supplies
-6. ~~`PA09`/`PA10`, and `EX46`~~ — **resolved by rule 12 (SERVICE_SPEAKER)**: the
-   first-person row is the requester. All three ruled, along with PR08 and PR09,
-   in `review/service_speaker_audit.csv`. Their phrases are still unauthored, so
-   they are ordinary outstanding rows now, not blockers
-7. `CR07` first — the form of the adopted wording: EX30's verbatim lowercase
-   string, or the same words in this row's capitalised sentence form. **Not
-   normalised without a ruling.**
-8. `GI03` — the word for stool, which no approved phrase supplies
-9. ~~`GI08` vs `EX16`/`EX17`~~ — **ruled and executed**; both collapses done
-10. ~~The gastrointestinal third-person drafts~~ — **all nine ruled 2026-09-03**;
-    eight accepted, GI04 held. The domain's only open rows are GI03 (both
-    persons) and GI04 third
-11. A clinician session for the `needs_clinician` rows — **17**, of which 6 are
-   held drafts with nothing authored, 5 are undrafted, and GI04 third is the
-   newest (section 3)
+1. **Three vocabulary gaps, one per domain, all the same shape** — no attested
+   candidate exists and nothing was invented:
+   `GI03` a noun for stool (`kwituma` is attested as a verb, `amabyi` = 0),
+   `PA08` a term for ear (`ugutwi` = 0; all `amatwi` hits are `gutega amatwi`,
+   "to lend an ear"), `HT05` a term for a deformed limb, and
+   `NE05` a word for light — `urumuri` attested nowhere, so photophobia cannot be
+   written and NE05's draft carries two of three signs.
+2. **Six de-escalating frame fragments** — 3 contexts, 3 closers, English glosses
+   and shapes written, Kinyarwanda empty. These are what let ROUTINE be fixed by
+   *adding* frame material rather than removing it, which the capacity analysis
+   says is the only safe direction.
+3. **`EX22` second phrasing** — the slot is empty. HT06 collapsed into EX22 with
+   the ruling "keep the swollen wording as a second phrasing", but that wording is
+   an unaccepted machine draft and the column feeds `PHRASE_VARIANTS` into the
+   corpus. It needs the speaker's own wording, on the **first-person** row.
+4. **`OB11`** — held; ruled `NO_RELATIONS` but carrying an accepted third-person
+   phrase. Same service-design question as PR02.
+5. **`PR02`** — service-design question; out of generation.
+6. **`OB12`** — is `Mama` plausible for a recent delivery?
+7. **`CR01` first and `CR05` third** — the `-mu-` object marker.
+8. **`EX34`** — the last authored third-person phrase with no `{REL}`. Needs
+   `rw'umubiri wa {REL}`, a rewrite for the speaker's ear rather than a
+   substitution; it generates one instance until then.
+9. **A clinician session for the 18 `needs_clinician` rows.**
+
+### Drafted: chronic_care first person — 8 rows, awaiting rulings
+
+Suggestions only; provenance unchanged. `CC01` and `CC02` stay held (clinical
+capacity). **Surveyed for duplicates first, as neurological taught** — and this
+domain is clean: `EX10`/`EX11` are *generic* ("a refill of the medicine I take",
+"to keep going for check-ups") and `CC08`/`CC09`/`CC10` name a disease. **The axis
+is recorded in the glosses**, unlike NE01's, so these are specialisations rather
+than the IF07/EX29 shape. No collapse proposed.
+
+Every draft is built from the speaker's own clauses. Four flags:
+
+- **`CC04` — `nryamye`** is my 1sg of `kuryama` (7 CHW records, not this
+  inflection). Orthopnoea is the clinical point and it lives entirely in that
+  clause, so a wrong inflection costs the concept its distinguishing sign.
+- **`CC05` — `ikirenge`** has a single record; the plural `ibirenge` has 14. And
+  `kidakira` is a concord inference.
+- **`CC06`/`CC07` say "I have no X medicine", the gloss says "ran out".** The
+  running-out verb `yarangiye` has 2 records and both mean "when all that is
+  finished", a different sense, so it was not used. **Also a frame interaction:**
+  ` kandi nta miti mfite` is an existing CONTEXT fragment, so these can render as
+  *"Nta miti ya SIDA mfite ... kandi nta miti mfite."*
+- **`CC08` sits just under the union threshold.** It shares 26 characters with
+  EX10 — below 30 — so they stay in separate phrase groups. Intended here, but the
+  same shape two words longer would have unioned. **`CC09`/`CC10` share 39 and
+  will union**, which is correct but means the holdout cannot test whether the
+  model separates the two clinics.
+
+### Two record conflicts, both on unauthored rows
+
+- **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"
+  in section 4's concept rulings, and there is no `ADULT_RELATIONS` set.
+- **`CC05`** is in section 4's concept rulings and absent from the CSV.
+
+Both matter for `chronic_care` and `preventive`, which is where the work goes next.
 
 ### Settled: haemorrhage_trauma third person — all ten ruled, all accepted
 
@@ -993,65 +1068,45 @@ exactly what the set is for; and they depress the capacity of their classes in t
 way `docs/urgency-frame-coupling.md` describes. Whether that is intended — the
 speaker authored all eight — is a question for them.
 
-### LIVE BUG found while designing the closure rule — `phrase_components` misses containments
+### FIXED: `phrase_components` was missing containments — and the prefix union
 
-`phrase_components` unions on **raw substring containment**, and every v2 phrase
-is an utterance ending in a full stop. The stop defeats the `in` check:
-
-```
-EX14 third  {REL} arababara cyane mu nda.
-GI07 third  {REL} arababara cyane mu nda kandi ububabare ntibuhagarara.
-            -> NOT a containment today, because of the period
-```
-
-At render time `_drop_terminal_stop` removes exactly that period, so the *rendered
-rows* do contain one another. **Five authored pairs are silently not unioned**
-(CR02/EX02 both persons, EX02/EX04 third, EX14/GI07 both persons) — two by the
-terminal stop, two by capitalisation.
-
-**This is the fourth time a terminal stop has defeated a string match here.**
-`attribute_phrase` failed the same way three times (section 9). The fix,
-`_match_form`, already exists **in the same file** and is not used by
-`phrase_components`. **v1 cannot be affected**: 0 of its 184 phrases end in a stop
-or begin capitalised, and the full partition is provably identical, so the frozen
-split survives. **Fix this before the next batch.**
-
-### Open design question: phrase-group closure — `docs/phrase-group-closure.md`
-
-Four near-duplicate pairs were noticed by hand across four rulings. Measuring found
-**85 pairs sharing 15+ characters of prefix** — which is not a defect list, it is
-the domain's grammar (`{REL} aratwite kandi`, `{REL} afite umuriro`,
-`{REL} afite igikomere`).
-
-Recommendation: fix the containment bug above, then add a **prefix threshold of
-30**, which is **v1-safe** (partition identical; below 22 it breaks the frozen
-digests) and catches **eight pairs of which six were missed by deliberate
-inspection**. Emit the merges as a report rather than silently. Keep
-`PHRASE_VARIANTS` for same-concept variants and do not overload it.
-
-### Open design question: provenance categories — `docs/provenance-categories.md`
-
-**The 61% speaker rate understates the corpus and should not be quoted.** It counts
-a `ndi` -> `ari` transform of a sentence the speaker wrote as machine-authored, so
-the rate falls every time third-person work lands even though nothing about the
-speaker's involvement changed (74% -> 66% -> 61% across three batches).
-
-Proposed five categories with mechanical tests:
+**Both landed 2026-09-04.** The bug: `phrase_components` compared **raw strings**,
+and every v2 phrase is an utterance ending in a full stop and often capitalised.
+Both defeat a raw `in`:
 
 ```
-speaker-authored                     77   60.2%
-speaker-derived (person transform)   27   21.1%
-machine-drafted, speaker-approved    11    8.6%
-machine-derived                      11    8.6%
-unresolved (CR04)                     2    1.6%
-
-the speaker's own words   104/128 = 81%
-newly composed by me       22/128 = 17%, every row with an explicit accept
+{REL} arababara cyane mu nda.                                 EX14 third
+{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.   GI07 third
+   -> NOT a containment, because of the period
 ```
 
-The split is deliberately conservative — clauses reused from a *different* concept
-(GI06 from CR06, GI01 from OB10) still count as machine-drafted, which
-under-counts speaker-derived rather than flattering it.
+`_drop_terminal_stop` removes exactly that period at render time, so the rendered
+rows *do* contain one another. **Five authored pairs were silently ungrouped**
+(CR02/EX02 both persons, EX02/EX04 third, EX14/GI07 both persons). Fixed by
+routing comparison through `_match_form`, which already existed in the same file
+and was simply not used.
+
+**Also added: `PREFIX_UNION_CHARS = 30`.** Containment catches a nested phrase and
+misses a divergent one with a long shared head — EX18/EX20 differ only by
+`mu mazuru` inserted mid-phrase, so neither contains the other while both share 30
+characters. The constant is **measured, not chosen**:
+
+```
+>= 25 chars   v1 partition byte-identical, frozen splits safe
+<= 22 chars   v1 partition CHANGES, frozen digests break
+   30 chars   above the domain grammar, catches all 8 known pairs
+```
+
+Six of those eight pairs were **missed by hand** across four separate rulings while
+actively looking for the pattern — which is why a threshold rather than a manual
+declaration. `tests/test_leakage.py` pins both rules, including a test that
+`PREFIX_UNION_CHARS >= 25`, since lowering it is what would silently invalidate the
+frozen phrase split. `verify-full` still passes 8/8: v1's 184 phrases are fragments
+with **no** terminal stops, **no** capitals and no long shared heads, so neither
+rule can touch them.
+
+Design reasoning, the 85-pair measurement and the rejected options are in
+`docs/phrase-group-closure.md`.
 
 ### Open design question: urgency/frame coupling — `docs/urgency-frame-coupling.md`
 
@@ -1078,7 +1133,7 @@ property.** A first-person phrase has only 1,500 combinations and can never reac
 2,000 alone; `{REL}` phrases expanding over 4-8 relations carry the average up.
 Worth stating in `v2-sizing.md` before someone reads the invariant as a guarantee.
 
-### Drafted: haemorrhage_trauma first person — 7 rows, awaiting rulings
+### Settled: haemorrhage_trauma first person — 4 accepted, HT05 held
 
 Suggestions only; nothing authored. **Two of the nine concepts collapsed before
 any wording was ruled**, which is why drafting a domain starts with the concept
@@ -1142,15 +1197,16 @@ per language at 2-3 minutes a row.
 vocabulary or a clinician rather than on drafting. infectious_fever first and
 third are both closed.
 
-**haemorrhage_trauma is closed** apart from HT03 and HT05. Four domains are now
-effectively done — cardiac_respiratory, obstetric, gastrointestinal,
-haemorrhage_trauma — leaving only blocked rows in each.
+**Five domains are effectively done** — cardiac_respiratory, obstetric,
+gastrointestinal, haemorrhage_trauma and now neurological — leaving only blocked
+rows in each. **Neurological shrank from 8 new concepts to 3** (NE05, NE06, NE07)
+in the collapse, so the domain that looked like 20 rows of work is closer to 6, and
+two of those three are blocked: NE05 on the light term, NE06 on `needs_clinician`.
 
 **Next, in this order:**
 
-1. **`neurological`** — 6/28 filled, 20 left, all eight relations confirmed, one
-   concept ruling to check (`NE08` is `CHILD_RELATIONS`). No unresolved
-   architecture. The obvious next domain.
+1. ~~`neurological`~~ — **collapsed to 3 concepts**; NE05 drafted but blocked on
+   the light term, NE06 `needs_clinician`, NE07 drafted and rulable.
 2. **`paediatric`** — 4/28 filled but only 13 left, because 11 rows are already
    `applies=no`. Rule 12 settled PA09/PA10, so the blocker that stalled it is
    gone; PA08 stays vocabulary-blocked on the ear term.
@@ -1181,6 +1237,7 @@ review/second_phrasings.py  reads second_phrasing_optional into PHRASE_VARIANTS
 review/attest.py            is a Kinyarwanda word attested? all sources at once
 review/relation_sets.py     concept ruling -> relations; --materialise for the build
 review/render_third_person.py  render a domain's thirds via the SAME resolver
+review/provenance.py        five derived categories; --write backfills the column
 ```
 
 **`attest.py` before writing any phrase with an uncertain word.** It searches the
@@ -1210,7 +1267,7 @@ review/infectious_fever_third_render.csv  72 rows, the settled batch
 ```
 
 `make test-clean` runs the suite in a throwaway clone of HEAD and is the guard
-against ambient-state failures. **86 tests** — this section and section 7 once
+against ambient-state failures. **101 tests** — this section and section 7 once
 said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 
@@ -1249,6 +1306,21 @@ it.
   errors on an authored row with no declared form**, which is the guard that was
   missing. Same shape as the attribution bugs: a wrong default is worse than a
   crash, because it produces plausible output.
+- **A terminal stop has now defeated a string match FOUR times, in two different
+  functions.** `attribute_phrase` three times (above), and then
+  `phrase_components`, which compared raw strings and so missed five real
+  containments once phrases became stop-terminated utterances. Both functions live
+  in `split_dataset.py`; `_match_form` was written for the first and not applied to
+  the second. **When a comparison touches a phrase, route it through
+  `_match_form`** — the render path lowercases and drops the stop, so any raw
+  comparison is comparing a form that never reaches the corpus.
+- **v1 is systematically blind to v2's failure modes**, and that is not luck: v1
+  phrases are noun-phrase fragments with no `{REL}`, no terminal stops and no
+  capitals. Every one of the four bugs above was invisible to `verify-full` for the
+  same reason. **A green 8/8 says v1 reproduces; it says nothing about v2.** It is
+  also why the v2-only mechanisms (`PHRASE_FORMS`, `PHRASE_VARIANTS`,
+  `CONCEPT_RELATIONS`, `CONTEXTS_BY_URGENCY`, `CLOSERS_BY_URGENCY`) are all empty
+  by default — empty means "behave exactly as v1 does".
 - **`verify-full` cannot see any of this.** v1 has no `{REL}` phrases and no
   terminal stops, so the frozen digests are untouched by attribution bugs that
   would wreck v2. A green 8/8 is not evidence that attribution works.
