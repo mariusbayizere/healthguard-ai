@@ -1732,6 +1732,24 @@ it.
   errors on an authored row with no declared form**, which is the guard that was
   missing. Same shape as the attribution bugs: a wrong default is worse than a
   crash, because it produces plausible output.
+- **`attribute_phrase` has now failed silently FOUR times, and the fourth reached
+  main.** After case sensitivity, the welded `{REL}` halves and the terminal stop
+  came the **word boundary**: `Ndashaka` ends with `ashaka`, so the third-person
+  phrase `{REL} ashaka inama ku mirire myiza.` matched *inside* the first-person
+  `Ndashaka inama ku mirire myiza.` and, being the longer index entry, captured its
+  rows. Four authored pairs collided — EX47, PR03, PR04, PR10 — every one created
+  by the same `Ndashaka` -> `{REL} ashaka` transform, which had been praised three
+  times that day for touching only one word.
+  **Fixed by a rule, not a patch:** `_find_at_word_boundary` requires a match to
+  begin and end on a boundary, so the whole class is closed rather than four
+  instances. Rewording the phrases was considered and rejected — it would have left
+  the trap set for every future `Nd-` verb.
+- **SIX RED COMMITS REACHED MAIN because the local command skipped the one test
+  that catches this.** Running `pytest --ignore=tests/test_attribution_corpus.py`
+  to save two minutes made every "tests pass" report meaningless for exactly the
+  failure it was hiding. **Run the full suite or `make test-clean` before every
+  push — no exceptions.** The attribution sweep is slow *because* it is the guard;
+  skipping it is skipping the guard.
 - **A terminal stop has now defeated a string match FOUR times, in two different
   functions.** `attribute_phrase` three times (above), and then
   `phrase_components`, which compared raw strings and so missed five real

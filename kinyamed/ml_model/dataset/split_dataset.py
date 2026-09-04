@@ -204,6 +204,44 @@ def _match_form(part: str) -> str:
     return part.strip().lower()
 
 
+def _is_word_char(character: str) -> bool:
+    """Letters and digits join a word; punctuation, spaces and quotes do not.
+
+    An apostrophe is deliberately NOT a word character: Kinyarwanda writes
+    "n'uduheri" and "w'umuturanyi", and a segment beginning after one starts a
+    real word.
+    """
+    return character.isalnum()
+
+
+def _find_at_word_boundary(haystack: str, needle: str, start: int = 0) -> int:
+    """First occurrence of `needle` that begins and ends on a word boundary.
+
+    Plain `str.find` matches inside a word, and that is not a theoretical worry:
+    "Ndashaka" ENDS WITH "ashaka", so the third-person phrase
+    "{REL} ashaka inama ku mirire myiza." matched inside the first-person
+    "Ndashaka inama ku mirire myiza." and, being the longer entry, captured its
+    rows. Four authored pairs collided that way and six commits reached main red.
+
+    This is the fourth silent failure in this function - after case sensitivity,
+    the welded {REL} halves, and the terminal stop - so it is a rule about where
+    a match may begin, not another special case.
+    """
+    if not needle:
+        return -1
+    position = start
+    while True:
+        found = haystack.find(needle, position)
+        if found < 0:
+            return -1
+        before_ok = found == 0 or not _is_word_char(haystack[found - 1])
+        after = found + len(needle)
+        after_ok = after >= len(haystack) or not _is_word_char(haystack[after])
+        if before_ok and after_ok:
+            return found
+        position = found + 1
+
+
 def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]]) -> str | None:
     """The seed phrase a row was built around; longest match wins.
 
@@ -232,14 +270,14 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
                                     for part in phrase.split(REL_PLACEHOLDER)) if s]
             position = 0
             for segment in segments:
-                found = lowered.find(segment, position)
+                found = _find_at_word_boundary(lowered, segment, position)
                 if found < 0:
                     break
                 position = found + len(segment)
             else:
                 if segments:
                     return phrase
-        elif _match_form(phrase) in lowered:
+        elif _find_at_word_boundary(lowered, _match_form(phrase)) >= 0:
             return phrase
     return None
 

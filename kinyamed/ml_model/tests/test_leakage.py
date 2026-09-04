@@ -15,6 +15,7 @@ import pytest
 
 from dataset.split_dataset import (
     PREFIX_UNION_CHARS,
+    _find_at_word_boundary,
     _match_form,
     attribute_phrase,
     phrase_components,
@@ -322,3 +323,63 @@ def test_real_v1_phrases_union_when_declared_one_concept():
         V.PHRASE_CONCEPTS.clear()
         V.PHRASE_CONCEPTS.update(real)
         S.PHRASE_CONCEPTS = V.PHRASE_CONCEPTS
+
+
+# ── attribute_phrase: a match may not begin inside a word ───────────────────
+
+
+def test_a_match_may_not_begin_inside_a_word():
+    """"Ndashaka" ends with "ashaka" — the collision that turned CI red.
+
+    The third-person phrase's post-{REL} segment was a substring of the
+    first-person phrase, and being the longer index entry it captured the first
+    person's rows. Four authored pairs collided and six commits reached main red,
+    because the local command in use was skipping this file.
+
+    Fourth silent failure in attribute_phrase, after case sensitivity, the welded
+    {REL} halves and the terminal stop.
+    """
+    assert _find_at_word_boundary("ndashaka inama", "ashaka inama") == -1
+    assert _find_at_word_boundary("mama ashaka inama", "ashaka inama") == 5
+    # a match must also END on a boundary
+    assert _find_at_word_boundary("mama ashakawe", "ashaka") == -1
+    # an apostrophe is not a word character: Kinyarwanda writes n'uduheri
+    assert _find_at_word_boundary("afite umuriro n'uduheri", "uduheri") > 0
+
+
+def test_every_authored_first_person_attributes_to_itself():
+    """The real-corpus guard, over every first/third pair the brief holds.
+
+    A first-person phrase rendered plainly must attribute to ITSELF, never to its
+    concept's third person. This is the property the four colliding pairs broke,
+    checked against the brief rather than a fixture so a new Nd- verb cannot
+    reintroduce it.
+    """
+    from dataset.split_dataset import attribute_phrase
+
+    brief = (Path(__file__).resolve().parent.parent
+             / "review" / "speaker_brief_kinyarwanda_v2.csv")
+    rows = list(csv.DictReader(brief.open(encoding="utf-8")))
+    by_concept: dict[str, dict[str, str]] = {}
+    for row in rows:
+        phrase = (row["your_phrasing"] or "").strip()
+        if phrase and (row.get("applies") or "yes").lower() != "no":
+            by_concept.setdefault(row["concept_id"], {})[row["person"]] = phrase
+
+    inventory = sorted({p for v in by_concept.values() for p in v.values()},
+                       key=len, reverse=True)
+    index = {"kinyarwanda": inventory}
+    family = "kinyarwanda->kinyarwanda:ROUTINE:preventive"
+
+    checked = 0
+    for concept, persons in by_concept.items():
+        first = persons.get("first")
+        if not first:
+            continue
+        checked += 1
+        got = attribute_phrase(first, family, index)
+        assert got == first, (
+            f"{concept} first person {first!r} attributed to {got!r}. "
+            "A first-person row would be recorded under another phrase."
+        )
+    assert checked > 50, "fixture problem: the brief should hold many first persons"
