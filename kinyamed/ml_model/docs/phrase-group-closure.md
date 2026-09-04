@@ -188,9 +188,29 @@ CR03 third   {REL} iminwa ye yahindutse ubururu.
              containment: no      shared prefix: 0
 ```
 
-**The prefix rule can never catch a first/third pair**, because a third-person
+~~**The prefix rule can never catch a first/third pair**, because a third-person
 phrase begins with `{REL}` and a first-person one begins with a letter — the shared
-prefix is 0 by construction. Containment fails on the verb morphology. So the two
+prefix is 0 by construction.~~ Containment fails on the verb morphology.
+
+**CORRECTED 2026-09-04 — the "by construction" claim is false.** It holds only when
+`{REL}` is at the head. `PR01` puts it mid-phrase and its two persons share **42
+characters**:
+
+```
+PR01 first   Mu rugo hari umuntu urwaye igituntu kandi ndashaka kwisuzumisha.
+PR01 third   Mu rugo hari umuntu urwaye igituntu kandi {REL} ashaka kwisuzumisha.
+             ^------------- shared prefix, 42 chars -------------^
+```
+
+**The conclusion survives; the argument does not.** A declaration is still the right
+answer, but for a better reason than the one given here: the prefix rule catches a
+concept's two persons **only by accident** — when the speaker happened to put the
+placeholder late — and misses every head-initial pair. *Unreliably, depending on
+where `{REL}` sits* is a worse property than *never*, because it is inconsistent
+across concepts and looks like coverage.
+
+**The same false claim is repeated in `dataset/vocabulary.py` around line 675** and
+has not been corrected here, because that file belongs to the English arm. So the two
 persons of the same concept can land on opposite sides of the phrase holdout, with
 the model having seen three of the four content words of the held-out phrase.
 
@@ -304,3 +324,73 @@ and put the frozen v1 partition at risk; raising it to separate them by more wou
 give back the EX18/EX20 union it was introduced for. The fix, if one is wanted, is
 7b's token-overlap rule — which unions this pair on content rather than on position
 and needs no tuned number.
+
+---
+
+## 9. What 30 actually unions in Kinyarwanda — measured 2026-09-04
+
+Prompted by the English arm finding that three presentations fold together on
+`{REL} afite umuriro mwinshi kandi`. Measured over all **163 authored phrases**
+through the real `_match_form` comparison. **20 cross-concept unions today**, and
+they split cleanly by which rule merges them:
+
+| pair | prefix | rule | jaccard | min-overlap | unique | at 35 | 7b-zeroU | 7b-70% |
+|---|---|---|---|---|---|---|---|---|
+| CC03+EX09 third | 44 | containment | 62% | 100% | 3/0 | union | union | union |
+| CC03+EX09 first | 42 | containment | 62% | 100% | 3/0 | union | union | union |
+| **CC09+CC10 first** | 40 | prefix only | 71% | 83% | 1/1 | union | — | union |
+| IF05+EX42 third | 39 | containment | 83% | 100% | 1/0 | union | union | union |
+| **EX01+EX05 third** | 38 | prefix only | 38% | 62% | 3/5 | union | — | — |
+| **CR06+GI06 third** | 38 | prefix only | 36% | 67% | 5/2 | union | — | — |
+| **IF02+EX25 third** | 34 | prefix only | 57% | 80% | 1/2 | split | — | union |
+| **IF02+EX43 third** | 34 | prefix only | 67% | 80% | 1/1 | split | — | union |
+| **EX25+EX43 third** | 34 | prefix only | 57% | 80% | 2/1 | split | — | union |
+| **EX19+HT02 third** | 32 | prefix only | 27% | 43% | 4/4 | split | — | — |
+| **EX01+EX05 first** | 31 | prefix only | 38% | 62% | 3/5 | split | — | — |
+| **CR06+GI06 first** | 31 | prefix only | 36% | 67% | 5/2 | split | — | — |
+| **CR02+EX04 third** | 30 | prefix only | 21% | 38% | 6/5 | split | — | — |
+| **EX18+EX20 third** | 30 | prefix only | 75% | 100% | **0/2** | **split** | **union** | union |
+| CR02+EX02 third | 28 | containment | 33% | 100% | 6/0 | union | union | union |
+| EX02+EX04 third | 28 | containment | 38% | 100% | 0/5 | union | union | union |
+| EX14+GI07 third | 28 | containment | 57% | 100% | 0/3 | union | union | union |
+| CR02+EX02 first | 24 | containment | 33% | 100% | 6/0 | union | union | union |
+| EX02+EX04 first | 24 | containment | 38% | 100% | 0/5 | union | union | union |
+| EX14+GI07 first | 18 | containment | 50% | 100% | 0/3 | union | union | union |
+
+**Ten of the twenty union by containment**, which no threshold change touches. The
+whole argument is about the ten in bold that union on the prefix alone.
+
+### Raising to 35 is not available — it re-opens the leak the constant exists for
+
+`EX18`/`EX20` share **exactly 30**, neither contains the other, and **zero words are
+unique to EX18**. They are the pair section 5 introduced `PREFIX_UNION_CHARS` to
+catch — *"the worst shared-prefix pair in the corpus"*, 16 rendered rows across two
+CRITICAL concepts. **At 35 they split.**
+
+So 35 buys three fixes — the `umuriro mwinshi` triple — and pays by undoing the one
+union the constant was built for. **Not a tuning problem.** 30 is already the only
+value that catches EX18/EX20, and it catches domain grammar anyway.
+
+### §7b's two halves behave oppositely — implement one, not the other
+
+- **7b(a), zero-unique-words, is the fix.** It unions `EX18`/`EX20` (zero words
+  unique to EX18) and **unions none of the three grammar folds**, each of which has
+  unique words on both sides (1/2, 1/1, 2/1). That is not luck: **domain grammar is
+  shared words, and "unique words" is precisely the measure that ignores shared
+  words.** It also subsumes every containment pair.
+- **7b(b), token overlap ≥ 70%, makes it worse.** All three grammar folds score
+  **80%** min-overlap, so it unions exactly what the English arm is complaining
+  about — and it is a tuned number on a measure domain grammar inflates, which is
+  the disease 30 already has.
+
+**Recommendation, not implemented: adopt 7b(a), and reconsider whether the prefix
+rule earns its place.** Of the ten prefix-only unions, 7b(a) reproduces the one that
+matters and drops nine, of which **eight are wrong**: `EX01`/`EX05` are the recorded
+chest-pain axis the project deliberately keeps distinct, `CR06`/`GI06` are two
+different two-week presentations in different domains, `EX19`/`HT02` are different
+wounds, `CR02`/`EX04` share only "breathing is hard". The ninth, `CC09`/`CC10`, is
+the union section 5 calls correct — losing it is the entire cost.
+
+**Do not act on this without `verify-full`.** Any change to the union rules moves
+the v1 partition unless it provably cannot, which is why section 3 fixes 25 as the
+v1-safe floor.
