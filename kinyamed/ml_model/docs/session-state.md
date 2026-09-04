@@ -405,17 +405,17 @@ the guide is the record.
     excludes the *patient's* first-person row, not the carer's, and both persons
     can exist for a service concept as two different speakers.
 
-## 6. Row target: 1,648,000
+## 6. Row target: 1,632,000
 
 **Standing: the target is a consequence of the valid inventory, not a quota.**
 2,000 rows per authored phrase is the invariant.
 
 ```
-ceiling  115 concepts x 2 persons x 4 languages =   920 phrases
-minus    19 applies=no rows x 4                 =    76
-minus     5 NO_RELATIONS thirds x 4             =    20
-net                                                 824 phrases
-                                    at 2,000/phrase -> 1,648,000 rows
+ceiling  114 concepts x 2 persons x 4 languages =   912 phrases
+minus    23 applies=no rows x 4                 =    92
+minus     1 NO_RELATIONS third x 4              =     4
+net                                                 816 phrases
+                                    at 2,000/phrase -> 1,632,000 rows
 ```
 
 **The two subtraction lines are interchangeable and the split will keep moving.**
@@ -1038,7 +1038,46 @@ the concept is cervical screening rather than a general gynaecological visit.
 `PR10` drops the *safety* from "safe drinking water" because no attested adjective
 exists — a sign dropped rather than a word chosen.
 
-### FINDING: EX44-EX47 do not fit either phrase form
+### RESOLVED: EX44-EX47 rewritten — and `noun_phrase` does not respect relation rulings
+
+**The finding that decided it.** `noun_phrase` form takes the fixed v1 `SUBJECTS`
+list — ten entries, **eight of them third person** — while the relation machinery
+(`CHILD_RELATIONS`, `NO_RELATIONS`, `CONCEPT_RELATIONS`) applies **only to `{REL}`
+inside a phrase**. `build_families` does `subjects = SUBJECTS[frame] if form ==
+NOUN_PHRASE`, and the `{REL}` expansion runs on phrases, not subjects.
+
+So **`noun_phrase` ignores every relation ruling**. Making EX44/EX45 nominal would
+have generated 8-in-10 third-person subjects for concepts ruled `NO_RELATIONS`
+(first person only), and would have made EX46/EX47's `CHILD_RELATIONS` inert. A
+form correction on EX44 was committed on that wrong premise in `370706e` and
+reverted in `a700ced`.
+
+**The fix keeps the nominal wording inside a first-person utterance.** The nominal
+head is what makes the phrase grammatical — you can *have* a schedule, you cannot
+*have* an infinitive — and `{REL} afite <nominal>` is the OB09 pattern, so the
+relation rulings apply as ruled:
+
+```
+EX44 first  Mfite gahunda yo kwisuzumisha buri mwaka.     NO_RELATIONS, no third
+EX45 first  Ndashaka ko bapima amaraso.                   NO_RELATIONS, no third
+EX46 first  Mfite gahunda yo gukingiza umwana.
+EX46 third  {REL} afite gahunda yo gukingiza umwana.      CHILD_RELATIONS, 5
+EX47 first  Ndashaka inama ku mirire myiza.
+EX47 third  {REL} ashaka inama ku mirire myiza.           domain default, 8
+```
+
+All six are `source=speaker` — the speaker supplied every string. **The corpus is
+now 238 utterances and zero noun phrases**, so `PHRASE_FORMS` carries no
+`noun_phrase` entries at v2 build and every v2 row honours its relation ruling.
+
+**`EX47`'s scope was restored to generic nutrition counselling**, as v1's
+`ubujyanama ku mirire myiza` was. The v2 rewrite had made it child-specific, which
+is what created the PR08 overlap — **the duplication was introduced by the rewrite,
+not inherited**. PR08 keeps the IMCI child-feeding concept. `inama` is the
+speaker's own word and beats v1's `ubujyanama` on attestation, 64 records to 5.
+Its `CHILD_RELATIONS` ruling was removed as stale, so it takes the domain default.
+
+### Superseded: the original statement of the EX44-EX47 form problem
 
 The speaker's four preventive phrases are **bare infinitives or verb phrases**, and
 all four are declared `form=utterance`. Rendered as utterances they have no main
@@ -1072,10 +1111,10 @@ the speaker's own — but rewriting their phrases is theirs, not mine.
   `CHILD_RELATIONS`. `PR08` carries an IMCI anchor (*assess feeding / counselling*);
   EX47 is the v1 concept. The rule-12 audit already noted PR08 is "the same shape
   as EX47 and OB12". **PR08 was not drafted pending this ruling.**
-- **`EX46` vs `PA10`** — `gukingiza umwana` (vaccinating a child) against "child due
-  for vaccination", whose v1 original was `gahunda yo gukingiza umwana` — the same
-  words. PA10 carries an IMCI anchor (*immunisation schedule*). Cross-domain,
-  preventive against paediatric.
+- ~~**`EX46` vs `PA10`**~~ — **collapsed 2026-09-04, PA10 into EX46.** PA10's gloss
+  was a translation of EX46's v1 phrase; no axis anywhere, and the only difference
+  was domain, which is filing rather than distinction. **FILING LOSS worth knowing:
+  child immunisation now lives in `preventive` as EX46, not in `paediatric`.**
 
 Lighter, and probably specialisations rather than collapses: `EX45`/`PR03` (generic
 blood test vs HIV test) and `EX44`/`PR06`/`PR07` (annual check-up vs named
