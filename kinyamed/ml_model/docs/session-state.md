@@ -1415,6 +1415,54 @@ rows) — 3 contexts, 3 closers, English glosses and shapes only,
 to author. They are what lets ROUTINE be fixed by *adding* frame material instead
 of removing it, which the capacity analysis says is the only safe direction.
 
+### RE-OPENED 2026-09-04: two collapses rested on rewrites, not on their v1 concepts
+
+**`docs/ex-concept-drift.md`.** Both stand; the justification changes, not the
+outcome, and it is now written down. Re-opened at the speaker's instruction after
+listing EX drift for the English arm.
+
+**The finding is bigger than either collapse: the rewrites rotated three concepts
+across three ids.**
+
+```
+v1 EX29  inkorora yoroheje nta muriro   mild cough, NO fever
+         -> rewritten to "mfite umuriro woroheje..." = IF07's concept
+v1 EX30  amazuru atemba yoroheje        mild RUNNY NOSE
+         -> rewritten to "nkorora gake ariko nta muriro mfite" = v1 EX29's, and CR07's
+   EX31  amazuru arantemba gake         = v1 EX30's concept
+```
+
+**Nothing was lost, and that is checkable.** `CR07` already existed in `concepts.py`
+glossed *"short mild cough, no fever"* — v1 EX29's concept exactly — so EX30's
+rewrite landed on a concept that was already there and the collapse removed a real
+duplicate. The runny nose survives on `EX31`.
+
+- **`IF07 -> EX29` stands.** Against v1 it would have been wrong: IF07's presenting
+  sign is the one v1 EX29 *excludes*. Against the rewrite it is right.
+- **`EX30 -> CR07` stands.** Against v1 it would have deleted a sign.
+
+**The general failure, and it is not about these two rulings.** A collapse compares
+two phrases, which is the right test — but the *record* names concept ids, and an id
+is stable while its phrase is not. "IF07 and EX29 are one concept" silently became a
+claim about whatever EX29 says next. **Where a ruling turns on a phrase, quote the
+phrase.** The two that needed re-opening are the two that named only ids.
+
+**The six tier-2 concepts were checked the same way and are NOT affected.** `EX18`
+and `EX22` are byte-identical across v1, first pass and today, so `HT01` and `HT06`
+were ruled on the phrase in the corpus now. `EX36` and `EX35` are unchanged in
+meaning. **`EX33` drifted TOWARD its absorbed concept** — `arimo`, the progressive,
+is in neither v1 nor the first pass, and NE01's axis was *continuous*. **`EX34` is
+the one place a rewrite made a concept worse and the speaker caught it themselves**:
+the first pass `rwaramugaye` (*became disabled*) is a permanent-disability claim v1
+did not make, and the authored form went back to v1's `ntirukora`.
+
+Still open, and not a drift: **`EX22`'s second-phrasing slot is empty, so `HT06`'s
+swollen-vs-infected axis is unrepresented anywhere.** Blocked-list item 3.
+
+**Unimplemented check worth having:** for every EX concept, does the corpus phrase
+still mean what `phrase_review_sheet.csv` says the original meant? The rotation was
+found by accident. Three ids moved and it went unnoticed.
+
 ### RULED: five neurological concepts collapsed into their v1 originals
 
 `NE01 -> EX33`, `NE02 -> EX32`, `NE03 -> EX34`, `NE04 -> EX35`, `NE08 -> EX36`, all
