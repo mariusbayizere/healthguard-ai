@@ -37,6 +37,39 @@ def test_every_ruling_names_a_known_set_or_sentinel():
         )
 
 
+def test_adult_relations_is_every_relation_except_a_child():
+    """Ruled 2026-09-04 for concepts excluded from childhood on SCOPE, not rarity.
+
+    Contrast CHILD_RELATIONS, which names child terms; this is the complement of
+    one relation, not a separate list, so it must stay in step with RELATIONS.
+    """
+    assert V.ADULT_RELATIONS == tuple(
+        r for r in V.RELATIONS["kinyarwanda"] if r != "Umwana wanjye"
+    ), "ADULT_RELATIONS must be RELATIONS minus the child, in the same order"
+    assert "Umukecuru" in V.ADULT_RELATIONS, "an elderly woman is an adult"
+    assert len(V.ADULT_RELATIONS) == len(V.RELATIONS["kinyarwanda"]) - 1
+
+
+def test_cc05_excludes_the_child_relation():
+    """The section-4 ruling that had never reached a code path.
+
+    'CC05, PR06: adult relations' was recorded in the handover, but
+    ADULT_RELATIONS did not exist and CC05 was absent from the rulings CSV, so
+    every render showed all eight relations — including a child with a diabetic
+    foot ulcer, which is not a patient that exists.
+    """
+    allowed = resolve("CC05", "chronic_care")
+    assert allowed == V.ADULT_RELATIONS
+    assert "Umwana wanjye" not in allowed
+    rows = rows_for("chronic_care")
+    cc05 = {r["relation"] for r in rows if r["concept_id"] == "CC05"}
+    assert cc05 == set(V.ADULT_RELATIONS)
+    # A sibling in the same domain still gets all eight, so the restriction is
+    # coming from the ruling rather than from something global.
+    cc06 = {r["relation"] for r in rows if r["concept_id"] == "CC06"}
+    assert len(cc06) == len(V.RELATIONS["kinyarwanda"])
+
+
 def test_a_concept_ruling_beats_its_domain():
     """EX16 is gastrointestinal, which allows all eight; its ruling allows five."""
     assert resolve("EX16", "gastrointestinal") == V.CHILD_RELATIONS

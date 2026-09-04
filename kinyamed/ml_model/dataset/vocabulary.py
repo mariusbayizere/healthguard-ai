@@ -534,6 +534,20 @@ HOUSEHOLD_RELATIONS: tuple[str, ...] = (
     "Mushiki wanjye", "Umwana wanjye",
 )
 
+# Every relation except a child. For concepts whose valid population excludes
+# children on SCOPE rather than rarity - a diabetic foot ulcer is a complication
+# of years of disease and neuropathy, so it is not that paediatric cases are rare,
+# it is that they are not the concept. Contrast NE03/NE04/CC03, where children are
+# kept precisely because rarity is not invalidity and under-triage is the failure
+# that matters.
+#
+# Ruled by the speaker 2026-09-04. Umukecuru is included: an elderly woman is an
+# adult, and for several of these concepts the most apt one.
+ADULT_RELATIONS: tuple[str, ...] = (
+    "Umugore wanjye", "Umugabo wanjye", "Mama", "Papa",
+    "Mushiki wanjye", "Umuturanyi wanjye", "Umukecuru",
+)
+
 # An explicitly empty set means this concept has no third-person form: nobody
 # presents on another's behalf for it. That is different from the concept being
 # absent, and different from a misconfiguration - see build_families.

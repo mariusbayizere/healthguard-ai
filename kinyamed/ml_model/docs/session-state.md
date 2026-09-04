@@ -63,15 +63,22 @@ Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254
 run `python review/provenance.py`.**
 
 ```
-speaker-authored     77   60.2%   the speaker wrote the words
-speaker-derived      24   18.8%   person-transform of their OWN phrase, third person only
-machine-approved     14   10.9%   I composed it, the speaker accepted it unchanged
-machine-derived      11    8.6%   person-transform of a machine-drafted phrase
-unresolved            2    1.6%   wording settled, concept open (CR04)
+speaker-authored     77   54.6%   the speaker wrote the words
+speaker-derived      26   18.4%   person-transform of their OWN phrase, third person only
+machine-approved     21   14.9%   I composed it, the speaker accepted it unchanged
+machine-derived      15   10.6%   person-transform of a machine-drafted phrase
+unresolved            2    1.4%   wording settled, concept open (CR04)
 
-the speaker's own words   101/128 = 79%
-newly composed by me       25/128 = 20%   every row with an explicit accept
+the speaker's own words   103/141 = 73%
+newly composed by me       36/141 = 26%   every row with an explicit accept
 ```
+
+**Re-run `python review/provenance.py` rather than reading these.** The figures
+move with every batch — 79% at 128 authored phrases, 73% at 141 — because the
+gastrointestinal, haemorrhage_trauma and chronic_care batches were drafted by me
+and accepted, which is what `machine_approved` is for. The *shape* of the trend is
+the thing to watch, not the number: `speaker-authored` falls as drafted domains
+land and rises when the speaker writes a batch.
 
 **The old scheme reported 60% and was wrong in both directions.** It had one
 bucket for everything the speaker did not type, so `ndi` -> `ari` on a sentence
@@ -231,6 +238,35 @@ rows a ruling excluded, with no error.
 - **CC05, PR06**: adult relations. Scope, not rarity.
 - **CC08**: `NO_RELATIONS`.
 
+**`ADULT_RELATIONS` now exists** (2026-09-04): every relation except
+`Umwana wanjye` — seven, including `Umukecuru`, since an elderly woman is an adult
+and for several of these concepts the most apt one. Until then the "adult
+relations" ruling above named a set that **did not exist in `vocabulary.py`**, so
+it could not be applied and every render showed all eight.
+
+**Audit of every concept ruling in this list against what a code path actually
+sees** (2026-09-04):
+
+| ruling | in the CSV | effective | status |
+|---|---|---|---|
+| `NE03`, `NE04` keep children | — | — | moot, both collapsed |
+| `CC04` keep children | absent | 8 | correct — absent means the domain default, which includes children |
+| `CC03` keep children | absent | 8 | correct, same reason |
+| `CC05` adult relations | `ADULT_RELATIONS` | 7 | **materialised 2026-09-04** |
+| `PR06` adult relations | **`NO_RELATIONS`** | 0 | **CONFLICT — unresolved** |
+| `CC08` `NO_RELATIONS` | `NO_RELATIONS` | 0 | correct |
+
+**Only `PR06` still has a gap, and it is a contradiction rather than an omission.**
+This list says *adult relations* (someone may present on another's behalf for blood
+pressure screening); `routine_relation_sets.csv` says `NO_RELATIONS` (nobody does).
+Both are recorded rulings and they cannot both hold. Nothing is authored on PR06,
+so nothing is at risk yet — but it must be settled before preventive is drafted.
+
+**A "keep children" ruling needs no CSV entry**, because absence means the domain
+default and the domain default includes children. Only a *narrowing* has to be
+written down. That asymmetry is why CC05's gap went unnoticed and CC03's is not a
+gap at all.
+
 ### ROUTINE third person — `review/routine_relation_sets.csv`
 
 31 ROUTINE concepts, ruled by group:
@@ -362,11 +398,23 @@ the guide is the record.
 
 ```
 ceiling  115 concepts x 2 persons x 4 languages =   920 phrases
-minus    14 applies=no rows x 4                 =    56
-minus    10 NO_RELATIONS thirds x 4             =    40
+minus    19 applies=no rows x 4                 =    76
+minus     5 NO_RELATIONS thirds x 4             =    20
 net                                                 824 phrases
                                     at 2,000/phrase -> 1,648,000 rows
 ```
+
+**The two subtraction lines are interchangeable and the split will keep moving.**
+On 2026-09-04 five `NO_RELATIONS` third rows (CC08, CC09, CC10, EX10, EX11) were
+marked `applies=no`, so they moved from the second line to the first — 14+10
+became 19+5 and the net is identical. Leaving them open had them offered for
+authoring by `walk.py`, producing rows that cannot generate: the PR02 failure
+shape, a ruling recorded where no code path reads it.
+
+**Five remain unmarked, and one of them must stay that way.** `EX44`, `EX45`,
+`PR06`, `PR07` are preventive and can be marked when that domain is worked.
+**`OB11` must not be**: its third person is authored and accepted, which is exactly
+the held conflict — marking it `applies=no` would zero an accepted phrase.
 
 126 -> ... -> 120 -> **115**: IF07 into EX29, EX30 into CR07, GI08 into EX16/EX17,
 EX17 into EX16, HT06 into EX22, HT01 into EX18, and **NE01/NE02/NE03/NE04/NE08

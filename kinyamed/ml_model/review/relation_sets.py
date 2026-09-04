@@ -34,9 +34,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.vocabulary import (CHILD_RELATIONS, DOMAIN_RELATIONS,  # noqa: E402
-                                HOUSEHOLD_RELATIONS, NO_RELATIONS, RELATIONS,
-                                REL_PLACEHOLDER)
+from dataset.vocabulary import (ADULT_RELATIONS, CHILD_RELATIONS,  # noqa: E402
+                                DOMAIN_RELATIONS, HOUSEHOLD_RELATIONS,
+                                NO_RELATIONS, RELATIONS, REL_PLACEHOLDER)
 
 RULINGS = ROOT / "review" / "routine_relation_sets.csv"
 BRIEF = ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv"
@@ -46,6 +46,7 @@ ALL_RELATIONS = RELATIONS["kinyarwanda"]
 # Named sets a ruling may refer to. A ruling naming anything else is a typo, and
 # a typo that silently fell back to the domain default is the whole bug here.
 NAMED = {
+    "ADULT_RELATIONS": ADULT_RELATIONS,
     "CHILD_RELATIONS": CHILD_RELATIONS,
     "HOUSEHOLD_RELATIONS": HOUSEHOLD_RELATIONS,
     "NO_RELATIONS": NO_RELATIONS,

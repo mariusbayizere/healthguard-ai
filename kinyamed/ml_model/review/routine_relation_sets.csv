@@ -28,3 +28,4 @@ D,PR03,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's beh
 D,PR05,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
 E,OB12,HELD,"unchanged, held"
 unresolved,PR02,NONE — do not generate,unresolved pending Rwandan service-design confirmation; out of generation
+concept,CC05,ADULT_RELATIONS,"diabetic foot ulceration is a complication of years of disease and neuropathy — excluded on scope, not rarity. Ruled 2026-09-04. NOTE: this file's name says ROUTINE but it now holds concept-level rulings of any urgency; CC05 is URGENT."
