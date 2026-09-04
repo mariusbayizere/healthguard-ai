@@ -1687,12 +1687,105 @@ and `paediatric` now have no unruled drafts.
 4. **`infectious_fever`** — 9 rows left and **all nine are held** pending a
    clinician. Nothing to draft.
 
-**Six vocabulary blocks, all outreach questions** — `GI03` stool, `PA08` ear,
-`HT05` deformed limb, `NE05` light, `CC04` positional "lying flat", `PR07` cervix.
-`docs/outreach-digital-umuganda.md` carries them as an eight-question list a
-Kinyarwanda speaker can answer in five minutes, with a table mapping each to the
-rows it unblocks. **Send that before the data request** — it costs a reply rather
-than an agreement.
+**UPDATED 2026-09-04 — three of the six vocabulary blocks are cleared.** A second
+attestation corpus was added: `review/attestation/rbc_kinyarwanda_health.txt`,
+2,509,528 characters of RBC health and CHW training curriculum, CC BY 2.0, ungated,
+now the `rbc` tier of `attest.py`. Provenance and the licence caveat are in that
+directory's `SOURCE.md`; the eight blocked terms were re-run and the evidence is in
+`docs/outreach-digital-umuganda.md`.
+
+```
+CLEARED   GI03 stool     amabyi, umukara, and RBC's own danger-sign line
+                         "Kwituma umusarane uvanze n'amaraso"
+CLEARED   CC04 lying flat  "aryamye agaramye kandi adaseguye" — orthopnoea defined
+                           in the curriculum; the positional sense is settled
+CLEARED   PR07 cervix    inkondo y'umura, 41 lines, in the screening context;
+                         nyababyeyi resolved as the WOMB, a different organ
+PARTIAL   PA08 ear       ugutwi now attested. Still no possessive agreement
+                         (kwanjye = 0) and no ear-discharge construction.
+PARTIAL   NE05 light     urumuri now attested, but every hit is physical light.
+                         Photophobia as a symptom: still nothing.
+BLOCKED   HT05 deformed limb   kwavunitse still 0 in all five tiers.
+```
+
+### RULED 2026-09-04 — four rows off the back of the RBC tier
+
+```
+GI04 third   {REL} afite impiswi zikomeye kandi yagize umwuma.            accepted
+CC04 third   {REL} yabyimbye ibirenge kandi ntashobora guhumeka neza
+             iyo aryamye agaramye.                                        accepted
+CC04 first   Nabyimbye ibirenge kandi sinshobora guhumeka neza
+             iyo ndyamye ngaramye.                                        accepted, 3 flags
+PR07 first   Ndashaka kwisuzumisha kanseri y'inkondo y'umura.             accepted
+GI03 both    HELD — speaker is asking their contacts about 'umusarane'
+```
+
+**211/254 resolved, 164 filled, 22 held, 17 needs_clinician.** `chronic_care` is
+closed apart from CC01/CC02 (clinical capacity); `preventive` apart from PR02.
+
+**THE LESSON OF THIS BATCH, and it cost three redrafts: check the COLLOCATION, not
+the word.** Every one of these rows was first drafted with an attested word in an
+unattested collocation, and the word-level check passed all three:
+
+```
+afite umwuma      0 hits   umwuma takes kugira      -> yagize umwuma      attested
+yabuze amazi      0 hits                            -> yagize umwuma
+afite ibirenge    0 hits   the corpus is verb-first -> yabyimbye ibirenge  5 records
+bapima inkondo    0 hits   the verb is kwisuzumisha -> kwisuzumisha ...    attested
+```
+
+`ibirenge byabyimbye` was recorded on CC04 as "attested in 8 CHW records". It is
+**one**; `ibirenge` alone is 8. That is the third instance of the count-versus-result
+error after `amatwi` and `yinjiye`, and the first where it was mine.
+
+**`GI04` was reshaped, not just worded.** Gloss is now *"severe diarrhoea with
+dehydration"*, agreed across `concepts.py`, `concept_anchors.csv` and both brief
+rows. Both observer signs are gone — the skin pinch by the speaker's earlier ruling,
+the sunken eyes because two Rwandan corpora do not use the sign. **The
+`IMCI: SEVERE DEHYDRATION` anchor was deliberately left**: the clinical entity is
+unchanged, but the row now carries no IMCI sign, so that mapping is weaker than it
+was and it is a clinician question.
+
+**`CC04` first carries three unattested 1sg forms inside an accepted phrase** —
+`Nabyimbye`, `ndyamye`, `ngaramye`. The third person of the same sentence needs
+none. Treated as GI05's `zirimo` and GI07's `ntibuhagarara` were: recorded, not
+resolved. Of the three, `ngaramye` is both the least supported by the speaker's own
+alternations and the one carrying the URGENT signal — re-check it first if a
+first-person Kinyarwanda source ever reaches the project.
+
+**`PR07` is shorter than the speaker's own CC09/CC10 frame on purpose**, and they
+ruled on it: `Ndashaka kujya kwa muganga kwisuzumisha X` shares 40 characters with
+both, over `PREFIX_UNION_CHARS`, so all three would become one phrase group. The
+short form shares 10.
+
+**Provenance note worth carrying.** Accepting CC04 first made
+`test_the_stored_source_matches_what_the_classifier_derives` fail on CC04 **third**.
+`classify()` hardcodes *"a person-transform only exists in the third person"*, so for
+a concept drafted third-first the label is formally right and the **direction is
+recorded backwards**. `PA09` and `PR08` carry the identical shape. Fixed by
+`provenance.py --write`; the classifier is what needs the fix, not the rows.
+
+Also cleared, though it was a flag rather than a block: **`CC06`/`CC07` "ran out"**
+— `gushira` is attested in the medicines sense (*"ku miti igiye gushira"*), so those
+two rows can move off "I have no X medicine".
+
+**`GI04` sunken eyes did not clear, and that is now a finding rather than a gap.**
+137 `amaso` lines in a national CHW curriculum that teaches childhood diarrhoea in
+detail, and not one is a sunken-eye sign. Two independent corpora now. The question
+to put to a clinician is no longer "what is the word" but **"is this sign reported
+in Rwanda at all"** — and if not, GI04 should lose the sign rather than gain a word.
+
+The eight outreach questions were **sent before this re-check**. They are not
+withdrawn; a speaker's answer outranks written curriculum, and a reply that
+contradicts the corpus is the more interesting result. `docs/outreach-digital-umuganda.md`
+carries the per-question evidence and the row mapping.
+
+**Swahili is BLOCKED and out of scope for this phase** (ruled 2026-09-04). Not for
+lack of a corpus — because there is no Swahili speaker; the project owner authors
+Kinyarwanda only. `docs/swahili-source-audit.md` carries the source audit and the
+ruling. `speaker_brief_swahili_v2.csv` stays at 0/254 and nothing generates from it.
+**Do not re-open this by finding a better corpus** — a corpus removes one of the two
+blocks.
 
 **Three design proposals, measured but not implemented:**
 

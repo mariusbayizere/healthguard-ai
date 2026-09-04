@@ -15,7 +15,7 @@ IF06,infectious_fever,URGENT,fever with pain passing urine,clinician-defined (no
 GI01,gastrointestinal,CRITICAL,"vomiting everything, cannot keep fluids down",IMCI general danger sign: vomits everything,WHO IMCI 2014 (All rights reserved)
 GI02,gastrointestinal,CRITICAL,vomiting blood,BEC Module 4: approach to shock (haemorrhage),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
 GI03,gastrointestinal,CRITICAL,black tarry stool,BEC Module 4: approach to shock (occult GI bleeding),WHO-ICRC BEC 2018 (CC BY-NC-SA 3.0 IGO)
-GI04,gastrointestinal,CRITICAL,watery diarrhoea with sunken eyes and very slow skin pinch,IMCI: SEVERE DEHYDRATION,WHO IMCI 2014 (All rights reserved)
+GI04,gastrointestinal,CRITICAL,severe diarrhoea with dehydration,IMCI: SEVERE DEHYDRATION,WHO IMCI 2014 (All rights reserved)
 GI05,gastrointestinal,URGENT,blood in the stool,IMCI: blood in stool -> DYSENTERY,WHO IMCI 2014 (All rights reserved)
 GI06,gastrointestinal,URGENT,diarrhoea lasting more than fourteen days,IMCI: PERSISTENT DIARRHOEA,WHO IMCI 2014 (All rights reserved)
 GI07,gastrointestinal,URGENT,severe abdominal pain that will not settle,clinician-defined (no WHO emergency-care anchor),clinician-defined (no WHO anchor)
