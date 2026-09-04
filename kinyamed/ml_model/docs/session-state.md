@@ -42,9 +42,9 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 | haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable: HT01 and HT06, both persons)* |
 | neurological | 6/28 | 0 | 18 | *(+12 not-applicable: NE01-NE04 and NE08 collapsed, EX32/EX33 first)* |
 | chronic_care | 17/28 | 3 | 22 | *(CC01, CC02, CC04 held)* |
-| paediatric | 4/28 | 1 | 17 | *(+13 not-applicable; PA10 collapsed into EX46)* |
+| paediatric | 6/28 | 1 | 19 | *(+13 not-applicable; PA10 collapsed into EX46)* |
 | preventive | 21/28 | 3 | 25 | *(PR02 both persons, PR07 vocabulary-blocked)* |
-| **total** | **158/254** | **25** | **205** | *(+47 not-applicable = 205 resolved)* |
+| **total** | **160/254** | **25** | **207** | *(+47 not-applicable = 207 resolved)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -63,14 +63,14 @@ Swahili brief (`speaker_brief_swahili_v2.csv`) is generated and untouched: 0/254
 run `python review/provenance.py`.**
 
 ```
-speaker-authored     80   50.6%   the speaker wrote the words
-speaker-derived      27   17.1%   person-transform of their OWN phrase, third person only
-machine-approved     28   17.7%   I composed it, the speaker accepted it unchanged
-machine-derived      21   13.3%   person-transform of a machine-drafted phrase
-unresolved            2    1.3%   wording settled, concept open (CR04)
+speaker-authored     80   50.0%   the speaker wrote the words
+speaker-derived      27   16.9%   person-transform of their OWN phrase, third person only
+machine-approved     29   18.1%   I composed it, the speaker accepted it unchanged
+machine-derived      22   13.8%   person-transform of a machine-drafted phrase
+unresolved            2    1.2%   wording settled, concept open (CR04)
 
-the speaker's own words   107/158 = 68%
-newly composed by me       49/158 = 31%   every row with an explicit accept
+the speaker's own words   107/160 = 67%
+newly composed by me       51/160 = 32%   every row with an explicit accept
 ```
 
 **Re-run `python review/provenance.py` rather than reading these.** The figures
@@ -1662,13 +1662,13 @@ a code path reads, not only in this document. `verify-full` 8/8, 108 tests, lint
 **Awaiting your ruling — three rendered batches, walk them one at a time:**
 
 ```
-PA09 both persons  review/paediatric_third_render.csv   the only pair left in
-                   preventive/paediatric. Drafted TOGETHER so the concept is
-                   ruled in the right order, as PR08 was.
-CR01 first         drafted long ago, blocked on the -mu- object marker
+NE07 first         drafted and rulable — nothing blocks it. THE ONLY ONE.
 NE05 first         drafted, blocked on the light term (outreach question 5)
-NE07 first         drafted and rulable — nothing blocks it
+CR01 first         drafted long ago, blocked on the -mu- object marker
 ```
+
+**PA09 was ruled 2026-09-04, both persons together** — the PR08 shape. `preventive`
+and `paediatric` now have no unruled drafts.
 
 **preventive is closed** apart from PR02 (out of generation) and PR07
 (vocabulary-blocked): 21/28 filled, 25/28 resolved. `chronic_care` and
