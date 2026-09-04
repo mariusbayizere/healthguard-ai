@@ -1020,6 +1020,69 @@ after  920 - (24 applies=no x 4)                               = 824
 The separate `NO_RELATIONS` line folds into the `applies=no` line for the identical
 total. Not executed — it is a ruling, even though a bookkeeping-neutral one.
 
+### Drafted: preventive first person — 8 rows, plus two findings that outrank them
+
+`PR01`, `PR03`, `PR04`, `PR05`, `PR06`, `PR07`, `PR09`, `PR10` drafted; suggestions
+only, provenance unchanged. `PR02` stays held and out of generation. **`PR08` was
+deliberately not drafted** — see below.
+
+Built on the speaker's own service frames: `Ndashaka ...` from EX10/EX11/OB11, and
+`ko bapima X` from EX45 — note EX45 uses `bapima`, **not** an object-marked
+`bampima`, which is unattested; the speaker's own choice avoids the object marker
+and the drafts follow it.
+
+Vocabulary flags: `inzitiramubu` (mosquito net) has **one** record and
+`nyababyeyi` (cervix) has **two**, and for PR07 that matters — two hits cannot
+confirm whether the term names the cervix specifically or the womb generally, and
+the concept is cervical screening rather than a general gynaecological visit.
+`PR10` drops the *safety* from "safe drinking water" because no attested adjective
+exists — a sign dropped rather than a word chosen.
+
+### FINDING: EX44-EX47 do not fit either phrase form
+
+The speaker's four preventive phrases are **bare infinitives or verb phrases**, and
+all four are declared `form=utterance`. Rendered as utterances they have no main
+clause:
+
+> *Muganga, **gukingiza umwana** kuva mu cyumweru gishize kandi sinshobora
+> gusinzira. Murakoze.* — "Doctor, vaccinating a child since last week and I
+> cannot sleep. Thank you."
+
+Rendered as `noun_phrase` they are worse — the subject slot injects a third person
+into what rule 12 says is a first-person requester phrase, breaking rule 3:
+
+> *umugabo wanjye afite **gukingiza umwana*** — "my husband has vaccinating a
+> child."
+
+**v1 solved this and the rewrites lost it.** v1's preventive phrases are
+nominalised — `gahunda yo gukingiza umwana` (a schedule for vaccinating a child),
+`icyifuzo cyo gupima amaraso` (a request for a blood test), `ubujyanama ku mirire
+myiza` — and a nominalisation takes `afite` correctly. The speaker's rewrites moved
+to verbal forms, which fit neither. **`EX44` is the exception**: `gahunda yo
+kwisuzumisha buri mwaka` keeps the nominal shape and works as a `noun_phrase`, so
+it is simply declared with the wrong form.
+
+The preventive drafts above avoid the problem entirely by using the `Ndashaka ...`
+frame, which is a complete clause. **That is the shape EX45-EX47 need**, and it is
+the speaker's own — but rewriting their phrases is theirs, not mine.
+
+### Two more duplicate candidates, both cross-domain
+
+- **`EX47` vs `PR08`** — both are feeding advice for a child, both ROUTINE, both
+  `CHILD_RELATIONS`. `PR08` carries an IMCI anchor (*assess feeding / counselling*);
+  EX47 is the v1 concept. The rule-12 audit already noted PR08 is "the same shape
+  as EX47 and OB12". **PR08 was not drafted pending this ruling.**
+- **`EX46` vs `PA10`** — `gukingiza umwana` (vaccinating a child) against "child due
+  for vaccination", whose v1 original was `gahunda yo gukingiza umwana` — the same
+  words. PA10 carries an IMCI anchor (*immunisation schedule*). Cross-domain,
+  preventive against paediatric.
+
+Lighter, and probably specialisations rather than collapses: `EX45`/`PR03` (generic
+blood test vs HIV test) and `EX44`/`PR06`/`PR07` (annual check-up vs named
+screenings) — the axis is recorded in the glosses. `PR05`/`OB11` is the same shape:
+first antenatal booking against routine antenatal check, a real axis both glosses
+carry, but the phrases will share a long head.
+
 ### Two record conflicts, both on unauthored rows
 
 - **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"
