@@ -930,7 +930,18 @@ replacement invented — the ear term has to come from the speaker.**
 8. **`EX34`** — the last authored third-person phrase with no `{REL}`. Needs
    `rw'umubiri wa {REL}`, a rewrite for the speaker's ear rather than a
    substitution; it generates one instance until then.
-9. **A clinician session for the 18 `needs_clinician` rows.**
+9. **A clinician session for the `needs_clinician` rows.**
+10. **Does the obstetric restriction hold in English?** Raised 2026-09-04 from the
+    English arm. The obstetric four exclude `Umugabo wanjye` and `Papa` so a male
+    relation cannot be pregnant — but `Umuturanyi wanjye` and its English
+    `My neighbour` are both **gender-neutral**, so in a language that does not mark
+    gender the same restriction silently readmits a male patient. The speaker ruled
+    `Umuturanyi wanjye` into the four knowingly, so English inherits the ruling rather
+    than narrowing it — but the two languages then mean different things by one set.
+    **Recorded on PR05's row in `routine_relation_sets.csv`**, the only row naming
+    `OBSTETRIC_RELATIONS`, so it is found by whoever changes that set rather than
+    living in prose here. Same class as the PR05 bug: a relation set answers *who can
+    be the patient* or *who can do the asking*, and now also *in which language*.
 
 ### Drafted: chronic_care first person — 8 rows, awaiting rulings
 
