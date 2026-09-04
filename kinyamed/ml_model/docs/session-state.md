@@ -1127,6 +1127,63 @@ screenings) — the axis is recorded in the glosses. `PR05`/`OB11` is the same s
 first antenatal booking against routine antenatal check, a real axis both glosses
 carry, but the phrases will share a long head.
 
+### Drafted: preventive third person — 5 rows, and a group-A contradiction found
+
+`PR01`, `PR03`, `PR04`, `PR05`, `PR10` drafted; rendered to 45 rows in
+`review/preventive_third_render.csv`. Every one is `Ndashaka` -> `{REL} ashaka`,
+the speaker's own EX47 third transform, or the `{REL} aratwite kandi` obstetric
+frame. `PR01` puts `{REL}` mid-phrase — the shape that broke attribution twice, now
+covered by the sweep.
+
+**`PR09` deliberately NOT drafted, and `EX46` third needs re-examining** — see
+below.
+
+### FINDING: group A's rationale contradicts the set it assigns
+
+```
+A,EX46,CHILD_RELATIONS,a parent or carer brings the child
+A,PA09,CHILD_RELATIONS,a parent or carer brings the child
+A,PR08,CHILD_RELATIONS,a parent or carer brings the child
+A,PR09,CHILD_RELATIONS,a parent or carer brings the child
+```
+
+**The rationale names the CARER as the actor; `CHILD_RELATIONS` makes `{REL}` a
+CHILD.** Where the phrase also names the child lexically, the child appears twice
+and the sentence goes circular:
+
+```
+{REL} = child, child NOT in the phrase     EX40-EX43, fixed 2026-09-04
+   Umwana wanjye afite umuriro n'uduheri ku mubiri              coherent
+
+{REL} = child, child ALSO in the phrase    EX46 as it stands TODAY
+   Umwana wanjye afite gahunda yo gukingiza umwana              circular
+   "my child has an appointment to vaccinate a child"
+
+{REL} = carer, child in the phrase         what the rationale describes
+   Mama afite gahunda yo gukingiza umwana                       coherent
+```
+
+**`EX46` third was accepted on 2026-09-04 and renders circularly on all five
+relations.** The phrase is not wrong — the *ruling* is, or the phrase must drop its
+lexical `umwana` as EX40-EX43 did.
+
+Two coherent designs, and the corpus currently mixes them:
+
+- **`{REL}` is the child** — then the phrase must not name the child. This is what
+  EX40-EX43 became, and it needs a passive ("to be vaccinated") that is not
+  attested.
+- **`{REL}` is the carer** — then `CHILD_RELATIONS` is the wrong set and these
+  concepts want `HOUSEHOLD_RELATIONS` or the domain default, with the child staying
+  lexical. This is what the group-A rationale actually says.
+
+Affects the four group-A concepts still live: `EX46` (third authored, circular),
+`PR09` (first authored, third undrafted), `PA09` and `PR08` (both persons open).
+`EX47` left group A when its scope was restored; `PA10` collapsed.
+
+**`PR08` is now unblocked for drafting** — the EX47 duplicate question that held it
+was resolved by restoring EX47's generic scope, so PR08 is free to be the IMCI
+child-feeding concept. It waits only on this group-A ruling.
+
 ### Two record conflicts, both on unauthored rows
 
 - **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"
