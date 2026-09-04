@@ -1715,13 +1715,14 @@ GI04 third   {REL} afite impiswi zikomeye kandi yagize umwuma.            accept
 CC04 third   {REL} yabyimbye ibirenge kandi ntashobora guhumeka neza
              iyo aryamye agaramye.                                        accepted
 CC04 first   Nabyimbye ibirenge kandi sinshobora guhumeka neza
-             iyo ndyamye ngaramye.                                        accepted, 3 flags
+             iyo ndyamye ngaramye.                    ACCEPTED THEN RE-HELD, one word
 PR07 first   Ndashaka kwisuzumisha kanseri y'inkondo y'umura.             accepted
 GI03 both    HELD — speaker is asking their contacts about 'umusarane'
 ```
 
-**211/254 resolved, 164 filled, 22 held, 17 needs_clinician.** `chronic_care` is
-closed apart from CC01/CC02 (clinical capacity); `preventive` apart from PR02.
+**210/254 resolved, 163 filled, 23 held, 18 needs_clinician.** `chronic_care` is
+closed apart from CC01/CC02 (clinical capacity) and CC04 first; `preventive` apart
+from PR02.
 
 **THE LESSON OF THIS BATCH, and it cost three redrafts: check the COLLOCATION, not
 the word.** Every one of these rows was first drafted with an attested word in an
@@ -1746,12 +1747,47 @@ the sunken eyes because two Rwandan corpora do not use the sign. **The
 unchanged, but the row now carries no IMCI sign, so that mapping is weaker than it
 was and it is a clinician question.
 
-**`CC04` first carries three unattested 1sg forms inside an accepted phrase** —
-`Nabyimbye`, `ndyamye`, `ngaramye`. The third person of the same sentence needs
-none. Treated as GI05's `zirimo` and GI07's `ntibuhagarara` were: recorded, not
-resolved. Of the three, `ngaramye` is both the least supported by the speaker's own
-alternations and the one carrying the URGENT signal — re-check it first if a
-first-person Kinyarwanda source ever reaches the project.
+### `CC04` first — accepted, then re-held on ONE WORD, same day
+
+Worth reading as a sequence, because the sequence is the point. The row was
+drafted with three 1sg forms, accepted by the speaker, then re-held when the
+speaker asked for a call on `ngaramye` specifically and offered hold as an option.
+**The accept was withdrawn at the speaker's invitation, not over their head.**
+
+What separated the three forms was checking them against the speaker's **own**
+authored 1sg/3sg pairs, which is a stronger test than corpus attestation here
+because the corpora are third-person register and under-attest 1sg by construction:
+
+```
+Nabyimbye <- yabyimbye   na-/ya-       THREE precedents in their own phrases:
+                                       naraguye/yaraguye (EX23), nagagaye/
+                                       yaragagaye (IF02, OB01), natangiye/
+                                       yatangiye (CR06)
+ndyamye   <- aryamye     nd-/ar-       ONE, exact shape: ndwaye/arwaye (EX12)
+ngaramye  <- agaramye    n-/bare a-    NONE
+```
+
+The first two meet the standard the project already accepted for EX23's `yaraguye`
+— stem attested several ways over, only the inflection unseen. `ngaramye` does not:
+`agaramye` has no `r`, so it is not the `arw-` -> `ndw-` mapping, and nothing in the
+speaker's authored set covers a bare `a-` -> `n-` of this shape.
+
+**Why one word justifies a held row.** `agaramye` is what makes the sentence
+orthopnoea rather than "breathless at bedtime". Swollen legs alone is unremarkable;
+swollen legs plus breathlessness lying FLAT is heart failure, which is why the
+concept is URGENT. A wrong word here does not make the phrase slightly off — it
+makes it read as mild and removes the concept's reason to exist.
+
+**No reduction is available**, which is why it is hold and not rewrite: dropping
+`ngaramye` restores the positional/temporal ambiguity RBC had just resolved, and
+dropping the clause removes the sign the concept exists for. The draft stays in
+`suggested_kinyarwanda` as the record. **The third person is accepted and generates
+— it needs none of these forms.** Outreach question 6 already asks this.
+
+**The general point, worth carrying past this row:** when a form is unattested in
+every corpus, the speaker's own authored alternations are the next evidence to
+reach for, and they discriminate. Two of these three were fine on that test and one
+was not, and no amount of corpus searching would have separated them.
 
 **`PR07` is shorter than the speaker's own CC09/CC10 frame on purpose**, and they
 ruled on it: `Ndashaka kujya kwa muganga kwisuzumisha X` shares 40 characters with
