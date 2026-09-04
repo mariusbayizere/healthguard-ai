@@ -10,7 +10,6 @@ B,EX10,NO_RELATIONS,first person only; nobody presents on another's behalf for t
 B,EX11,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,EX44,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,EX45,NO_RELATIONS,first person only; nobody presents on another's behalf for this
-D,OB11,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf. RE-RULED 2026-09-04 from NO_RELATIONS: the group-D ruling on PR05 (first antenatal visit) settles it — if a household member can ask about the first visit they can ask about a routine one. Closes the held conflict between this ruling and OB11's authored third person.
 B,PR06,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 B,PR07,NO_RELATIONS,first person only; nobody presents on another's behalf for this
 C,CR07,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does not usually report another adult's
@@ -23,7 +22,7 @@ C,HT08,CHILD_RELATIONS,a parent reports a child's mild symptom; an adult does no
 D,PR04,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
 D,PR10,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
 D,PR03,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
-D,PR05,HOUSEHOLD_RELATIONS,a household member can plausibly ask on another's behalf
+concept,PR05,OBSTETRIC_RELATIONS,"RE-RULED 2026-09-04. The group-D ruling applied who-can-ask logic to a phrase where {REL} is the PATIENT: 'Umugabo wanjye aratwite' is 'my husband is pregnant'. PR05 is a service concept ABOUT pregnancy filed under preventive, so it never picked up the obstetric domain set. Needs an explicit ruling because absence would give it preventive's default of eight."
 E,OB12,HELD,"unchanged, held"
 unresolved,PR02,NONE — do not generate,unresolved pending Rwandan service-design confirmation; out of generation
 concept,CC05,ADULT_RELATIONS,"diabetic foot ulceration is a complication of years of disease and neuropathy — excluded on scope, not rarity. Ruled 2026-09-04. NOTE: this file's name says ROUTINE but it now holds concept-level rulings of any urgency; CC05 is URGENT."

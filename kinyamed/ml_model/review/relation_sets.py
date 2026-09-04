@@ -47,6 +47,11 @@ ALL_RELATIONS = RELATIONS["kinyarwanda"]
 # a typo that silently fell back to the domain default is the whole bug here.
 NAMED = {
     "ADULT_RELATIONS": ADULT_RELATIONS,
+    # An alias for the obstetric domain set, so a concept filed OUTSIDE obstetric
+    # can still be restricted to relations that can be pregnant. PR05 is a
+    # preventive concept about pregnancy: without this it would take preventive's
+    # default of all eight and generate "my husband is pregnant".
+    "OBSTETRIC_RELATIONS": DOMAIN_RELATIONS["obstetric"],
     "CHILD_RELATIONS": CHILD_RELATIONS,
     "HOUSEHOLD_RELATIONS": HOUSEHOLD_RELATIONS,
     "NO_RELATIONS": NO_RELATIONS,

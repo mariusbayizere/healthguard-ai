@@ -1216,6 +1216,46 @@ consistent with these.
 `PA09` carries a clinical flag: growth monitoring is weight plotted against age
 plus MUAC, and `gupima ibiro` says only the weighing.
 
+### RULED: PR05 and OB11 take the obstetric four — and the audit that followed is clean
+
+**A relation ruling made on service logic was applied to a phrase where `{REL}` is
+the PATIENT.** `PR05` third is `{REL} aratwite kandi ashaka kwisuzumisha...` and
+`HOUSEHOLD_RELATIONS` includes `Umugabo wanjye`, `Papa` and `Umwana wanjye` — so
+three of six rows said *"my husband is pregnant"*. That is precisely what
+`DOMAIN_RELATIONS['obstetric']` exists to prevent; PR05 never picked it up because
+it is a **pregnancy concept filed under `preventive`**.
+
+`OB11` had the identical exposure, and it was **introduced by the 2026-09-03
+re-ruling** that closed its held conflict: before that it took the obstetric four
+by domain default and was safe.
+
+Both now take the obstetric four. `PR05` needs an explicit ruling —
+`OBSTETRIC_RELATIONS`, a new alias for `DOMAIN_RELATIONS['obstetric']` — because
+absence would give it preventive's default of eight. `OB11`'s CSV row was **removed
+entirely**, since absence means its own domain default. **That does not reopen its
+conflict**: the conflict was with `NO_RELATIONS`, and the domain default still
+generates.
+
+**Audit of every ruled concept — clean.** Two checks, both mechanical:
+
+```
+phrases constrained by pregnancy (aratwite / kubyara)   14   flagged 0
+phrases naming a child lexically, {REL} also a child     7   flagged 0
+every ruled concept, {REL} role vs the set's logic      14   mismatches 0
+```
+
+The third check is the general form of the question: a **service-logic set**
+(`ADULT_RELATIONS` or `HOUSEHOLD_RELATIONS`, groups A and D) on a phrase where
+`{REL}` is the patient. Group A and group D are all REQUESTER phrases; group C is
+all PATIENT but takes `CHILD_RELATIONS`, which is a patient set and correct; `CC05`
+is PATIENT on `ADULT_RELATIONS`, ruled on scope rather than service. **PR05 and
+OB11 were the only two instances and both are fixed.**
+
+**The general lesson, worth carrying:** a relation set answers one of two different
+questions — *who can be the patient* or *who can do the asking* — and the phrase
+decides which. A set chosen for one and applied to the other produces impossible
+patients, silently. Check the phrase before applying a ruling made on group logic.
+
 ### Two record conflicts, both on unauthored rows
 
 - **`PR06`** is `NO_RELATIONS` in `routine_relation_sets.csv` but "adult relations"

@@ -204,21 +204,66 @@ def test_a_held_row_neither_generates_nor_blocks(tmp_path):
 def test_ob11_is_no_longer_in_conflict():
     """The conflict this module was built around is closed; keep it closed.
 
-    OB11 is HOUSEHOLD_RELATIONS with an authored third person, and the two agree.
-    If a future ruling puts it back to NO_RELATIONS while the phrase stands, the
-    conflict returns and materialise() will report it — this asserts the resolved
-    state so that regression is visible.
+    Asserts the PROPERTY, not a set name. An earlier version pinned
+    HOUSEHOLD_RELATIONS as a literal and broke the day OB11 was re-ruled to the
+    obstetric default — the second time this test failed for pinning a value
+    rather than the invariant. What matters is: the third person is authored, it
+    still generates, and materialisation reports no conflict.
     """
     rows = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
                                .open(encoding="utf-8")))
     ob11 = next(r for r in rows if r["concept_id"] == "OB11" and r["person"] == "third")
     assert ob11["hold"] != "yes", "the hold was lifted when the conflict was resolved"
     assert ob11["your_phrasing"].strip(), "its third person is authored"
-    assert rulings().get("OB11") == "HOUSEHOLD_RELATIONS"
-    assert resolve("OB11", "obstetric") == V.HOUSEHOLD_RELATIONS
+
+    allowed = resolve("OB11", "obstetric")
+    assert allowed, "an authored third person that generates nothing is the conflict"
+    # whatever set it takes, it must be one whose members can be pregnant: the
+    # phrase begins 'aratwite'. This is the check whose absence let a
+    # who-can-ask ruling put "my husband is pregnant" into the corpus.
+    assert set(allowed) <= set(V.DOMAIN_RELATIONS["obstetric"]), (
+        f"OB11's phrase begins 'aratwite'; {sorted(set(allowed) - set(V.DOMAIN_RELATIONS['obstetric']))} "
+        "cannot be pregnant"
+    )
 
     _, conflicts = materialise()
     assert not conflicts, f"materialisation must be clean: {conflicts}"
+
+
+def test_no_pregnancy_phrase_can_reach_a_relation_that_cannot_be_pregnant():
+    """The general form of the PR05/OB11 bug, over the whole corpus.
+
+    A relation set answers one of two questions — who can be the PATIENT, or who
+    can do the ASKING — and the phrase decides which. A set chosen for one and
+    applied to the other produces impossible patients silently. PR05 was a
+    pregnancy concept filed under `preventive`, so it never picked up the
+    obstetric domain set and a who-can-ask ruling gave it "my husband is pregnant".
+    """
+    import re
+
+    pregnant = re.compile(r"\baratwite\b|kubyara")
+    obstetric = set(V.DOMAIN_RELATIONS["obstetric"])
+    rows = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
+                               .open(encoding="utf-8")))
+    checked = 0
+    for row in rows:
+        if row["person"] != "third" or (row.get("applies") or "yes").lower() == "no":
+            continue
+        phrase = (row["your_phrasing"] or row["suggested_kinyarwanda"]).strip()
+        if not phrase or V.REL_PLACEHOLDER not in phrase:
+            continue
+        if not pregnant.search(phrase.lower()):
+            continue
+        allowed = resolve(row["concept_id"], row["domain"])
+        if not allowed:
+            continue
+        checked += 1
+        impossible = sorted(set(allowed) - obstetric)
+        assert not impossible, (
+            f"{row['concept_id']} ({row['domain']}) says {phrase!r} but allows "
+            f"{impossible} — relations that cannot be pregnant"
+        )
+    assert checked >= 10, "fixture problem: the corpus should have many pregnancy phrases"
 
 
 @pytest.mark.parametrize("concept_id", ["CR07", "EX16", "EX29", "EX31"])
