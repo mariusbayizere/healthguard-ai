@@ -1,5 +1,17 @@
 # Kaggle run: 20 epochs, phrase split, manifest v1
 
+> **SUPERSEDED for new runs by `docs/kaggle-run-v2.md`.** Kept as the record of
+> the v1 run. Everything below describes the v1 corpus — four languages,
+> 1,000,000 rows, 184 template-drafted phrases — and **none of its numbers carry
+> over to v2**, which is monolingual Kinyarwanda, 330,000 rows, 165
+> speaker-authored phrases. A v1 result and a v2 result are not the same
+> experiment and do not belong in one table.
+>
+> **Warning 3 below is v1-only and is reversed in v2.** v1's family holdout was
+> 89.2% contaminated; v2's is 0.0%, because v2 is monolingual and each phrase
+> belongs to exactly one family. Do not carry the 89.2% figure into any v2
+> context.
+
 Cells to paste in order. Read the three warnings at the bottom before you gate on
 anything — two of them change what the resulting numbers mean.
 
@@ -138,7 +150,11 @@ I have not implemented threshold tuning, because doing it against the frozen eva
 is the wrong thing and doing it properly needs a validation split that does not
 exist yet. Say the word and I will add it.
 
-## Warning 3 — the family holdout is not a valid secondary number for this model
+## Warning 3 — v1 ONLY: the family holdout is not a valid secondary number for this model
+
+**This warning applies to v1 and is reversed in v2.** See `docs/kaggle-run-v2.md`
+warning 3: v2's family holdout is uncontaminated, and the cost is that the two
+splits no longer measure different things.
 
 **89.2% of family-eval rows (101,945 of 114,321) appear verbatim in the phrase
 split's training set.** Both splits partition the same corpus on different axes,

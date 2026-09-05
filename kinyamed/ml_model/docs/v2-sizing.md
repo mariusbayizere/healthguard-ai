@@ -459,3 +459,64 @@ so the label distribution is not skewed. Domain is not balanced and was never
 claimed to be. A model trained on this will see four times as many preventive
 rows as paediatric ones, and any per-domain metric should be read against these
 shares rather than as if the domains were equally represented.
+
+## The two holdouts converged in v2 — a real loss, measured
+
+**v1 shipped two difficulty levels. v2 ships one strictness at two sampling
+ratios.** This is a capability the corpus had and no longer has, and it is a
+consequence of the monolingual scope rather than a defect in the splitter.
+
+```
+                          v1                        v2
+phrase-eval / train       0% phrase overlap         0% phrase overlap
+family-eval / train       89.2% overlap             0.0% overlap
+                          (101,945 of 114,321)      (0 of 24,900)
+```
+
+**Why v1's family split leaked and v2's cannot.** A family is
+(frame language, phrase language, class, domain). In v1 the same phrase inventory
+fed four monolingual families and six mixed pairs, so one phrase appeared in up
+to ten families - hold out one and the phrase's other nine families kept its rows
+in train. That overlap was the point: the family split was the *easy* evaluation,
+measuring generalisation to unseen frames while the wording had been seen, and
+the phrase split was the hard one, measuring generalisation to unseen wording.
+
+v2 is monolingual with no mixed pairs, so **each phrase belongs to exactly one
+family**. Holding out a family removes every row of its phrases. The family split
+has quietly become a coarser phrase split:
+
+```
+phrase holdout   train 150 phrases / 86 groups   eval 15 / 8    shared 0
+family holdout   train 147 phrases / 83 groups   eval 18 / 11   shared 0
+```
+
+### What this obliges the paper to say
+
+**Do not describe v2 as evaluating at two difficulty levels.** It does not. Both
+eval sets require generalisation to phrases never seen in training; they differ
+only in size (10.43% against 7.55%) and in which phrases fall out.
+
+**The 89.2% figure is dead and must not appear in any v2 context.** It is a v1
+measurement of a v1 property that v2 does not have. It is corrected in
+`docs/kaggle-run-v1.md` and `docs/paper-text-sizing.md`; if it turns up anywhere
+else it is stale.
+
+**A v1 result and a v2 result on "the family holdout" are not the same
+experiment.** v1's family-eval was 89.2% contaminated by construction and had to
+be reported as such. v2's is clean. A table putting the two side by side under one
+heading would be comparing a contaminated eval with an uncontaminated one and
+calling the difference a model improvement.
+
+### v3: make the second split mean something again
+
+**Not done, deliberately, and not to be bolted onto this freeze.** The way to
+restore a genuine second difficulty level in a monolingual corpus is to hold out
+along an axis that is not the phrase - **a whole domain, or a whole urgency
+class** - so the eval set tests transfer to clinical material of a kind never
+seen rather than to wording never seen. That is a different question from
+leakage and needs its own design: a domain holdout changes the class balance of
+both sides, and an urgency holdout removes a label from training entirely, which
+may not be a meaningful task at all.
+
+Recorded here so the loss is visible and the remedy is not reinvented from
+scratch.

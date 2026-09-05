@@ -32,7 +32,7 @@ Nothing here starts until speaker briefs and clinician sign-off are both back.
 | 22 | **`make test-clean`** | must pass in a fresh clone | ambient-state failures ship; this is why the target exists |
 | 23 | **`make verify` and `make verify-full`** | 6/6 and 8/8 | the digests in the manifest are unverified assertions |
 | 24 | **Commit, push, confirm CI green** | all four jobs | — |
-| 25 | **Re-run the family-overlap measurement** | recompute the phrase-train / family-eval overlap | the 89.2% figure is v1-specific; with a different phrase inventory it will change, and quoting the old number would be exactly the sin this project keeps correcting |
+| 25 | **Re-run the family-overlap measurement** | recompute the phrase-train / family-eval overlap | the 89.2% figure is v1-specific. **DONE 2026-09-05: v2 measures 0.0%.** The two holdouts have converged because v2 is monolingual - each phrase belongs to exactly one family, so holding a family out removes its phrases entirely. v2 has one strictness at two sampling ratios, not two difficulty levels. See `docs/v2-sizing.md`. |
 
 ## Points where it is easy to get this wrong
 

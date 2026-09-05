@@ -62,4 +62,8 @@ Do not paste these until they have been produced by a run:
 - median rows per phrase (projected ~2,000 — the near-duplicate scan measures it)
 - held-out phrases in the phrase split (projected ~50)
 - eval matrix counts, both splits
-- phrase-train / family-eval overlap (v1 measured 89.2%; v2 will differ)
+- phrase-train / family-eval overlap. **v1 measured 89.2%; v2 measures 0.0%** and
+  the two holdouts have converged - v2 is monolingual, so each phrase belongs to
+  exactly one family and holding one out removes its phrases entirely. Do not
+  describe v2 as two difficulty levels; it is one strictness at two ratios
+  (10.43% and 7.55%). See docs/v2-sizing.md.
