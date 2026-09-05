@@ -405,7 +405,48 @@ the guide is the record.
     excludes the *patient's* first-person row, not the carer's, and both persons
     can exist for a service concept as two different speakers.
 
-## 6. Row target: 1,640,000
+## 6. Row target: 1,624,000
+
+**UPDATED 2026-09-05 — EX42 and PA06 collapsed into IF05.** Re-derived from disk,
+not adjusted:
+
+```
+127  concept ids in the brief
+-14  EX17 EX30 EX42 GI08 HT01 HT06 IF07 NE01 NE02 NE03 NE04 NE08 PA06 PA10
+ -1  PR02, out of generation
+112  concepts in the ceiling
+
+ 49  applies=no rows on disk
+-28  the rows of the fourteen collapsed concepts, outside the ceiling
+ 21  applies=no rows the ceiling still counts
+
+112 x 2 x 4 = 896   minus 21 x 4 = 84   ->  812 phrases  ->  1,624,000 rows
+```
+
+**FILING LOSS, recorded deliberately — the PA10 -> EX46 shape.** Generalised rash
+now lives in `infectious_fever` as **IF05**, and there is **no paediatric measles
+concept**. Three ids held one sign: IF05 (*fever with generalised rash*,
+`IMCI: generalised rash -> MEASLES`), PA06 (*child with fever and rash*,
+`IMCI: MEASLES`) and EX42, the v1 paediatric phrase. Two anchors, both MEASLES, no
+`distinct from` note anywhere.
+
+The speaker had already ruled half of it: PA06 first carried *"duplicates IF05 in
+first person; the paediatric distinction lives in `{REL}`"*. If the child-ness lives
+in `{REL}`, it lives there in the third person too — `Umwana wanjye afite umuriro
+n'uduheri ku mubiri` was generating from EX42 *and* from IF05.
+
+**The cost is relation coverage, not a sign.** IF05 renders over 8 relations; EX42
+and PA06 rendered over `CHILD_RELATIONS` (5). Child measles is now five of IF05's
+eight rather than a concept of its own. **Do not re-create a paediatric measles
+concept** — that is what this ruling removed.
+
+`PA06` is out of `concepts.py` (58 -> 57) and `concept_anchors.csv` (70 -> 69).
+`EX42` was never in either. EX42's authored third-person wording is kept in
+`suggested_kinyarwanda` as the record of what was collapsed.
+
+### Superseded: the 1,640,000 arithmetic
+
+
 
 **Standing: the target is a consequence of the valid inventory, not a quota.**
 2,000 rows per authored phrase is the invariant.
