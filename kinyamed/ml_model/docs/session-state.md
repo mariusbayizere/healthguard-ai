@@ -1,19 +1,23 @@
 # Session state — handover
 
-Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01, reconciled
-against disk 2026-09-04 (third pass, end of session). All figures below were re-derived from the files by running the tooling, not recalled.
+Everything a fresh session needs to continue without re-deriving it. Written 2026-09-01,
+reconciled against disk **2026-09-05, end of day**. All figures below were re-derived by
+running the tooling, not recalled.
 
-**Since the last reconciliation:** `phrase_components` was fixed (it was missing
-containments — section 9), a 30-character prefix union was added, the provenance
-categories were replaced (section 2a), eleven concepts have now collapsed and the
-target is **1,648,000**, and `{REL}` was parameterised into seven phrases that had
-none.
+**Since the last reconciliation (2026-09-05):** a second attestation corpus was added
+(RBC, 2.5M characters, `attest.py`'s `rbc` tier) and three of six vocabulary blocks
+cleared; **all five multi-concept phrase groups are resolved**, one by collapse and four
+by rewording; `PREFIX_UNION_CHARS` was **removed** and replaced by an ordered
+word-subsequence rule plus one declaration; two collapses were re-opened and both stood
+on rewrites rather than on their v1 concepts; **Swahili is blocked and out of scope**;
+and a Kinyarwanda speaker answered four outstanding questions, one of which
+(`imyuna`) overturned a phrase every check in the project had passed. Rule 13 and the
+anchor rule are written down. **Target 1,616,000.**
 
-**Every count here is reproducible.** `held` is `hold=yes`; `filled` is a non-empty `your_phrasing`
-on a row that is **not** `applies=no` (EX30 first keeps the speaker's text but was collapsed, so it
-counts as not-applicable — see section 7's counting note); `resolved` is filled-or-not-applicable,
-which is what `progress.py` prints. Where a number appears twice in this document it has been made
-to agree; where it disagrees with the files, the files win.
+**Every count here is reproducible.** `held` is `hold=yes`; `filled` is a non-empty
+`your_phrasing` on a row that is **not** `applies=no`; `resolved` is
+filled-or-not-applicable, which is what `progress.py` prints. Where a number appears
+twice it has been made to agree; where it disagrees with the files, the files win.
 
 ---
 
@@ -35,16 +39,16 @@ Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
 
 | domain | filled | held | resolved | |
 |---|---|---|---|---|
-| cardiac_respiratory | 26/28 | 3 | 26 | *(CR07 now carries EX30's wording)* |
-| obstetric | 27/28 | 1 | 27 | *(OB12 only — OB11's conflict closed 2026-09-04)* |
-| infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable: IF07 and EX30, both persons)* |
-| gastrointestinal | 20/28 | 3 | 25 | *(+5 not-applicable: GI04 first, GI08 both, EX17 both)* |
-| haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable: HT01 and HT06, both persons)* |
-| neurological | 6/28 | 0 | 18 | *(+12 not-applicable: NE01-NE04 and NE08 collapsed, EX32/EX33 first)* |
-| chronic_care | 17/28 | 3 | 22 | *(CC01, CC02, CC04 held)* |
-| paediatric | 6/28 | 1 | 19 | *(+13 not-applicable; PA10 collapsed into EX46)* |
-| preventive | 21/28 | 3 | 25 | *(PR02 both persons, PR07 vocabulary-blocked)* |
-| **total** | **160/254** | **25** | **207** | *(+47 not-applicable = 207 resolved)* |
+| cardiac_respiratory | 26/28 | 3 | 26 | |
+| obstetric | 27/28 | 3 | 27 | *(OB06 both persons held 2026-09-05, acuity reopened)* |
+| infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable)* |
+| gastrointestinal | 21/28 | 2 | 26 | *(+5 not-applicable)* |
+| haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable)* |
+| neurological | 6/28 | 0 | 18 | *(+12 not-applicable)* |
+| chronic_care | 19/28 | 2 | 24 | *(CC04 authored 2026-09-05; CC01/CC02 held)* |
+| paediatric | 5/28 | 1 | 21 | *(+16 not-applicable; PA01, PA06, PA10 collapsed)* |
+| preventive | 22/28 | 2 | 26 | *(PR02 out of generation, PR07 authored)* |
+| **total** | **163/254** | **24** | **213** | *(+50 not-applicable)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -405,22 +409,22 @@ the guide is the record.
     excludes the *patient's* first-person row, not the carer's, and both persons
     can exist for a service concept as two different speakers.
 
-## 6. Row target: 1,624,000
+## 6. Row target: 1,616,000
 
-**UPDATED 2026-09-05 — EX42 and PA06 collapsed into IF05.** Re-derived from disk,
-not adjusted:
+**UPDATED 2026-09-05 — EX42, PA06 and PA01 collapsed.** Re-derived from disk, not
+adjusted:
 
 ```
 127  concept ids in the brief
--14  EX17 EX30 EX42 GI08 HT01 HT06 IF07 NE01 NE02 NE03 NE04 NE08 PA06 PA10
+-15  EX17 EX30 EX42 GI08 HT01 HT06 IF07 NE01 NE02 NE03 NE04 NE08 PA01 PA06 PA10
  -1  PR02, out of generation
-112  concepts in the ceiling
+111  concepts in the ceiling
 
- 49  applies=no rows on disk
--28  the rows of the fourteen collapsed concepts, outside the ceiling
- 21  applies=no rows the ceiling still counts
+ 50  applies=no rows on disk
+-30  the rows of the fifteen collapsed concepts, outside the ceiling
+ 20  applies=no rows the ceiling still counts
 
-112 x 2 x 4 = 896   minus 21 x 4 = 84   ->  812 phrases  ->  1,624,000 rows
+111 x 2 x 4 = 888   minus 20 x 4 = 80   ->  808 phrases  ->  1,616,000 rows
 ```
 
 **FILING LOSS, recorded deliberately — the PA10 -> EX46 shape.** Generalised rash
@@ -502,6 +506,8 @@ the same two rows swapped in and out is itself evidence the concepts were one.
 ```
 ```
 
+**History of the target**, each value the one in force at that ruling: 2,016,000 at 126 concepts; 1,648,000 after the five neurological collapses (2026-09-03); 1,640,000 once the ceiling was re-derived; 1,624,000 after EX42 and PA06; **1,616,000 after PA01** (2026-09-05). `TARGET_ROWS_V2` in `generate_large_dataset.py` is still `1_008_000` and has never tracked this figure.
+
 **PR02 is subtracted once, as a concept, not again as two rows.** Its rows stay
 `applies=yes` (section 3), so they never enter the 14. A future session that
 marks them `applies=no` must drop the concept subtraction at the same time or
@@ -513,7 +519,7 @@ pairing is now declared in the brief and `second_phrasings.py` emits it.
 
 History: 2,016,000 at 126; 2,000,000 at 125; 1,888,000 after PA01-04; 1,832,000
 after PA05-07 and EX40-43; 1,808,000 after GI04, NE01, NE02; 1,792,000 after the
-EX30 collapse; 1,776,000 after GI08; 1,760,000 after EX17; 1,728,000 after HT01 and HT06; **1,648,000** after the five
+EX30 collapse; 1,776,000 after GI08; 1,760,000 after EX17; 1,728,000 after HT01 and HT06; 1,648,000 after the five
 neurological collapses. `TARGET_ROWS_V2` is still `1_008_000`.
 
 ## 7. Current batch and what is blocked
@@ -1560,7 +1566,7 @@ convulsing or unconscious patient cannot report. That is the same ground on whic
 NE01 and NE02 first were *already* `applies=no`, which was itself part of the
 evidence that the concepts were one.
 
-**115 concepts, 824 phrases, 1,648,000 rows.**
+~~**115 concepts, 824 phrases, 1,648,000 rows.**~~ — the value at that ruling. **Current: 111 concepts, 808 phrases, 1,616,000 rows** (section 6).
 
 ### RULED: `{REL}` added to seven of the eight placeholder-less phrases
 
@@ -1801,22 +1807,42 @@ Flags carried on the rows rather than resolved:
 a code path reads, not only in this document. `verify-full` 8/8, 108 tests, linter
 0 errors on both columns.
 
-**Awaiting your ruling — three rendered batches, walk them one at a time:**
+**AWAITING THE SPEAKER — every one is a single word or a single question:**
 
 ```
-NE07 first         drafted and rulable — nothing blocks it. THE ONLY ONE.
-NE05 first         drafted, blocked on the light term (outreach question 5)
-CR01 first         drafted long ago, blocked on the -mu- object marker
+GI03   the COLOUR half. amabyi is settled as the patient word; y'umukara rests
+       on one RBC sentence about MECONIUM, so whether that is how a patient
+       describes melaena is unconfirmed. HELD.
+OB06   does "nk'uko bisanzwe" remove the demise implication ntagikina carries?
+       BOTH PERSONS HELD until answered - the question is acuity, not phrasing.
+EX20   "amazuru yanjye" is attested nowhere. It follows the speaker's
+       "iminwa yanjye" (CR03, EX04) but is not the EX31 object-marker pattern.
+PA08   the ear row: ugutwi is now attested but "kwanjye" is 0 and no
+       ear-discharge construction exists.
+NE05   photophobia. urumuri is attested; no line connects light to the eyes.
+HT05   a limb bent out of shape. kwavunitse is still 0 in all five tiers.
 ```
 
-**PA09 was ruled 2026-09-04, both persons together** — the PR08 shape. `preventive`
-and `paediatric` now have no unruled drafts.
+**AWAITING A CLINICIAN:**
 
-**preventive is closed** apart from PR02 (out of generation) and PR07
-(vocabulary-blocked): 21/28 filled, 25/28 resolved. `chronic_care` and
-`gastrointestinal` are closed apart from held rows.
+```
+EX43   is "high fever and not eating" URGENT, or close enough to the DRINKING
+       danger sign to be CRITICAL? PA02 is the neighbouring concept.
+OB06   if ntagikina keeps its demise implication, URGENT is wrong.
+PA03   IMCI says "lethargic OR unconscious"; EX32 says "yataye ubwenge KANDI
+       ntasubiza" - half the sign. Rework EX32 or keep PA03 separate.
+---    DOES ABSENT FETAL MOVEMENT NEED ITS OWN CRITICAL OBSTETRIC CONCEPT?
+       OB01-OB05 are eclampsia, pre-eclampsia, cord presentation, obstructed
+       labour, puerperal sepsis. The OB06 ruling exposed this gap; the
+       ntagikina finding means something may now be falling into it.
+EX27   duplicates EX26, and EX27's own v1 concept (fever with generalised body
+       aches) is vacant. Same for EX17's "slight abdominal pain".
+```
 
-**Then draft, in this order:**
+**SWAHILI IS OUT OF SCOPE** — blocked for want of a speaker, not a corpus.
+`docs/swahili-source-audit.md`. Do not re-open it by finding a better corpus.
+
+**Then draft, in this order:****Then draft, in this order:**
 
 1. **`PA09` and `PR08` FIRST person** — their thirds were drafted ahead of them on
    request, which inverts the usual order. Write these next and keep them
@@ -2102,6 +2128,90 @@ the lethargic/floppy half is the one that presents *earlier*. Collapsing PA03 in
 EX32 would delete half a danger sign, and the conjunction/disjunction mismatch
 (`kandi` against IMCI's *or*) is the tell. Either EX32 is reworded to cover both,
 or PA03 stays as its own concept. Speaker/clinician question, not a wording one.
+
+## 8b. 2026-09-05 — the phrase-group batch, and what it cost to learn
+
+**All five multi-concept phrase groups are closed.** One collapse, four rewordings.
+
+```
+163 phrases, 87 groups, 5 multi-concept    start of day
+162 phrases, 93 groups, 0 multi-concept    end of day
+```
+
+| group | outcome |
+|---|---|
+| `EX42`+`IF05` (+`PA06`) | **collapsed into IF05** — three ids, one sign, two MEASLES anchors |
+| `EX14`+`GI07`+`EX38` | EX14 reworded to its v1 phrase |
+| `CR02`+`EX02`+`EX04` | EX02 reworded to its v1 phrase |
+| `CC03`+`EX09` | EX09 reworded, keeping the speaker's change-reading |
+| `EX18`+`EX20` | EX20 reworded twice — see the `imyuna` finding below |
+
+**Three of the five had ONE cause.** A short v1-derived phrase was the opening clause of
+a longer clinician-defined concept specialising it — `EX14` (4 words), `EX02` (3),
+`EX09` (5). Containment was guaranteed the moment both were authored, so **this is
+structural and will recur as the corpus fills.** Two were fixed by restoring the short
+phrase's own v1 wording. `EX18`/`EX20` was the exception: EX18 had no words of its own,
+so the longer phrase had to move.
+
+### The `imyuna` finding — the most important thing learned today
+
+`EX20` was reworded twice. The second version was built entirely from the speaker's own
+material (`amazuru ye` from EX31, `arava amaraso menshi` from EX39), measured clean
+against all 160 other phrases, every element attested in the `speaker` tier. **It was
+still wrong.** A Kinyarwanda speaker supplied the noun: **`imyuna`, not `amaraso`** —
+blood generally against what comes from the nose.
+
+**Both of the project's checks agreed with each other and were both wrong.** Attestation
+pointed at `amaraso` *because the speaker had already used it elsewhere*; pattern-matching
+pointed there for the same reason. `imyuna` was in the corpus the whole time — 7 RBC lines
+and a CHW consultation of this exact presentation, *"afite ikibazo cyo kuva imyuna kandi
+ngo abimaranye iminsi itatu"* — and **nothing in the method would have selected it over a
+word the speaker had already authored.**
+
+The same shape appeared twice more the same day:
+
+- **`GI03`** — `umusarane` had three danger-sign lines against `amabyi`'s one
+  parenthetical gloss, and was reported here as the stronger word. It is the **stool
+  SPECIMEN a clinician requests**; the patient word is `amabyi`. The count was pointing
+  at the right word for the wrong speaker.
+- **`CC04`** — `ndagaramye` and `aragaramye` appear in **neither corpus**, because both
+  are third-person written register and under-attest spoken inflection.
+
+**The lesson, and it is not "attest harder":** attestation answers *does this word exist
+in Rwandan clinical use*, never *is this the word a patient uses for this thing*. Register
+and referent are invisible to it. Where a phrase turns on **which** word rather than
+whether a word exists, only a speaker can settle it — and the check that comes closest is
+the speaker's own authored alternations, which caught `ngaramye` where attestation could not.
+
+### Rulings applied
+
+```
+GI03    amabyi confirmed as the patient word; y'umukara still rests on one
+        RBC sentence about MECONIUM, so the colour half is unconfirmed
+CC04    authored, both persons, on the speaker's verb pair - iyo ndagaramye /
+        iyo aragaramye. MOVES OFF RBC's verbatim aryamye agaramye (rbc:1411);
+        the corpus evidence now stands behind the CONCEPT, not the wording
+EX20    imyuna, both persons, speaker's own sentences + EX18's kandi ntahagarara
+EX26    given the verb it never had - it was the ONE row of 47 left byte-identical
+        to its v1 noun phrase while declared form=utterance
+EX43    ntarya restored; the danger sign is DRINKING, not eating, and moving
+        toward it without landing on it is worse than either position
+PA01    collapsed into EX33, anchor carried; PA03 HELD, see 8a
+OB06    narrowed to reduced, then REOPENED and HELD - ntagikina implies the baby
+        may already have died, which the earlier ruling assumed away
+```
+
+### A mistake worth keeping
+
+**`25d6cac` was committed with a failing test.** The command was
+`pytest -q 2>&1 | tail -2 && make check-attribution && git commit` — piping pytest into
+`tail` makes the exit status `tail`'s, so the `&&` chain ran on a red suite that had
+printed "1 failed" on screen. Fixed in `6b38463`.
+
+Section 9's rule — run the full suite before every push — needs the corollary that **the
+run must be able to fail the command.** The six-red-commits incident was a test
+*deselected*; this was a test *run, observed to fail, and committed past* because the
+shell did not stop. **Do not pipe pytest into `tail` inside an `&&` chain.**
 
 ## 9. Cautions learned the hard way
 
