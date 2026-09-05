@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from dataset.split_dataset import (
-    PREFIX_UNION_CHARS,
+from dataset.split_dataset import (_is_subsequence, _words,  # noqa: F401
+    
     _find_at_word_boundary,
     _match_form,
     attribute_phrase,
@@ -204,24 +204,39 @@ def test_a_long_shared_prefix_unions_even_without_containment() -> None:
             a, b = _match_form(left), _match_form(right)
             if a in b or b in a:
                 continue
-            if _shared_prefix(a, b) >= PREFIX_UNION_CHARS:
+            if _is_subsequence(_words(a), _words(b)) or _is_subsequence(_words(b), _words(a)):
                 checked += 1
                 assert components[left] == components[right], (
-                    f"{left!r} and {right!r} share >= {PREFIX_UNION_CHARS} "
-                    "characters of prefix but are in different groups"
+                    f"{left!r} and {right!r} are word-subsequences of one another "
+                    "but are in different groups"
                 )
     # v1 alone has no such pairs; this asserts the rule is wired, not that v1 trips it.
     assert checked >= 0
 
 
-def test_the_threshold_stays_above_the_v1_safe_floor() -> None:
-    """Below 25 the v1 partition changes and the frozen digests break.
+def test_the_prefix_rule_is_gone_and_its_one_right_union_is_declared() -> None:
+    """PREFIX_UNION_CHARS was removed 2026-09-05, measured not guessed.
 
-    Measured in docs/phrase-group-closure.md: 25 and above leave v1's partition
-    byte-identical, 22 and below do not. The margin is not decorative - lowering
-    this constant is what would silently invalidate the frozen phrase split.
+    Over the 163 authored phrases it made ten prefix-only unions: one right
+    (CC09/CC10) and eight wrong, including folding the domain grammar it was set
+    above and merging the recorded EX01/EX05 chest-pain axis. The one right union
+    is now a declaration, which needs no threshold and cannot be tuned wrong.
     """
-    assert PREFIX_UNION_CHARS >= 25
+    import dataset.split_dataset as sd
+    from dataset.vocabulary import GROUPED_CONCEPTS
+
+    assert not hasattr(sd, "PREFIX_UNION_CHARS")
+    assert ("CC09", "CC10") in GROUPED_CONCEPTS
+
+
+def test_a_declared_concept_group_with_no_phrases_yet_does_not_raise() -> None:
+    """GROUPED_CONCEPTS names concept ids whose phrases may not be authored.
+
+    PHRASE_CONCEPTS and PHRASE_VARIANTS refuse an absent phrase, because there a
+    missing phrase means a leak left open. Here it means the ruling landed before
+    the wording did, which is ordinary - CC09 and CC10 are not in v1 at all.
+    """
+    phrase_components()
 
 
 def test_v1_grouping_is_unchanged_by_both_rules() -> None:
@@ -421,30 +436,28 @@ def test_subsequence_is_ordered_not_a_set_subset():
     assert not _is_subsequence(not_severe, severe)
 
 
-def test_subsequence_catches_the_pair_the_prefix_rule_exists_for():
-    """EX18/EX20 in BOTH persons, including the one the prefix rule misses.
+def test_subsequence_catches_the_pair_the_prefix_rule_exists_for() -> None:
+    """EX18/EX20 in BOTH persons, including the one the prefix rule missed.
 
-    The third persons share exactly PREFIX_UNION_CHARS characters and union
-    today. The FIRST persons share only 24 and do not - a live leak that the
-    subsequence rule closes.
+    The removed prefix rule caught the third persons, which shared exactly its
+    30-character threshold, and missed the FIRST persons, which share 24 - a leak
+    sitting open inside the rule's own motivating example. The ordered
+    subsequence catches both.
     """
-    from dataset.split_dataset import (_is_subsequence, _words, _match_form,
-                                       PREFIX_UNION_CHARS)
+    from dataset.split_dataset import _is_subsequence, _words, _match_form
 
-    first_a = "ndi kuva amaraso menshi kandi ntahagarara"
-    first_b = "ndi kuva amaraso menshi mu mazuru kandi ntahagarara"
-    shared = 0
-    for x, y in zip(_match_form(first_a), _match_form(first_b)):
-        if x != y:
-            break
-        shared += 1
-    assert shared < PREFIX_UNION_CHARS      # the prefix rule does not catch it
-    assert _is_subsequence(_words(_match_form(first_a)),
-                           _words(_match_form(first_b)))
+    for a, b in (
+        ("ndi kuva amaraso menshi kandi ntahagarara",
+         "ndi kuva amaraso menshi mu mazuru kandi ntahagarara"),
+        ("{REL} ari kuva amaraso menshi kandi ntahagarara.",
+         "{REL} ari kuva amaraso menshi mu mazuru kandi ntahagarara."),
+    ):
+        assert _match_form(a) not in _match_form(b)      # not containment
+        assert _is_subsequence(_words(_match_form(a)), _words(_match_form(b)))
 
 
-def test_v1_partition_is_unchanged_by_the_subsequence_rule():
-    """180 groups, as before the rule landed. The freeze depends on this."""
+def test_v1_partition_is_unchanged_by_the_subsequence_rule() -> None:
+    """180 groups, as before any of this. The freeze depends on it."""
     from dataset.split_dataset import phrase_components
 
     assert len(set(phrase_components().values())) == 180

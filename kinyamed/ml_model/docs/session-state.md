@@ -1924,6 +1924,29 @@ ruling. `speaker_brief_swahili_v2.csv` stays at 0/254 and nothing generates from
 **Do not re-open this by finding a better corpus** — a corpus removes one of the two
 blocks.
 
+**`PREFIX_UNION_CHARS` IS GONE — removed 2026-09-05**, replaced by an ordered
+word-subsequence rule and one declaration. Measured over the 163 authored phrases,
+the prefix rule made ten prefix-only unions: **one right, eight wrong**, and it
+missed a leak inside its own motivating pair (EX18/EX20 third shared exactly 30 and
+unioned; their **first** persons share 24 and did not). The replacement catches both
+persons. `CC09`/`CC10`, the one right union, is now declared in
+`vocabulary.GROUPED_CONCEPTS`.
+
+**The ordering requirement is the whole trick, and it came from a v1 counterexample.**
+7b(a) as specified — zero unique words, a set-subset test — unions
+`maumivu makali ya tumbo` (severe stomach pain) with
+`maumivu kidogo ya tumbo yasiyo makali` (slight stomach pain, **not** severe),
+because **negation carries the negated word with it**. That takes v1 from 180 phrase
+groups to 179 and breaks every frozen digest. Requiring the words in ORDER refuses
+that pair and still catches EX18/EX20. `verify-full` 8/8, 116 tests.
+
+**Consequence for the PR05/OB11 note below: the fragility is GONE, re-measured
+2026-09-05.** That pair was independent by a single character under a threshold that
+no longer exists. Under the subsequence rule they are independent *structurally* —
+each has words the other lacks — so no edit to either phrase can union them by
+accident. The note below is kept as the record of a risk that has been closed, not
+as a live caution.
+
 **`PR05`/`OB11` clear the union threshold by ONE character** — measured 2026-09-04.
 Their thirds share a 29-character prefix against `PREFIX_UNION_CHARS = 30`, and
 neither contains the other. Any edit lengthening the shared head by one character

@@ -475,6 +475,13 @@ matters, it is a two-line `PHRASE_CONCEPTS`-style declaration, which is what sec
 7 argues for anyway: **prefer a declaration over a measurement wherever the brief
 already knows the answer.**
 
-**Not executed.** Removing the constant changes `test_leakage.py`'s
-`PREFIX_UNION_CHARS >= 25` assertion and the section 3 reasoning, and it is a
-ruling rather than a fix.
+**EXECUTED 2026-09-05 on the speaker's ruling.** `PREFIX_UNION_CHARS` and its loop
+are gone from `split_dataset.py`. `CC09`/`CC10` is declared in
+`vocabulary.GROUPED_CONCEPTS` — concept ids, not phrase strings, since the phrases
+are still being authored, and unlike `PHRASE_CONCEPTS` it does **not** raise on an id
+with no phrases yet: a ruling that lands before the wording is pending, not
+misconfigured. `verify-full` 8/8, v1 still 180 phrase groups, 116 tests.
+
+**Sections 3 and 5 are now history rather than current rules.** The v1-safe floor of
+25 and the measurement fixing 30 described a constant that no longer exists; they are
+kept because the reasoning that produced them is what justified removing it.

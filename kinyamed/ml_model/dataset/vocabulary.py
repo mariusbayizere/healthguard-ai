@@ -672,10 +672,12 @@ PHRASE_VARIANTS: dict[str, str] = {}
 #     CR03 third   {REL} iminwa ye yahindutse ubururu.
 #                  containment: no      shared prefix: 0
 #
-# The shared prefix is 0 BY CONSTRUCTION - a third-person phrase begins with
-# {REL} and a first-person one with a letter - so PREFIX_UNION_CHARS can never
-# catch a first/third pair however low it is set, and containment fails on the
-# verb morphology. 60 of the 61 concepts with both persons authored were split.
+# CORRECTED 2026-09-05: the shared prefix is 0 only when {REL} is at the HEAD.
+# PR01 puts it mid-phrase and its two persons share 42 characters. So a prefix
+# rule caught a concept's two persons ONLY BY ACCIDENT, when the speaker happened
+# to place the placeholder late - which is worse than never, because it looks
+# like coverage. Containment fails on the verb morphology either way. 60 of the
+# 61 concepts with both persons authored were split.
 #
 # The fix is a DECLARATION, not a measurement: the brief already knows which
 # phrases belong to the same concept, so this needs no threshold and cannot be
@@ -686,3 +688,34 @@ PHRASE_VARIANTS: dict[str, str] = {}
 # concept anyway - so v1's partition is untouched and the frozen splits survive.
 # Populated at v2 build time from the brief - see review/second_phrasings.py.
 PHRASE_CONCEPTS: dict[str, str] = {}
+
+
+# Concepts that must share ONE phrase group even though they are different
+# concepts. Distinct from PHRASE_CONCEPTS, which joins everything said about a
+# SINGLE concept.
+#
+# This exists because PREFIX_UNION_CHARS was removed on 2026-09-05. Measured over
+# the 163 authored phrases, the prefix rule produced nine wrong unions and one
+# right one, and the ordered-subsequence rule that replaced it reproduces every
+# union that mattered except this pair:
+#
+#     CC09  Ndashaka kujya kwa muganga kwisuzumisha diyabete.
+#     CC10  Ndashaka kujya kwa muganga kwisuzumisha SIDA.
+#
+# One word apart - the disease - and 40 shared characters. They SHOULD share a
+# group: a model that trains on the diabetes clinic request has seen everything
+# about the HIV one but the disease name. No similarity rule can be trusted to
+# find this without also folding the domain grammar it resembles, which is what
+# the prefix rule did and why it went. So it is declared.
+#
+# The cost is stated in docs/phrase-group-closure.md section 5 and unchanged: the
+# holdout cannot test whether the model separates the two clinics. That was true
+# while the prefix rule unioned them too.
+#
+# Concept ids, not phrase strings, because the phrases are still being authored -
+# and unlike PHRASE_CONCEPTS this does NOT raise on an id with no phrases yet. A
+# ruling about phrases that do not exist is pending, not misconfigured. Inert
+# while PHRASE_CONCEPTS is empty, so v1 is untouched.
+GROUPED_CONCEPTS: tuple[tuple[str, ...], ...] = (
+    ("CC09", "CC10"),
+)

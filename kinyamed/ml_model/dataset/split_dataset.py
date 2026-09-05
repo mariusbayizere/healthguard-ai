@@ -54,16 +54,10 @@ from dataset.atomicio import (  # noqa: E402
     sweep_partials,
 )
 from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
-from dataset.vocabulary import (PHRASE_CONCEPTS, PHRASE_VARIANTS,  # noqa: E402
-                                REL_PLACEHOLDER, SENTENCE_END)
+from dataset.vocabulary import (GROUPED_CONCEPTS, PHRASE_CONCEPTS,  # noqa: E402
+                                PHRASE_VARIANTS, REL_PLACEHOLDER, SENTENCE_END)
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
-# Two phrases sharing this many leading characters join one phrase group even
-# when neither contains the other. Measured, not chosen: 25 and above leaves v1's
-# partition byte-identical so the frozen splits survive, 22 and below changes it.
-# 30 sits above the domain grammar and catches all eight near-duplicate pairs
-# found at 128 authored phrases - six of which a reviewer missed by hand.
-PREFIX_UNION_CHARS = 30
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
 # stays negligible, small enough that the in-flight queue is bounded.
 BATCH_ROWS = 20_000
@@ -106,12 +100,15 @@ def phrase_components() -> dict[str, str]:
     authored pairs. This is the fourth time a terminal stop has defeated a string
     match here; `attribute_phrase` failed the same way three times.
 
-    Beyond containment, two phrases are also unioned when they share
-    PREFIX_UNION_CHARS leading characters. Containment catches a nested phrase and
-    misses a divergent one with a long shared head - "{REL} ari kuva amaraso
-    menshi kandi ntahagarara." against "... mu mazuru kandi ntahagarara." - which
-    can then split across the phrase holdout. See docs/phrase-group-closure.md for
-    why the threshold is where it is.
+    Beyond containment, two phrases are unioned when every word of one appears in
+    the other IN ORDER. Containment catches a nested phrase and misses a divergent
+    one - "{REL} ari kuva amaraso menshi kandi ntahagarara." against "... mu
+    mazuru kandi ntahagarara.", where the insertion is mid-phrase - which can then
+    split across the phrase holdout.
+
+    A character-prefix threshold used to do this job and was removed on
+    2026-09-05: it folded the domain grammar it was set above. See
+    docs/phrase-group-closure.md sections 9 and 10.
     """
     phrases = sorted({p for values in all_symptom_phrases().values() for p in values})
     parent = {phrase: phrase for phrase in phrases}
@@ -133,24 +130,19 @@ def phrase_components() -> dict[str, str]:
             if inner != outer and comparable[inner] in comparable[outer]:
                 union(inner, outer)
 
-    # A long shared head is not containment, so the closure above misses it, but
-    # it leaks the same way: a model that has trained on one has seen most of the
-    # characters of the other. The threshold sits above the domain grammar -
-    # "{REL} afite umuriro", "{REL} aratwite kandi" - and below every real
-    # near-duplicate measured. Not a principle, a measurement; re-derive it when
-    # the corpus is complete.
-    for left, right in combinations(phrases, 2):
-        if find(left) == find(right):
-            continue
-        a, b = comparable[left], comparable[right]
-        shared = 0
-        for x, y in zip(a, b):
-            if x != y:
-                break
-            shared += 1
-        if shared >= PREFIX_UNION_CHARS:
-            union(left, right)
-
+    # PREFIX_UNION_CHARS and its loop lived here until 2026-09-05. It unioned two
+    # phrases sharing 30 leading characters, and it was removed on measurement:
+    # over the 163 authored phrases it produced ten prefix-only unions, of which
+    # ONE was right (CC09/CC10, now declared in GROUPED_CONCEPTS) and eight were
+    # wrong - it folded the domain grammar it was set above, merging
+    # "{REL} afite umuriro mwinshi kandi ..." across three unrelated
+    # presentations, and merging the recorded EX01/EX05 chest-pain axis.
+    #
+    # The rule below replaces it and is strictly better on the pair the prefix
+    # rule was WRITTEN for: EX18/EX20 third share exactly 30 characters and
+    # unioned, but their FIRST persons share 24 and did not. A leak in its own
+    # motivating example, open the whole time. See docs/phrase-group-closure.md
+    # section 10a for the full before/after.
     # 7b(a): one phrase's words all appear in the other, IN ORDER. Reordering and
     # insertion defeat both rules above - "{REL} arababara cyane mu nda." is not a
     # substring of "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."
@@ -209,6 +201,16 @@ def phrase_components() -> dict[str, str]:
             )
         by_concept.setdefault(concept, []).append(phrase)
     for members in by_concept.values():
+        for other in members[1:]:
+            union(members[0], other)
+
+    # Two DIFFERENT concepts declared to share a group - CC09/CC10, the one
+    # correct union the removed prefix rule used to make. Unlike the checks
+    # above this does not raise on an id with no phrases: the declaration is a
+    # ruling about phrases that may not be authored yet, which is pending rather
+    # than misconfigured.
+    for group in GROUPED_CONCEPTS:
+        members = [p for concept in group for p in by_concept.get(concept, ())]
         for other in members[1:]:
             union(members[0], other)
 
