@@ -187,7 +187,9 @@ person and why FR-1 does not apply to them at all.
 **Accents.** Every French string in this corpus — v1's 46 phrases, all six frame
 slots, `concepts.py`, the review sheet and all 205 candidates in this brief — is
 unaccented ASCII. `mere`, `fievre`, `derniere`, `S'il vous plait`. Zero accented
-characters in 609,975 shipped French and mixed rows. **No document declares this
+characters in 609,975 shipped French and mixed rows — measured against the v1
+corpus, which `dataset/raw/symptoms_large.csv` has since been regenerated past;
+see `french-review-pass.md` for how to re-derive it. **No document declares this
 and no ruling records it.** v2 follows v1 because v1 is frozen and a corpus that
 is accented in half its rows would be worse than one that is accented in none.
 It is a decision someone should make on purpose. See `french-review-pass.md`.

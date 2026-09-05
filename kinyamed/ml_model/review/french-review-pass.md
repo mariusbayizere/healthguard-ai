@@ -107,6 +107,20 @@ Measured, not assumed:
       0  containing a single accented character
 ```
 
+**These two counts are no longer reproducible from the working tree, and that is
+not a caveat on them.** They were measured against `dataset/raw/symptoms_large.csv`
+while it still held the v1 corpus — 1,000,000 rows, four languages. Later the same
+day the Kinyarwanda session regenerated that path as **v2: 330,000 rows,
+monolingual**, and the corpus is generated rather than tracked, so git does not
+hold the old one. Re-running the greps below against the working tree today
+returns zero French rows.
+
+To re-derive, rebuild v1 first — `dataset/vocabulary_v1.py` carries the frozen v1
+vocabulary and `make verify-full` is what pins that it still reproduces
+byte-identically — then grep the rebuilt corpus. The numbers are facts about the
+frozen v1 corpus, which is exactly the artefact the paper quotes; they are not
+facts about anything on disk right now.
+
 Every French string in the project is ASCII: v1's 46 phrases, all six frame slots
 (`S'il vous plait`, `Ma mere`, `depuis la nuit derniere`, `depuis tot ce matin`),
 `concepts.py`, the review sheet, and now all 205 candidates in this brief.
