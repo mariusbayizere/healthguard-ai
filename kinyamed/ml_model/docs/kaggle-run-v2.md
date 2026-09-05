@@ -154,27 +154,47 @@ yet.
 
 ## Warning 3 — NEW IN v2, and it reverses the v1 playbook
 
-**The v1 playbook said the family holdout was 89.2% contaminated and not a valid
-secondary number. In v2 it is 0.0% contaminated — and that is a loss, not a fix.**
+**Two different measurements, and only one of them improved. Read both rows.**
 
 ```
-                          v1                      v2
-phrase-eval / train       0% overlap              0% overlap
-family-eval / train       89.2%  (101,945 rows)   0.0%  (0 of 24,900)
+WITHIN-SPLIT — does a split leak into its OWN training set?
+                              v1                    v2
+phrase-eval / phrase-train    0% overlap            0% overlap
+family-eval / family-train    see below             0.0%  (0 of 24,900)
+
+CROSS-SPLIT — has the OTHER split's model already seen these rows?
+                              v1                    v2
+family-eval / phrase-train    89.2% (101,945)       100.0%  (24,900 of 24,900)
+phrase-eval / family-train    not recorded          100.0%  (34,425 of 34,425)
 ```
+
+**The 89.2% the v1 playbook records is the CROSS-SPLIT number.** Its v2 counterpart
+is 100%, not 0%. The v2 improvement is real but it is in the within-split row: each
+split is now clean against its own training set. **The shortcut warning 3 exists to
+forbid — train once on the phrase split, report a family-holdout number as a clean
+secondary result — is more contaminated in v2 than it was in v1, not less.**
+
+Why it went to the ceiling: the two v2 eval sets are **disjoint** — family-eval
+holds 18 phrases, phrase-eval holds 15, sharing none — so everything one holds out,
+the other trains on. v1 scored 89.2% rather than 100% only because its two eval sets
+overlapped.
 
 In v1 one phrase fed up to ten families — four languages plus six mixed pairs —
 so holding out a family left that phrase's other rows in training. **v2 is
 monolingual, so each phrase belongs to exactly one family**, and holding out a
 family removes its phrases entirely.
 
-**What this means for the run:** you may now train a second model on
-`train_family_holdout.csv` and evaluate it on `eval_family_holdout.csv` and get an
-honest number — but it will measure almost the same thing as the phrase run.
+**What this means for the run — unchanged from v1:** to report a family-holdout
+number you must train a **second** model on `train_family_holdout.csv` and
+evaluate it on `eval_family_holdout.csv`. That number is honest, because the
+within-split leakage is 0.0% — but it will measure almost the same thing as the
+phrase run. **Do not evaluate the phrase-trained model on `eval_family_holdout.csv`:
+it has seen 100% of those rows.**
 **v2 does not have two difficulty levels.** It has one strictness at two sampling
 ratios, 10.43% and 7.55%. Reporting the two as easy and hard would be false.
 
-**Never quote 89.2% in a v2 context.** It is a v1 measurement of a v1 property.
+**Never quote 89.2% in a v2 context.** It is a v1 measurement; the v2 number for
+the same comparison is 100%.
 
 ## Warning 4 — NEW IN v2: 23 held rows are out of the corpus by design
 

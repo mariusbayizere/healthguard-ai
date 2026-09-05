@@ -32,7 +32,7 @@ Nothing here starts until speaker briefs and clinician sign-off are both back.
 | 22 | **`make test-clean`** | must pass in a fresh clone | ambient-state failures ship; this is why the target exists |
 | 23 | **`make verify` and `make verify-full`** | 6/6 and 8/8 | the digests in the manifest are unverified assertions |
 | 24 | **Commit, push, confirm CI green** | all four jobs | — |
-| 25 | **Re-run the family-overlap measurement** | recompute the phrase-train / family-eval overlap | the 89.2% figure is v1-specific. **DONE 2026-09-05: v2 measures 0.0%.** The two holdouts have converged because v2 is monolingual - each phrase belongs to exactly one family, so holding a family out removes its phrases entirely. v2 has one strictness at two sampling ratios, not two difficulty levels. See `docs/v2-sizing.md`. |
+| 25 | **Re-run the family-overlap measurement** | recompute the phrase-train / family-eval overlap | the 89.2% figure is v1-specific. **DONE 2026-09-05, and CORRECTED the same day: this item asks for the phrase-train / family-eval overlap, which is the CROSS-split figure, and v2 measures 100.0% (24,900 of 24,900) — worse than v1's 89.2%, because the two v2 eval sets are disjoint so each trains on everything the other holds out. The 0.0% first recorded here is the WITHIN-split figure from the family manifest's own leakage report, which is a different question and is genuinely clean. Warning 3 of the v1 playbook is not reversed; it is stronger.** The two holdouts have converged because v2 is monolingual - each phrase belongs to exactly one family, so holding a family out removes its phrases entirely. v2 has one strictness at two sampling ratios, not two difficulty levels. See `docs/v2-sizing.md`. |
 
 ## Points where it is easy to get this wrong
 

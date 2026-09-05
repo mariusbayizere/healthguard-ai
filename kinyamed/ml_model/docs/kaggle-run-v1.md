@@ -7,10 +7,14 @@
 > speaker-authored phrases. A v1 result and a v2 result are not the same
 > experiment and do not belong in one table.
 >
-> **Warning 3 below is v1-only and is reversed in v2.** v1's family holdout was
-> 89.2% contaminated; v2's is 0.0%, because v2 is monolingual and each phrase
-> belongs to exactly one family. Do not carry the 89.2% figure into any v2
-> context.
+> **Warning 3 below is NOT reversed in v2 — it is stronger.** Its subject is
+> CROSS-SPLIT contamination: evaluating the *phrase*-trained model on
+> *family*-eval. That was 89.2% in v1 and is **100.0% in v2** (24,900 of 24,900),
+> because the two v2 eval sets are disjoint, so everything one holds out the other
+> trains on. What v2 fixed is the different, WITHIN-split question — family-eval
+> against family-train is 0.0%. Do not read the 0.0% as licence to take the
+> shortcut this warning forbids. Do not carry the 89.2% figure into any v2 context
+> either; the v2 number for the same comparison is 100%. See `docs/v2-sizing.md`.
 
 Cells to paste in order. Read the three warnings at the bottom before you gate on
 anything — two of them change what the resulting numbers mean.
@@ -152,9 +156,10 @@ exist yet. Say the word and I will add it.
 
 ## Warning 3 — v1 ONLY: the family holdout is not a valid secondary number for this model
 
-**This warning applies to v1 and is reversed in v2.** See `docs/kaggle-run-v2.md`
-warning 3: v2's family holdout is uncontaminated, and the cost is that the two
-splits no longer measure different things.
+**This warning applies to v2 as well, and more strongly — 100% rather than
+89.2%.** What changed in v2 is a *different* measurement: family-eval against its
+own family-train is now 0.0%, where the two splits' mutual contamination went to
+its ceiling. See `docs/kaggle-run-v2.md` warning 3 and `docs/v2-sizing.md`.
 
 **89.2% of family-eval rows (101,945 of 114,321) appear verbatim in the phrase
 split's training set.** Both splits partition the same corpus on different axes,

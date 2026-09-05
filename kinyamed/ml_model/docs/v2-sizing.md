@@ -467,10 +467,37 @@ ratios.** This is a capability the corpus had and no longer has, and it is a
 consequence of the monolingual scope rather than a defect in the splitter.
 
 ```
+WITHIN-SPLIT — does a split leak into its own training set?
                           v1                        v2
-phrase-eval / train       0% phrase overlap         0% phrase overlap
-family-eval / train       89.2% overlap             0.0% overlap
-                          (101,945 of 114,321)      (0 of 24,900)
+phrase-eval / phrase-train   0% phrase overlap      0% phrase overlap
+family-eval / family-train   see note               0.0%  (0 of 24,900)
+
+CROSS-SPLIT — has the OTHER split's model already seen these rows?
+                          v1                        v2
+family-eval / phrase-train   89.2%                  100.0%
+                             (101,945 of 114,321)   (24,900 of 24,900)
+phrase-eval / family-train   not recorded           100.0%
+                                                    (34,425 of 34,425)
+```
+
+**READ THE TWO TABLES SEPARATELY. They answer different questions and an earlier
+version of this section put them in one row.** The recorded 89.2% is a
+CROSS-SPLIT figure — `docs/kaggle-run-v1.md` warning 3 defines it as *"family-eval
+rows appearing verbatim in the phrase split's training set"* — and the v2 `0.0%`
+is a WITHIN-SPLIT figure from the family manifest's own leakage report. Putting
+them side by side reads as *the contamination went away*. It did not. **On the
+comparison the 89.2% actually measured, v2 is 100%.**
+
+Both v2 numbers are re-derivable:
+
+```
+python - <<'EOF'
+import csv
+t=lambda p:{r['text'] for r in csv.DictReader(open(p,encoding='utf-8'))}
+fe,pt=t('dataset/processed/eval_family_holdout.csv'),t('dataset/processed/train_phrase_holdout.csv')
+pe,ft=t('dataset/processed/eval_phrase_holdout.csv'),t('dataset/processed/train_family_holdout.csv')
+print(len(fe&pt),'of',len(fe));print(len(pe&ft),'of',len(pe))
+EOF
 ```
 
 **Why v1's family split leaked and v2's cannot.** A family is
@@ -490,6 +517,29 @@ phrase holdout   train 150 phrases / 86 groups   eval 15 / 8    shared 0
 family holdout   train 147 phrases / 83 groups   eval 18 / 11   shared 0
 ```
 
+### The cross-split contamination got WORSE, and the reason is counterintuitive
+
+**Making each split internally clean is what pushed the cross-split contamination
+to its ceiling.** The two holdouts are disjoint samples of the same 94 phrase
+groups — family-eval takes 18 phrases, phrase-eval takes 15, and **they share
+none**. Disjoint is exactly the condition under which everything one split holds
+out, the other split trains on. Hence 100%, in both directions.
+
+v1 scored 89.2% rather than 100% *because its two eval sets overlapped*. The
+recorded figure implies 12,376 of v1's 114,321 family-eval rows were not in
+phrase-train, and the only place they can have been is phrase-eval. (Arithmetic on
+the recorded v1 number, not a fresh measurement — the v1 corpus is generated, not
+tracked, and the working tree now holds v2.)
+
+So v1's messiness was load-bearing in one narrow respect: it was the only thing
+keeping the single-model shortcut below total contamination. v2 is cleaner within
+each split and maximally contaminated across them.
+
+**Warning 3 of the v1 playbook is therefore NOT reversed in v2 — it is
+stronger.** Its instruction was: to report a family-holdout number, train a
+*second* model on `train_family_holdout.csv`; do not evaluate the phrase-trained
+model there. In v1 the shortcut was 89.2% memorisation. In v2 it is 100%.
+
 ### What this obliges the paper to say
 
 **Do not describe v2 as evaluating at two difficulty levels.** It does not. Both
@@ -500,6 +550,12 @@ only in size (10.43% against 7.55%) and in which phrases fall out.
 measurement of a v1 property that v2 does not have. It is corrected in
 `docs/kaggle-run-v1.md` and `docs/paper-text-sizing.md`; if it turns up anywhere
 else it is stale.
+
+**One trained model still yields exactly one honest number.** Both v2 splits are
+clean against their own training sets, so either can be trained and reported. What
+cannot be done — and could not be done in v1 either — is to train once and report
+both. That is not a v2 regression; it is the same constraint, at 100% instead of
+89.2%.
 
 **A v1 result and a v2 result on "the family holdout" are not the same
 experiment.** v1's family-eval was 89.2% contaminated by construction and had to
@@ -517,6 +573,13 @@ seen rather than to wording never seen. That is a different question from
 leakage and needs its own design: a domain holdout changes the class balance of
 both sides, and an urgency holdout removes a label from training entirely, which
 may not be a meaningful task at all.
+
+**And a caveat on the remedy, so it is not oversold.** A domain or urgency holdout
+would restore a second *difficulty* level. It would not fix the cross-split
+contamination above: a third split drawn from the same corpus stands in the same
+relation to the other two, and its eval rows would likewise sit in their training
+sets. Those are separate problems. One trained model yields one honest number, and
+that stays true however many axes the corpus is split on.
 
 Recorded here so the loss is visible and the remedy is not reinvented from
 scratch.
