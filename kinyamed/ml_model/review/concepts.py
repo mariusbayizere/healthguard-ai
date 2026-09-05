@@ -111,8 +111,6 @@ CONCEPTS = [
   "my routine visit at the HIV clinic","ma visite de routine a la clinique VIH"),
 
  # ---- paediatric : 10 new ----  (PA10 -> EX46, collapsed; child immunisation is in preventive)
- ("paediatric","CRITICAL","PA01","child convulsing","IMCI general danger sign: convulsions",
-  "my child is having a fit","mon enfant fait une crise convulsive"),
  ("paediatric","CRITICAL","PA02","child too weak to breastfeed","IMCI general danger sign: not able to drink or breastfeed",
   "my baby is too weak to breastfeed","mon bebe est trop faible pour teter"),
  ("paediatric","CRITICAL","PA03","child unconscious or floppy","IMCI general danger sign: lethargic or unconscious",

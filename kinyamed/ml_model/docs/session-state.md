@@ -2059,6 +2059,48 @@ against ambient-state failures. **111 tests** — this section and section 7 onc
 said 59 and 62; both were stale. `python -m pytest --collect-only -q | tail -1` settles
 it.
 
+## 8a. STANDING RULE — a collapse must carry the anchor or record it as dropped
+
+**Adopted 2026-09-05.** `concept_anchors.csv` holds the clinician-defined concepts
+only. **It contained zero EX ids** until PA01's collapse, because EX ids are v1
+concepts and were never anchored. So:
+
+> **Collapsing an anchored concept into an unanchored one silently deletes a
+> clinical reference.** The phrase survives, the WHO/IMCI citation does not, and
+> nothing raises — the anchors file is a ruling record, not a code path.
+
+**`PA06` -> `IF05` was safe by luck, not by design.** IF05 happened to carry
+`IMCI: generalised rash -> MEASLES`, so the measles reference survived the
+collapse. Had the target been an EX concept it would have gone.
+
+**The rule:** before executing a collapse, check whether the *absorbing* concept
+has an anchor. If it does not, either move the absorbed concept's anchor onto it —
+which now means adding an EX row to `concept_anchors.csv`, as `EX33` is — or record
+in the brief that the anchor was dropped and why. Never let it disappear silently.
+
+**Applied first at `PA01` -> `EX33`**, which carried
+`IMCI general danger sign: convulsions` across and made EX33 the first EX id in the
+anchors file. Its `english_gloss` had to be written (`convulsing`) because v1
+concepts have never had one.
+
+**And check the SIGN before the target, not just the domain.** Two proposed
+collapses failed this on 2026-09-05, both from the English arm, both plausible on
+domain and neither on content:
+
+```
+PA01 -> EX40  WRONG. EX40 is convulsing AND fever above 40. Collapsing there makes
+              an IMCI danger sign conditional on a temperature. Correct: EX33.
+PA03 -> EX32  WRONG, and NOT FIXED. See below.
+```
+
+**`PA03` is held, not collapsed.** IMCI's danger sign is *lethargic **or**
+unconscious*; `EX32` is `{REL} yataye ubwenge kandi ntasubiza.` — lost
+consciousness **and** unresponsive. **EX32 covers only the unconscious half**, and
+the lethargic/floppy half is the one that presents *earlier*. Collapsing PA03 into
+EX32 would delete half a danger sign, and the conjunction/disjunction mismatch
+(`kandi` against IMCI's *or*) is the tell. Either EX32 is reworded to cover both,
+or PA03 stays as its own concept. Speaker/clinician question, not a wording one.
+
 ## 9. Cautions learned the hard way
 
 - **Three linter rules were retired as the phrase form changed** — trailing full
