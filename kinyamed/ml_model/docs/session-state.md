@@ -4,6 +4,10 @@ Everything a fresh session needs to continue without re-deriving it. Written 202
 reconciled against disk **2026-09-05, end of day**. All figures below were re-derived by
 running the tooling, not recalled.
 
+**BRIEF IS NOW 256 ROWS / 128 CONCEPTS**, not 254/127 — `OB13` was added 2026-09-05.
+The English and Swahili briefs are still 254 and are now out of step; they regenerate,
+so this is a note rather than a defect, but do not compare row counts across them.
+
 **Since the last reconciliation (2026-09-05):** a second attestation corpus was added
 (RBC, 2.5M characters, `attest.py`'s `rbc` tier) and three of six vocabulary blocks
 cleared; **all five multi-concept phrase groups are resolved**, one by collapse and four
@@ -13,6 +17,10 @@ on rewrites rather than on their v1 concepts; **Swahili is blocked and out of sc
 and a Kinyarwanda speaker answered four outstanding questions, one of which
 (`imyuna`) overturned a phrase every check in the project had passed. Rule 13 and the
 anchor rule are written down. **Target 1,616,000.**
+
+**Late on 2026-09-05 a Kinyarwanda speaker answered six questions and four vocabulary
+blocks closed** — `GI03`, `NE05`, `HT05`, `PA08`. One answer re-ruled a concept
+(`OB06` is fetal demise, not reduced movement) and one opened a new gap (`OB13`).
 
 **Every count here is reproducible.** `held` is `hold=yes`; `filled` is a non-empty
 `your_phrasing` on a row that is **not** `applies=no`; `resolved` is
@@ -34,21 +42,21 @@ suggestions only.
 
 ## 2. Where each domain stands
 
-Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, 254 rows
-(127 concepts x first/third person).
+Kinyarwanda brief: `review/speaker_brief_kinyarwanda_v2.csv`, **256 rows**
+(**128 concepts** x first/third person). Was 254/127 until `OB13` was added 2026-09-05.
 
 | domain | filled | held | resolved | |
 |---|---|---|---|---|
 | cardiac_respiratory | 26/28 | 3 | 26 | |
-| obstetric | 27/28 | 3 | 27 | *(OB06 both persons held 2026-09-05, acuity reopened)* |
+| obstetric | 27/30 | 3 | 27 | *(OB06 held, re-ruled fetal demise; OB13 blocked, no phrase)* |
 | infectious_fever | 17/30 | 9 | 21 | *(+4 not-applicable)* |
-| gastrointestinal | 21/28 | 2 | 26 | *(+5 not-applicable)* |
-| haemorrhage_trauma | 20/28 | 2 | 24 | *(+4 not-applicable)* |
-| neurological | 6/28 | 0 | 18 | *(+12 not-applicable)* |
-| chronic_care | 19/28 | 2 | 24 | *(CC04 authored 2026-09-05; CC01/CC02 held)* |
-| paediatric | 5/28 | 1 | 21 | *(+16 not-applicable; PA01, PA06, PA10 collapsed)* |
-| preventive | 22/28 | 2 | 26 | *(PR02 out of generation, PR07 authored)* |
-| **total** | **163/254** | **24** | **213** | *(+50 not-applicable)* |
+| gastrointestinal | 22/28 | 1 | 27 | *(GI03 authored 2026-09-05)* |
+| haemorrhage_trauma | 21/28 | 1 | 25 | *(HT05 authored 2026-09-05)* |
+| neurological | 7/28 | 0 | 19 | *(NE05 authored 2026-09-05)* |
+| chronic_care | 19/28 | 2 | 24 | *(CC01/CC02 held on clinical capacity)* |
+| preventive | 22/28 | 2 | 26 | *(PR02 out of generation)* |
+| paediatric | 7/28 | 0 | 23 | *(PA08 authored 2026-09-05; +16 not-applicable)* |
+| **total** | **168/256** | **23** | **218** | *(+50 not-applicable)* |
 
 The `held` column counts **every** `hold=yes` row, including the eight
 infectious_fever and gastrointestinal third-person rows held only because their
@@ -411,13 +419,12 @@ the guide is the record.
 
 ## 6. Row target: 1,616,000
 
-**UPDATED 2026-09-05 — EX42, PA06 and PA01 collapsed.** Re-derived from disk, not
-adjusted:
+**UPDATED 2026-09-05 (late).** Re-derived from disk, not adjusted:
 
 ```
-127  concept ids in the brief
+128  concept ids in the brief          (127 + OB13, added today)
 -15  EX17 EX30 EX42 GI08 HT01 HT06 IF07 NE01 NE02 NE03 NE04 NE08 PA01 PA06 PA10
- -1  PR02, out of generation
+ -2  PR02 and OB13, both out of generation
 111  concepts in the ceiling
 
  50  applies=no rows on disk
@@ -426,6 +433,10 @@ adjusted:
 
 111 x 2 x 4 = 888   minus 20 x 4 = 80   ->  808 phrases  ->  1,616,000 rows
 ```
+
+**Adding `OB13` cost nothing.** It is subtracted as a concept, exactly as `PR02` is, so
+the target is unchanged. A concept with no phrase is out of generation, not a gap in the
+arithmetic.
 
 **FILING LOSS, recorded deliberately — the PA10 -> EX46 shape.** Generalised rash
 now lives in `infectious_fever` as **IF05**, and there is **no paediatric measles
@@ -2212,6 +2223,76 @@ Section 9's rule — run the full suite before every push — needs the corollar
 run must be able to fail the command.** The six-red-commits incident was a test
 *deselected*; this was a test *run, observed to fail, and committed past* because the
 shell did not stop. **Do not pipe pytest into `tail` inside an `&&` chain.**
+
+## 8c. 2026-09-05, late — six speaker answers, four blocks closed, one concept re-ruled
+
+```
+GI03  Mfite umwanda usa umukara.                              authored
+NE05  Mfite ikibazo ku mutwe kandi kirimo guterwa n'urumuri.  authored
+HT05  Naguye, ukuguru kuragoramye ariko sinumva ko kuvunitse. authored
+PA08  Mfite umuhaha. / {REL} afite umuhaha.                   authored
+EX20  ruling confirmed - kandi ntahagarara stays
+OB06  RE-RULED: fetal demise, CRITICAL, held for the clinician
+OB13  OPENED: reduced fetal movement, no phrase, out of generation
+```
+
+**Of the six vocabulary blocks that stood this morning, four are closed and none was
+closed by a corpus.** All four came from a speaker, and two of them dissolved the
+question rather than answering it: `umuhaha` is a condition name, so `ugutwi` and the
+ear-discharge construction stopped being needed; `HT05`'s sentence disclaims the fracture
+inside the phrase (*ariko sinumva ko kuvunitse*), which is rule 11's axis stated in
+Kinyarwanda.
+
+### GI03 — attestation ranked three candidates and got the order wrong every time
+
+```
+umwanda     this document called it "a false friend for GI03, means dirt/filth"
+            -> IT IS THE PATIENT'S WORD
+umusarane   reported here as the strongest candidate, three danger-sign lines
+            -> the stool SPECIMEN a clinician requests
+amabyi      confirmed as a patient word
+            -> not what they say for THIS sign
+```
+
+With `imyuna` earlier the same day, that is **four wrong rankings in one day from a check
+that was working correctly.** Attestation answers *does this word exist in Rwandan
+clinical use*. It cannot answer *is this the word a patient uses for this thing*, because
+register and referent are invisible to it. **Where a phrase turns on WHICH word, only a
+speaker can settle it.**
+
+### OB06 re-ruled, and OB13 opened so the loss is visible
+
+`ntagikina` means the baby **has died**, and the speaker states **no natural phrase says
+"reduced movement"**. So OB06 was three claims at once — phrase said demise, gloss said
+reduced, label said URGENT.
+
+The 2026-09-04 narrowing was argued on the taxonomy having nowhere to put *absent*. **This
+is the taxonomy answering: the gap was real, and this concept is what belongs in it.**
+OB06 is now fetal demise at CRITICAL, the first obstetric CRITICAL covering it, held for
+the clinician because the urgency change is theirs.
+
+**`OB13` exists so that reduced fetal movement does not vanish with the relabel.** It is
+the presentation **where triage still helps** — a mother who notices less movement can be
+seen in time; a demise cannot. A corpus covering only demise would cover the case where
+nothing can be done and lose the case where something can. It has **no phrase and is not
+awaiting one**: the speaker reports the language has none. Do not draft it.
+
+### Person notes are load-bearing — PA08 nearly got the wrong speaker
+
+I proposed `Umwana wanjye afite umuhaha` for PA08 **first** and it was approved. The row's
+`person_note` says *"usually third (the parent speaks); write first only if an older child
+would say it"* — so that sentence is the **third** person, and putting it in the first
+would have broken rule 3. First is `Mfite umuhaha.` **Read the person_note before writing
+a paediatric row**, including when a proposal has already been accepted.
+
+### Three concepts now say less than their glosses claim
+
+`NE05` (light *causes* the headache, not photophobia; and the gloss names vomiting the
+phrase omits), `PA08` (names a condition, states neither the pain nor the discharge), and
+`OB06` before its re-ruling. All three are flagged `needs_clinician`. **This is a pattern,
+not three coincidences:** where the Kinyarwanda is natural, it tends to name the illness
+or its cause rather than enumerate signs, and an English gloss written from IMCI
+enumerates signs. Expect more of these as blocks close.
 
 ## 9. Cautions learned the hard way
 
