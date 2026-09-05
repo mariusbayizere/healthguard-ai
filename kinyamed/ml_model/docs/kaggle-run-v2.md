@@ -2,7 +2,7 @@
 
 Cells to paste in order. **Read the four warnings at the bottom before you gate on
 anything** — three of them change what the resulting numbers mean, and warning 3
-is new in v2 and reverses what the v1 playbook said.
+is STRONGER in v2 than the v1 playbook's version, not weaker.
 
 Supersedes `docs/kaggle-run-v1.md`, which stays as the record of the v1 run and
 whose numbers do not carry over. **v2 is a different corpus, not a newer version
@@ -152,49 +152,35 @@ turns it into a validation set, and the frozen digest then certifies a number th
 has been fitted. Doing it properly needs a validation split that does not exist
 yet.
 
-## Warning 3 — NEW IN v2, and it reverses the v1 playbook
+## Warning 3 — the v1 warning is NOT reversed in v2. It is stronger.
 
-**Two different measurements, and only one of them improved. Read both rows.**
+**Corrected after the first draft of this playbook got it backwards.** There are
+two different questions and they have opposite answers.
+
+**Cross-split — can you score the phrase-trained model on family-eval?** No, and
+less than in v1:
 
 ```
-WITHIN-SPLIT — does a split leak into its OWN training set?
-                              v1                    v2
-phrase-eval / phrase-train    0% overlap            0% overlap
-family-eval / family-train    see below             0.0%  (0 of 24,900)
-
-CROSS-SPLIT — has the OTHER split's model already seen these rows?
-                              v1                    v2
-family-eval / phrase-train    89.2% (101,945)       100.0%  (24,900 of 24,900)
-phrase-eval / family-train    not recorded          100.0%  (34,425 of 34,425)
+family-eval rows already in PHRASE-train    v1  89.2%   v2  100.0% (24,900 of 24,900)
+phrase-eval rows already in FAMILY-train              v2  100.0% (34,425 of 34,425)
+family-eval INTERSECT phrase-eval                     v2  0 rows
 ```
 
-**The 89.2% the v1 playbook records is the CROSS-SPLIT number.** Its v2 counterpart
-is 100%, not 0%. The v2 improvement is real but it is in the within-split row: each
-split is now clean against its own training set. **The shortcut warning 3 exists to
-forbid — train once on the phrase split, report a family-holdout number as a clean
-secondary result — is more contaminated in v2 than it was in v1, not less.**
+The two v2 eval sets are **disjoint partitions of one corpus**, so everything
+either holds out, the other trains on. Scoring across them measures memorisation,
+exactly as v1's warning said, only completely rather than 89.2% of the time.
 
-Why it went to the ceiling: the two v2 eval sets are **disjoint** — family-eval
-holds 18 phrases, phrase-eval holds 15, sharing none — so everything one holds out,
-the other trains on. v1 scored 89.2% rather than 100% only because its two eval sets
-overlapped.
+**Within-split — is family-eval clean against family-train?** Yes, now: 0.0%,
+where v1 was 100%. So a second model trained on `train_family_holdout.csv` and
+scored on `eval_family_holdout.csv` gives an honest number.
 
-In v1 one phrase fed up to ten families — four languages plus six mixed pairs —
-so holding out a family left that phrase's other rows in training. **v2 is
-monolingual, so each phrase belongs to exactly one family**, and holding out a
-family removes its phrases entirely.
+**But it will measure almost the same thing as the phrase run.** Each v2 phrase
+belongs to exactly one family, so holding out a family removes its phrases
+entirely. **v2 has one strictness at two sampling ratios**, 10.43% and 7.55%, not
+two difficulty levels. Reporting them as easy and hard would be false.
 
-**What this means for the run — unchanged from v1:** to report a family-holdout
-number you must train a **second** model on `train_family_holdout.csv` and
-evaluate it on `eval_family_holdout.csv`. That number is honest, because the
-within-split leakage is 0.0% — but it will measure almost the same thing as the
-phrase run. **Do not evaluate the phrase-trained model on `eval_family_holdout.csv`:
-it has seen 100% of those rows.**
-**v2 does not have two difficulty levels.** It has one strictness at two sampling
-ratios, 10.43% and 7.55%. Reporting the two as easy and hard would be false.
-
-**Never quote 89.2% in a v2 context.** It is a v1 measurement; the v2 number for
-the same comparison is 100%.
+**Never quote 89.2% in a v2 context** — not because the concern lapsed but
+because the v2 number for that comparison is 100%.
 
 ## Warning 4 — NEW IN v2: 23 held rows are out of the corpus by design
 
