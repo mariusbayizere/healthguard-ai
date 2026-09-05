@@ -122,6 +122,19 @@ The phrase holdout is the primary number: 34,425 eval rows, **0 of them sharing 
 phrase with training**, `substring_violations: 0`,
 `eval_rows_leaked_fraction: 0.0`. That is the claim the corpus exists to support.
 
+**Do not re-run this cell against `eval_manifest_family_v2.json`.** It is one
+edit away and it is the exact shortcut warning 3 forbids: this model has seen
+**all 24,900 of its rows** during training. `evaluate.py`
+will not stop you — every digest in the family manifest is valid, so it verifies,
+runs, and prints a flattering number. A family-holdout figure needs a second
+model trained on `train_family_holdout.csv`, and per warning 3 it then measures
+almost the same thing as this run.
+
+**One trained model yields exactly one honest number.** That is the whole of the
+guidance: train on the phrase split, report the phrase-holdout figure, and say in
+the paper that the second split was not run rather than reporting it from this
+model.
+
 ## Cell 7 — bring back exactly three files
 
 ```python
@@ -173,6 +186,21 @@ exactly as v1's warning said, only completely rather than 89.2% of the time.
 **Within-split — is family-eval clean against family-train?** Yes, now: 0.0%,
 where v1 was 100%. So a second model trained on `train_family_holdout.csv` and
 scored on `eval_family_holdout.csv` gives an honest number.
+
+v1's 100% is a recorded measurement, not an inference, and it is only in git
+history — the v1 manifests were overwritten in place by the v2 freeze:
+
+```
+git show 35f81e5:kinyamed/ml_model/dataset/processed/split_family_holdout.json
+  eval rows                              114,321
+  eval_rows_whose_phrase_appears_in_train 114,321   -> eval_rows_leaked_fraction 1.0
+  phrase_overlap 50, substring_violations 54
+```
+
+So the two splits swapped failure modes rather than one improving: **v1's family
+split was internally broken and cross-contaminated 89.2%; v2's is internally
+perfect and cross-contaminated 100%.** v1's phrase split was internally clean
+(0.0), exactly as v2's is.
 
 **But it will measure almost the same thing as the phrase run.** Each v2 phrase
 belongs to exactly one family, so holding out a family removes its phrases
