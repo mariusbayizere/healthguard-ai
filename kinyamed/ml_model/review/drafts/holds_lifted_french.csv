@@ -1,0 +1,13 @@
+concept_id,person,suggested_french,candidate_origin,verdict_fidelity,confidence,form,hold,suggestion_note
+CR05,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+GI03,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+EX27,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF01,first,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF01,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF03,first,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF03,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF04,first,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF04,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF06,first,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+IF06,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."
+OB12,third,,,,,,no,"Hold lifted. The reason is recorded on the row itself and in french-review-pass.md; this batch exists because a hold has to be lifted explicitly, not by an empty cell."

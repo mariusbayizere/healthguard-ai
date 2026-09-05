@@ -1,0 +1,53 @@
+concept_id,person,verdict_register,rw_french_check
+CR02,first,,"'Je n'arrive pas a finir une phrase sans m'arreter pour respirer.' The natural French is 'je suis essouffle', which is masculine and cannot be used for a patient of unknown gender. Confirm the verb-based rewrite reads as ordinary speech and not as a paraphrase."
+CR02,third,,Same rewrite in the third person.
+CR05,first,,"'sifflement' for a wheeze. SAME QUESTION IN ALL THREE LANGUAGES: the Kinyarwanda is blocked on whether 'ijwi ridasanzwe' is a definitive clinical term and the English on 'a whistling sound'. Is 'sifflement' what a francophone patient says, or is the clinical 'sibilants' expected, or something else? Should go to one person with the other two."
+CR05,third,,Same wheeze question.
+CR04,first,,"HELD, and flagged for the same person as PA04: which French describes lower chest wall indrawing. The Kinyarwanda has two rival descriptions and the ruling is not to choose; the French candidates in play are sheet draft D056's 'le bas du thorax qui se creuse' and PA04's 'le bas de sa poitrine rentre'."
+PA04,third,,"Indrawing wording, paired with CR04. 'thorax' was dropped as clinician register; confirm 'le bas de sa poitrine rentre' is what a carer says."
+GI03,first,,"'les selles' for stool. SAME QUESTION IN ALL THREE LANGUAGES — the Kinyarwanda took a speaker to settle after three attested candidates were ranked wrongly, and the English flags it too. Is 'les selles' the patient word in Rwandan French, or is it clinical, and is there a plainer alternative?"
+GI03,third,,Same stool question.
+GI05,first,,"Same stool question, and this row follows the GLOSS rather than the speaker's phrase, which says blood in the DIARRHOEA. Confirm the French says what a patient reports."
+GI05,third,,Same.
+PA08,first,,"Ear discharge, and SAME QUESTION IN ALL THREE LANGUAGES. Also: this row is the CHILD speaking about their own ear, per the person_note. Confirm 'J'ai mal a l'oreille et elle coule' is how a child would say it and that 'elle coule' is not too blunt."
+PA08,third,,Same ear question in the carer's voice.
+GI01,third,3,"FR-1 CASUALTY, and the clearest one. The faithful third is 'vomit tout ce qu'il mange', which forces a gender across a mixed relation set, so the relative clause was dropped for 'toute la nourriture'. Confirm that reads naturally; if a francophone reviewer has a better neutral form, this row wants it. Compare OB10 third, where the same clause SURVIVES because the obstetric relations are uniformly feminine."
+IF06,third,,"FR-1: 'quand il urine' forces a gender, so 'se plaint de brulures en urinant' replaces the subordinate clause. Confirm the reporting verb is right for a symptom only the patient can feel."
+CC04,third,3,"FR-1: 'quand il s'allonge' forces a gender, so 'en position allongee' carries the orthopnoea limb. That limb is the whole concept — one Kinyarwanda word, 'ngaramye', is what makes this orthopnoea rather than ordinary breathlessness — so a stiffer phrase was preferred to losing it. Confirm, and propose a plainer neutral form if there is one."
+HT07,first,,"FR-1: 'un serpent m'a mordu' agrees with the preceding object and 'j'ai ete mordu' with the subject, so both are masculine for an unknown patient. 'Je me suis fait mordre par un serpent' leaves the participle invariable. Confirm it is ordinary patient speech and not a grammarian's dodge."
+HT07,third,,Same construction.
+NE07,first,,"FR-1: 'je me suis evanoui' is masculine, so the noun carries it. Confirm 'J'ai eu plusieurs evanouissements' is patient register rather than clinical."
+EX37,first,3,"FR-1: 'je me sens fatigue' is masculine, so 'je ressens de la fatigue' replaces it. That is stiffer than the speaker's plain 'ndumva naniwe'. A better neutral form would be welcome."
+PA03,third,3,"FR-1, caught by the check rather than the ear: sheet draft D150's 'mou' has the irregular feminine 'molle' and CHILD_RELATIONS contains 'Ma fille'. 'sans force' is invariable. Confirm it renders the IMCI floppy/lethargic sign."
+HT03,third,,"FR-1: 'confus' inflects, so 'n'a plus les idees claires' replaces it here, at NE06 and at CC02. Confirm the idiom is right in all three and is not too colloquial for one of them."
+NE06,third,,"Same 'idees claires' idiom, and this row also carries its own time expression ('depuis ce matin') that the ONSET slot duplicates."
+CC02,third,,Same 'idees claires' idiom.
+EX23,first,,"FR-1: 'je suis tombe' is masculine, so 'j'ai fait une chute' carries every fall in the corpus. Confirm it is not more formal than the speaker's plain 'naraguye'. Also at HT05."
+HT05,first,,"Same 'faire une chute'. Also: this row follows the speaker in saying the LEG where the gloss says 'limb' and the English says 'arm', and it disclaims the fracture inside the phrase. Confirm 'ma jambe est tordue, mais je ne crois pas qu'elle soit cassee' is how a patient puts that."
+EX26,first,3,'paludisme' or 'malaria'? Both are used in Rwandan French and the corpus should pick one deliberately. Also at EX27. The phrase is list-shaped because it inherits the speaker's v1 wording.
+EX27,first,,"'paludisme' or 'malaria', paired with EX26. These two are also an unruled duplicate — see the record conflict noted on the row."
+CC06,first,,"VIH OR SIDA, AND IT IS A PARITY QUESTION AS WELL AS A REGISTER ONE. French distinguishes the virus (VIH) from the disease (SIDA); the speaker's Kinyarwanda uses 'SIDA' for both — 'imiti ya SIDA', literally AIDS medicine. The French here says VIH, which is medically right and is not what the speaker said. Confirm which the corpus should use. Also at CC10 and PR03."
+CC10,first,,"VIH or SIDA, paired with CC06."
+PR03,first,,"VIH or SIDA, paired with CC06."
+PR03,third,,Same.
+CC03,first,,"'la tension' for blood pressure. Standard French; confirm it is the ordinary Rwandan patient word rather than 'la pression' or 'la tension arterielle'. Also at EX09, CC08 and PR06."
+EX09,first,,"'la tension', paired with CC03."
+CC08,first,,"'la tension', paired with CC03."
+PR06,first,,"'la tension', paired with CC03."
+EX08,first,3,"'Mon taux de sucre dans le sang' — confirm this is what a patient says rather than 'mon sucre' or 'ma glycemie'. CC02 says 'mon sucre' for the same substance, so the corpus is currently inconsistent on purpose and should not be."
+EX08,third,3,"Same, and the third is long."
+PA02,third,,'teter' is what the baby does and 'allaiter' what the mother does; OB12 uses 'allaiter'. Confirm both are right in their rows.
+OB12,first,,"'allaiter', paired with PA02."
+GI04,third,3,"'se deshydrate' — a present-tense reflexive, chosen because 'est deshydrate' agrees. Confirm it is not clinical register for a carer."
+OB04,first,3,"'en travail' for labour. Confirm it is ordinary Rwandan French rather than midwife register, and that 'depuis toute la journee' reads naturally given the ONSET slot appends another time expression."
+OB04,third,3,Same.
+PR07,first,3,'le depistage du cancer du col de l'uterus' is long. The speaker deliberately kept a SHORT form here; confirm there is a shorter ordinary French equivalent.
+PR09,first,,'vermifuge' — confirm it is the patient word rather than 'medicament contre les vers'.
+PR09,third,,"'{REL} voudrait un vermifuge pour son enfant' — with 'Ma grand-mere' substituted, confirm 'son enfant' reads as her grandchild and not as her own young child. The Kinyarwanda 'umwana we' has the same ambiguity and the group-A ruling accepted it."
+NE05,first,3,"Three signs in one sentence, and the row is flagged for a clinician separately. Confirm 'la lumiere me fait mal aux yeux' is the ordinary way to say photophobia."
+NE05,third,3,Same.
+EX38,third,,"The obstetric 'elle'. OBSTETRIC_RELATIONS is uniformly feminine once 'Ma voisine' resolves the neighbour, so 'elle' is correct for all four. Confirm that 'Ma voisine' is the right resolution of the speaker's gender-neutral 'Umuturanyi wanjye' and not a narrowing of their ruling. This one question governs every obstetric third person."
+EX16,first,3,'mon ventre ne va pas bien' for mild indigestion. Confirm the register.
+EX16,third,3,Same.
+PR01,first,,"FR-1: 'je veux etre depiste' is masculine, so the request was rephrased actively. Confirm 'je voudrais faire le test' is natural."
+CC05,first,,"'je suis diabetique' is kept because 'diabetique' is epicene, where CC01's 'somnolent' is not. Confirm the sentence reads naturally with the diagnosis at the end, as the speaker has it."
