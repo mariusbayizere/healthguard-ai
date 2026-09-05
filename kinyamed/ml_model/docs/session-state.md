@@ -360,7 +360,7 @@ risk yet:
 
 ## 5. Standing rules — `docs/phrasing-guide.md`
 
-**Twelve rules, not eleven.** Rule 12 (SERVICE_SPEAKER) landed in `122b4a7` and
+**THIRTEEN rules as of 2026-09-05.** Rule 13 (collapse targets, and the `kandi`-versus-*or* test) landed with the PA01/PA03 rulings; it is a check on collapses rather than on phrasing, and it lives in the guide because the guide is the record. Rule 12 (SERVICE_SPEAKER) landed in `122b4a7` and
 was missing from this section for four commits while section 7 went on listing
 the question it answers as an open blocker. If the guide and this list disagree,
 the guide is the record.
@@ -2083,7 +2083,9 @@ in the brief that the anchor was dropped and why. Never let it disappear silentl
 anchors file. Its `english_gloss` had to be written (`convulsing`) because v1
 concepts have never had one.
 
-**And check the SIGN before the target, not just the domain.** Two proposed
+**And check the SIGN before the target, not just the domain — now RULE 13 of
+`docs/phrasing-guide.md`, with the `kandi`-versus-*or* test written up there as the
+mechanical form of it. The guide is the record; this is the summary.** Two proposed
 collapses failed this on 2026-09-05, both from the English arm, both plausible on
 domain and neither on content:
 

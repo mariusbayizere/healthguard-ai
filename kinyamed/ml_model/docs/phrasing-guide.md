@@ -229,6 +229,43 @@ the speaker has already authored, the authored phrase stands and the test has
 raised a question under rule 10 — nothing more. The test is a prompt to ask, and
 its own limbs have twice been corrected by what the speaker had already written.
 
+**13. Before collapsing one concept into another, check that the absorbing PHRASE
+carries the whole sign — not that the domain or the gloss looks close.** Two
+proposed collapses failed this on 2026-09-05, both plausible on domain and neither
+on content, and the failure has one shape: **the absorbing phrase quietly adds a
+requirement, or covers only half of one.**
+
+```
+PA01 -> EX40   EX40 is "convulsing AND fever above 40". Collapsing an IMCI
+               general danger sign there makes it CONDITIONAL ON A TEMPERATURE.
+               A child convulsing without fever is still a danger sign.
+               Correct target: EX33, the plain-convulsion phrase.
+
+PA03 -> EX32   IMCI's danger sign is "lethargic OR unconscious".
+               EX32 is "yataye ubwenge KANDI ntasubiza" - lost consciousness
+               AND unresponsive. It covers only the unconscious half, and the
+               lethargic half is the one that presents EARLIER. Held, not
+               collapsed.
+```
+
+**The `kandi`-versus-*or* test, which is the cheap mechanical form of this.**
+Where the concept's anchor names two states with **or**, and the candidate phrase
+joins two clauses with **`kandi`**, the phrase is narrower than the concept and the
+collapse loses a presentation. A conjunction standing in for a disjunction is the
+most reliable tell available, because it survives translation and needs no clinical
+judgement to spot: compare the anchor's connective with the phrase's.
+
+It runs the other way too. A phrase joining with `kandi` where the concept means
+one thing said twice — v1's `kugagara no guhinda umushyitsi`, convulsing and
+shaking — is *not* two requirements, and PA01 collapsed into it correctly. **So the
+test flags; it does not decide.** What it reliably catches is the case where nobody
+looked at the connective at all.
+
+**And check the anchor before executing** — `concept_anchors.csv` holds no v1
+concepts, so collapsing an anchored concept into an unanchored one deletes a
+clinical reference silently. Carry it across or record it as dropped. See
+`docs/session-state.md` section 8a.
+
 ## Part 3 — the consistency test
 
 For each phrase, in this order:
