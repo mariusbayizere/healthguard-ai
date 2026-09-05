@@ -257,3 +257,102 @@ which really are a class property.
 
 That is a different mechanism from the one section 6 sketched, and it is the reason
 this correction is worth its own section rather than a line in section 1.
+
+## 9. A second onset problem: the phrase already carries the time — added 2026-09-05
+
+Found from the English arm while drafting gastrointestinal, and it is **not** the
+problem section 8 describes. Section 8 is about concepts that admit no onset at
+all — a scheduled review has no *since*. This is about concepts that admit one
+perfectly well and **already contain one**, so the slot duplicates rather than
+contradicts:
+
+> *I have had bad diarrhoea **for three days** **for three days**.*
+> *Maze iminsi itatu ndwaye impiswi zikomeye **kuva hashize iminsi itatu**.*
+
+Both languages, same phrase, same slot.
+
+### It refines section 8's own counter-example
+
+Section 8 sets `CC06`/`CC07` aside — "ran out of ARV medicine", "ran out of TB
+medicine" — on the ground that they are service-adjacent but URGENT and **"a
+duration works perfectly on them ('I ran out a week ago')"**. That is right about
+the concept and insufficient as a test. `CC06`'s drafted English is *I finished my
+HIV medicine **several days ago***. The concept tolerates a duration; the phrase
+has already spent it.
+
+So the restriction needs **two** questions, not one:
+
+1. Does this concept admit a time expression at all? *(section 8's question)*
+2. Does this concept's phrase already carry one? *(this one)*
+
+A concept can fail either and needs the empty onset for either reason.
+
+### Measured
+
+Confirmed in **both** languages — the phrase carries its own duration in
+Kinyarwanda and in English independently:
+
+| concept | Kinyarwanda | English |
+|---|---|---|
+| `EX12` | `maze iminsi itatu ...` | for three days |
+| `GI06` | `Maze ibyumweru birenga bibiri ...` | for more than two weeks |
+| `CR06` | `Maze ibyumweru birenga bibiri ...` | for more than two weeks |
+| `OB04` | `Maze umunsi wose ...` | the whole day |
+
+`EX29` joins them as soon as its English is corrected: the Kinyarwanda says
+`umaze umunsi umwe` (one day) while the English candidate is still the stale v1
+`a mild cough with no fever`, which carries no time at all — one of the rows the
+EX30 collapse left behind.
+
+English-only so far: `PR05`, `CC06`, `IF04`, `NE06`. Of these only `PR05` is a
+ruled wording; the rest are unreviewed 2026-08-31 drafts that may lose their time
+expression when redrafted.
+
+### The duration cannot be reworded away
+
+It is the axis. `EX12` is three days and `GI06` is more than two weeks — that
+difference is the whole distinction between them, and `CR06`'s two weeks is the TB
+screening threshold. Dropping the duration to fit the slot would collapse EX12
+into GI06 and strip CR06 of its reason to exist.
+
+### `lint_phrases.py` does not catch it, and cannot as written
+
+The onset check tests whether the phrase's **last word** begins an onset:
+
+```python
+last = phrase.split()[-1].lower().strip(",.")
+if last in onset_heads:      # onset_heads = {"since", "for"}
+```
+
+`for three days` ends in `days`, which begins no onset. The check catches
+`...and it has been going on since` + ` since yesterday`; it cannot catch a
+duration sitting anywhere else in the phrase. Extending it means detecting time
+expressions rather than matching a word list, which is worth doing in English and
+is a research problem in Kinyarwanda — `kuva` is both *since* and *to bleed*, and
+a naive scan flags `EX18`, `EX19` and `EX20` as durations when they are
+haemorrhage phrases. **Prefer the declared list over the detector.**
+
+### What it costs, and the good news
+
+Same shape as section 8: restricting an affected phrase to the empty onset takes
+it from 1,500 frame combinations to 150.
+
+**But it lands almost entirely outside ROUTINE.** `EX12`, `GI06` and `CR06` are
+URGENT and `OB04` is CRITICAL — the two classes section 8's table shows with
+headroom, against ROUTINE's 117 instances. Only `PR05` is both service and
+duration-carrying, and it is already inside section 8's 22.
+
+So this **adds concepts to the same `ONSETS_BY_CONCEPT` map section 8 concludes is
+needed, without deepening the ROUTINE capacity problem that makes section 8's
+ordering non-negotiable.** It is a second reason to build that map, not a second
+constraint on the same scarce class.
+
+### One wording it makes newly relevant
+
+`PR05`'s English — *This is my first check-up **since** I became pregnant* — was
+chosen to keep PR05 out of OB11's phrase group, which it does. It also renders as
+*...since I became pregnant since yesterday*. The alternative measured at the time,
+*I am newly pregnant and I have not been checked yet*, avoids both: it carries no
+time expression and it is not a subsequence of OB11 under the rule that replaced
+`PREFIX_UNION_CHARS`. Flagged for the reviewer rather than changed, since the
+current wording was a ruling.

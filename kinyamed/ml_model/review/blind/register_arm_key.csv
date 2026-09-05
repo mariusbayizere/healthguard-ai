@@ -1,0 +1,57 @@
+item_id,origin,source_id,phrase
+R001,machine_draft,D109,a fit that will not stop
+R002,machine_draft,D051,so breathless I cannot finish a sentence
+R003,v1_corpus,v1[URGENT/chronic_care/1],a very high blood pressure reading
+R004,machine_draft,D137,I have run out of my TB tablets
+R005,machine_draft,D031,labour pains before nine months
+R006,v1_corpus,v1[URGENT/gastrointestinal/0],severe diarrhoea for three days
+R007,machine_draft,D039,vomiting everything I eat while pregnant
+R008,machine_draft,D097,hit my head and now I am vomiting and confused
+R009,v1_corpus,v1[URGENT/cardiac_respiratory/0],a bad cough and trouble breathing
+R010,machine_draft,D071,a fever and a rash all over the body
+R011,machine_draft,D169,I would like an HIV test
+R012,v1_corpus,v1[URGENT/gastrointestinal/1],repeated vomiting and cannot eat
+R013,v1_corpus,v1[URGENT/haemorrhage_trauma/1],severe pain after a fall
+R014,v1_corpus,v1[ROUTINE/chronic_care/0],a prescription refill request
+R015,machine_draft,D019,high fever and foul-smelling discharge after delivery
+R016,v1_corpus,v1[URGENT/paediatric/0],a fever and a rash spreading on the body
+R017,machine_draft,D181,deworming tablets for my child
+R018,v1_corpus,v1[URGENT/infectious_fever/1],fever with a bad cough
+R019,v1_corpus,v1[URGENT/haemorrhage_trauma/0],"an infected wound, red and full of pus"
+R020,machine_draft,D059,coughing for more than two weeks and losing weight
+R021,v1_corpus,v1[CRITICAL/haemorrhage_trauma/0],heavy bleeding that will not stop
+R022,machine_draft,D159,my child's ear hurts and is draining
+R023,v1_corpus,v1[CRITICAL/haemorrhage_trauma/2],a nosebleed that will not stop
+R024,v1_corpus,v1[CRITICAL/haemorrhage_trauma/1],a deep wound losing a lot of blood
+R025,machine_draft,D093,bleeding that will not stop even with pressure
+R026,machine_draft,D107,a small cut that has stopped bleeding
+R027,v1_corpus,v1[URGENT/infectious_fever/4],fever with a severe headache
+R028,v1_corpus,v1[ROUTINE/gastrointestinal/1],slight stomach pain that is not severe
+R029,machine_draft,D177,an appointment for cervical screening
+R030,machine_draft,D131,my legs are swollen and I cannot breathe lying down
+R031,machine_draft,D161,bringing my child for growth monitoring
+R032,v1_corpus,v1[URGENT/paediatric/1],a high fever and refusing to eat
+R033,machine_draft,D163,my child is due for vaccination
+R034,machine_draft,D125,"diabetic, vomiting, breathing deeply and very drowsy"
+R035,machine_draft,D101,my arm is bent out of shape after a fall
+R036,v1_corpus,v1[ROUTINE/gastrointestinal/0],mild stomach discomfort after eating
+R037,v1_corpus,v1[CRITICAL/haemorrhage_trauma/3],a head injury after a bad fall
+R038,machine_draft,D035,fever while pregnant
+R039,v1_corpus,v1[CRITICAL/cardiac_respiratory/4],crushing chest pain spreading to the arm
+R040,machine_draft,D091,a mild stomach upset after eating
+R041,machine_draft,D007,severe headache and blurred vision in pregnancy
+R042,v1_corpus,v1[ROUTINE/infectious_fever/1],a mild runny nose
+R043,v1_corpus,v1[ROUTINE/preventive/1],a request for a blood test
+R044,v1_corpus,v1[ROUTINE/preventive/2],a child vaccination appointment
+R045,machine_draft,D113,sudden weakness down one side of the body
+R046,v1_corpus,v1[CRITICAL/neurological/3],slurred speech and a drooping face
+R047,v1_corpus,v1[URGENT/infectious_fever/0],a high fever of 39 degrees
+R048,v1_corpus,v1[URGENT/cardiac_respiratory/1],chest pain when breathing deeply
+R049,machine_draft,D141,my routine diabetes check-up
+R050,v1_corpus,v1[CRITICAL/cardiac_respiratory/2],a racing heart that feels like it will stop
+R051,v1_corpus,v1[CRITICAL/paediatric/1],a child struggling to breathe and turning blue
+R052,machine_draft,D069,fever with shivering and sweating for three days
+R053,v1_corpus,v1[CRITICAL/cardiac_respiratory/3],breathing trouble and lips turning blue
+R054,machine_draft,D047,advice about breastfeeding my baby
+R055,v1_corpus,v1[ROUTINE/neurological/1],mild tiredness during the day
+R056,machine_draft,D089,severe stomach pain that will not settle
