@@ -1,5 +1,27 @@
 # Five Kinyarwanda phrase groups hold more than one concept
 
+> **CLOSED 2026-09-05. All five are resolved: one collapse, four rewordings.**
+> Measured after: **162 phrases -> 93 groups, 0 holding more than one concept.**
+> The measurement in this document reproduced exactly on the Kinyarwanda side
+> (163 -> 87, same five, same membership) and the analysis below stands as written,
+> with two corrections recorded in `docs/session-state.md`:
+>
+> - **`EX42`/`IF05` was a THREE-way, not a pair** — `PA06` held the same sign, and
+>   the speaker had already ruled PA06's first person a duplicate of IF05. All
+>   three collapsed into IF05. Filing loss recorded: no paediatric measles concept.
+> - **`EX14`/`GI07` was NOT a collapse candidate.** The axis *is* recorded — GI07's
+>   gloss says "that will not settle" — so it is the CC08/EX10 specialisation shape,
+>   not the IF07/EX29 shape. Reworded instead.
+>
+> **The general finding this document produced:** three of the five collisions had
+> one cause — a short v1-derived phrase being the opening clause of a longer
+> clinician-defined concept that specialises it (`EX14`, `EX02`, `EX09`). Containment
+> was guaranteed the moment both were authored. Each was fixed by rewording the
+> short phrase, twice by restoring its own v1 wording.
+>
+> `EX18`/`EX20` was the exception and needed the opposite fix: EX18 had no words of
+> its own, so EX20 was reworded to lead with the nose.
+
 Found from the English side while drafting cardiac_respiratory, where `EX02` and
 `CR02` had to be worded apart on purpose. **The Kinyarwanda pair they were worded
 apart from is already joined, and it is not the only one.**
