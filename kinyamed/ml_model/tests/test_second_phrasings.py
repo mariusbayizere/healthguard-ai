@@ -44,11 +44,19 @@ def _components(monkeypatch, phrases: list[str], variants: dict[str, str]) -> di
 
 def test_divergent_phrasings_split_without_the_declaration(monkeypatch) -> None:
     """Without it they are two groups — which is the bug, shown rather than asserted away."""
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     groups = _components(monkeypatch, [EX16, EX17], {})
     assert groups[EX16] != groups[EX17]
 
 
 def test_a_declared_second_phrasing_shares_its_primary_group(monkeypatch) -> None:
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     groups = _components(monkeypatch, [EX16, EX17], {EX17: EX16})
     assert groups[EX16] == groups[EX17], (
         "a declared pairing must put both phrasings in one phrase group, or the "

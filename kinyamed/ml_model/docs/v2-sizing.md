@@ -351,3 +351,111 @@ net                                                 888 phrases
 The last row is confirmed but not executed: it waits on the second-phrasing
 pairing being written into the brief and into `PHRASE_VARIANTS`, so EX17's
 wording survives the collapse rather than being lost by it.
+
+---
+
+## The v2 target is 330,000, ruled 2026-09-05
+
+**The invariant decided it: 2,000 rows per authored phrase, 165 phrases.**
+
+```
+165 phrases x 2,000 = 330,000 rows
+```
+
+### What was rejected, and why it was tempting
+
+**1,008,000 was reachable and was refused.** The v2 corpus can produce 7,094,400
+unique rows, so 1,008,000 fits with headroom in every class (CRITICAL 7.2x,
+URGENT 9.2x, ROUTINE 4.1x). It is also the number in `TARGET_ROWS_V2` and the
+number the freeze checklist was written around.
+
+It was refused because **it would have meant 6,109 rows per phrase, not 2,000**,
+and the reason for the increase is not more clinical material:
+
+```
+v1   184 phrases x 4 languages, 1,500 frame combinations
+v2   165 phrases x 1 language,  13,200 frame combinations
+```
+
+**The frame space grew 8.8x; the clinical content did not.** The 17 authored
+frame fragments took openers 6 -> 12, contexts 5 -> 10 and closers 5 -> 11, and
+multiplying those out is what made a million rows reachable from a third of v1's
+phrase inventory. Shipping 1,008,000 on that basis is precisely what standing
+rule 4 forbids: *never increase dataset size by generating questionable
+combinations; validity and provenance beat row count.* The combinations would not
+be invalid, but the row count would be carrying weight the phrases cannot.
+
+**The other argument for 1,008,000 was comparability with v1, and it is the
+stronger one to answer.** Matching v1's scale would let v1 and v2 training numbers
+sit in one table. That is exactly why it was rejected: **matching the scale of an
+artefact with different provenance invites a comparison between two things that
+are not alike.** v1 is four languages of unreviewed phrases with a mixed-language
+half; v2 is one language, speaker-authored, clinician-flagged, with 23 rows
+deliberately held out. A reader who sees 1,000,000 against 1,008,000 will read
+them as versions of one dataset. They are not, and the freeze checklist already
+says so in its own words: *"any v1 training result stays valid as a v1 result. It
+is not comparable to a v2 number and must not be reported as one."* Choosing a
+number that undercuts that sentence would be a strange way to keep it.
+
+### What 330,000 concedes
+
+**v2 ships smaller than v1 — a third of the rows.** That is the honest shape of
+the artefact: fewer rows, from fewer phrases, every one of them authored by a
+Kinyarwanda speaker rather than drafted by a template. The paper should say the
+row count fell and why, rather than hold it level and explain nothing.
+
+**Rows per phrase is a corpus median, not a guarantee.** At 330,000 over 165
+phrases the mean is exactly 2,000, but a first-person phrase with no `{REL}`
+draws on 13,200 combinations while a third-person one expanding over eight
+relations draws on 105,600. The invariant describes the corpus, not any row in
+it - stated here because `v2-sizing.md` is where someone will come looking for a
+guarantee that was never made.
+
+## Domain and family concentration in v2 — measured, and stated rather than found
+
+**One family is 22% of the corpus.** `preventive` at ROUTINE holds
+72,217 of 330,000 rows. The three largest families:
+
+```
+   72,217  21.9%  kinyarwanda->kinyarwanda:ROUTINE:preventive
+   34,673  10.5%  kinyarwanda->kinyarwanda:CRITICAL:cardiac_respiratory
+   27,187   8.2%  kinyarwanda->kinyarwanda:URGENT:gastrointestinal
+```
+
+Domain shares:
+
+```
+   76,100  23.1%  preventive
+   49,049  14.9%  cardiac_respiratory
+   43,811  13.3%  gastrointestinal
+   40,747  12.3%  haemorrhage_trauma
+   32,600   9.9%  obstetric
+   32,487   9.8%  chronic_care
+   28,832   8.7%  infectious_fever
+   14,933   4.5%  neurological
+   11,441   3.5%  paediatric
+```
+
+**This follows from the phrase distribution, not from the allocator.** `preventive`
+contributed 22 of the 43 ROUTINE phrases, and `allocate()` divides a
+(language, class) bucket among its domains in proportion to how much distinct
+material each has. Half of ROUTINE's material is preventive, so half of ROUTINE's
+rows are - and because v2 is monolingual there is no mixed bucket to dilute it.
+
+**Why preventive has so many phrases is the real explanation**, and it is a fact
+about the authoring order rather than about triage: preventive was drafted late,
+in whole batches, when the method was working well, while `paediatric` lost
+concepts to rule 9 and to three collapses and `neurological` lost five concepts
+to collapse in one afternoon. The domains with the fewest phrases are the ones
+whose concepts turned out to be duplicates.
+
+**It passes every quality target**, including the per-domain floor, so nothing
+here is a validation failure. It is stated because a reader who computes domain
+shares will find it, and the honest answer - a corpus reflects where the
+authoring got to, not what a clinic sees - is better given than extracted.
+
+**What it means for training.** Class balance is enforced and holds at 33/34/33,
+so the label distribution is not skewed. Domain is not balanced and was never
+claimed to be. A model trained on this will see four times as many preventive
+rows as paediatric ones, and any per-domain metric should be read against these
+shares rather than as if the domains were equally represented.

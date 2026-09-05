@@ -35,7 +35,13 @@ MAX_DUPLICATE_RATE = 0.02
 MIN_EXAMPLES_PER_DOMAIN = 500
 
 CLASS_TARGETS = {"CRITICAL": (0.28, 0.38), "URGENT": (0.32, 0.42), "ROUTINE": (0.28, 0.38)}
-LANGUAGE_TARGETS = {language: (0.08, 0.15) for language in LANGUAGES}
+# A monolingual corpus is 100% its language. The 0.08-0.15 band described v1's
+# four languages plus a 48% mixed bucket, and would fail v2 by construction.
+# Kept as a per-language band rather than hardcoded so a future multilingual
+# v3 only has to change LANGUAGES.
+LANGUAGE_TARGETS = ({language: (0.99, 1.0) for language in LANGUAGES}
+                   if len(LANGUAGES) == 1 else
+                   {language: (0.08, 0.15) for language in LANGUAGES})
 
 # Byte sequences that appear when UTF-8 has been decoded as Latin-1 somewhere
 # in the pipeline. Kinyarwanda and French text is where this would surface.

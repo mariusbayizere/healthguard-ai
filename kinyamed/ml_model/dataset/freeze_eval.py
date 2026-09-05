@@ -28,7 +28,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from dataset.atomicio import atomic_write_json  # noqa: E402
 from dataset.split_dataset import phrase_components  # noqa: E402
 
-MANIFEST_VERSION = 1
+# 2 as of the v2 freeze, 2026-09-05. Bumping this is what stops freeze_eval
+# overwriting eval_manifest_*_v1.json and destroying the v1 record - the v1
+# manifests are KEPT so old training numbers stay traceable, even though they
+# describe a different corpus. Checklist steps 13 and 14 are one step in two
+# halves: doing either without the other loses something.
+MANIFEST_VERSION = 2
 LANGUAGE_ORDER = ("kinyarwanda", "english", "french", "swahili", "mixed")
 CLASS_ORDER = ("CRITICAL", "URGENT", "ROUTINE")
 # Below this, a per-cell metric is too noisy to quote in a paper.

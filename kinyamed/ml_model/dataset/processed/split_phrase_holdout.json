@@ -3,59 +3,44 @@
   "eval_fraction_target": 0.1,
   "seed": 42,
   "train": {
-    "rows": 905774,
+    "rows": 295575,
     "labels": {
-      "CRITICAL": 304864,
-      "URGENT": 314225,
-      "ROUTINE": 286685
+      "CRITICAL": 97503,
+      "URGENT": 100436,
+      "ROUTINE": 97636
     },
     "languages": {
-      "kinyarwanda": 112674,
-      "english": 117848,
-      "french": 121222,
-      "swahili": 121219,
-      "mixed": 432811
+      "kinyarwanda": 295575
     },
-    "families": 160,
-    "phrases": 168
+    "families": 25,
+    "phrases": 150
   },
   "eval": {
-    "rows": 94226,
+    "rows": 34425,
     "labels": {
-      "CRITICAL": 25118,
-      "URGENT": 25787,
-      "ROUTINE": 43321
+      "CRITICAL": 11401,
+      "URGENT": 11766,
+      "ROUTINE": 11258
     },
     "languages": {
-      "kinyarwanda": 17341,
-      "english": 12163,
-      "french": 8777,
-      "swahili": 8780,
-      "mixed": 47165
+      "kinyarwanda": 34425
     },
-    "families": 39,
-    "phrases": 16
+    "families": 6,
+    "phrases": 15
   },
   "holdout_groups": [
-    "a child vaccination appointment",
-    "an annual checkup appointment",
-    "chest pain when breathing deeply",
-    "gahunda yo gukurikirana ubuvuzi bwahise",
-    "gahunda yo gusuzumwa buri mwaka",
-    "homa na maumivu ya mwili mzima",
-    "maumivu makali ya kifua yanayoenea mkononi",
-    "ombi la kuongezewa dawa zangu",
-    "one side of the body not working",
-    "ububabare bukabije mu nda",
-    "umuriro mwinshi wa dogere 39",
-    "umutima utera cyane nk'aho uhagarara",
-    "une douleur ecrasante dans la poitrine qui va vers le bras",
-    "une forte fievre et refuse de manger",
-    "une toux legere sans fievre"
+    "Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.",
+    "Mfite umuriro kandi mfite uduheri ku mubiri wose.",
+    "Mfite umuvuduko w'amaraso wazamutse cyane.",
+    "Ndashaka inama ku mirire myiza.",
+    "Ndashaka ko bapima amaraso.",
+    "mfite umuriro wa dogere 39",
+    "mu gituza harandya cyane kandi sinshobora guhumeka neza",
+    "ndatwite, ndababara cyane mu nda kandi ndava amaraso"
   ],
   "leakage": {
     "exact_text_overlap": 0,
-    "family_overlap": 39,
+    "family_overlap": 6,
     "phrase_overlap": 0,
     "substring_violations": 0,
     "substring_violation_detail": [],

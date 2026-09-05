@@ -27,6 +27,10 @@ def test_undeclared_phrases_default_to_noun_phrase() -> None:
 
 
 def test_v1_vocabulary_produces_only_noun_phrase_families() -> None:
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     forms = {f.form for f in build_families()}
     assert forms == {NOUN_PHRASE}, (
         "a phrase has been declared an utterance in the committed vocabulary; "
@@ -223,15 +227,18 @@ def test_relation_is_lowercased_mid_sentence() -> None:
 
     head_phrase = "{REL} arakorora cyane."
     mid_phrase = "Iyo {REL} ahumeka, birababaza."
-    saved_sym = V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"]
-    saved_rel = V.RELATIONS["kinyarwanda"]
-    saved_dom = V.DOMAIN_RELATIONS.pop("paediatric", None)
-    V.RELATIONS["kinyarwanda"] = ("Umwana wanjye",)
-    for p in (head_phrase, mid_phrase):
-        V.PHRASE_FORMS[p] = UTTERANCE
-    V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"] = (head_phrase, mid_phrase)
-    G.SYMPTOMS, G.PHRASE_FORMS, G.RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.RELATIONS
-    G.DOMAIN_RELATIONS = V.DOMAIN_RELATIONS
+    # ISOLATE the inventory rather than mutating one cell of the real one. This
+    # test narrows RELATIONS to a single name, which is fine when no other phrase
+    # carries {REL} - true in v1 and false in v2, where every third-person phrase
+    # does. Mutating the shared SYMPTOMS left v2's obstetric phrases expanding
+    # against a relation list that no longer contained their domain's four, and
+    # build_families raised. Substituting the whole inventory keeps the test
+    # about what it is about.
+    saved = (G.SYMPTOMS, G.RELATIONS, G.DOMAIN_RELATIONS, G.PHRASE_FORMS)
+    G.SYMPTOMS = {"kinyarwanda": {"URGENT": {"paediatric": (head_phrase, mid_phrase)}}}
+    G.RELATIONS = {"kinyarwanda": ("Umwana wanjye",)}
+    G.DOMAIN_RELATIONS = {}
+    G.PHRASE_FORMS = {head_phrase: UTTERANCE, mid_phrase: UTTERANCE}
     try:
         f = next(x for x in build_families()
                  if x.language == "kinyarwanda" and x.domain == "paediatric"
@@ -241,13 +248,7 @@ def test_relation_is_lowercased_mid_sentence() -> None:
         assert "Iyo umwana wanjye ahumeka, birababaza." in rendered, rendered
         assert "Iyo Umwana wanjye ahumeka, birababaza." not in rendered
     finally:
-        V.SYMPTOMS["kinyarwanda"]["URGENT"]["paediatric"] = saved_sym
-        V.RELATIONS["kinyarwanda"] = saved_rel
-        if saved_dom is not None:
-            V.DOMAIN_RELATIONS["paediatric"] = saved_dom
-        for p in (head_phrase, mid_phrase):
-            V.PHRASE_FORMS.pop(p, None)
-        G.SYMPTOMS, G.RELATIONS = V.SYMPTOMS, V.RELATIONS
+        G.SYMPTOMS, G.RELATIONS, G.DOMAIN_RELATIONS, G.PHRASE_FORMS = saved
 
 
 def test_domain_relation_set_restricts_expansion() -> None:

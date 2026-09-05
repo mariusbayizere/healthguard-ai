@@ -3,115 +3,48 @@
   "eval_fraction_target": 0.1,
   "seed": 42,
   "train": {
-    "rows": 885679,
+    "rows": 305100,
     "labels": {
-      "CRITICAL": 294264,
-      "URGENT": 303210,
-      "ROUTINE": 288205
+      "CRITICAL": 103531,
+      "URGENT": 101845,
+      "ROUTINE": 99724
     },
     "languages": {
-      "kinyarwanda": 112615,
-      "english": 112612,
-      "french": 112602,
-      "swahili": 112602,
-      "mixed": 435248
+      "kinyarwanda": 305100
     },
-    "families": 142,
-    "phrases": 184
+    "families": 19,
+    "phrases": 147
   },
   "eval": {
-    "rows": 114321,
+    "rows": 24900,
     "labels": {
-      "CRITICAL": 35718,
-      "URGENT": 36802,
-      "ROUTINE": 41801
+      "CRITICAL": 5373,
+      "URGENT": 10357,
+      "ROUTINE": 9170
     },
     "languages": {
-      "kinyarwanda": 17400,
-      "english": 17399,
-      "french": 17397,
-      "swahili": 17397,
-      "mixed": 44728
+      "kinyarwanda": 24900
     },
-    "families": 18,
-    "phrases": 50
+    "families": 6,
+    "phrases": 18
   },
   "holdout_groups": [
-    "english->english:CRITICAL:obstetric",
-    "english->english:ROUTINE:neurological",
-    "english->english:URGENT:haemorrhage_trauma",
-    "english->swahili:CRITICAL:cardiac_respiratory",
-    "english->swahili:URGENT:infectious_fever",
-    "french->french:CRITICAL:obstetric",
-    "french->french:ROUTINE:neurological",
-    "french->french:URGENT:chronic_care",
-    "french->kinyarwanda:CRITICAL:cardiac_respiratory",
-    "french->kinyarwanda:ROUTINE:infectious_fever",
-    "french->kinyarwanda:URGENT:infectious_fever",
-    "kinyarwanda->french:ROUTINE:preventive",
-    "kinyarwanda->kinyarwanda:CRITICAL:obstetric",
-    "kinyarwanda->kinyarwanda:ROUTINE:chronic_care",
-    "kinyarwanda->kinyarwanda:URGENT:paediatric",
-    "swahili->swahili:CRITICAL:obstetric",
-    "swahili->swahili:ROUTINE:gastrointestinal",
-    "swahili->swahili:URGENT:cardiac_respiratory"
+    "kinyarwanda->kinyarwanda:CRITICAL:infectious_fever",
+    "kinyarwanda->kinyarwanda:CRITICAL:paediatric",
+    "kinyarwanda->kinyarwanda:ROUTINE:paediatric",
+    "kinyarwanda->kinyarwanda:URGENT:neurological",
+    "kinyarwanda->kinyarwanda:URGENT:obstetric",
+    "kinyarwanda->kinyarwanda:URGENT:paediatric"
   ],
   "leakage": {
     "exact_text_overlap": 0,
     "family_overlap": 0,
-    "phrase_overlap": 50,
-    "substring_violations": 54,
-    "substring_violation_detail": [
-      {
-        "eval_phrase": "a mild headache that is not severe",
-        "train_phrase": "a mild headache that is not severe"
-      },
-      {
-        "eval_phrase": "agahinda gakabije mu gituza kanyura mu kuboko",
-        "train_phrase": "agahinda gakabije mu gituza kanyura mu kuboko"
-      },
-      {
-        "eval_phrase": "amazuru atemba yoroheje",
-        "train_phrase": "amazuru atemba yoroheje"
-      },
-      {
-        "eval_phrase": "an infected wound, red and full of pus",
-        "train_phrase": "an infected wound, red and full of pus"
-      },
-      {
-        "eval_phrase": "dalili za malaria, homa na baridi",
-        "train_phrase": "dalili za malaria, homa na baridi"
-      },
-      {
-        "eval_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement",
-        "train_phrase": "de fortes douleurs au ventre"
-      },
-      {
-        "eval_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement",
-        "train_phrase": "de fortes douleurs au ventre pendant la grossesse avec saignement"
-      },
-      {
-        "eval_phrase": "gahunda yo gukurikirana ubuvuzi bwahise",
-        "train_phrase": "gahunda yo gukurikirana ubuvuzi bwahise"
-      },
-      {
-        "eval_phrase": "guhumeka nabi n'iminwa ihindura ibara",
-        "train_phrase": "guhumeka nabi n'iminwa ihindura ibara"
-      },
-      {
-        "eval_phrase": "heavy bleeding after giving birth",
-        "train_phrase": "heavy bleeding after giving birth"
-      }
-    ],
-    "eval_rows_whose_phrase_appears_in_train": 114321,
-    "eval_rows_leaked_fraction": 1.0,
-    "shared_phrase_sample": [
-      "a mild headache that is not severe",
-      "agahinda gakabije mu gituza kanyura mu kuboko",
-      "amazuru atemba yoroheje",
-      "an infected wound, red and full of pus",
-      "dalili za malaria, homa na baridi"
-    ]
+    "phrase_overlap": 0,
+    "substring_violations": 0,
+    "substring_violation_detail": [],
+    "eval_rows_whose_phrase_appears_in_train": 0,
+    "eval_rows_leaked_fraction": 0.0,
+    "shared_phrase_sample": []
   },
   "train_path": "dataset/processed/train_family_holdout.csv",
   "eval_path": "dataset/processed/eval_family_holdout.csv"

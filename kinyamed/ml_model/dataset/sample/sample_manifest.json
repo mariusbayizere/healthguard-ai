@@ -4,28 +4,30 @@
   "target": 1000,
   "seed": 42,
   "path": "dataset/sample/symptoms_sample.csv",
-  "sha256": "e75057b5e73070d5ef2fa9ea76dca140be40e9e1dff229b7587d5e3a8853ccc0",
+  "sha256": "801215db5fe4e16ff6ab272b79e5d7faf967fe80d3e8b83a5208d5e94698c8a5",
   "rows": 1000,
   "splits": {
     "phrase": {
       "train": {
-        "sha256": "9f45e6149d18b2639cafee8208da09752e9b1c078a42fce11293b5781b0620ef",
-        "rows": 905
+        "sha256": "48226f2e606bc7155cf7cad3f3b5156e6c1430c3166dbedf2c2f5ca3d320021b",
+        "rows": 898
       },
       "eval": {
-        "sha256": "4c1453e27136c44c737d17482fa72fe9a09ac82e39b4cb1bde1b560d3ece77b5",
-        "rows": 95
+        "sha256": "e147c9e1bdc887ea9ee7581cfe5e9cf24127bcd955b744cf87e2ebcebe326960",
+        "rows": 102
       }
     },
     "family": {
       "train": {
-        "sha256": "f09e73676633f04f710a89090c59041ad52317334303cdccc15269f1ebb31f6e",
-        "rows": 883
+        "sha256": "9cd014fb2ffbdf4eba122939981f163fe12d0cd255fa20e729c1f535bf540b3d",
+        "rows": 917
       },
       "eval": {
-        "sha256": "04a85153c219908ac6b9fb44a0dca06d4201dd86f5b1efdcd9d27bc46cf640a6",
-        "rows": 117
+        "sha256": "3f3d6b28885144d63873dda5d9207ab0fc78018ac884b634155e660d36551caa",
+        "rows": 83
       }
     }
-  }
+  },
+  "corpus_version": 2,
+  "note": "Regenerated at the v2 freeze, 2026-09-05. This sample is drawn from the v2 corpus; the v1 sample is recoverable with --corpus-version 1 and its digests live in git history."
 }

@@ -13,9 +13,9 @@ something checked after the fact.
 
 from __future__ import annotations
 
-LANGUAGES = ("kinyarwanda", "english", "french", "swahili")
+LANGUAGES = ("kinyarwanda",)
 
-# Clinical domains. Each is present at the urgencies where it is plausible.
+
 DOMAINS = (
     "cardiac_respiratory",
     "haemorrhage_trauma",
@@ -33,11 +33,22 @@ DOMAINS = (
 # distinct combination indices, so a repeated value would make two different
 # indices render the same sentence. `generate_large_dataset.py` asserts this.
 OPENERS: dict[str, tuple[str, ...]] = {
-    "kinyarwanda": ("", "Muganga, ", "Muraho, ", "Mfasha, ", "Ndakeneye ubufasha, ", "Nyabuneka, "),
-    "english": ("", "Doctor, ", "Hello, ", "Please help, ", "Good morning, ", "Excuse me, "),
-    "french": ("", "Docteur, ", "Bonjour, ", "Aidez-moi, ", "S'il vous plait, ", "Excusez-moi, "),
-    "swahili": ("", "Daktari, ", "Habari, ", "Nisaidie, ", "Tafadhali, ", "Samahani, "),
+    "kinyarwanda": (
+        '',
+        'Muganga, ',
+        'Muraho, ',
+        'Mfasha, ',
+        'Ndakeneye ubufasha, ',
+        'Nyabuneka, ',
+        'Ndashaka kukubwira ikibazo mfite. ',
+        'Mumbabarire, ndashaka kubabwira ikibazo mfite. ',
+        'Mfasha vuba, ',
+        'Nzanye umwana wanjye, ',
+        'Simbizi niba bikomeye ariko, ',
+        'Naje hano mbere, ',
+    ),
 }
+
 
 SUBJECTS: dict[str, tuple[str, ...]] = {
     "kinyarwanda": (
@@ -88,402 +99,265 @@ ONSETS: dict[str, tuple[str, ...]] = {
 
 CONTEXTS: dict[str, tuple[str, ...]] = {
     "kinyarwanda": (
-        "", " kandi birushaho kuba bibi", " kandi sinshobora gusinzira",
-        " kandi ndahangayitse", " kandi nta miti mfite",
-    ),
-    "english": (
-        "", " and it is getting worse", " and I cannot sleep",
-        " and I am worried", " and I have no medicine",
-    ),
-    "french": (
-        "", " et cela empire", " et je ne peux pas dormir",
-        " et je suis inquiet", " et je n'ai pas de medicament",
-    ),
-    "swahili": (
-        "", " na inazidi kuwa mbaya", " na siwezi kulala",
-        " na nina wasiwasi", " na sina dawa",
+        '',
+        ' kandi birushaho kuba bibi',
+        ' kandi sinshobora gusinzira',
+        ' kandi ndahangayitse',
+        ' kandi nta miti mfite',
+        '. Byatangiye gitunguranye.',
+        ' biragenda bikagaruka',
+        ' nta miti imfasha',
+        ' bikarushaho nijoro',
+        '. Abandi bana na bo bafite iki kibazo.',
     ),
 }
+
 
 CLOSERS: dict[str, tuple[str, ...]] = {
     "kinyarwanda": (
-        "", ". Nkora iki?", ". Ndakeneye ubufasha vuba.", ". Mfasha muganga.",
-        ". Murakoze.",
-    ),
-    "english": (
-        "", ". What should I do?", ". I need help quickly.", ". Please advise.",
-        ". Thank you.",
-    ),
-    "french": (
-        "", ". Que dois-je faire?", ". J'ai besoin d'aide vite.",
-        ". Merci de m'aider.", ". Merci beaucoup.",
-    ),
-    "swahili": (
-        "", ". Nifanye nini?", ". Nahitaji msaada haraka.", ". Tafadhali nisaidie.",
-        ". Asante.",
+        '',
+        '. Nkora iki?',
+        '. Ndakeneye ubufasha vuba.',
+        '. Mfasha muganga.',
+        '. Murakoze.',
+        '. Ese ibi birakomeye?',
+        '. Ntegereze cyangwa nsuzumwe ubu?',
+        '. Ni imiti ki nafata?',
+        '. Ntabasha kubona amafaranga yo kongera kuza kwa muganga.',
+        '. Naje mvuye kure.',
+        '. Urakoze.',
     ),
 }
 
-# ── Symptom phrases: language -> urgency -> domain -> phrases ─────────────
-# Phrases follow a subject, so they begin with the object of "have".
+
 SYMPTOMS: dict[str, dict[str, dict[str, tuple[str, ...]]]] = {
     "kinyarwanda": {
         "CRITICAL": {
             "cardiac_respiratory": (
-                "ububabare bukabije mu gituza kandi sinshobora guhumeka",
-                "ikibazo cyo guhumeka nabi cyane",
-                "umutima utera cyane nk'aho uhagarara",
-                "guhumeka nabi n'iminwa ihindura ibara",
-                "agahinda gakabije mu gituza kanyura mu kuboko",
+                '{REL} arumva igituza kimuremereye cyane kandi ububabare bukagera no ku rwasaya cyangwa ku kuboko.',
+                'Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.',
+                '{REL} ahumeka bimugora cyane ku buryo adashobora no kuvuga neza.',
+                'Iminwa yanjye yahindutse ubururu.',
+                '{REL} iminwa ye yahindutse ubururu.',
+                'mu gituza harandya cyane kandi sinshobora guhumeka neza',
+                '{REL} arababara cyane mu gituza kandi ntashobora guhumeka neza.',
+                'Mfite ikibazo cyo guhumeka nabi cyane.',
+                '{REL} afite ikibazo cyo guhumeka nabi cyane.',
+                "umutima uratera cyane kandi nkumva umeze nk'aho uhagarara",
+                "{REL} umutima we utera cyane kandi yumva umeze nk'aho uhagarara.",
+                'guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara',
+                '{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ibara.',
+                'mu gituza harandya cyane kandi ububabare bukagera no ku kuboko',
+                '{REL} arababara cyane mu gituza kandi ububabare bukagera no ku kuboko.',
+            ),
+            "gastrointestinal": (
+                'Ndaruka ibyo ndya byose kandi sinshobora no kunywa.',
+                '{REL} araruka ibyo arya byose kandi ntashobora no kunywa.',
+                'Ndaruka amaraso.',
+                '{REL} araruka amaraso.',
+                'Mfite umwanda usa umukara.',
+                '{REL} afite impiswi zikomeye kandi yagize umwuma.',
             ),
             "haemorrhage_trauma": (
-                "amaraso menshi adahagarara",
-                "igikomere gikomeye cyavuye amaraso menshi",
-                "kuva amaraso mu mazuru bidahagarara",
-                "igikomere mu mutwe nyuma yo kugwa",
+                'ndi kuva amaraso menshi kandi ntahagarara',
+                '{REL} ari kuva amaraso menshi kandi ntahagarara.',
+                'mfite igikomere gikomeye kirimo kuva amaraso menshi',
+                '{REL} afite igikomere gikomeye kirimo kuva amaraso menshi.',
+                'Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.',
+                '{REL} arimo kuva imyuna mu mazuru kandi ntahagarara.',
+                'mfite igikomere ku mutwe nyuma yo kugwa',
+                '{REL} afite igikomere ku mutwe nyuma yo kugwa.',
+                'Mfite igikomere gikomeye ku buryo igufa rigaragara.',
+                '{REL} afite igikomere gikomeye ku buryo igufa rigaragara.',
+                'Mfite ubushye bunini ku mubiri.',
+                '{REL} afite ubushye bunini ku mubiri.',
+            ),
+            "infectious_fever": (
+                'Mfite umuriro mwinshi kandi nagagaye.',
+                '{REL} afite umuriro mwinshi kandi yaragagaye.',
             ),
             "neurological": (
-                "yataye ubwenge ntiyasubiza",
-                "kugagara no guhinda umushyitsi",
-                "uruhande rumwe rw'umubiri rutagikora",
-                "kutabasha kuvuga neza n'umunwa wagoramye",
+                '{REL} yataye ubwenge kandi ntasubiza.',
+                '{REL} yagagaye kandi arimo guhinda umushyitsi.',
+                "Uruhande rumwe rw'umubiri we ntirukora.",
+                '{REL} ntashobora kuvuga neza kandi umunwa we waragoramye.',
             ),
             "obstetric": (
-                "ububabare bukabije mu nda ndi utwite kandi ndavuye amaraso",
-                "kuva amaraso menshi nyuma yo kubyara",
+                'ndatwite, ndababara cyane mu nda kandi ndava amaraso',
+                '{REL} aratwite, arababara cyane mu nda kandi arava amaraso.',
+                'ndava amaraso menshi nyuma yo kubyara',
+                '{REL} arava amaraso menshi nyuma yo kubyara.',
+                'Ndatwite kandi nagagaye.',
+                '{REL} aratwite kandi yaragagaye.',
+                'Ndatwite, umutwe urandya cyane kandi sinshobora kureba neza.',
+                '{REL} aratwite kandi umutwe uramubabaza cyane, kandi ntashobora kureba neza.',
+                "Ndabyara ariko habanje gusohoka umugozi w'umwana.",
+                "{REL} ari kubyara ariko umugozi w'umwana wabanje gusohoka.",
+                'Maze umunsi wose mbabara ngerageza kubyara ariko umwana ntarasohoka.',
+                '{REL} amaze umunsi wose ari mu bubabare bwo kubyara ariko umwana ntarasohoka.',
+                'Nyuma yo kubyara mfite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.',
+                'Nyuma yo kubyara, {REL} afite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.',
             ),
             "paediatric": (
-                "umwana ufite guhinda umushyitsi n'umuriro urenga dogere 40",
-                "umwana utagihumeka neza kandi ahindutse ubururu",
+                '{REL} ari guhinda umushyitsi kandi afite umuriro uri hejuru ya dogere 40',
+                '{REL} afite ikibazo cyo kutabasha guhumeka neza, kandi uruhu rwe rwahindutse ubururu',
             ),
         },
         "URGENT": {
-            "infectious_fever": (
-                "umuriro mwinshi wa dogere 39",
-                "umuriro n'inkorora bikabije",
-                "ibimenyetso bya malariya, umuriro n'imbeho",
-                "umuriro n'ububabare bw'umubiri wose",
-                "umuriro n'uburibwe mu mutwe bukabije",
-            ),
-            "gastrointestinal": (
-                "impiswi zikaze kuva hashize iminsi itatu",
-                "kuruka kenshi kandi sindya",
-                "ububabare bukabije mu nda",
-                "kuruka no gucika intege bikabije",
-            ),
             "cardiac_respiratory": (
-                "inkorora ikaze n'ibibazo byo guhumeka",
-                "ububabare mu gituza iyo mpumeka cyane",
-            ),
-            "haemorrhage_trauma": (
-                "igikomere cyanduye kitukura kandi kirimo amashyira",
-                "ububabare bukabije nyuma yo kugwa",
-            ),
-            "paediatric": (
-                "umwana ufite umuriro n'uduheri ku mubiri",
-                "umwana ufite umuriro mwinshi kandi ntarya",
+                'Iyo mpumeka, numva igituza gifashe kandi mpumeka nkumva hari ijwi ridasanzwe.',
+                'Maze ibyumweru birenga bibiri nkorora kandi natangiye no kunanuka.',
+                '{REL} amaze ibyumweru birenga bibiri akorora kandi yatangiye no kunanuka.',
+                'ndakorora cyane kandi guhumeka birangora',
+                '{REL} arakorora cyane kandi ahumeka bimugora.',
+                'iyo mpumetse cyane mu gituza harandya',
+                'Iyo {REL} ahumetse cyane, arumva mu gituza hamubabaza.',
             ),
             "chronic_care": (
-                "isukari nyinshi mu maraso birenze urugero",
-                "umuvuduko w'amaraso uri hejuru cyane",
-            ),
-        },
-        "ROUTINE": {
-            "preventive": (
-                "gahunda yo gusuzumwa buri mwaka",
-                "icyifuzo cyo gupima amaraso",
-                "gahunda yo gukingiza umwana",
-                "ubujyanama ku mirire myiza",
-            ),
-            "chronic_care": (
-                "icyifuzo cyo kongererwa imiti yanjye",
-                "gahunda yo gukurikirana ubuvuzi bwahise",
-            ),
-            "infectious_fever": (
-                "inkorora yoroheje nta muriro",
-                "amazuru atemba yoroheje",
+                "Umuvuduko w'amaraso wanjye wazamutse cyane kandi umutwe urandya cyane.",
+                "{REL} umuvuduko w'amaraso we wazamutse cyane kandi umutwe uramubabaza cyane.",
+                'Nabyimbye ibirenge kandi sinshobora guhumeka neza iyo ndagaramye.',
+                '{REL} yabyimbye ibirenge kandi ntashobora guhumeka neza iyo aragaramye.',
+                'Mfite igisebe ku kirenge kidakira kandi mfite diyabete.',
+                '{REL} afite igisebe ku kirenge kidakira kandi afite diyabete.',
+                'Nta miti ya SIDA mfite.',
+                '{REL} nta miti ya SIDA afite.',
+                "Nta miti y'igituntu mfite.",
+                "{REL} nta miti y'igituntu afite.",
+                'isukari yo mu maraso yanjye yazamutse cyane',
+                '{REL} isukari yo mu maraso ye yazamutse cyane.',
+                "Mfite umuvuduko w'amaraso wazamutse cyane.",
+                "{REL} afite umuvuduko w'amaraso wazamutse cyane.",
             ),
             "gastrointestinal": (
-                "kutamererwa neza mu nda nyuma yo kurya",
-                "ububabare buke mu nda budakabije",
-            ),
-            "neurological": (
-                "uburibwe buke mu mutwe budakabije",
-                "umunaniro woroheje",
-            ),
-        },
-    },
-    "english": {
-        "CRITICAL": {
-            "cardiac_respiratory": (
-                "severe chest pain and cannot breathe",
-                "serious difficulty breathing",
-                "a racing heart that feels like it will stop",
-                "breathing trouble and lips turning blue",
-                "crushing chest pain spreading to the arm",
+                'maze iminsi itatu ndwaye impiswi zikomeye',
+                '{REL} amaze iminsi itatu arwaye impiswi zikomeye.',
+                'ndakomeza kuruka kandi sinshobora kurya',
+                '{REL} arakomeza kuruka kandi ntashobora kurya.',
+                'Mfite ububabare bukabije mu nda.',
+                '{REL} afite ububabare bukabije mu nda.',
+                'ndaruka cyane kandi numva mfite intege nke',
+                '{REL} araruka cyane kandi yumva afite intege nke.',
+                'Mfite impiswi zirimo amaraso.',
+                '{REL} afite impiswi zirimo amaraso.',
+                'Maze ibyumweru birenga bibiri ndwaye impiswi.',
+                '{REL} amaze ibyumweru birenga bibiri arwaye impiswi.',
+                'Inda irandya cyane kandi ububabare ntibuhagarara.',
+                '{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.',
             ),
             "haemorrhage_trauma": (
-                "heavy bleeding that will not stop",
-                "a deep wound losing a lot of blood",
-                "a nosebleed that will not stop",
-                "a head injury after a bad fall",
+                'mfite igikomere cyanduye, kiratukura kandi kirimo amashyira',
+                '{REL} afite igikomere cyanduye, kiratukura kandi kirimo amashyira.',
+                'naraguye none ndababara cyane',
+                '{REL} yaraguye none arababara cyane.',
+                'Naguye, ukuguru kuragoramye ariko sinumva ko kuvunitse.',
+                "Narumwe n'inzoka.",
+                "{REL} yarumwe n'inzoka.",
+            ),
+            "infectious_fever": (
+                'mfite umuriro wa dogere 39',
+                '{REL} afite umuriro wa dogere 39.',
+                'mfite umuriro mwinshi kandi ndakorora cyane',
+                '{REL} afite umuriro mwinshi kandi arakorora cyane.',
+                "Mfite ibimenyetso bya malariya, umuriro n'imbeho.",
+                "{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.",
+                'mfite umuriro kandi numva mfite imbeho, nkeka ko ari malariya',
+                'mfite umuriro kandi umutwe urandya cyane',
+                '{REL} afite umuriro kandi umutwe uramubabaza cyane.',
+                'Mfite umuriro kandi mfite uduheri ku mubiri wose.',
+                "{REL} afite umuriro n'uduheri ku mubiri wose.",
             ),
             "neurological": (
-                "lost consciousness and is not responding",
-                "convulsions and shaking",
-                "one side of the body not working",
-                "slurred speech and a drooping face",
+                "Mfite ikibazo ku mutwe kandi kirimo guterwa n'urumuri.",
             ),
             "obstetric": (
-                "severe abdominal pain in pregnancy with bleeding",
-                "heavy bleeding after giving birth",
+                'Amazi yamenetse ariko igihe cyo kubyara ntikiragera.',
+                '{REL} amazi ye yamenetse ariko igihe cyo kubyara ntikiragera.',
+                "Ndumva mbabara nk'ugiye kubyara kandi igihe cyo kubyara kitaragera.",
+                "{REL} arababara nk'ugiye kubyara kandi igihe cyo kubyara ntikiragera.",
+                'Ndatwite kandi mfite umuriro.',
+                '{REL} aratwite kandi afite umuriro.',
+                'Ndatwite kandi ndaruka ibyo ndya byose.',
+                '{REL} aratwite kandi araruka ibyo arya byose.',
             ),
             "paediatric": (
-                "convulsions with a fever above 40 degrees",
-                "a child struggling to breathe and turning blue",
+                '{REL} afite umuriro mwinshi kandi ntarya.',
+                'Mfite umuhaha.',
+                '{REL} afite umuhaha.',
             ),
-        },
-        "URGENT": {
-            "infectious_fever": (
-                "a high fever of 39 degrees",
-                "fever with a bad cough",
-                "malaria symptoms, fever and chills",
-                "fever and aching all over",
-                "fever with a severe headache",
-            ),
-            "gastrointestinal": (
-                "severe diarrhoea for three days",
-                "repeated vomiting and cannot eat",
-                "severe abdominal pain",
-                "vomiting and signs of dehydration",
-            ),
-            "cardiac_respiratory": (
-                "a bad cough and trouble breathing",
-                "chest pain when breathing deeply",
-            ),
-            "haemorrhage_trauma": (
-                "an infected wound, red and full of pus",
-                "severe pain after a fall",
-            ),
-            "paediatric": (
-                "a fever and a rash spreading on the body",
-                "a high fever and refusing to eat",
-            ),
-            "chronic_care": (
-                "very high blood sugar readings",
-                "a very high blood pressure reading",
+            "preventive": (
+                'Mu rugo hari umuntu urwaye igituntu kandi ndashaka kwisuzumisha.',
+                'Mu rugo hari umuntu urwaye igituntu kandi {REL} ashaka kwisuzumisha.',
             ),
         },
         "ROUTINE": {
-            "preventive": (
-                "an annual checkup appointment",
-                "a request for a blood test",
-                "a child vaccination appointment",
-                "a question about healthy diet",
+            "cardiac_respiratory": (
+                'Nkorora gake ariko nta muriro mfite.',
+                '{REL} akorora gake ariko nta muriro afite.',
             ),
             "chronic_care": (
-                "a prescription refill request",
-                "a follow up after previous treatment",
-            ),
-            "infectious_fever": (
-                "a mild cough with no fever",
-                "a mild runny nose",
+                "Ndashaka kongererwa imiti y'umuvuduko w'amaraso.",
+                'Ndashaka kujya kwa muganga kwisuzumisha diyabete.',
+                'Ndashaka kujya kwa muganga kwisuzumisha SIDA.',
+                'ndashaka kongererwa imiti mfata',
+                'ndashaka gukomeza kujya kwa muganga kwisuzumisha',
             ),
             "gastrointestinal": (
-                "mild stomach discomfort after eating",
-                "slight stomach pain that is not severe",
-            ),
-            "neurological": (
-                "a mild headache that is not severe",
-                "mild tiredness during the day",
-            ),
-        },
-    },
-    "french": {
-        "CRITICAL": {
-            "cardiac_respiratory": (
-                "une douleur thoracique severe et je ne peux pas respirer",
-                "de grandes difficultes a respirer",
-                "un coeur qui bat tres vite comme s'il allait s'arreter",
-                "du mal a respirer et les levres bleues",
-                "une douleur ecrasante dans la poitrine qui va vers le bras",
+                'iyo maze kurya numva inda itameze neza',
+                'iyo maze kurya numva mu nda ntameze neza',
+                'Iyo {REL} amaze kurya, yumva inda itameze neza.',
             ),
             "haemorrhage_trauma": (
-                "un saignement abondant qui ne s'arrete pas",
-                "une plaie profonde qui saigne beaucoup",
-                "un saignement de nez qui ne s'arrete pas",
-                "une blessure a la tete apres une chute",
+                'Mfite igikomere gito kandi amaraso yarahagaze.',
+                '{REL} afite igikomere gito kandi amaraso yarahagaze.',
+            ),
+            "infectious_fever": (
+                'mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite',
+                '{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.',
+                'amazuru arantemba gake',
+                '{REL} amazuru ye aratemba gake.',
             ),
             "neurological": (
-                "perdu connaissance et ne repond plus",
-                "des convulsions et des tremblements",
-                "un cote du corps qui ne bouge plus",
-                "des difficultes a parler et le visage deforme",
+                'umutwe urandya ariko ntabwo cyane',
+                'ndumva naniwe ariko si cyane',
             ),
             "obstetric": (
-                "de fortes douleurs au ventre pendant la grossesse avec saignement",
-                "un saignement important apres l'accouchement",
+                'Ndatwite kandi ndashaka kujya kwa muganga kwisuzumisha.',
+                '{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.',
+                'Ndashaka kugirwa inama uko nakonsa umwana.',
             ),
             "paediatric": (
-                "des convulsions avec une fievre au dessus de 40 degres",
-                "un enfant qui respire mal et devient bleu",
+                "Ndashaka ko bapima ibiro by'umwana wanjye.",
+                "{REL} ashaka ko bapima ibiro by'umwana we.",
             ),
-        },
-        "URGENT": {
-            "infectious_fever": (
-                "une forte fievre de 39 degres",
-                "de la fievre avec une mauvaise toux",
-                "des symptomes de paludisme, fievre et frissons",
-                "de la fievre et des courbatures partout",
-                "de la fievre avec un mal de tete severe",
-            ),
-            "gastrointestinal": (
-                "une diarrhee severe depuis trois jours",
-                "des vomissements repetes et je ne peux pas manger",
-                "de fortes douleurs au ventre",
-                "des vomissements et des signes de deshydratation",
-            ),
-            "cardiac_respiratory": (
-                "une mauvaise toux et du mal a respirer",
-                "une douleur a la poitrine en respirant fort",
-            ),
-            "haemorrhage_trauma": (
-                "une plaie infectee, rouge et avec du pus",
-                "de fortes douleurs apres une chute",
-            ),
-            "paediatric": (
-                "de la fievre et des boutons qui se propagent",
-                "une forte fievre et refuse de manger",
-            ),
-            "chronic_care": (
-                "un taux de sucre tres eleve dans le sang",
-                "une tension arterielle tres elevee",
-            ),
-        },
-        "ROUTINE": {
             "preventive": (
-                "un rendez vous pour un bilan annuel",
-                "une demande d'analyse de sang",
-                "un rendez vous de vaccination pour l'enfant",
-                "une question sur une alimentation saine",
-            ),
-            "chronic_care": (
-                "une demande de renouvellement d'ordonnance",
-                "un suivi apres un traitement precedent",
-            ),
-            "infectious_fever": (
-                "une toux legere sans fievre",
-                "un nez qui coule legerement",
-            ),
-            "gastrointestinal": (
-                "une gene legere a l'estomac apres avoir mange",
-                "une legere douleur au ventre sans gravite",
-            ),
-            "neurological": (
-                "un mal de tete leger sans gravite",
-                "une legere fatigue pendant la journee",
-            ),
-        },
-    },
-    "swahili": {
-        "CRITICAL": {
-            "cardiac_respiratory": (
-                "maumivu makali ya kifua na siwezi kupumua",
-                "shida kubwa ya kupumua",
-                "moyo unaopiga haraka kama utasimama",
-                "shida ya kupumua na midomo inabadilika bluu",
-                "maumivu makali ya kifua yanayoenea mkononi",
-            ),
-            "haemorrhage_trauma": (
-                "kutokwa damu nyingi kusikoisha",
-                "jeraha kubwa linalotoa damu nyingi",
-                "damu puani isiyoisha",
-                "jeraha la kichwa baada ya kuanguka",
-            ),
-            "neurological": (
-                "amepoteza fahamu na hajibu",
-                "kifafa na kutetemeka",
-                "upande mmoja wa mwili haufanyi kazi",
-                "shida ya kuongea na uso umepinda",
-            ),
-            "obstetric": (
-                "maumivu makali ya tumbo wakati wa ujauzito na damu",
-                "kutokwa damu nyingi baada ya kujifungua",
-            ),
-            "paediatric": (
-                "kifafa na homa zaidi ya digrii 40",
-                "mtoto anayeshindwa kupumua na kuwa bluu",
-            ),
-        },
-        "URGENT": {
-            "infectious_fever": (
-                "homa kali ya digrii 39",
-                "homa na kikohozi kikali",
-                "dalili za malaria, homa na baridi",
-                "homa na maumivu ya mwili mzima",
-                "homa na maumivu makali ya kichwa",
-            ),
-            "gastrointestinal": (
-                "kuhara sana kwa siku tatu",
-                "kutapika mara kwa mara na siwezi kula",
-                "maumivu makali ya tumbo",
-                "kutapika na dalili za upungufu wa maji",
-            ),
-            "cardiac_respiratory": (
-                "kikohozi kikali na shida ya kupumua",
-                "maumivu ya kifua ninapopumua sana",
-            ),
-            "haemorrhage_trauma": (
-                "jeraha lililoambukizwa, jekundu na usaha",
-                "maumivu makali baada ya kuanguka",
-            ),
-            "paediatric": (
-                "homa na vipele vinavyoenea mwilini",
-                "homa kali na anakataa kula",
-            ),
-            "chronic_care": (
-                "sukari nyingi sana katika damu",
-                "shinikizo la damu liko juu sana",
-            ),
-        },
-        "ROUTINE": {
-            "preventive": (
-                "miadi ya uchunguzi wa mwaka",
-                "ombi la kupima damu",
-                "miadi ya chanjo ya mtoto",
-                "swali kuhusu lishe bora",
-            ),
-            "chronic_care": (
-                "ombi la kuongezewa dawa zangu",
-                "ufuatiliaji baada ya matibabu ya awali",
-            ),
-            "infectious_fever": (
-                "kikohozi kidogo bila homa",
-                "mafua kidogo puani",
-            ),
-            "gastrointestinal": (
-                "usumbufu kidogo wa tumbo baada ya kula",
-                "maumivu kidogo ya tumbo yasiyo makali",
-            ),
-            "neurological": (
-                "maumivu kidogo ya kichwa yasiyo makali",
-                "uchovu kidogo wakati wa mchana",
+                'Mfite gahunda yo kwisuzumisha buri mwaka.',
+                'Ndashaka ko bapima amaraso.',
+                'Mfite gahunda yo gukingiza umwana.',
+                '{REL} afite gahunda yo gukingiza umwana.',
+                'Ndashaka inama ku mirire myiza.',
+                '{REL} ashaka inama ku mirire myiza.',
+                'Ndashaka ko bapima SIDA.',
+                '{REL} ashaka ko bapima SIDA.',
+                'Ndashaka guhabwa inzitiramubu.',
+                '{REL} ashaka guhabwa inzitiramubu.',
+                'Ndatwite kandi ndashaka kwisuzumisha kwa muganga bwa mbere.',
+                '{REL} aratwite kandi ashaka kwisuzumisha kwa muganga bwa mbere.',
+                "Ndashaka ko bapima umuvuduko w'amaraso.",
+                "Ndashaka kwisuzumisha kanseri y'inkondo y'umura.",
+                'Ndashaka inama ku biryo byo kugaburira umwana wanjye.',
+                '{REL} ashaka inama ku biryo byo kugaburira umwana we.',
+                "Ndashaka imiti y'inzoka y'umwana wanjye.",
+                "{REL} ashaka imiti y'inzoka y'umwana we.",
+                'Ndashaka kugirwa inama ku mazi yo kunywa.',
+                '{REL} ashaka kugirwa inama ku mazi yo kunywa.',
             ),
         },
     },
 }
 
 
-# Code-switching pairs seen in Rwandan clinics: the frame comes from the first
-# language, the clinical phrase from the second.
-MIXED_PAIRS: tuple[tuple[str, str], ...] = (
-    ("kinyarwanda", "english"),
-    ("english", "kinyarwanda"),
-    ("kinyarwanda", "french"),
-    ("french", "kinyarwanda"),
-    ("swahili", "english"),
-    ("english", "swahili"),
-)
+MIXED_PAIRS: tuple[tuple[str, str], ...] = ()
 
 
 # --- phrase form and person declarations (option C) -------------------------
@@ -502,7 +376,341 @@ MIXED_PAIRS: tuple[tuple[str, str], ...] = (
 # These are different sentences, not one sentence with two subjects, which is
 # why person belongs to the phrase rather than to the frame.
 
-PHRASE_FORMS: dict[str, str] = {}
+# Materialised at the v2 freeze from the brief's form column. Every v2 phrase is an utterance; a blank here defaults to noun_phrase and prefixes a subject onto a complete sentence.
+PHRASE_FORMS: dict[str, str] = {
+    'Amazi yamenetse ariko igihe cyo kubyara ntikiragera.':
+        'utterance',
+    'Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.':
+        'utterance',
+    'Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.':
+        'utterance',
+    'Iminwa yanjye yahindutse ubururu.':
+        'utterance',
+    'Inda irandya cyane kandi ububabare ntibuhagarara.':
+        'utterance',
+    'Iyo mpumeka, numva igituza gifashe kandi mpumeka nkumva hari ijwi ridasanzwe.':
+        'utterance',
+    'Iyo {REL} ahumetse cyane, arumva mu gituza hamubabaza.':
+        'utterance',
+    'Iyo {REL} amaze kurya, yumva inda itameze neza.':
+        'utterance',
+    'Maze ibyumweru birenga bibiri ndwaye impiswi.':
+        'utterance',
+    'Maze ibyumweru birenga bibiri nkorora kandi natangiye no kunanuka.':
+        'utterance',
+    'Maze umunsi wose mbabara ngerageza kubyara ariko umwana ntarasohoka.':
+        'utterance',
+    'Mfite gahunda yo gukingiza umwana.':
+        'utterance',
+    'Mfite gahunda yo kwisuzumisha buri mwaka.':
+        'utterance',
+    "Mfite ibimenyetso bya malariya, umuriro n'imbeho.":
+        'utterance',
+    'Mfite igikomere gikomeye ku buryo igufa rigaragara.':
+        'utterance',
+    'Mfite igikomere gito kandi amaraso yarahagaze.':
+        'utterance',
+    'Mfite igisebe ku kirenge kidakira kandi mfite diyabete.':
+        'utterance',
+    'Mfite ikibazo cyo guhumeka nabi cyane.':
+        'utterance',
+    "Mfite ikibazo ku mutwe kandi kirimo guterwa n'urumuri.":
+        'utterance',
+    'Mfite impiswi zirimo amaraso.':
+        'utterance',
+    'Mfite ububabare bukabije mu nda.':
+        'utterance',
+    'Mfite ubushye bunini ku mubiri.':
+        'utterance',
+    'Mfite umuhaha.':
+        'utterance',
+    'Mfite umuriro kandi mfite uduheri ku mubiri wose.':
+        'utterance',
+    'Mfite umuriro mwinshi kandi nagagaye.':
+        'utterance',
+    "Mfite umuvuduko w'amaraso wazamutse cyane.":
+        'utterance',
+    'Mfite umwanda usa umukara.':
+        'utterance',
+    'Mu rugo hari umuntu urwaye igituntu kandi ndashaka kwisuzumisha.':
+        'utterance',
+    'Mu rugo hari umuntu urwaye igituntu kandi {REL} ashaka kwisuzumisha.':
+        'utterance',
+    'Nabyimbye ibirenge kandi sinshobora guhumeka neza iyo ndagaramye.':
+        'utterance',
+    'Naguye, ukuguru kuragoramye ariko sinumva ko kuvunitse.':
+        'utterance',
+    "Narumwe n'inzoka.":
+        'utterance',
+    "Ndabyara ariko habanje gusohoka umugozi w'umwana.":
+        'utterance',
+    'Ndaruka amaraso.':
+        'utterance',
+    'Ndaruka ibyo ndya byose kandi sinshobora no kunywa.':
+        'utterance',
+    'Ndashaka guhabwa inzitiramubu.':
+        'utterance',
+    "Ndashaka imiti y'inzoka y'umwana wanjye.":
+        'utterance',
+    'Ndashaka inama ku biryo byo kugaburira umwana wanjye.':
+        'utterance',
+    'Ndashaka inama ku mirire myiza.':
+        'utterance',
+    'Ndashaka ko bapima SIDA.':
+        'utterance',
+    'Ndashaka ko bapima amaraso.':
+        'utterance',
+    "Ndashaka ko bapima ibiro by'umwana wanjye.":
+        'utterance',
+    "Ndashaka ko bapima umuvuduko w'amaraso.":
+        'utterance',
+    "Ndashaka kongererwa imiti y'umuvuduko w'amaraso.":
+        'utterance',
+    'Ndashaka kugirwa inama ku mazi yo kunywa.':
+        'utterance',
+    'Ndashaka kugirwa inama uko nakonsa umwana.':
+        'utterance',
+    'Ndashaka kujya kwa muganga kwisuzumisha SIDA.':
+        'utterance',
+    'Ndashaka kujya kwa muganga kwisuzumisha diyabete.':
+        'utterance',
+    "Ndashaka kwisuzumisha kanseri y'inkondo y'umura.":
+        'utterance',
+    'Ndatwite kandi mfite umuriro.':
+        'utterance',
+    'Ndatwite kandi nagagaye.':
+        'utterance',
+    'Ndatwite kandi ndaruka ibyo ndya byose.':
+        'utterance',
+    'Ndatwite kandi ndashaka kujya kwa muganga kwisuzumisha.':
+        'utterance',
+    'Ndatwite kandi ndashaka kwisuzumisha kwa muganga bwa mbere.':
+        'utterance',
+    'Ndatwite, umutwe urandya cyane kandi sinshobora kureba neza.':
+        'utterance',
+    "Ndumva mbabara nk'ugiye kubyara kandi igihe cyo kubyara kitaragera.":
+        'utterance',
+    'Nkorora gake ariko nta muriro mfite.':
+        'utterance',
+    "Nta miti y'igituntu mfite.":
+        'utterance',
+    'Nta miti ya SIDA mfite.':
+        'utterance',
+    'Nyuma yo kubyara mfite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.':
+        'utterance',
+    'Nyuma yo kubyara, {REL} afite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.':
+        'utterance',
+    "Umuvuduko w'amaraso wanjye wazamutse cyane kandi umutwe urandya cyane.":
+        'utterance',
+    "Uruhande rumwe rw'umubiri we ntirukora.":
+        'utterance',
+    'amazuru arantemba gake':
+        'utterance',
+    'guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara':
+        'utterance',
+    'isukari yo mu maraso yanjye yazamutse cyane':
+        'utterance',
+    'iyo maze kurya numva inda itameze neza':
+        'utterance',
+    'iyo maze kurya numva mu nda ntameze neza':
+        'utterance',
+    'iyo mpumetse cyane mu gituza harandya':
+        'utterance',
+    'maze iminsi itatu ndwaye impiswi zikomeye':
+        'utterance',
+    'mfite igikomere cyanduye, kiratukura kandi kirimo amashyira':
+        'utterance',
+    'mfite igikomere gikomeye kirimo kuva amaraso menshi':
+        'utterance',
+    'mfite igikomere ku mutwe nyuma yo kugwa':
+        'utterance',
+    'mfite umuriro kandi numva mfite imbeho, nkeka ko ari malariya':
+        'utterance',
+    'mfite umuriro kandi umutwe urandya cyane':
+        'utterance',
+    'mfite umuriro mwinshi kandi ndakorora cyane':
+        'utterance',
+    'mfite umuriro wa dogere 39':
+        'utterance',
+    'mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite':
+        'utterance',
+    'mu gituza harandya cyane kandi sinshobora guhumeka neza':
+        'utterance',
+    'mu gituza harandya cyane kandi ububabare bukagera no ku kuboko':
+        'utterance',
+    'naraguye none ndababara cyane':
+        'utterance',
+    'ndakomeza kuruka kandi sinshobora kurya':
+        'utterance',
+    'ndakorora cyane kandi guhumeka birangora':
+        'utterance',
+    'ndaruka cyane kandi numva mfite intege nke':
+        'utterance',
+    'ndashaka gukomeza kujya kwa muganga kwisuzumisha':
+        'utterance',
+    'ndashaka kongererwa imiti mfata':
+        'utterance',
+    'ndatwite, ndababara cyane mu nda kandi ndava amaraso':
+        'utterance',
+    'ndava amaraso menshi nyuma yo kubyara':
+        'utterance',
+    'ndi kuva amaraso menshi kandi ntahagarara':
+        'utterance',
+    'ndumva naniwe ariko si cyane':
+        'utterance',
+    "umutima uratera cyane kandi nkumva umeze nk'aho uhagarara":
+        'utterance',
+    'umutwe urandya ariko ntabwo cyane':
+        'utterance',
+    '{REL} afite gahunda yo gukingiza umwana.':
+        'utterance',
+    "{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.":
+        'utterance',
+    '{REL} afite igikomere cyanduye, kiratukura kandi kirimo amashyira.':
+        'utterance',
+    '{REL} afite igikomere gikomeye kirimo kuva amaraso menshi.':
+        'utterance',
+    '{REL} afite igikomere gikomeye ku buryo igufa rigaragara.':
+        'utterance',
+    '{REL} afite igikomere gito kandi amaraso yarahagaze.':
+        'utterance',
+    '{REL} afite igikomere ku mutwe nyuma yo kugwa.':
+        'utterance',
+    '{REL} afite igisebe ku kirenge kidakira kandi afite diyabete.':
+        'utterance',
+    '{REL} afite ikibazo cyo guhumeka nabi cyane.':
+        'utterance',
+    '{REL} afite ikibazo cyo kutabasha guhumeka neza, kandi uruhu rwe rwahindutse ubururu':
+        'utterance',
+    '{REL} afite impiswi zikomeye kandi yagize umwuma.':
+        'utterance',
+    '{REL} afite impiswi zirimo amaraso.':
+        'utterance',
+    '{REL} afite ububabare bukabije mu nda.':
+        'utterance',
+    '{REL} afite ubushye bunini ku mubiri.':
+        'utterance',
+    '{REL} afite umuhaha.':
+        'utterance',
+    '{REL} afite umuriro kandi umutwe uramubabaza cyane.':
+        'utterance',
+    '{REL} afite umuriro mwinshi kandi arakorora cyane.':
+        'utterance',
+    '{REL} afite umuriro mwinshi kandi ntarya.':
+        'utterance',
+    '{REL} afite umuriro mwinshi kandi yaragagaye.':
+        'utterance',
+    "{REL} afite umuriro n'uduheri ku mubiri wose.":
+        'utterance',
+    '{REL} afite umuriro wa dogere 39.':
+        'utterance',
+    '{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.':
+        'utterance',
+    "{REL} afite umuvuduko w'amaraso wazamutse cyane.":
+        'utterance',
+    '{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ibara.':
+        'utterance',
+    '{REL} ahumeka bimugora cyane ku buryo adashobora no kuvuga neza.':
+        'utterance',
+    '{REL} akorora gake ariko nta muriro afite.':
+        'utterance',
+    '{REL} amaze ibyumweru birenga bibiri akorora kandi yatangiye no kunanuka.':
+        'utterance',
+    '{REL} amaze ibyumweru birenga bibiri arwaye impiswi.':
+        'utterance',
+    '{REL} amaze iminsi itatu arwaye impiswi zikomeye.':
+        'utterance',
+    '{REL} amaze umunsi wose ari mu bubabare bwo kubyara ariko umwana ntarasohoka.':
+        'utterance',
+    '{REL} amazi ye yamenetse ariko igihe cyo kubyara ntikiragera.':
+        'utterance',
+    '{REL} amazuru ye aratemba gake.':
+        'utterance',
+    '{REL} arababara cyane mu gituza kandi ntashobora guhumeka neza.':
+        'utterance',
+    '{REL} arababara cyane mu gituza kandi ububabare bukagera no ku kuboko.':
+        'utterance',
+    '{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.':
+        'utterance',
+    "{REL} arababara nk'ugiye kubyara kandi igihe cyo kubyara ntikiragera.":
+        'utterance',
+    '{REL} arakomeza kuruka kandi ntashobora kurya.':
+        'utterance',
+    '{REL} arakorora cyane kandi ahumeka bimugora.':
+        'utterance',
+    '{REL} araruka amaraso.':
+        'utterance',
+    '{REL} araruka cyane kandi yumva afite intege nke.':
+        'utterance',
+    '{REL} araruka ibyo arya byose kandi ntashobora no kunywa.':
+        'utterance',
+    '{REL} aratwite kandi afite umuriro.':
+        'utterance',
+    '{REL} aratwite kandi araruka ibyo arya byose.':
+        'utterance',
+    '{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.':
+        'utterance',
+    '{REL} aratwite kandi ashaka kwisuzumisha kwa muganga bwa mbere.':
+        'utterance',
+    '{REL} aratwite kandi umutwe uramubabaza cyane, kandi ntashobora kureba neza.':
+        'utterance',
+    '{REL} aratwite kandi yaragagaye.':
+        'utterance',
+    '{REL} aratwite, arababara cyane mu nda kandi arava amaraso.':
+        'utterance',
+    '{REL} arava amaraso menshi nyuma yo kubyara.':
+        'utterance',
+    '{REL} ari guhinda umushyitsi kandi afite umuriro uri hejuru ya dogere 40':
+        'utterance',
+    "{REL} ari kubyara ariko umugozi w'umwana wabanje gusohoka.":
+        'utterance',
+    '{REL} ari kuva amaraso menshi kandi ntahagarara.':
+        'utterance',
+    '{REL} arimo kuva imyuna mu mazuru kandi ntahagarara.':
+        'utterance',
+    '{REL} arumva igituza kimuremereye cyane kandi ububabare bukagera no ku rwasaya cyangwa ku kuboko.':
+        'utterance',
+    '{REL} ashaka guhabwa inzitiramubu.':
+        'utterance',
+    "{REL} ashaka imiti y'inzoka y'umwana we.":
+        'utterance',
+    '{REL} ashaka inama ku biryo byo kugaburira umwana we.':
+        'utterance',
+    '{REL} ashaka inama ku mirire myiza.':
+        'utterance',
+    '{REL} ashaka ko bapima SIDA.':
+        'utterance',
+    "{REL} ashaka ko bapima ibiro by'umwana we.":
+        'utterance',
+    '{REL} ashaka kugirwa inama ku mazi yo kunywa.':
+        'utterance',
+    '{REL} iminwa ye yahindutse ubururu.':
+        'utterance',
+    '{REL} isukari yo mu maraso ye yazamutse cyane.':
+        'utterance',
+    "{REL} nta miti y'igituntu afite.":
+        'utterance',
+    '{REL} nta miti ya SIDA afite.':
+        'utterance',
+    '{REL} ntashobora kuvuga neza kandi umunwa we waragoramye.':
+        'utterance',
+    "{REL} umutima we utera cyane kandi yumva umeze nk'aho uhagarara.":
+        'utterance',
+    "{REL} umuvuduko w'amaraso we wazamutse cyane kandi umutwe uramubabaza cyane.":
+        'utterance',
+    '{REL} yabyimbye ibirenge kandi ntashobora guhumeka neza iyo aragaramye.':
+        'utterance',
+    '{REL} yagagaye kandi arimo guhinda umushyitsi.':
+        'utterance',
+    '{REL} yaraguye none arababara cyane.':
+        'utterance',
+    "{REL} yarumwe n'inzoka.":
+        'utterance',
+    '{REL} yataye ubwenge kandi ntasubiza.':
+        'utterance',
+}
+
+
 PHRASE_PERSON: dict[str, str] = {}
 
 
@@ -609,113 +817,412 @@ DOMAIN_RELATIONS: dict[str, tuple[str, ...]] = {
 # That refuses to emit while a ruling would silently discard an authored phrase,
 # and tests/test_relation_sets.py pins the behaviour. Do not hand-write entries
 # here; the CSV is the record.
-CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}
+# Materialised at the v2 freeze from routine_relation_sets.csv, through the same
+# resolver render_third_person.py used to show the speaker each rendering. A
+# phrase absent here takes its domain default.
+CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {
+    'Iyo {REL} amaze kurya, yumva inda itameze neza.':
+        ('Umwana wanjye', 'Umuhungu wanjye', 'Umukobwa wanjye', 'Umwuzukuru wanjye', "Umwana w'umuturanyi"),
+    '{REL} afite gahunda yo gukingiza umwana.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umuturanyi wanjye', 'Umukecuru'),
+    '{REL} afite igikomere gito kandi amaraso yarahagaze.':
+        ('Umwana wanjye', 'Umuhungu wanjye', 'Umukobwa wanjye', 'Umwuzukuru wanjye', "Umwana w'umuturanyi"),
+    '{REL} afite igisebe ku kirenge kidakira kandi afite diyabete.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umuturanyi wanjye', 'Umukecuru'),
+    '{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.':
+        ('Umwana wanjye', 'Umuhungu wanjye', 'Umukobwa wanjye', 'Umwuzukuru wanjye', "Umwana w'umuturanyi"),
+    '{REL} akorora gake ariko nta muriro afite.':
+        ('Umwana wanjye', 'Umuhungu wanjye', 'Umukobwa wanjye', 'Umwuzukuru wanjye', "Umwana w'umuturanyi"),
+    '{REL} amazuru ye aratemba gake.':
+        ('Umwana wanjye', 'Umuhungu wanjye', 'Umukobwa wanjye', 'Umwuzukuru wanjye', "Umwana w'umuturanyi"),
+    '{REL} aratwite kandi ashaka kwisuzumisha kwa muganga bwa mbere.':
+        ('Umugore wanjye', 'Mama', 'Mushiki wanjye', 'Umuturanyi wanjye'),
+    '{REL} ashaka guhabwa inzitiramubu.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umwana wanjye'),
+    "{REL} ashaka imiti y'inzoka y'umwana we.":
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umuturanyi wanjye', 'Umukecuru'),
+    '{REL} ashaka inama ku biryo byo kugaburira umwana we.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umuturanyi wanjye', 'Umukecuru'),
+    '{REL} ashaka ko bapima SIDA.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umwana wanjye'),
+    "{REL} ashaka ko bapima ibiro by'umwana we.":
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umuturanyi wanjye', 'Umukecuru'),
+    '{REL} ashaka kugirwa inama ku mazi yo kunywa.':
+        ('Umugore wanjye', 'Umugabo wanjye', 'Mama', 'Papa', 'Mushiki wanjye', 'Umwana wanjye'),
+}
 
 
-# Frame slots may be narrowed for one urgency class, because a frame can
-# contradict the label the row is trained on. A ROUTINE phrase rendering as
-# "...a small cut and the bleeding has stopped ... I cannot sleep. I need help
-# quickly." teaches the classifier that the closer carries no information; a
-# CRITICAL phrase closing ". Murakoze." ("Thank you.") does the same in reverse.
-#
-# EMPTY MEANS NO NARROWING - every urgency uses the full CONTEXTS/CLOSERS set,
-# which is exactly v1's behaviour, so v1 output stays bit-identical. Applying a
-# restriction here NOW would change CRITICAL family sizes, change the sample, and
-# break the frozen digests: v1's CRITICAL families draw on all five closers.
-# These are populated at v2 build time, like PHRASE_FORMS and CONCEPT_RELATIONS.
-#
-# See docs/urgency-frame-coupling.md for the capacity analysis behind the values.
 CONTEXTS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {}
-CLOSERS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {}
-
-# The restriction RULED for v2 (2026-09-03), recorded here so it is not lost
-# between now and the build. CRITICAL drops the closers that read as casual after
-# an emergency: "Ndi kuva amaraso menshi kandi ntahagarara. Murakoze." - bleeding
-# heavily, then "Thank you."
-#
-# Only ". Murakoze." qualifies in the current set. ". Nkora iki?" ("What do I
-# do?") is a real question in an emergency and stays. When the frame-fragment
-# brief's ". Urakoze." lands in CLOSERS it is the same sign-off and joins this.
-#
-# URGENT is deliberately NOT restricted: the same argument applies more weakly,
-# and the mechanism is here if the speaker wants it later.
-V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = (". Murakoze.",)
-
-
-# A concept may carry a second phrasing: the same presentation said another way,
-# which is variety worth having rather than a duplicate to remove. Both reach the
-# corpus, so both must reach it as ONE phrase group.
-#
-# phrase_components closes over substring containment, which catches a nested
-# phrase and misses a divergent one. The speaker's two indigestion phrasings,
-#
-#     "iyo maze kurya numva inda itameze neza"
-#     "iyo maze kurya numva mu nda ntameze neza"
-#
-# share twenty-one characters and neither contains the other, so nothing unions
-# them and the phrase holdout could train on one while evaluating the other.
-# Declaring the pairing here is what stops that.
-#
-# Maps the second phrasing to the concept's primary one. Populated at v2 build
-# time from the brief's `second_phrasing_optional` column - see
-# review/second_phrasings.py.
-PHRASE_VARIANTS: dict[str, str] = {}
+# Materialised at the v2 freeze. CRITICAL loses the pure sign-offs: thanking
+# someone trivialises an emergency. '. Nkora iki?' stays - asking what to do is
+# a real question in one. URGENT and ROUTINE are deliberately unrestricted.
+CLOSERS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {
+    "CRITICAL": {
+        "kinyarwanda": (
+            '',
+            '. Nkora iki?',
+            '. Ndakeneye ubufasha vuba.',
+            '. Mfasha muganga.',
+            '. Ese ibi birakomeye?',
+            '. Ntegereze cyangwa nsuzumwe ubu?',
+            '. Ni imiti ki nafata?',
+            '. Ntabasha kubona amafaranga yo kongera kuza kwa muganga.',
+            '. Naje mvuye kure.',
+        ),
+    },
+}
 
 
-# Which concept each phrase belongs to. Everything said about one concept - its
-# first person, its third person, any second phrasing - must land in ONE phrase
-# group, or the holdout can train on one and evaluate on another.
-#
-# THIS IS THE LARGEST LEAK FOUND SO FAR, and no similarity rule can close it:
-#
-#     CR03 first   Iminwa yanjye yahindutse ubururu.
-#     CR03 third   {REL} iminwa ye yahindutse ubururu.
-#                  containment: no      shared prefix: 0
-#
-# CORRECTED 2026-09-05: the shared prefix is 0 only when {REL} is at the HEAD.
-# PR01 puts it mid-phrase and its two persons share 42 characters. So a prefix
-# rule caught a concept's two persons ONLY BY ACCIDENT, when the speaker happened
-# to place the placeholder late - which is worse than never, because it looks
-# like coverage. Containment fails on the verb morphology either way. 60 of the
-# 61 concepts with both persons authored were split.
-#
-# The fix is a DECLARATION, not a measurement: the brief already knows which
-# phrases belong to the same concept, so this needs no threshold and cannot be
-# tuned wrong. Prefer a declaration over a measurement wherever the brief
-# already knows the answer.
-#
-# Empty for v1, whose 184 phrases have no concept ids and are one phrase per
-# concept anyway - so v1's partition is untouched and the frozen splits survive.
-# Populated at v2 build time from the brief - see review/second_phrasings.py.
-PHRASE_CONCEPTS: dict[str, str] = {}
+# The ruled CRITICAL closer exclusions, kept as the record of WHY
+# CLOSERS_BY_URGENCY looks as it does. '. Murakoze.' was ruled out on
+# 2026-09-03: thanking someone trivialises an emergency. '. Urakoze.' arrived
+# with the frame fragments at the v2 freeze and is the same sign-off, which the
+# original ruling anticipated in as many words. '. Nkora iki?' stays - asking
+# what to do is a real question in an emergency.
+V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = (". Murakoze.", ". Urakoze.")
 
 
-# Concepts that must share ONE phrase group even though they are different
-# concepts. Distinct from PHRASE_CONCEPTS, which joins everything said about a
-# SINGLE concept.
-#
-# This exists because PREFIX_UNION_CHARS was removed on 2026-09-05. Measured over
-# the 163 authored phrases, the prefix rule produced nine wrong unions and one
-# right one, and the ordered-subsequence rule that replaced it reproduces every
-# union that mattered except this pair:
-#
-#     CC09  Ndashaka kujya kwa muganga kwisuzumisha diyabete.
-#     CC10  Ndashaka kujya kwa muganga kwisuzumisha SIDA.
-#
-# One word apart - the disease - and 40 shared characters. They SHOULD share a
-# group: a model that trains on the diabetes clinic request has seen everything
-# about the HIV one but the disease name. No similarity rule can be trusted to
-# find this without also folding the domain grammar it resembles, which is what
-# the prefix rule did and why it went. So it is declared.
-#
-# The cost is stated in docs/phrase-group-closure.md section 5 and unchanged: the
-# holdout cannot test whether the model separates the two clinics. That was true
-# while the prefix rule unioned them too.
-#
-# Concept ids, not phrase strings, because the phrases are still being authored -
-# and unlike PHRASE_CONCEPTS this does NOT raise on an id with no phrases yet. A
-# ruling about phrases that do not exist is pending, not misconfigured. Inert
-# while PHRASE_CONCEPTS is empty, so v1 is untouched.
+PHRASE_VARIANTS: dict[str, str] = {
+    'iyo maze kurya numva mu nda ntameze neza':
+        'iyo maze kurya numva inda itameze neza',
+}
+
+
+# Materialised at the v2 freeze, from the GENERATING set only - held phrases are not in the inventory and declaring one would make phrase_components raise.
+PHRASE_CONCEPTS: dict[str, str] = {
+    'Amazi yamenetse ariko igihe cyo kubyara ntikiragera.':
+        'OB07',
+    'Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.':
+        'EX20',
+    'Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.':
+        'CR02',
+    'Iminwa yanjye yahindutse ubururu.':
+        'CR03',
+    'Inda irandya cyane kandi ububabare ntibuhagarara.':
+        'GI07',
+    'Iyo mpumeka, numva igituza gifashe kandi mpumeka nkumva hari ijwi ridasanzwe.':
+        'CR05',
+    'Iyo {REL} ahumetse cyane, arumva mu gituza hamubabaza.':
+        'EX07',
+    'Iyo {REL} amaze kurya, yumva inda itameze neza.':
+        'EX16',
+    'Maze ibyumweru birenga bibiri ndwaye impiswi.':
+        'GI06',
+    'Maze ibyumweru birenga bibiri nkorora kandi natangiye no kunanuka.':
+        'CR06',
+    'Maze umunsi wose mbabara ngerageza kubyara ariko umwana ntarasohoka.':
+        'OB04',
+    'Mfite gahunda yo gukingiza umwana.':
+        'EX46',
+    'Mfite gahunda yo kwisuzumisha buri mwaka.':
+        'EX44',
+    "Mfite ibimenyetso bya malariya, umuriro n'imbeho.":
+        'EX26',
+    'Mfite igikomere gikomeye ku buryo igufa rigaragara.':
+        'HT02',
+    'Mfite igikomere gito kandi amaraso yarahagaze.':
+        'HT08',
+    'Mfite igisebe ku kirenge kidakira kandi mfite diyabete.':
+        'CC05',
+    'Mfite ikibazo cyo guhumeka nabi cyane.':
+        'EX02',
+    "Mfite ikibazo ku mutwe kandi kirimo guterwa n'urumuri.":
+        'NE05',
+    'Mfite impiswi zirimo amaraso.':
+        'GI05',
+    'Mfite ububabare bukabije mu nda.':
+        'EX14',
+    'Mfite ubushye bunini ku mubiri.':
+        'HT04',
+    'Mfite umuhaha.':
+        'PA08',
+    'Mfite umuriro kandi mfite uduheri ku mubiri wose.':
+        'IF05',
+    'Mfite umuriro mwinshi kandi nagagaye.':
+        'IF02',
+    "Mfite umuvuduko w'amaraso wazamutse cyane.":
+        'EX09',
+    'Mfite umwanda usa umukara.':
+        'GI03',
+    'Mu rugo hari umuntu urwaye igituntu kandi ndashaka kwisuzumisha.':
+        'PR01',
+    'Mu rugo hari umuntu urwaye igituntu kandi {REL} ashaka kwisuzumisha.':
+        'PR01',
+    'Nabyimbye ibirenge kandi sinshobora guhumeka neza iyo ndagaramye.':
+        'CC04',
+    'Naguye, ukuguru kuragoramye ariko sinumva ko kuvunitse.':
+        'HT05',
+    "Narumwe n'inzoka.":
+        'HT07',
+    "Ndabyara ariko habanje gusohoka umugozi w'umwana.":
+        'OB03',
+    'Ndaruka amaraso.':
+        'GI02',
+    'Ndaruka ibyo ndya byose kandi sinshobora no kunywa.':
+        'GI01',
+    'Ndashaka guhabwa inzitiramubu.':
+        'PR04',
+    "Ndashaka imiti y'inzoka y'umwana wanjye.":
+        'PR09',
+    'Ndashaka inama ku biryo byo kugaburira umwana wanjye.':
+        'PR08',
+    'Ndashaka inama ku mirire myiza.':
+        'EX47',
+    'Ndashaka ko bapima SIDA.':
+        'PR03',
+    'Ndashaka ko bapima amaraso.':
+        'EX45',
+    "Ndashaka ko bapima ibiro by'umwana wanjye.":
+        'PA09',
+    "Ndashaka ko bapima umuvuduko w'amaraso.":
+        'PR06',
+    "Ndashaka kongererwa imiti y'umuvuduko w'amaraso.":
+        'CC08',
+    'Ndashaka kugirwa inama ku mazi yo kunywa.':
+        'PR10',
+    'Ndashaka kugirwa inama uko nakonsa umwana.':
+        'OB12',
+    'Ndashaka kujya kwa muganga kwisuzumisha SIDA.':
+        'CC10',
+    'Ndashaka kujya kwa muganga kwisuzumisha diyabete.':
+        'CC09',
+    "Ndashaka kwisuzumisha kanseri y'inkondo y'umura.":
+        'PR07',
+    'Ndatwite kandi mfite umuriro.':
+        'OB09',
+    'Ndatwite kandi nagagaye.':
+        'OB01',
+    'Ndatwite kandi ndaruka ibyo ndya byose.':
+        'OB10',
+    'Ndatwite kandi ndashaka kujya kwa muganga kwisuzumisha.':
+        'OB11',
+    'Ndatwite kandi ndashaka kwisuzumisha kwa muganga bwa mbere.':
+        'PR05',
+    'Ndatwite, umutwe urandya cyane kandi sinshobora kureba neza.':
+        'OB02',
+    "Ndumva mbabara nk'ugiye kubyara kandi igihe cyo kubyara kitaragera.":
+        'OB08',
+    'Nkorora gake ariko nta muriro mfite.':
+        'CR07',
+    "Nta miti y'igituntu mfite.":
+        'CC07',
+    'Nta miti ya SIDA mfite.':
+        'CC06',
+    'Nyuma yo kubyara mfite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.':
+        'OB05',
+    'Nyuma yo kubyara, {REL} afite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.':
+        'OB05',
+    "Umuvuduko w'amaraso wanjye wazamutse cyane kandi umutwe urandya cyane.":
+        'CC03',
+    "Uruhande rumwe rw'umubiri we ntirukora.":
+        'EX34',
+    'amazuru arantemba gake':
+        'EX31',
+    'guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara':
+        'EX04',
+    'isukari yo mu maraso yanjye yazamutse cyane':
+        'EX08',
+    'iyo maze kurya numva inda itameze neza':
+        'EX16',
+    'iyo maze kurya numva mu nda ntameze neza':
+        'EX16',
+    'iyo mpumetse cyane mu gituza harandya':
+        'EX07',
+    'maze iminsi itatu ndwaye impiswi zikomeye':
+        'EX12',
+    'mfite igikomere cyanduye, kiratukura kandi kirimo amashyira':
+        'EX22',
+    'mfite igikomere gikomeye kirimo kuva amaraso menshi':
+        'EX19',
+    'mfite igikomere ku mutwe nyuma yo kugwa':
+        'EX21',
+    'mfite umuriro kandi numva mfite imbeho, nkeka ko ari malariya':
+        'EX27',
+    'mfite umuriro kandi umutwe urandya cyane':
+        'EX28',
+    'mfite umuriro mwinshi kandi ndakorora cyane':
+        'EX25',
+    'mfite umuriro wa dogere 39':
+        'EX24',
+    'mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite':
+        'EX29',
+    'mu gituza harandya cyane kandi sinshobora guhumeka neza':
+        'EX01',
+    'mu gituza harandya cyane kandi ububabare bukagera no ku kuboko':
+        'EX05',
+    'naraguye none ndababara cyane':
+        'EX23',
+    'ndakomeza kuruka kandi sinshobora kurya':
+        'EX13',
+    'ndakorora cyane kandi guhumeka birangora':
+        'EX06',
+    'ndaruka cyane kandi numva mfite intege nke':
+        'EX15',
+    'ndashaka gukomeza kujya kwa muganga kwisuzumisha':
+        'EX11',
+    'ndashaka kongererwa imiti mfata':
+        'EX10',
+    'ndatwite, ndababara cyane mu nda kandi ndava amaraso':
+        'EX38',
+    'ndava amaraso menshi nyuma yo kubyara':
+        'EX39',
+    'ndi kuva amaraso menshi kandi ntahagarara':
+        'EX18',
+    'ndumva naniwe ariko si cyane':
+        'EX37',
+    "umutima uratera cyane kandi nkumva umeze nk'aho uhagarara":
+        'EX03',
+    'umutwe urandya ariko ntabwo cyane':
+        'EX36',
+    '{REL} afite gahunda yo gukingiza umwana.':
+        'EX46',
+    "{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.":
+        'EX26',
+    '{REL} afite igikomere cyanduye, kiratukura kandi kirimo amashyira.':
+        'EX22',
+    '{REL} afite igikomere gikomeye kirimo kuva amaraso menshi.':
+        'EX19',
+    '{REL} afite igikomere gikomeye ku buryo igufa rigaragara.':
+        'HT02',
+    '{REL} afite igikomere gito kandi amaraso yarahagaze.':
+        'HT08',
+    '{REL} afite igikomere ku mutwe nyuma yo kugwa.':
+        'EX21',
+    '{REL} afite igisebe ku kirenge kidakira kandi afite diyabete.':
+        'CC05',
+    '{REL} afite ikibazo cyo guhumeka nabi cyane.':
+        'EX02',
+    '{REL} afite ikibazo cyo kutabasha guhumeka neza, kandi uruhu rwe rwahindutse ubururu':
+        'EX41',
+    '{REL} afite impiswi zikomeye kandi yagize umwuma.':
+        'GI04',
+    '{REL} afite impiswi zirimo amaraso.':
+        'GI05',
+    '{REL} afite ububabare bukabije mu nda.':
+        'EX14',
+    '{REL} afite ubushye bunini ku mubiri.':
+        'HT04',
+    '{REL} afite umuhaha.':
+        'PA08',
+    '{REL} afite umuriro kandi umutwe uramubabaza cyane.':
+        'EX28',
+    '{REL} afite umuriro mwinshi kandi arakorora cyane.':
+        'EX25',
+    '{REL} afite umuriro mwinshi kandi ntarya.':
+        'EX43',
+    '{REL} afite umuriro mwinshi kandi yaragagaye.':
+        'IF02',
+    "{REL} afite umuriro n'uduheri ku mubiri wose.":
+        'IF05',
+    '{REL} afite umuriro wa dogere 39.':
+        'EX24',
+    '{REL} afite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo afite.':
+        'EX29',
+    "{REL} afite umuvuduko w'amaraso wazamutse cyane.":
+        'EX09',
+    '{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ibara.':
+        'EX04',
+    '{REL} ahumeka bimugora cyane ku buryo adashobora no kuvuga neza.':
+        'CR02',
+    '{REL} akorora gake ariko nta muriro afite.':
+        'CR07',
+    '{REL} amaze ibyumweru birenga bibiri akorora kandi yatangiye no kunanuka.':
+        'CR06',
+    '{REL} amaze ibyumweru birenga bibiri arwaye impiswi.':
+        'GI06',
+    '{REL} amaze iminsi itatu arwaye impiswi zikomeye.':
+        'EX12',
+    '{REL} amaze umunsi wose ari mu bubabare bwo kubyara ariko umwana ntarasohoka.':
+        'OB04',
+    '{REL} amazi ye yamenetse ariko igihe cyo kubyara ntikiragera.':
+        'OB07',
+    '{REL} amazuru ye aratemba gake.':
+        'EX31',
+    '{REL} arababara cyane mu gituza kandi ntashobora guhumeka neza.':
+        'EX01',
+    '{REL} arababara cyane mu gituza kandi ububabare bukagera no ku kuboko.':
+        'EX05',
+    '{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.':
+        'GI07',
+    "{REL} arababara nk'ugiye kubyara kandi igihe cyo kubyara ntikiragera.":
+        'OB08',
+    '{REL} arakomeza kuruka kandi ntashobora kurya.':
+        'EX13',
+    '{REL} arakorora cyane kandi ahumeka bimugora.':
+        'EX06',
+    '{REL} araruka amaraso.':
+        'GI02',
+    '{REL} araruka cyane kandi yumva afite intege nke.':
+        'EX15',
+    '{REL} araruka ibyo arya byose kandi ntashobora no kunywa.':
+        'GI01',
+    '{REL} aratwite kandi afite umuriro.':
+        'OB09',
+    '{REL} aratwite kandi araruka ibyo arya byose.':
+        'OB10',
+    '{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.':
+        'OB11',
+    '{REL} aratwite kandi ashaka kwisuzumisha kwa muganga bwa mbere.':
+        'PR05',
+    '{REL} aratwite kandi umutwe uramubabaza cyane, kandi ntashobora kureba neza.':
+        'OB02',
+    '{REL} aratwite kandi yaragagaye.':
+        'OB01',
+    '{REL} aratwite, arababara cyane mu nda kandi arava amaraso.':
+        'EX38',
+    '{REL} arava amaraso menshi nyuma yo kubyara.':
+        'EX39',
+    '{REL} ari guhinda umushyitsi kandi afite umuriro uri hejuru ya dogere 40':
+        'EX40',
+    "{REL} ari kubyara ariko umugozi w'umwana wabanje gusohoka.":
+        'OB03',
+    '{REL} ari kuva amaraso menshi kandi ntahagarara.':
+        'EX18',
+    '{REL} arimo kuva imyuna mu mazuru kandi ntahagarara.':
+        'EX20',
+    '{REL} arumva igituza kimuremereye cyane kandi ububabare bukagera no ku rwasaya cyangwa ku kuboko.':
+        'CR01',
+    '{REL} ashaka guhabwa inzitiramubu.':
+        'PR04',
+    "{REL} ashaka imiti y'inzoka y'umwana we.":
+        'PR09',
+    '{REL} ashaka inama ku biryo byo kugaburira umwana we.':
+        'PR08',
+    '{REL} ashaka inama ku mirire myiza.':
+        'EX47',
+    '{REL} ashaka ko bapima SIDA.':
+        'PR03',
+    "{REL} ashaka ko bapima ibiro by'umwana we.":
+        'PA09',
+    '{REL} ashaka kugirwa inama ku mazi yo kunywa.':
+        'PR10',
+    '{REL} iminwa ye yahindutse ubururu.':
+        'CR03',
+    '{REL} isukari yo mu maraso ye yazamutse cyane.':
+        'EX08',
+    "{REL} nta miti y'igituntu afite.":
+        'CC07',
+    '{REL} nta miti ya SIDA afite.':
+        'CC06',
+    '{REL} ntashobora kuvuga neza kandi umunwa we waragoramye.':
+        'EX35',
+    "{REL} umutima we utera cyane kandi yumva umeze nk'aho uhagarara.":
+        'EX03',
+    "{REL} umuvuduko w'amaraso we wazamutse cyane kandi umutwe uramubabaza cyane.":
+        'CC03',
+    '{REL} yabyimbye ibirenge kandi ntashobora guhumeka neza iyo aragaramye.':
+        'CC04',
+    '{REL} yagagaye kandi arimo guhinda umushyitsi.':
+        'EX33',
+    '{REL} yaraguye none arababara cyane.':
+        'EX23',
+    "{REL} yarumwe n'inzoka.":
+        'HT07',
+    '{REL} yataye ubwenge kandi ntasubiza.':
+        'EX32',
+}
+
+
 GROUPED_CONCEPTS: tuple[tuple[str, ...], ...] = (
     ("CC09", "CC10"),
 )

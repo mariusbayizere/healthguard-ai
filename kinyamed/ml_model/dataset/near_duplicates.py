@@ -94,6 +94,7 @@ def jaccard(left: set[int], right: set[int]) -> float:
 def structural_analysis(path: Path) -> dict:
     """Exact near-duplicate structure over the whole dataset."""
     from dataset.validate_dataset import all_symptom_phrases
+    from dataset.split_dataset import attribute_phrase
 
     phrase_index = all_symptom_phrases()
     phrase_counts: Counter[str] = Counter()
@@ -103,16 +104,23 @@ def structural_analysis(path: Path) -> dict:
     with path.open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
             total += 1
-            family = row["family"]
-            phrase_language = family.split("->", 1)[1].split(":", 1)[0]
-            # Longest first, so a phrase containing another is attributed to
-            # the longer (more specific) one, deterministically.
-            for phrase in phrase_index.get(phrase_language, ()):
-                if phrase in row["text"]:
-                    phrase_counts[phrase] += 1
-                    break
-            else:
+            # Route through the SPLITTER'S matcher, not a raw `in`. A raw
+            # substring match cannot see a {REL} phrase at all - the placeholder
+            # is not in the rendered text - and also misses the terminal stop the
+            # renderer drops and the capital it lowercases after an opener. Those
+            # are the same three defects attribute_phrase was fixed for, three
+            # times, and this tool never got the fix: at the v2 freeze it reported
+            # 87 of 165 phrases and 95.7% of rows unmatched, which is exactly the
+            # 86 first-person phrases plus the one second phrasing.
+            #
+            # Reusing the function rather than reimplementing it is the point:
+            # the rows-per-phrase figure the paper quotes now cannot drift from
+            # the attribution the splits are built on.
+            phrase = attribute_phrase(row["text"], row["family"], phrase_index)
+            if phrase is None:
                 unmatched += 1
+            else:
+                phrase_counts[phrase] += 1
 
     sizes = sorted(phrase_counts.values())
     return {

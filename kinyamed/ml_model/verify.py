@@ -67,15 +67,23 @@ def run(args: list[str]) -> None:
 
 
 def check_splits(
-    source: Path, workdir: Path, expected: dict, results: Results, label: str
+    source: Path, workdir: Path, expected: dict, results: Results, label: str,
+    corpus_version: int = 2,
 ) -> None:
-    """Re-run both splits from `source` and compare every digest."""
+    """Re-run both splits from `source` and compare every digest.
+
+    `corpus_version` selects the PHRASE INVENTORY the partition is computed from,
+    which is not the same thing as the corpus being split. Splitting v1's rows
+    against v2's inventory regenerates the corpus byte for byte and then moves
+    every split digest - the failure this argument exists to prevent.
+    """
     for strategy in ("phrase", "family"):
         out = workdir / strategy
         out.mkdir(parents=True, exist_ok=True)
         run([
             "dataset/split_dataset.py", "--strategy", strategy,
             "--input", str(source), "--out-dir", str(out),
+            "--corpus-version", str(corpus_version),
         ])
         for side in ("train", "eval"):
             produced = out / f"{side}_{strategy}_holdout.csv"
@@ -119,55 +127,71 @@ def verify_sample(results: Results) -> None:
 
 
 def verify_full(results: Results) -> None:
-    manifests = {}
-    for strategy in ("phrase", "family"):
-        path = ROOT / f"dataset/processed/eval_manifest_{strategy}_v1.json"
-        if not path.exists():
-            raise SystemExit(
-                f"{path} is missing. Run `make dataset` first, or use --scope sample."
-            )
-        manifests[strategy] = json.loads(path.read_text())
+    """Prove BOTH frozen corpora re-derive from seed 42.
 
-    sources = {m["source"]["sha256"] for m in manifests.values()}
-    results.add("both manifests pin the same source corpus", len(sources) == 1)
-    expected_source = sources.pop()
+    v1 and v2 are different corpora, not versions of one, so each is regenerated
+    from its own inventory and checked against its own manifests. Only v2's eval
+    files are on disk - v1's are regenerable artefacts and were never tracked -
+    so the on-disk check runs for v2 alone.
+    """
+    from dataset.generate_large_dataset import TARGET_ROWS_V2
 
-    free_gb = shutil.disk_usage(tempfile.gettempdir()).free / 1e9
-    if free_gb < 2:
-        raise SystemExit(f"needs ~1 GB of scratch space, only {free_gb:.1f} GB free")
+    for version, target in ((1, "1000000"), (2, str(TARGET_ROWS_V2))):
+        manifests = {}
+        for strategy in ("phrase", "family"):
+            path = ROOT / f"dataset/processed/eval_manifest_{strategy}_v{version}.json"
+            if not path.exists():
+                if version == 2:
+                    print(f"  v2 manifests not frozen yet; skipping v{version}.")
+                    break
+                raise SystemExit(f"{path} is missing. Run `make dataset` first.")
+            manifests[strategy] = json.loads(path.read_text())
+        if len(manifests) != 2:
+            continue
 
-    with tempfile.TemporaryDirectory() as tmp:
-        work = Path(tmp)
-        corpus = work / "symptoms_large.csv"
-        print(f"  regenerating 1,000,000 rows from seed {GENERATOR_SEED} ...")
-        run([
-            "dataset/generate_large_dataset.py",
-            "--target", "1000000", "--seed", str(GENERATOR_SEED),
-            "--output", str(corpus),
-        ])
-        got = sha256(corpus)
-        results.add(
-            f"corpus regenerates from seed {GENERATOR_SEED}",
-            got == expected_source,
-            f"expected {expected_source[:16]} got {got[:16]}",
-        )
-        if got != expected_source:
-            print("\n  Splits skipped: they cannot match if the corpus does not.")
-            return
+        sources = {m["source"]["sha256"] for m in manifests.values()}
+        results.add(f"v{version}: both manifests pin the same source corpus", len(sources) == 1)
+        expected_source = sources.pop()
 
-        expected = {
-            s: {side: manifests[s]["files"][side]["sha256"] for side in ("train", "eval")}
-            for s in ("phrase", "family")
-        }
-        check_splits(corpus, work / "splits", expected, results, "corpus")
+        free_gb = shutil.disk_usage(tempfile.gettempdir()).free / 1e9
+        if free_gb < 2:
+            raise SystemExit(f"needs ~1 GB of scratch space, only {free_gb:.1f} GB free")
 
-    for strategy, manifest in manifests.items():
-        on_disk = ROOT / manifest["files"]["eval"]["path"]
-        if on_disk.exists():
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            corpus = work / "symptoms_large.csv"
+            print(f"  regenerating v{version} ({int(target):,} rows) from seed {GENERATOR_SEED} ...")
+            run([
+                "dataset/generate_large_dataset.py",
+                "--target", target, "--seed", str(GENERATOR_SEED),
+                "--output", str(corpus),
+                "--corpus-version", str(version),
+            ])
+            got = sha256(corpus)
             results.add(
-                f"{strategy} eval file on disk matches its manifest",
-                sha256(on_disk) == manifest["files"]["eval"]["sha256"],
+                f"v{version}: corpus regenerates from seed {GENERATOR_SEED}",
+                got == expected_source,
+                f"expected {expected_source[:16]} got {got[:16]}",
             )
+            if got != expected_source:
+                print(f"\n  v{version} splits skipped: they cannot match if the corpus does not.")
+                continue
+
+            expected = {
+                s: {side: manifests[s]["files"][side]["sha256"] for side in ("train", "eval")}
+                for s in ("phrase", "family")
+            }
+            check_splits(corpus, work / "splits", expected, results, f"v{version} corpus",
+                         corpus_version=version)
+
+        if version == 2:
+            for strategy, manifest in manifests.items():
+                on_disk = ROOT / manifest["files"]["eval"]["path"]
+                if on_disk.exists():
+                    results.add(
+                        f"v{version}: {strategy} eval file on disk matches its manifest",
+                        sha256(on_disk) == manifest["files"]["eval"]["sha256"],
+                    )
 
 
 def main() -> int:

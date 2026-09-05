@@ -36,3 +36,19 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+@pytest.fixture(autouse=True)
+def _reset_corpus_version():
+    """Leave every test on v2, whatever it selected.
+
+    use_corpus_version rebinds module globals, so a v1 selection persists for the
+    rest of the process. That is fine in a one-shot script and wrong in a test
+    suite: the first time these tests pinned v1 they broke four later tests that
+    had selected nothing at all.
+    """
+    yield
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+    G.use_corpus_version(2)
+    SD.use_corpus_version(2)

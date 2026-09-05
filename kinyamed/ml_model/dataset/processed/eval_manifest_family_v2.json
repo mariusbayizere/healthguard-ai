@@ -1,0 +1,91 @@
+{
+  "manifest_version": 2,
+  "created_at": "2026-09-05T14:23:51.361448+00:00",
+  "git_commit": "eb5dce0ac49859aab4cf7875b448c9c8ad1c34e4",
+  "strategy": "family",
+  "eval_fraction_target": 0.1,
+  "split_seed": 42,
+  "generator_seed": 42,
+  "source": {
+    "path": "dataset/raw/symptoms_large.csv",
+    "sha256": "0c9c3a39119f2cacbd324da6f3a08c9b5b057d1a71f0a7b0f54d25914aaef152"
+  },
+  "files": {
+    "train": {
+      "path": "dataset/processed/train_family_holdout.csv",
+      "sha256": "20c0e4cd72376aab6ced573a7245185ba0a0d7632b925b463771a0e368dc42d5",
+      "rows": 305100
+    },
+    "eval": {
+      "path": "dataset/processed/eval_family_holdout.csv",
+      "sha256": "332965447c1ebe5be678f0d4ecc98e4318371a334cbe38857d66472540737f1f",
+      "rows": 24900
+    }
+  },
+  "holdout_groups": [
+    {
+      "group": "kinyarwanda->kinyarwanda:CRITICAL:infectious_fever",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:CRITICAL:infectious_fever"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:CRITICAL:paediatric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:CRITICAL:paediatric"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:ROUTINE:paediatric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:ROUTINE:paediatric"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:URGENT:neurological",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:URGENT:neurological"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:URGENT:obstetric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:URGENT:obstetric"
+      ]
+    },
+    {
+      "group": "kinyarwanda->kinyarwanda:URGENT:paediatric",
+      "phrases": [
+        "kinyarwanda->kinyarwanda:URGENT:paediatric"
+      ]
+    }
+  ],
+  "held_out_phrase_count": 6,
+  "leakage": {
+    "exact_text_overlap": 0,
+    "family_overlap": 0,
+    "phrase_overlap": 0,
+    "substring_violations": 0,
+    "substring_violation_detail": [],
+    "eval_rows_whose_phrase_appears_in_train": 0,
+    "eval_rows_leaked_fraction": 0.0,
+    "shared_phrase_sample": []
+  },
+  "eval_matrix": {
+    "kinyarwanda": {
+      "CRITICAL": 5373,
+      "URGENT": 10357,
+      "ROUTINE": 9170
+    }
+  },
+  "eval_languages": {
+    "kinyarwanda": 24900
+  },
+  "eval_labels": {
+    "CRITICAL": 5373,
+    "URGENT": 10357,
+    "ROUTINE": 9170
+  },
+  "eval_total": 24900,
+  "thin_cells": []
+}

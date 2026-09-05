@@ -26,6 +26,10 @@ from dataset.validate_dataset import all_symptom_phrases
 
 def test_nested_phrases_share_a_group() -> None:
     """Nested phrases must be inseparable, or they can land on opposite sides."""
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     components = phrase_components()
     nested = [
         (inner, outer)
@@ -79,7 +83,11 @@ def test_frozen_manifest_records_its_leakage_position(strategy: str, ml_root: Pa
     The family split legitimately has phrase overlap by design; the point is
     that the number is recorded and reviewable, not that it is zero.
     """
-    path = ml_root / f"dataset/processed/eval_manifest_{strategy}_v1.json"
+    # v2, repointed at the freeze (checklist step 18). These tests SKIP when the
+    # manifest is absent, so left on _v1 they would have gone on validating the
+    # old corpus while reading as if they checked the new one - the only step in
+    # the freeze whose failure is silent.
+    path = ml_root / f"dataset/processed/eval_manifest_{strategy}_v2.json"
     if not path.exists():
         pytest.skip(f"{path.name} is built by `make dataset`; not present here")
     leakage = json.loads(path.read_text())["leakage"]
@@ -95,7 +103,7 @@ def test_frozen_manifest_records_its_leakage_position(strategy: str, ml_root: Pa
 
 def test_phrase_split_has_no_substring_leakage(ml_root: Path) -> None:
     """The phrase split is the one that must be leakage-free to mean anything."""
-    path = ml_root / "dataset/processed/eval_manifest_phrase_v1.json"
+    path = ml_root / "dataset/processed/eval_manifest_phrase_v2.json"
     if not path.exists():
         pytest.skip("phrase manifest is built by `make dataset`; not present here")
     leakage = json.loads(path.read_text())["leakage"]
@@ -241,6 +249,10 @@ def test_a_declared_concept_group_with_no_phrases_yet_does_not_raise() -> None:
 
 def test_v1_grouping_is_unchanged_by_both_rules() -> None:
     """v1's phrases are fragments: no terminal stops, no capitals, no long heads."""
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     from collections import Counter
 
     components = phrase_components()
@@ -255,10 +267,15 @@ def test_v1_grouping_is_unchanged_by_both_rules() -> None:
 
 def test_concept_union_is_empty_for_v1_and_leaves_it_untouched():
     """v1 has no concept ids and one phrase per concept, so nothing to join."""
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     from collections import Counter
 
     from dataset import vocabulary as V
-    assert V.PHRASE_CONCEPTS == {}
+    from dataset import vocabulary_v1 as V1
+    assert V1.PHRASE_CONCEPTS == {}
     components = phrase_components()
     assert len(components) == 184
     assert len(Counter(components.values())) == 180
@@ -272,6 +289,10 @@ def test_a_concepts_two_persons_join_one_group():
     catch the pair however low it is set - and containment fails on the verb
     morphology. 60 of 61 concepts with both persons authored were split.
     """
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     from dataset import vocabulary as V
     from dataset import split_dataset as S
 
@@ -458,6 +479,10 @@ def test_subsequence_catches_the_pair_the_prefix_rule_exists_for() -> None:
 
 def test_v1_partition_is_unchanged_by_the_subsequence_rule() -> None:
     """180 groups, as before any of this. The freeze depends on it."""
+    # v1 property: select the frozen v1 inventory explicitly. Before the v2
+    # freeze this was implicit because there was only one vocabulary.
+    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
+    SD.use_corpus_version(1); G.use_corpus_version(1)
     from dataset.split_dataset import phrase_components
 
     assert len(set(phrase_components().values())) == 180

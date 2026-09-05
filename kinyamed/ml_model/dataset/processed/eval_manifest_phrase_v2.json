@@ -1,0 +1,110 @@
+{
+  "manifest_version": 2,
+  "created_at": "2026-09-05T14:23:50.074271+00:00",
+  "git_commit": "eb5dce0ac49859aab4cf7875b448c9c8ad1c34e4",
+  "strategy": "phrase",
+  "eval_fraction_target": 0.1,
+  "split_seed": 42,
+  "generator_seed": 42,
+  "source": {
+    "path": "dataset/raw/symptoms_large.csv",
+    "sha256": "0c9c3a39119f2cacbd324da6f3a08c9b5b057d1a71f0a7b0f54d25914aaef152"
+  },
+  "files": {
+    "train": {
+      "path": "dataset/processed/train_phrase_holdout.csv",
+      "sha256": "2ea0d2d495617e6c7385faa3afce1c7ccfcedfa2bc438d75620ba8e98a40b394",
+      "rows": 295575
+    },
+    "eval": {
+      "path": "dataset/processed/eval_phrase_holdout.csv",
+      "sha256": "b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5",
+      "rows": 34425
+    }
+  },
+  "holdout_groups": [
+    {
+      "group": "Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.",
+      "phrases": [
+        "Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.",
+        "{REL} arimo kuva imyuna mu mazuru kandi ntahagarara."
+      ]
+    },
+    {
+      "group": "Mfite umuriro kandi mfite uduheri ku mubiri wose.",
+      "phrases": [
+        "Mfite umuriro kandi mfite uduheri ku mubiri wose.",
+        "{REL} afite umuriro n'uduheri ku mubiri wose."
+      ]
+    },
+    {
+      "group": "Mfite umuvuduko w'amaraso wazamutse cyane.",
+      "phrases": [
+        "Mfite umuvuduko w'amaraso wazamutse cyane.",
+        "{REL} afite umuvuduko w'amaraso wazamutse cyane."
+      ]
+    },
+    {
+      "group": "Ndashaka inama ku mirire myiza.",
+      "phrases": [
+        "Ndashaka inama ku mirire myiza.",
+        "{REL} ashaka inama ku mirire myiza."
+      ]
+    },
+    {
+      "group": "Ndashaka ko bapima amaraso.",
+      "phrases": [
+        "Ndashaka ko bapima amaraso."
+      ]
+    },
+    {
+      "group": "mfite umuriro wa dogere 39",
+      "phrases": [
+        "mfite umuriro wa dogere 39",
+        "{REL} afite umuriro wa dogere 39."
+      ]
+    },
+    {
+      "group": "mu gituza harandya cyane kandi sinshobora guhumeka neza",
+      "phrases": [
+        "mu gituza harandya cyane kandi sinshobora guhumeka neza",
+        "{REL} arababara cyane mu gituza kandi ntashobora guhumeka neza."
+      ]
+    },
+    {
+      "group": "ndatwite, ndababara cyane mu nda kandi ndava amaraso",
+      "phrases": [
+        "ndatwite, ndababara cyane mu nda kandi ndava amaraso",
+        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."
+      ]
+    }
+  ],
+  "held_out_phrase_count": 15,
+  "leakage": {
+    "exact_text_overlap": 0,
+    "family_overlap": 6,
+    "phrase_overlap": 0,
+    "substring_violations": 0,
+    "substring_violation_detail": [],
+    "eval_rows_whose_phrase_appears_in_train": 0,
+    "eval_rows_leaked_fraction": 0.0,
+    "shared_phrase_sample": []
+  },
+  "eval_matrix": {
+    "kinyarwanda": {
+      "CRITICAL": 11401,
+      "URGENT": 11766,
+      "ROUTINE": 11258
+    }
+  },
+  "eval_languages": {
+    "kinyarwanda": 34425
+  },
+  "eval_labels": {
+    "CRITICAL": 11401,
+    "URGENT": 11766,
+    "ROUTINE": 11258
+  },
+  "eval_total": 34425,
+  "thin_cells": []
+}

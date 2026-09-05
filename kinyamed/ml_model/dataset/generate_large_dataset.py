@@ -64,7 +64,13 @@ MAX_DUPLICATE_RATE = 0.02
 # diversity the vocabulary expansion buys. See docs/v2-sizing.md.
 #
 # v1 is 1,000,000 rows and stays that way; every v1 path passes --target explicitly.
-TARGET_ROWS_V2 = 1_008_000
+# 330,000 = 165 authored phrases x 2,000, the standing invariant. Ruled
+# 2026-09-05. 1,008,000 was reachable (the ceiling is 7,094,400) and was
+# refused: it would be 6,109 rows per phrase, and the reason the ceiling rose
+# is that the frame space grew 8.8x with the authored fragments, not that
+# there is more clinical material. Matching v1's scale would also invite a
+# comparison between two artefacts that are not alike. See docs/v2-sizing.md.
+TARGET_ROWS_V2 = 330_000
 
 MIN_EXAMPLES_PER_DOMAIN = 500
 # The domain floor above is expressed for a full-size run; below that size it
@@ -74,11 +80,16 @@ MIN_EXAMPLES_PER_DOMAIN = 500
 QUALITY_REFERENCE_ROWS = 1_000_000
 
 CLASS_TARGETS = {"CRITICAL": (0.28, 0.38), "URGENT": (0.32, 0.42), "ROUTINE": (0.28, 0.38)}
-LANGUAGE_TARGETS = {language: (0.08, 0.15) for language in LANGUAGES}
+# A monolingual corpus is 100% its language. The v1 band (0.08-0.15) described a
+# four-language corpus with a mixed bucket and would fail by construction here.
+LANGUAGE_TARGETS = {language: (0.99, 1.0) for language in LANGUAGES}
 
 # Allocation shares. Four pure languages at 13% each leaves 48% code-switched,
 # which matches how patients actually write in Rwandan clinics.
-PURE_LANGUAGE_SHARE = 0.13
+# v2 is monolingual Kinyarwanda (ruled 2026-09-05), so the pure share is the
+# whole corpus and the mixed bucket is empty. v1 was 0.13 per language with
+# 48% mixed; MIXED_PAIRS is now () so that bucket has no families to fill.
+PURE_LANGUAGE_SHARE = 1.0
 CLASS_SHARES = {"CRITICAL": 0.33, "URGENT": 0.34, "ROUTINE": 0.33}
 
 
@@ -254,6 +265,66 @@ def phrase_form(phrase: str) -> str:
     structure is untouched and v1 output is bit-identical.
     """
     return PHRASE_FORMS.get(phrase, DEFAULT_FORM)
+
+
+# Snapshot of the v2 defaults taken at import, so use_corpus_version(2) can
+# RESTORE them. Without this the switch is one-way and sticky: a v1 selection
+# leaks into every later caller in the same process, which is exactly what it
+# did to the test suite the first time.
+_V2_DEFAULTS = {
+    "SYMPTOMS": SYMPTOMS,
+    "OPENERS": OPENERS,
+    "ONSETS": ONSETS,
+    "CONTEXTS": CONTEXTS,
+    "CLOSERS": CLOSERS,
+    "SUBJECTS": SUBJECTS,
+    "LANGUAGES": LANGUAGES,
+    "MIXED_PAIRS": MIXED_PAIRS,
+    "RELATIONS": RELATIONS,
+    "DOMAIN_RELATIONS": DOMAIN_RELATIONS,
+    "CONCEPT_RELATIONS": CONCEPT_RELATIONS,
+    "PHRASE_FORMS": PHRASE_FORMS,
+    "CONTEXTS_BY_URGENCY": CONTEXTS_BY_URGENCY,
+    "CLOSERS_BY_URGENCY": CLOSERS_BY_URGENCY,
+    "VALID_LANGUAGES": VALID_LANGUAGES,
+    "LANGUAGE_TARGETS": LANGUAGE_TARGETS,
+    "PURE_LANGUAGE_SHARE": PURE_LANGUAGE_SHARE,
+}
+
+
+def use_corpus_version(version: int) -> None:
+    """Point the generator at v1's frozen vocabulary or v2's.
+
+    v1 and v2 are different corpora, not two settings of one - four languages
+    against one, 184 phrases against 165, 1,500 frame combinations against
+    13,200. Keeping v1 selectable is what lets `make verify-full` go on proving
+    from HEAD that the shipped v1 digests re-derive from seed 42; without it that
+    claim would rest on git history alone.
+
+    Rebinding module globals is deliberate and is why this is a function rather
+    than an import-time choice: the generator reads these names at call time, so
+    one switch here moves every consumer together. Call it BEFORE build_families.
+    """
+    global SYMPTOMS, OPENERS, ONSETS, CONTEXTS, CLOSERS, SUBJECTS
+    global LANGUAGES, MIXED_PAIRS, RELATIONS, DOMAIN_RELATIONS, CONCEPT_RELATIONS
+    global PHRASE_FORMS, CONTEXTS_BY_URGENCY, CLOSERS_BY_URGENCY
+    global VALID_LANGUAGES, LANGUAGE_TARGETS, PURE_LANGUAGE_SHARE
+
+    if version == 2:
+        globals().update(_V2_DEFAULTS)
+        return
+
+    from dataset import vocabulary_v1 as V1
+    SYMPTOMS, OPENERS, ONSETS = V1.SYMPTOMS, V1.OPENERS, V1.ONSETS
+    CONTEXTS, CLOSERS, SUBJECTS = V1.CONTEXTS, V1.CLOSERS, V1.SUBJECTS
+    LANGUAGES, MIXED_PAIRS = V1.LANGUAGES, V1.MIXED_PAIRS
+    RELATIONS, DOMAIN_RELATIONS = V1.RELATIONS, V1.DOMAIN_RELATIONS
+    CONCEPT_RELATIONS, PHRASE_FORMS = V1.CONCEPT_RELATIONS, V1.PHRASE_FORMS
+    CONTEXTS_BY_URGENCY, CLOSERS_BY_URGENCY = V1.CONTEXTS_BY_URGENCY, V1.CLOSERS_BY_URGENCY
+    VALID_LANGUAGES = frozenset({*LANGUAGES, "mixed"})
+    # v1 was four pure languages at 13% each with the remaining 48% mixed.
+    PURE_LANGUAGE_SHARE = 0.13
+    LANGUAGE_TARGETS = {language: (0.08, 0.15) for language in LANGUAGES}
 
 
 def build_families() -> list[Family]:
@@ -504,8 +575,14 @@ def main() -> int:
         help="Destination CSV.",
     )
     parser.add_argument("--seed", type=int, default=42, help="RNG seed for reproducibility.")
+    parser.add_argument(
+        "--corpus-version", type=int, choices=(1, 2), default=2,
+        help="1 re-derives the frozen v1 corpus from dataset/vocabulary_v1.py; "
+             "2 (default) builds v2 from dataset/vocabulary.py.")
     parser.add_argument("--report-every", type=int, default=10_000, help="Progress interval.")
     args = parser.parse_args()
+
+    use_corpus_version(args.corpus_version)
 
     stats = generate(args.target, args.output, args.seed, args.report_every)
 
