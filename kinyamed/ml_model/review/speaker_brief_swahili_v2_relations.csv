@@ -1,0 +1,13 @@
+english,used_by,note,your_swahili,regional_variant,your_notes
+My child,"ALL_RELATIONS, CHILD_RELATIONS, HOUSEHOLD_RELATIONS",,,,
+My wife,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,,,
+My husband,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,,,
+My mother,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS",,,,
+My father,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,,,
+My sister,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,,,
+My neighbour,"ADULT_RELATIONS, ALL_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER","OPEN, AND WE WOULD LIKE YOUR VIEW. This word is gender-neutral in both Kinyarwanda and English, and the Kinyarwanda speaker ruled it INTO the obstetric set knowingly — which means a language that does not mark gender on the relation lets a male patient back into a pregnancy sentence. English resolves it with 'she' later in the sentence. Can Kiswahili? If not, say so: it may mean the set has to narrow.",,,
+My grandmother,"ADULT_RELATIONS, ALL_RELATIONS","The Kinyarwanda word is a general term for an elderly woman rather than specifically the speaker's grandmother; v1's English chose 'My grandmother'. If Kiswahili distinguishes the two, tell us which you wrote and whether the other is also worth having.",,,
+My son,CHILD_RELATIONS,,,,
+My daughter,CHILD_RELATIONS,,,,
+My grandchild,CHILD_RELATIONS,,,,
+My neighbour's child,CHILD_RELATIONS,"Used only where a neighbour brings a child in. If that is not a natural thing to say in Kiswahili, say so rather than forcing it.",,,
