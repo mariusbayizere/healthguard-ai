@@ -1,0 +1,228 @@
+{
+  "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+  "strategy": "phrase",
+  "split_seed": 42,
+  "train_rows": 295575,
+  "eval_rows": 900,
+  "steps": 700,
+  "selected_step": 450,
+  "stopped_early": true,
+  "stopping_loss_at_selected_step": 0.5894,
+  "stopping_metrics_at_selected_step": {
+    "loss": 0.5894215014474146,
+    "examples": 900,
+    "critical_recall": 0.8366666666666667,
+    "accuracy": 0.6122222222222222,
+    "macro_f1": 0.5299647473560517,
+    "weighted_f1": 0.5299647473560517
+  },
+  "eval_split": {
+    "stopping_groups": [
+      "Mfite umuriro kandi mfite uduheri ku mubiri wose.",
+      "Ndashaka inama ku mirire myiza.",
+      "ndatwite, ndababara cyane mu nda kandi ndava amaraso"
+    ],
+    "reporting_groups": [
+      "Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.",
+      "Mfite umuvuduko w'amaraso wazamutse cyane.",
+      "Ndashaka ko bapima amaraso.",
+      "mfite umuriro wa dogere 39",
+      "mu gituza harandya cyane kandi sinshobora guhumeka neza"
+    ],
+    "stopping_phrases": 6,
+    "reporting_phrases": 9,
+    "stopping_critical_phrases": 2,
+    "reporting_critical_phrases": 4,
+    "seed": 42
+  },
+  "train_seconds": 4194.6,
+  "loss_first_window": 1.0974,
+  "loss_last_window": 0.5478,
+  "loss_history": [
+    {
+      "step": 25,
+      "loss": 1.0989
+    },
+    {
+      "step": 50,
+      "loss": 1.0988
+    },
+    {
+      "step": 75,
+      "loss": 1.0982
+    },
+    {
+      "step": 100,
+      "loss": 1.0977
+    },
+    {
+      "step": 125,
+      "loss": 1.0958
+    },
+    {
+      "step": 150,
+      "loss": 1.0914
+    },
+    {
+      "step": 175,
+      "loss": 1.0852
+    },
+    {
+      "step": 200,
+      "loss": 1.0476
+    },
+    {
+      "step": 225,
+      "loss": 0.965
+    },
+    {
+      "step": 250,
+      "loss": 0.8946
+    },
+    {
+      "step": 275,
+      "loss": 0.8265
+    },
+    {
+      "step": 300,
+      "loss": 0.8064
+    },
+    {
+      "step": 325,
+      "loss": 0.7624
+    },
+    {
+      "step": 350,
+      "loss": 0.776
+    },
+    {
+      "step": 375,
+      "loss": 0.7389
+    },
+    {
+      "step": 400,
+      "loss": 0.6734
+    },
+    {
+      "step": 425,
+      "loss": 0.7174
+    },
+    {
+      "step": 450,
+      "loss": 0.6662
+    },
+    {
+      "step": 475,
+      "loss": 0.6805
+    },
+    {
+      "step": 500,
+      "loss": 0.6611
+    },
+    {
+      "step": 525,
+      "loss": 0.6122
+    },
+    {
+      "step": 550,
+      "loss": 0.6337
+    },
+    {
+      "step": 575,
+      "loss": 0.5956
+    },
+    {
+      "step": 600,
+      "loss": 0.6392
+    },
+    {
+      "step": 625,
+      "loss": 0.5499
+    },
+    {
+      "step": 650,
+      "loss": 0.5786
+    },
+    {
+      "step": 675,
+      "loss": 0.4685
+    },
+    {
+      "step": 700,
+      "loss": 0.4761
+    }
+  ],
+  "metrics": {
+    "loss": 0.7277691855681346,
+    "confusion_matrix": [
+      [
+        8737,
+        215,
+        10
+      ],
+      [
+        7633,
+        65,
+        95
+      ],
+      [
+        0,
+        0,
+        1187
+      ]
+    ],
+    "examples": 17942,
+    "critical_recall": 0.9748939968756974,
+    "accuracy": 0.5567383792219374,
+    "macro_f1": 0.5545155780288379,
+    "weighted_f1": 0.4149034450333203
+  },
+  "per_class": {
+    "CRITICAL": {
+      "precision": 0.5337202199144777,
+      "recall": 0.9748939968756974,
+      "f1-score": 0.6897994631296384,
+      "support": 8962.0
+    },
+    "URGENT": {
+      "precision": 0.23214285714285715,
+      "recall": 0.008340818683433851,
+      "f1-score": 0.01610305958132045,
+      "support": 7793.0
+    },
+    "ROUTINE": {
+      "precision": 0.9187306501547987,
+      "recall": 1.0,
+      "f1-score": 0.9576442113755547,
+      "support": 1187.0
+    }
+  },
+  "args": {
+    "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+    "train_fraction": "1.0",
+    "eval_limit": "900",
+    "max_steps": "2000",
+    "epochs": "1",
+    "batch_size": "16",
+    "max_length": "96",
+    "learning_rate": "1.5e-05",
+    "warmup_ratio": "0.06",
+    "weight_decay": "0.01",
+    "log_every": "25",
+    "eval_every": "50",
+    "seed": "42",
+    "threads": "2",
+    "freeze_embeddings": "True",
+    "freeze_layers": "6",
+    "stop_groups": "3",
+    "patience": "5",
+    "min_delta": "0.002",
+    "report_limit": "None",
+    "checkpoint_every": "100",
+    "checkpoint_path": "/home/marius/kinyamed-runs/checkpoints/train_state.pt",
+    "restart": "False",
+    "no_save": "False",
+    "save_path": "/home/marius/kinyamed-runs/model_v2",
+    "report": "training/last_run.json"
+  }
+}

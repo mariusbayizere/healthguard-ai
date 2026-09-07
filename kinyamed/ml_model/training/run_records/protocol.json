@@ -1,0 +1,246 @@
+{
+  "protocol": "2 epochs at 22% of train — NOT the 20-epoch protocol",
+  "deviation_from_documented_protocol": true,
+  "documented_protocol": {
+    "epochs": 20,
+    "train_fraction": 1.0,
+    "batch_size": 96,
+    "steps": 61578,
+    "target_hardware": "Kaggle GPU"
+  },
+  "actual": {
+    "epochs": 2,
+    "train_fraction": 0.22,
+    "batch_size": 16,
+    "max_length": 96,
+    "train_rows": 65026,
+    "steps": 8128,
+    "freeze_embeddings": true,
+    "hardware": "Intel i5-6200U, 2 cores / 4 threads, 7.8 GB RAM, CPU-only torch 2.12.0"
+  },
+  "why": [
+    "HARDWARE: measured 0.20 steps/s at batch 16 with embeddings frozen. The documented 20-epoch config is 369,469 steps = 21 days on this machine. Batch 96 is not available: batch 32 measured SLOWER per row than 16 (8.89 vs 2.74 s/step) because memory pressure dominates on 2 cores, and unfrozen embeddings were OOM-killed at batch 8 under a 3 GB cap.",
+    "EMBEDDING FREEZE IS FORCED, not chosen: 96.2M of 117.6M parameters (82%) are embeddings. Frozen leaves 21.4M trainable and 0.73 GB of fp32 state.",
+    "SUBSAMPLE OVER EPOCHS: the corpus has 165 distinct phrases in 94 phrase groups, each carrying exactly one urgency label; the 330,000 rows are frame permutations of those 165 sentences. The model must learn 165 phrase->label mappings and ignore the frame, so distinct rows buy frame diversity while repeats buy nothing new. 22% of train still gives ~435 rows per phrase across varied frames.",
+    "This is right-sizing, not a compromise: 369,469 steps is roughly 45x more than a task this structured needs. But it IS a deviation and any result must be reported as 2 epochs at 22%, never as the 20-epoch protocol."
+  ],
+  "not_claimed": [
+    "That this matches what the 20-epoch protocol would have produced. It was not run.",
+    "Comparability with the v1 training result. Different corpus, different protocol.",
+    "That 22% was tuned. It was chosen to fit a 12-hour budget at measured throughput."
+  ],
+  "measured_throughput": {
+    "steps_per_second": 0.2,
+    "rows_per_second": 3.2,
+    "source": "benchmarked on this machine before launch, and confirmed by the smoke run"
+  },
+  "superseded": "The '2 epochs at 22%' entry below describes the 2026-09-05 run, which did not finish and must not be reported. What runs now is v2b_config below.",
+  "run_2026_09_05_outcome": {
+    "status": "ABANDONED at step 2,100 of 8,126 (26%)",
+    "why_it_stopped": "The laptop suspended. journalctl: 'Reached target sleep.target' and 'PM: suspend entry (deep)' at 2026-09-05 20:48:45, two minutes after the last log line. No OOM, no exception. The process was not under a systemd unit and nothing restarted it; the machine has rebooted twice since. Mechanism fixed by ~/.config/systemd/user/kinyamed-train.service, which holds a systemd-inhibit block on sleep, idle and the lid switch for as long as the training process lives.",
+    "it_was_already_failing_before_it_stopped": true,
+    "measured_curve": {
+      "step_500": {
+        "train_loss": 0.65,
+        "eval_loss": 0.6519,
+        "critical_recall": 1.0
+      },
+      "step_1000": {
+        "train_loss": 0.11,
+        "eval_loss": 0.8515,
+        "critical_recall": 0.542
+      },
+      "step_1500": {
+        "train_loss": 0.0145,
+        "eval_loss": 1.5096,
+        "critical_recall": 0.41
+      },
+      "step_2000": {
+        "train_loss": 0.0122,
+        "eval_loss": 1.2422,
+        "critical_recall": 0.682
+      }
+    },
+    "reading": [
+      "MEMORISATION, NOT UNDERTRAINING. Train loss fell to 0.0122 while eval loss ROSE from 0.6519 to 1.5096.",
+      "AT STEP 1,500 THE MODEL WAS WORSE THAN UNIFORM GUESSING ON HELD-OUT PHRASES. Eval loss 1.5096 against ln(3) = 1.0986 for a uniform 3-class predictor. Train loss read 0.0145 at the same step.",
+      "THE BEST MEASURED POINT WAS THE FIRST MEASURED POINT. Evals were 500 steps apart, so the optimum is at or before step 500 and was never observed. --eval-every 50 in v2b is what turns that into a measurement.",
+      "THE LEARNING-RATE SCHEDULE WAS THE WRONG SHAPE. warmup_ratio 0.1 of 8,126 steps is 813 warmup steps, so warmup alone was longer than the useful run. The best point occurred at lr ~1.2e-5 while still warming up, and the collapse tracks the LR reaching its 2e-5 peak around step 900-1000. The 2e-5 peak was never validated as good.",
+      "EVEN A COMPLETED RUN WOULD HAVE SHIPPED THE COLLAPSE. train_holdout.py had no best-checkpoint selection: it saved the final step's weights unconditionally. Added in v2b.",
+      "THE step-500 critical_recall OF 1.0000 WAS **NOT** DEGENERATE. CORRECTED 2026-09-07. The earlier reading in this file claimed it was the all-CRITICAL case scoring recall for free. THAT WAS WRONG, and it is refutable by arithmetic rather than by opinion: the eval sample is class-balanced (_sample_eval takes limit/3 per class), and on a balanced 3-class set ANY CONSTANT probability vector p scores expected cross-entropy -(1/3)*sum(ln p_i), which is minimised at p uniform = ln(3) = 1.0986. No constant predictor can score below that. The observed loss was 0.6519. A hard all-CRITICAL predictor scores about 3.08; a soft one about 1.11. So the model at step 500 was genuinely discriminating."
+    ],
+    "what_the_correction_changes": "The Sep 5 run's step-500 point was a REAL result that the run then destroyed by continuing for 1,600 more steps with no checkpoint selection. That strengthens the case for the selection machinery added in v2b rather than weakening it, but it changes the history: the configuration was not producing a degenerate model, it was producing a good one and then overwriting it. It also means the abandoned config's learning rate and trainable capacity are less discredited than this file previously implied — what was discredited was running 8,126 steps and keeping the last one.",
+    "how_the_error_was_made": "The assistant inferred 'perfect recall at a mediocre loss implies all-CRITICAL' from the shape of the numbers without checking the cross-entropy floor, and the reviewer adopted the framing. It survived three exchanges and was written into this file as a finding. The check that catches it is one line of arithmetic and should be run before any future claim that a recall figure is degenerate. report.sh's degenerate test is the right instrument and uses PRECISION, which was never available for the interim evals - only loss and recall are printed mid-run, so a mid-run degeneracy claim cannot be supported by the printed numbers at all."
+  },
+  "v2b_config_provenance": {
+    "how_this_config_was_chosen": "READ OFF THE 2026-09-05 LOSS CURVE, NOT TUNED ON THE EVAL SET. No search was run and no configuration was compared against eval performance. Every number below traces to an arithmetic fact about the corpus or to a feature of that one curve, both recorded above. This matters for the paper: the eval set has not been used to select hyperparameters, so it has not been spent.",
+    "corpus_facts_the_budget_derives_from": {
+      "distinct_train_phrases": 150,
+      "train_phrase_groups": 86,
+      "note": "295,575 train rows are frame permutations of 150 sentences, each carrying exactly one label. Steps to see every distinct phrase N times at batch 16 is 150*N/16: N=30 is 281 steps, N=50 is 469, N=128 is 1,200. The 8,126-step budget was N=867."
+    },
+    "changes_from_the_abandoned_run": {
+      "max_steps": "8,126 -> 1,200 (a ceiling; early stopping is expected to fire first)",
+      "learning_rate": "2e-5 -> 1e-5 (the 2e-5 peak coincided with the collapse)",
+      "warmup_ratio": "0.10 -> 0.06 (813 warmup steps -> 72; warmup must not outlast the run)",
+      "train_fraction": "0.22 -> 1.0. Not more training: with max_steps 1,200 only 19,200 rows are consumed either way, but drawing them from 295,575 gives each phrase 128 distinct frames instead of redrawing from a thinner pool. The 22% subsample was sized for a 12-hour budget that no longer applies.",
+      "freeze_layers": "0 -> 10. Trainable falls from 21,442,563 to 3,697,923. The 117.6M headline is misleading: 96,199,296 of it is the 250,002 x 384 embedding table and already frozen. The problem is plasticity against 150 examples, not capacity. The model is NOT made smaller - afro-xlmr-mini is already the smallest with the African-language pretraining this project depends on, and the phrase holdout measures generalisation that comes from that pretraining.",
+      "early_stopping": "none -> patience 5 evals on STOPPING loss, min_delta 0.002",
+      "checkpoint_selection": "none (saved last step) -> best stopping loss"
+    },
+    "third_split": {
+      "what": "3 of the 8 eval phrase groups stop; the other 5 are the headline.",
+      "why": "Early-stopping on a set and then reporting the headline on that same set makes the headline optimistic by construction. The groups were already in the frozen manifest, so this needs no regeneration and does not touch dataset/.",
+      "cut_by": "phrase group, never by row",
+      "why_not_by_row": "A group holds the first- and third-person phrasings of one concept and those two sentences share nearly all their words. Splitting rows would put a sentence's own twin on the other side and the reporting set would not be unseen.",
+      "stratified": "one CRITICAL, one URGENT, one ROUTINE in the stopping set",
+      "the_cost_stated_plainly": "The reporting set holds FEWER CRITICAL sentences than the undivided eval did, not more. critical_recall is reported over a handful of distinct sentences; the row count is frame permutations of those sentences and is not an independent sample size. train_holdout.py prints the distinct-phrase count beside the recall figure so the two cannot be confused."
+    },
+    "selection_metric": {
+      "stops_on": "eval loss on the stopping set",
+      "never_stops_on": "critical_recall",
+      "why": "critical_recall >= 0.95 is the DEPLOYMENT GATE in training/evaluate.py. Selecting checkpoints by it would mean the gate is measuring a fit it was itself used to produce, and the gate would stop being evidence of anything. Separately it is computed over a handful of distinct sentences, so it moves in coarse jumps and cannot resolve an optimum. It is printed at every eval and recorded at the selected step, and it decides nothing."
+    },
+    "still_not_claimed": [
+      "That this matches what the documented 20-epoch protocol would produce. It was not run, and 8,126 steps was already a deviation.",
+      "Comparability with the v1 training result.",
+      "That 1,200 steps is optimal. It is a ceiling chosen so that early stopping decides, and if the budget runs out before patience does, the run says so."
+    ]
+  },
+  "v2c_falsifiable_trigger": {
+    "recorded": "2026-09-07, before the freeze-6 run was started",
+    "config_it_applies_to": "freeze bottom 6 layers (10,795,779 trainable), peak lr 1.5e-5, 1200-step cap, early stopping on stopping loss",
+    "trigger": "IF STOPPING LOSS IS STILL ABOVE 1.08 AT STEP 250, STOP QUESTIONING LEARNING RATE AND TRAINABLE CAPACITY. Two runs will then have failed to move the loss off ln(3) = 1.0986 across a 5.8x range of trainable parameters (3.7M to 21.4M) and a 2x range of learning rate, which is wide enough that neither is the binding constraint. Look at the task setup instead.",
+    "what_to_look_at_then": [
+      "TRUNCATION at max_length 96. The v2 corpus moved to the utterance form, so a phrase is now a full sentence rather than a noun phrase, and the frame wraps it in an opener, an onset, a context and a closer. The 'token lengths run 18-63' comment in SymptomDataset was measured on the v1 noun-phrase corpus and may no longer hold. If rows are being truncated, the label-bearing clause may be getting cut off, and no learning rate fixes that.",
+      "CLASS WEIGHTING. class_weights() is inverse-frequency over the TRAIN split, which is near-balanced (1.005 / 0.978 / 1.017), so it is close to a no-op. The stopping and reporting sets are NOT balanced - phrase groups carry different numbers of frames - so a loss computed with train-derived weights on an imbalanced eval set is not measuring what it looks like it measures."
+    ],
+    "why_this_is_recorded_in_advance": "So that a third round of learning-rate and layer-count adjustment cannot be justified after the fact. The trigger was named before the run that tests it, and it names what to examine instead rather than only what to stop doing.",
+    "truncation_branch_already_answered": {
+      "measured": "2026-09-07, 1,971 rows sampled every 150th from train_phrase_holdout.csv",
+      "token_lengths": {
+        "min": 15,
+        "median": 50,
+        "p95": 66,
+        "p99": 75,
+        "max": 86
+      },
+      "truncated_at_max_length_96": "0 of 1,971 (0.0%)",
+      "truncated_at_max_length_64": "145 of 1,971 (7.4%)",
+      "conclusion": "TRUNCATION IS RULED OUT for the runs at max_length 96. The longest row in the sample is 86 tokens. If the trigger fires, truncation is not the explanation and the class-weighting branch is what remains. Recorded now so the branch cannot be re-opened later as a guess. SEPARATELY: the trainer's default max_length is 64, which WOULD truncate 7.4% of rows - anything run without an explicit --max-length 96 is cutting the tail off one row in fourteen."
+    },
+    "status_after_v2b": "NOT FIRED, and its premise needs restating. The trigger says 'if loss is still above 1.08 at step 250'. v2b WAS above 1.08 at step 250 (1.0853) and yet reached 0.9628 by step 1,200 — so as written the trigger would have fired on a run that went on to work. THE STEP-250 THRESHOLD IS TOO EARLY: it was set from the Sep 5 run, whose elbow came before step 500, and v2b's came at 900. For the v2c run the trigger is re-based on the ELBOW rather than on a fixed step: if the loss has not turned downward sharply by step 1,200 of 2,000, stop questioning learning rate and capacity and look at the class weighting. Truncation is already ruled out; see truncation_branch_already_answered."
+  },
+  "v2b_run_result": {
+    "config": "freeze bottom 10 layers (3,697,923 trainable), peak lr 1e-5, warmup 6%, 1,200-step cap, patience 5 evals on stopping loss, min_delta 0.002",
+    "completed": "2026-09-07 12:02, 1,200 steps in 6,920.5s, clean systemd exit, 0 restarts",
+    "artifacts": {
+      "model": "~/kinyamed-runs/model_v2b_freeze10_lr1e-5",
+      "run_report": "~/kinyamed-runs/last_run_v2b_freeze10_lr1e-5.json",
+      "log": "~/kinyamed-runs/logs/run-v2b-freeze10-lr1e-5.log"
+    },
+    "selected_step": "1,200 of 1,200 — THE BUDGET BOUND, patience never fired",
+    "stopping_curve_every_50_steps": [
+      1.0988,
+      1.0979,
+      1.0961,
+      1.0901,
+      1.0853,
+      1.0836,
+      1.0819,
+      1.0747,
+      1.0746,
+      1.0732,
+      1.0673,
+      1.0697,
+      1.0669,
+      1.0641,
+      1.0625,
+      1.0565,
+      1.0511,
+      1.0386,
+      1.0147,
+      0.9998,
+      0.9818,
+      0.9658,
+      0.9655,
+      0.9628
+    ],
+    "reporting_set": {
+      "rows": 17942,
+      "distinct_phrases": 9,
+      "phrase_groups": 5,
+      "seen_by_any_stopping_decision": false,
+      "loss": 0.8708,
+      "accuracy": 0.7903,
+      "macro_f1": 0.766,
+      "per_class": {
+        "CRITICAL": {
+          "precision": 0.7951,
+          "recall": 0.9007,
+          "distinct_sentences": 4
+        },
+        "URGENT": {
+          "precision": 0.8636,
+          "recall": 0.6315,
+          "distinct_sentences": 4
+        },
+        "ROUTINE": {
+          "precision": 0.5674,
+          "recall": 1.0,
+          "distinct_sentences": 1
+        }
+      },
+      "gate": "CRITICAL recall 0.9007 against target 0.95 — BELOW TARGET",
+      "under_triage_cells": "113 CRITICAL predicted ROUTINE and 792 URGENT predicted ROUTINE. These are the unsafe direction. 2,080 URGENT predicted CRITICAL is over-triage and is the safe direction.",
+      "how_to_read_it": "PER-CLASS RECALL IS OVER A HANDFUL OF SENTENCES, NOT THOUSANDS OF ROWS. CRITICAL recall is over 4 distinct sentences, URGENT over 4, ROUTINE over ONE. ROUTINE recall of 1.0000 means the model got one sentence right and must not be reported as a class result. Accuracy and weighted F1 sit on a class-imbalanced set and are not quotable."
+    },
+    "lesson_the_pre_elbow_extrapolation": "AT STEP 500 BOTH THE REVIEWER AND THE ASSISTANT READ THIS RUN AS TERMINALLY UNDERTRAINED AND CONCLUDED THE CONFIGURATION WAS WRONG. Stopping loss was 1.0732 against ln(3) = 1.0986, and a linear extrapolation of the rate at that point put the run ~8,800 steps away from anything usable. THE EXTRAPOLATION WAS WRONG BECAUSE THE ELBOW HAD NOT ARRIVED. It arrived at step 900, and the loss then fell from 1.0386 to 0.9628 in 300 steps while the learning rate decayed toward zero — the fastest descent of the run happening at its lowest LR. The binding constraint was at least as much the 1,200-step cap as the learning rate or the trainable capacity. THE GENERAL FORM: do not extrapolate a loss curve that has not yet turned, and do not diagnose a configuration from a pre-elbow segment. The assistant had stated this caution two messages before violating it. Recorded because the same mistake produced the ONLY two configuration decisions this project has made under time pressure."
+  },
+  "HEADLINE_FINDING_single_metric_gate_certified_a_broken_model": {
+    "date": "2026-09-07",
+    "one_line": "A SINGLE-METRIC SAFETY GATE PASSED A MODEL THAT HAD ABANDONED AN ENTIRE URGENCY CLASS.",
+    "what_happened": "The v2c model (freeze 6 layers, lr 1.5e-5) scored CRITICAL recall 0.9749 on a held-out reporting set and PASSED the project's gate of >= 0.95. Its URGENT recall was 0.0083. It predicted CRITICAL for 7,633 of 7,793 URGENT rows. It passed the safety gate BECAUSE it over-triaged, and the gate had no term that could see that.",
+    "confusion_matrix_reporting_set": {
+      "note": "rows = truth, columns = predicted, 17,942 rows over 9 distinct sentences",
+      "CRITICAL": [
+        8737,
+        215,
+        10
+      ],
+      "URGENT": [
+        7633,
+        65,
+        95
+      ],
+      "ROUTINE": [
+        0,
+        0,
+        1187
+      ]
+    },
+    "the_quantitative_proof_it_was_degenerate": "A model that merges CRITICAL and URGENT and calls the union CRITICAL earns, BY CONSTRUCTION, a CRITICAL precision of support(C)/(support(C)+support(U)). On this reporting set that is 8,962/16,755 = 0.5349. THE MODEL SCORED 0.5337 — 0.0012 BELOW ITS OWN SET'S DEGENERATE CEILING. It did not resemble the merge strategy; within a thousandth, it was the merge strategy. This is measurable rather than interpretive, which is why it is the form the finding should take in the paper.",
+    "it_beat_the_model_that_failed_the_gate": {
+      "v2b_freeze10_lr1e-5": {
+        "macro_f1": 0.766,
+        "critical": "0.7951 / 0.9007",
+        "urgent": "0.8636 / 0.6315",
+        "gate": "BELOW TARGET"
+      },
+      "v2c_freeze6_lr1.5e-5": {
+        "macro_f1": 0.5545,
+        "critical": "0.5337 / 0.9749",
+        "urgent": "0.2321 / 0.0083",
+        "gate": "PASS"
+      },
+      "reading": "The gate certified the worse model and rejected the better one. v2b is better on macro F1 by 0.21 and keeps all three classes alive. v2b stands as the result; v2c is not shipped."
+    },
+    "the_automated_detector_also_missed_it": "report.sh carries a degenerate-case test, `recall >= 0.9 and precision < 0.5`, written for exactly this failure. v2c scored 0.9749 recall and 0.5337 precision, so it sat 0.034 the safe side of the precision threshold and passed. A hardcoded 0.5 could not see a degenerate ceiling that was actually 0.5349 on that set. THE LESSON IS NOT THAT 0.5 WAS TOO LOW: it is that the ceiling is a property of the evaluation set and must be COMPUTED against it, not guessed in advance.",
+    "what_was_changed": "training/evaluate.py now defines triage_gate(), three conditions, all of which must hold: G1 CRITICAL recall >= 0.95 (INHERITED, source unverified in this repository); G2 macro F1 >= 2/3 (DERIVED EXACTLY - a dead class caps macro F1 at (1+1+0)/3, so this is the tightest single-number guarantee that no class was abandoned); G3 CRITICAL precision >= the eval set's own merge-degenerate ceiling plus a margin (FLOOR DERIVED AND COMPUTED PER SET, MARGIN NOT DERIVED). Replayed against both models: v2b fails G1 only, v2c fails G2 and G3.",
+    "what_is_still_not_sourced_and_must_not_be_left_to_harden": [
+      "G1's 0.95. It predates this file's history and carries only a comment. It is CONSISTENT with the trauma field-triage convention of under-triage <= 5%, but that is a reconstruction and nobody has checked it against a source. A clinician must confirm or replace it.",
+      "G3's margin of 0.10. How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a real waiting room. It is a clinical judgement, it has not been made, and 0.10 was chosen only because it separates the two models observed. It is labelled UNDERIVED in every gate report so it cannot quietly become a standard by surviving."
+    ],
+    "a_second_defect_found_while_fixing_it": "training/train_holdout.py carried its OWN `MINIMUM_CRITICAL_RECALL = 0.95` alongside training/evaluate.py's. Two sources of truth for a safety threshold: changing the gate in one file would silently not apply in the other. Removed; the constant is now imported. Same shape as the PR06 and CONCEPT_RELATIONS failures recorded elsewhere in this project - a ruling recorded in a place that some code path does not read."
+  }
+}

@@ -1,0 +1,17 @@
+% GENERATED FILE - DO NOT EDIT BY HAND.
+% Written by training/evaluate.py --writeup from saved run records.
+%
+\begin{table}[t]
+\centering
+\caption{Three configurations on the same frozen phrase holdout, same split seed, same reporting set. Trainable parameters exclude the frozen 250{,}002$\times$384 embedding table, which is 96{,}199{,}296 of the model's 117{,}641{,}859 parameters in every row.}
+\label{tab:sweep}
+\begin{tabular}{lrrrrrr}
+\toprule
+Run & Trainable & Sel.\ step & Macro F1 & CRIT P/R & URG P/R & Gate \\
+\midrule
+v2b\_freeze10\_lr1e-5 & 3,697,923 & 1200 & 0.7660 & 0.7951/0.9007 & 0.8636/0.6315 & FAIL \\
+v2c\_freeze6\_lr1.5e-5 & 10,795,779 & 450 & 0.5545 & 0.5337/0.9749 & 0.2321/0.0083 & FAIL \\
+v2d\_freeze8\_lr1e-5 & 7,246,851 & 900 & 0.7724 & 0.6633/0.8504 & 0.7426/0.4963 & FAIL \\
+\bottomrule
+\end{tabular}
+\end{table}

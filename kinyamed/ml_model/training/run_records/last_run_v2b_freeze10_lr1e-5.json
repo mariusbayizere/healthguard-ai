@@ -1,0 +1,308 @@
+{
+  "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+  "strategy": "phrase",
+  "split_seed": 42,
+  "train_rows": 295575,
+  "eval_rows": 900,
+  "steps": 1200,
+  "selected_step": 1200,
+  "stopped_early": false,
+  "stopping_loss_at_selected_step": 0.9628,
+  "stopping_metrics_at_selected_step": {
+    "loss": 0.9628276331671353,
+    "examples": 900,
+    "critical_recall": 0.89,
+    "accuracy": 0.6444444444444445,
+    "macro_f1": 0.6326114516661171,
+    "weighted_f1": 0.632611451666117
+  },
+  "eval_split": {
+    "stopping_groups": [
+      "Mfite umuriro kandi mfite uduheri ku mubiri wose.",
+      "Ndashaka inama ku mirire myiza.",
+      "ndatwite, ndababara cyane mu nda kandi ndava amaraso"
+    ],
+    "reporting_groups": [
+      "Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.",
+      "Mfite umuvuduko w'amaraso wazamutse cyane.",
+      "Ndashaka ko bapima amaraso.",
+      "mfite umuriro wa dogere 39",
+      "mu gituza harandya cyane kandi sinshobora guhumeka neza"
+    ],
+    "stopping_phrases": 6,
+    "reporting_phrases": 9,
+    "stopping_critical_phrases": 2,
+    "reporting_critical_phrases": 4,
+    "seed": 42
+  },
+  "train_seconds": 6920.5,
+  "loss_first_window": 1.0975,
+  "loss_last_window": 0.8822,
+  "loss_history": [
+    {
+      "step": 25,
+      "loss": 1.0989
+    },
+    {
+      "step": 50,
+      "loss": 1.0988
+    },
+    {
+      "step": 75,
+      "loss": 1.0983
+    },
+    {
+      "step": 100,
+      "loss": 1.0981
+    },
+    {
+      "step": 125,
+      "loss": 1.0976
+    },
+    {
+      "step": 150,
+      "loss": 1.0968
+    },
+    {
+      "step": 175,
+      "loss": 1.0974
+    },
+    {
+      "step": 200,
+      "loss": 1.0973
+    },
+    {
+      "step": 225,
+      "loss": 1.0945
+    },
+    {
+      "step": 250,
+      "loss": 1.0976
+    },
+    {
+      "step": 275,
+      "loss": 1.0893
+    },
+    {
+      "step": 300,
+      "loss": 1.0954
+    },
+    {
+      "step": 325,
+      "loss": 1.092
+    },
+    {
+      "step": 350,
+      "loss": 1.0942
+    },
+    {
+      "step": 375,
+      "loss": 1.087
+    },
+    {
+      "step": 400,
+      "loss": 1.0798
+    },
+    {
+      "step": 425,
+      "loss": 1.089
+    },
+    {
+      "step": 450,
+      "loss": 1.0809
+    },
+    {
+      "step": 475,
+      "loss": 1.0808
+    },
+    {
+      "step": 500,
+      "loss": 1.0777
+    },
+    {
+      "step": 525,
+      "loss": 1.073
+    },
+    {
+      "step": 550,
+      "loss": 1.0697
+    },
+    {
+      "step": 575,
+      "loss": 1.0642
+    },
+    {
+      "step": 600,
+      "loss": 1.0691
+    },
+    {
+      "step": 625,
+      "loss": 1.0516
+    },
+    {
+      "step": 650,
+      "loss": 1.0488
+    },
+    {
+      "step": 675,
+      "loss": 1.0255
+    },
+    {
+      "step": 700,
+      "loss": 1.0312
+    },
+    {
+      "step": 725,
+      "loss": 1.0072
+    },
+    {
+      "step": 750,
+      "loss": 0.9946
+    },
+    {
+      "step": 775,
+      "loss": 0.9811
+    },
+    {
+      "step": 800,
+      "loss": 0.9787
+    },
+    {
+      "step": 825,
+      "loss": 0.9705
+    },
+    {
+      "step": 850,
+      "loss": 0.9578
+    },
+    {
+      "step": 875,
+      "loss": 0.9333
+    },
+    {
+      "step": 900,
+      "loss": 0.9324
+    },
+    {
+      "step": 925,
+      "loss": 0.9153
+    },
+    {
+      "step": 950,
+      "loss": 0.9129
+    },
+    {
+      "step": 975,
+      "loss": 0.9208
+    },
+    {
+      "step": 1000,
+      "loss": 0.8801
+    },
+    {
+      "step": 1025,
+      "loss": 0.8889
+    },
+    {
+      "step": 1050,
+      "loss": 0.8988
+    },
+    {
+      "step": 1075,
+      "loss": 0.8741
+    },
+    {
+      "step": 1100,
+      "loss": 0.8756
+    },
+    {
+      "step": 1125,
+      "loss": 0.8773
+    },
+    {
+      "step": 1150,
+      "loss": 0.8684
+    },
+    {
+      "step": 1175,
+      "loss": 0.8848
+    },
+    {
+      "step": 1200,
+      "loss": 0.8692
+    }
+  ],
+  "metrics": {
+    "loss": 0.8708105212651897,
+    "confusion_matrix": [
+      [
+        8072,
+        777,
+        113
+      ],
+      [
+        2080,
+        4921,
+        792
+      ],
+      [
+        0,
+        0,
+        1187
+      ]
+    ],
+    "examples": 17942,
+    "critical_recall": 0.9006918098638697,
+    "accuracy": 0.7903243785531155,
+    "macro_f1": 0.7660470391008974,
+    "weighted_f1": 0.7866468827599679
+  },
+  "per_class": {
+    "CRITICAL": {
+      "precision": 0.7951142631993696,
+      "recall": 0.9006918098638697,
+      "f1-score": 0.8446165114575703,
+      "support": 8962.0
+    },
+    "URGENT": {
+      "precision": 0.8636363636363636,
+      "recall": 0.6314641344796612,
+      "f1-score": 0.7295233859610111,
+      "support": 7793.0
+    },
+    "ROUTINE": {
+      "precision": 0.5673996175908221,
+      "recall": 1.0,
+      "f1-score": 0.724001219884111,
+      "support": 1187.0
+    }
+  },
+  "args": {
+    "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+    "train_fraction": "1.0",
+    "eval_limit": "900",
+    "max_steps": "1200",
+    "epochs": "1",
+    "batch_size": "16",
+    "max_length": "96",
+    "learning_rate": "1e-05",
+    "warmup_ratio": "0.06",
+    "weight_decay": "0.01",
+    "log_every": "25",
+    "eval_every": "50",
+    "seed": "42",
+    "threads": "2",
+    "freeze_embeddings": "True",
+    "freeze_layers": "10",
+    "stop_groups": "3",
+    "patience": "5",
+    "min_delta": "0.002",
+    "report_limit": "None",
+    "checkpoint_every": "100",
+    "checkpoint_path": "/home/marius/kinyamed-runs/checkpoints/train_state.pt",
+    "restart": "False",
+    "no_save": "False",
+    "save_path": "/home/marius/kinyamed-runs/model_v2",
+    "report": "training/last_run.json"
+  }
+}

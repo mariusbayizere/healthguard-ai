@@ -1,0 +1,15 @@
+% GENERATED FILE - DO NOT EDIT BY HAND.
+%
+\subsection{The acceptance gate, and where each threshold comes from}
+\label{sec:gate}
+
+A model is accepted only if all three conditions hold. They are not traded off against one another.
+
+\paragraph{G1: CRITICAL recall $\geq 0.95$.} \emph{Inherited; source not verified.} This threshold predates the current record and carries only the note that missing a critical case is the failure that matters. It is consistent with the trauma field-triage convention of holding under-triage at or below 5\%, but we have not verified that attribution against a source and do not claim it. We keep the value because loosening a safety threshold on no evidence is worse than retaining an unsourced one.
+
+\paragraph{G2: macro F1 $\geq 2/3$.} \emph{Derived exactly.} Macro F1 is the unweighted mean of three per-class F1 scores. If any one class is abandoned its F1 is zero, so macro F1 $\leq (1+1+0)/3 = 0.6667$ \emph{even when the other two classes are perfect}. Requiring macro F1 above $2/3$ is therefore a guarantee that no class has been abandoned, and it is the tightest such guarantee obtainable from a single scalar. This is a floor of non-degeneracy, not of quality.
+
+\paragraph{G3: CRITICAL precision $\geq$ the degenerate ceiling plus a margin.} \emph{Floor derived and measured per evaluation set; margin not derived.} A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
+\[ \frac{\mathrm{support(CRITICAL)}}{\mathrm{support(CRITICAL)} + \mathrm{support(URGENT)}} = 0.5349 \]
+on this reporting set. That is what the degenerate strategy is paid for free, so any informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. \textbf{The margin above that floor (0.10) is not derived.}} How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
+

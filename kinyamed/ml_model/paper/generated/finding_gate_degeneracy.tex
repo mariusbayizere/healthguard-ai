@@ -1,0 +1,11 @@
+% GENERATED FILE - DO NOT EDIT BY HAND.
+%
+\subsection{A single-metric safety gate certified a model that had abandoned an urgency class}
+\label{sec:gate-failure}
+
+Our acceptance gate was initially a single condition, CRITICAL recall $\geq 0.95$, on the reasoning that missing a critical presentation is the failure that matters. One configuration passed it with a CRITICAL recall of 0.9749 while achieving an URGENT recall of 0.0083: it assigned the CRITICAL label to 7,793 URGENT rows almost without exception. It passed the safety gate \emph{because} it over-triaged, and the gate contained no term that could observe this.
+
+The degeneracy is measurable rather than interpretive. A model that merges CRITICAL and URGENT earns a CRITICAL precision of $0.5349$ on this set by construction. The model scored $0.5337$, which is $0.0012$ \emph{below} its own set's degenerate ceiling. Within a thousandth, it did not approximate the merge strategy; it was the merge strategy.
+
+Two further observations. First, the gate certified this model while rejecting a better one: a configuration with macro F1 0.7724 and all three classes alive failed the same gate on recall alone. Second, our own automated degeneracy check, written for exactly this failure, used the test $\mathrm{recall} \geq 0.9 \wedge \mathrm{precision} < 0.5$ and did not fire, because $0.5337$ sits above a hardcoded $0.5$ while the true degenerate ceiling for this set was $0.5349$. The lesson is not that the constant was too low: it is that the ceiling is a property of the evaluation set and must be computed against it.
+

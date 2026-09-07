@@ -1,0 +1,23 @@
+% GENERATED FILE - DO NOT EDIT BY HAND.
+%
+\subsection{Limitations}
+\label{sec:limitations}
+
+\paragraph{The reporting set is nine sentences, not eighteen thousand rows.} The held-out evaluation reports 17,942 rows, but those rows are frame permutations of only 9 distinct phrases in 5 phrase groups, and the row count is therefore not an independent sample size. Per class the position is starker:
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Class & Distinct sentences & One sentence is \\
+\midrule
+CRITICAL & 4 & 0.25 of recall \\
+URGENT & 4 & 0.25 of recall \\
+ROUTINE & 1 & 1.00 of recall \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+CRITICAL and URGENT recall therefore move in steps of approximately one quarter: a single sentence being read systematically as the neighbouring class costs about 25 percentage points, and no choice of optimiser or learning rate can recover it. ROUTINE is a single sentence, so its reported recall of 1.0 means that one sentence was classified correctly and should not be read as a class-level result. \textbf{A CRITICAL recall target of 0.95 over four sentences requires essentially all frames of all four to be correct}, and the distance between our result and that target is smaller than the granularity of the measurement.
+
+\paragraph{Consequences for the sweep.} Three configurations spanning a threefold range of trainable parameters and a $1.5\times$ range of learning rate all left the same residual error, on the CRITICAL/URGENT boundary, while separating ROUTINE perfectly. We stopped searching on the grounds that the remaining error is a property of the corpus and the split rather than of the optimisation, and we report the configuration search as inconclusive on that boundary rather than as a tuning result.
+

@@ -1,0 +1,52 @@
+[Unit]
+Description=kinyamed triage training run (CPU, resumable)
+Documentation=file:/home/marius/kinyamed-runs/protocol.json
+After=default.target
+
+# StartLimit* are [Unit] keys, not [Service] keys — systemd-analyze verify
+# flagged them being in the wrong section, where they were silently ignored.
+StartLimitIntervalSec=1800
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/home/marius/healthguard-ai/kinyamed/ml_model
+
+# THE POINT OF THIS UNIT. The Sep 5 run died at step 2100 of 8126 because the
+# laptop suspended at 20:48:45 — no crash, no OOM, just sleep.target. A block
+# inhibitor holds sleep, idle-suspend and the lid switch for as long as the
+# training process lives, and releases them the moment it exits.
+#
+# What this does NOT stop, stated so nobody is surprised: a critical-battery
+# action, an explicit `systemctl suspend -i`, and hibernate triggered by
+# firmware. On mains power with the lid shut it will now keep running.
+ExecStart=/usr/bin/systemd-inhibit \
+    --what=sleep:idle:handle-lid-switch \
+    --who=kinyamed-train \
+    --why=training-run-in-progress \
+    --mode=block \
+    /home/marius/kinyamed-runs/train.sh
+
+# A killed run resumes from the last checkpoint (every 100 steps), so a restart
+# costs at most 100 steps. on-failure only: a clean exit means the run finished
+# and must not be started again.
+Restart=on-failure
+RestartSec=30
+
+# 2 cores total. Without this the desktop is unusable while training; with it
+# the run gives way to interactive work and loses very little, because the
+# bottleneck is memory bandwidth rather than scheduling.
+Nice=5
+IOSchedulingClass=idle
+
+# Turns an out-of-memory into a clean unit failure with a log line, instead of
+# the kernel OOM killer choosing a victim. Measured need is ~0.73 GB of fp32
+# state plus the 295,575-row text frame; 5G is generous.
+MemoryMax=5G
+
+# Append, never truncate: the log is the only record of a run that is killed.
+StandardOutput=append:/home/marius/kinyamed-runs/logs/run.log
+StandardError=append:/home/marius/kinyamed-runs/logs/run.log
+
+[Install]
+WantedBy=default.target
