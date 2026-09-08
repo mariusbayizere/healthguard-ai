@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Build `review/speaker_brief_english_v2.csv` off the 127-concept spine.
+"""Build `review/speaker_brief_english_v2.csv` off the 128-concept spine.
 
 English has no speaker, so this is not an authoring brief: it is a REVIEW brief.
 The distinction drives every column choice below.
@@ -69,7 +69,27 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-from dataset.vocabulary import SYMPTOMS  # noqa: E402
+# THE FROZEN v1, NOT THE WORKING TREE. `dataset/vocabulary.py` was rewritten by
+# the v2 freeze: LANGUAGES is ("kinyarwanda",) and the phrase lists are the
+# speaker's rewrites, so the v1 positional mapping below resolved against
+# nothing and this builder died with a KeyError on its first v1 phrase.
+# A positional mapping into v1 is a fact about the FROZEN corpus, so the frozen
+# file is the correct source rather than a workaround. Same fix, same reason, as
+# build_french_brief.v1_vocabulary().
+import importlib.util as _ilu  # noqa: E402
+
+_V1 = ROOT / "dataset" / "vocabulary_v1.py"
+_spec = _ilu.spec_from_file_location("_v1_vocabulary", _V1)
+_v1 = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_v1)
+for _language in ("kinyarwanda", "english"):
+    if _language not in _v1.SYMPTOMS:
+        raise SystemExit(
+            f"{_V1} has no {_language} symptoms. The frozen v1 is the only source "
+            "of the v1 English strings; find the commit that still has them "
+            "rather than drafting over the gap."
+        )
+SYMPTOMS = _v1.SYMPTOMS  # noqa: E402
 from english_relations import DOMAIN_RELATIONS_EN, PENDING_RULINGS  # noqa: E402
 from relation_sets import rulings  # noqa: E402
 from walk import save  # noqa: E402  - reuse the one atomic writer, not a second one
@@ -104,9 +124,22 @@ REGENERATED = ["domain", "proposed_urgency", "english_gloss", "anchor",
 # The eleven collapsed concepts and PR02. Their rows stay on the spine (they are
 # part of the 127) but they generate nothing, so an English candidate for them is
 # dropped rather than carried forward as if it were live.
-COLLAPSED = {"IF07", "EX30", "GI08", "EX17", "HT01", "HT06",
-             "NE01", "NE02", "NE03", "NE04", "NE08", "PA10"}
-OUT_OF_GENERATION = {"PR02"}
+# DERIVED, NOT LISTED. This was a hardcoded set of twelve and the spine had
+# fifteen: EX42, PA06 and PA01 collapsed after the list was written and nothing
+# told it. A concept whose BOTH persons are applies=no is out of generation, so
+# the spine already knows the answer and is asked for it.
+def collapsed_concepts(spine: list[dict]) -> set[str]:
+    persons: dict[str, list[dict]] = {}
+    for row in spine:
+        persons.setdefault(row["concept_id"], []).append(row)
+    return {cid for cid, rows in persons.items()
+            if all(r["applies"] == "no" for r in rows)}
+
+
+# OB13 was added to the spine on 2026-09-05 when OB06 was re-ruled to fetal
+# demise. It has no phrase in any language, the speaker reports Kinyarwanda has
+# no natural expression for it, and it must NOT be drafted here either.
+OUT_OF_GENERATION = {"PR02", "OB13"}
 
 
 def ex_to_v1_english() -> dict[str, str]:
@@ -158,8 +191,16 @@ def ex_to_v1_english() -> dict[str, str]:
 # Where the collapsed concepts' wording went, so a dropped English candidate is
 # offered to the concept that absorbed it instead of vanishing. Kinyarwanda kept
 # both wordings in every one of these; English should have the same chance to.
-ABSORBED_BY = {"EX17": "EX16", "EX30": "CR07", "GI08": "EX16", "HT01": "EX18",
-               "HT06": "EX22", "IF07": "EX29", "PA10": "EX46"}
+# Must cover every concept collapsed_concepts() finds. build() asserts it, so a
+# new collapse cannot silently lose the record of where its wording went.
+ABSORBED_BY = {"EX42": "IF05", "PA06": "IF05", "PA01": "EX33",
+               "EX17": "EX16", "EX30": "CR07", "GI08": "EX16", "HT01": "EX18",
+               "HT06": "EX22", "IF07": "EX29", "PA10": "EX46",
+               # The five neurological concepts, each collapsed into the EX id
+               # that already carried its sign. Taken from the spine's own
+               # collapse notes, not inferred.
+               "NE01": "EX33", "NE02": "EX32", "NE03": "EX34",
+               "NE04": "EX35", "NE08": "EX36"}
 
 
 def concept_drift() -> dict[str, tuple[float, str, str]]:
@@ -250,6 +291,14 @@ def relation_set_name(concept_id: str, domain: str, person: str,
 
 def build() -> list[dict]:
     ky = list(csv.DictReader(KY_BRIEF.open(encoding="utf-8")))
+    COLLAPSED = collapsed_concepts(ky)
+    unmapped = sorted(COLLAPSED - set(ABSORBED_BY))
+    if unmapped:
+        raise SystemExit(
+            f"collapsed concepts with no ABSORBED_BY entry: {unmapped}. Their "
+            "English candidates would be dropped with no record of where the "
+            "concept went. Add each with the ruling that names its target."
+        )
     anchors = {r["concept_id"]: r for r in csv.DictReader(ANCHORS.open(encoding="utf-8"))}
     v1_english = ex_to_v1_english()
     drafts = sheet_drafts()
@@ -407,8 +456,12 @@ def main() -> int:
     args = ap.parse_args()
 
     rows = build()
-    if len(rows) != 254:
-        raise SystemExit(f"expected 254 rows on the 127-concept spine, built {len(rows)}")
+    concepts = len({r["concept_id"] for r in rows})
+    if (len(rows), concepts) != (256, 128):
+        raise SystemExit(
+            f"expected 256 rows on the 128-concept spine, built {len(rows)} rows "
+            f"over {concepts} concepts. The spine moved; re-read it before writing."
+        )
 
     drift: list[str] = []
     if OUT.exists():

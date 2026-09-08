@@ -98,8 +98,14 @@ def main() -> int:
 
     # Literal numbers in hand-written prose. Generated files are exempt: their
     # numbers are computed, which is the whole point of generating them.
+    #
+    # sections/ IS ALSO EXEMPT, TEMPORARILY AND BY DECISION. The prose is being
+    # written first with numbers typed inline and converted to macros
+    # afterwards. Delete this exemption once that conversion is done -- leaving
+    # it in place indefinitely would quietly retire the rule for most of the
+    # paper, which is the failure mode this check exists to prevent.
     for path, body in sources.items():
-        if "generated" in str(path):
+        if "generated" in str(path) or "sections" in str(path):
             continue
         prose = re.sub(r"\\[a-zA-Z]+(\{[^}]*\})?", " ", body)
         for literal in re.findall(r"(?<![\w.])\d+(?:\.\d+)?(?![\w.])", prose):

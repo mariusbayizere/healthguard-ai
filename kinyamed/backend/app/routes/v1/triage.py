@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, assert_may_act_for_patient
 from app.schemas.triage import TriageResponse, TriageRequest
-from app.services import patient_service, queue_service, triage_service
+from app.services import (patient_service, queue_service, response_templates,
+                          triage_service)
 from app.services.sms_service import send_sms_in_background
 
 router = APIRouter(prefix="/triage", tags=["Triage"])
@@ -36,6 +37,14 @@ def submit_triage(
         db, patient=patient, symptoms_input=data.symptoms_input
     )
 
+    # C1. Resolve the patient-facing sentence from the SPEAKER-AUTHORED
+    # templates. Unfilled today in every language, so this returns a PENDING
+    # state that the response carries explicitly rather than a placeholder that
+    # would read as real.
+    template = response_templates.resolve(
+        outcome.report.language_detected or "", outcome.result.urgency_level.value
+    )
+
     background_tasks.add_task(
         send_sms_in_background, patient.id, patient.phone, outcome.sms_message
     )
@@ -48,6 +57,9 @@ def submit_triage(
         possible_conditions=outcome.result.possible_conditions,
         confidence_score=outcome.result.confidence_score,
         ai_response_rw=outcome.result.ai_response_rw,
+        patient_response=template.text or None,
+        response_pending=template.pending,
+        response_pending_reason=template.reason or None,
         language_detected=outcome.report.language_detected,
         queue_number=outcome.queue_entry.queue_number,
         queue_position=outcome.queue_position,

@@ -74,6 +74,12 @@
 \RequireGenerated{ResultSelectedStep}
 \RequireGenerated{ResultGatePassed}
 \RequireGenerated{ResultFingerprint}
+\RequireGenerated{LatencyRows}
+\RequireGenerated{LatencyColdMs}
+\RequireGenerated{LatencyWarmMedianMs}
+\RequireGenerated{LatencyWarmPninetyfiveMs}
+\RequireGenerated{LatencyWarmPninetynineMs}
+\RequireGenerated{LatencyWarmMaxMs}
 \RequireGenerated{DegenerateCeiling}
 \RequireGenerated{DegenerateRunPrecision}
 \RequireGenerated{DegenerateRunCriticalRecall}
@@ -101,9 +107,11 @@ typed by hand. If one disagrees with a run record, the run record is right.
 \vspace{1em}
 
 \input{sections/introduction}
+\input{sections/related_work}
 \input{sections/method}
 
 \input{results}
+\input{sections/system}
 
 \input{sections/discussion}
 \input{sections/limitations}

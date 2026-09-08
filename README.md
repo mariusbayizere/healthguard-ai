@@ -8,8 +8,6 @@ repository; the other is planned and not yet started.
 - **KinyaMed** *(in progress)* — AI-powered medical triage and patient queue system
   for Kinyarwanda-speaking populations. The dataset pipeline is complete and
   verifiable; a FastAPI backend is in development.
-- **FraudShield** *(planned, no code yet)* — real-time fraud detection engine for
-  financial transactions.
 
 **Status:** 🚧 under active development. No model has been trained on the
 leakage-controlled splits yet, so this repository currently contains
@@ -192,9 +190,9 @@ kinyamed/ml_model/
 kinyamed/backend/               FastAPI triage service (in development)
 ```
 
-Every path above exists in a clean clone. FraudShield and the deployment manifests
-have no files yet, so they are deliberately absent rather than listed as empty
-directories that git cannot track and a reader would not find.
+Every path above exists in a clean clone. The deployment manifests have no files
+yet, so they are deliberately absent rather than listed as empty directories that
+git cannot track and a reader would not find.
 
 ## Tech stack
 

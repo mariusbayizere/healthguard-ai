@@ -601,6 +601,14 @@ def writeup(args) -> int:
     prov = {
         "reported_model": reported_dir.name,
         "run_fingerprint": fingerprint,
+        # THE DATA DIGESTS. tests/test_paper_numbers.py treats these as the
+        # marker distinguishing a file generated from a verified run from a
+        # placeholder, and it was right to: without them the header says WHEN
+        # and WHICH COMMIT but not WHICH DATA, so a table generated against a
+        # different split would look identical. load_manifest() has already
+        # verified both against the files on disk before this point.
+        "source_sha256": manifest["files"]["train"]["sha256"],
+        "eval_sha256": manifest["files"]["eval"]["sha256"],
         "manifest": str(args.manifest),
         "strategy": manifest["strategy"],
         "split_seed": str(manifest["split_seed"]),
@@ -648,6 +656,25 @@ def writeup(args) -> int:
         "DegenerateRunUrgentRecall":
             f"{degenerate['per_class']['URGENT']['recall']:.4f}",
     }
+    if args.latency:
+        # Measured by training/latency.py in a separate process, because a
+        # latency figure taken while this script is also running inference
+        # would measure contention rather than the model. Carried across with
+        # the machine that produced it, since a latency number without a
+        # machine is not a number.
+        lat = json.loads(args.latency.read_text())
+        values.update({
+            "LatencyRows": f"{lat['rows']:,}",
+            "LatencyColdMs": f"{lat['cold_ms']:.0f}",
+            "LatencyWarmMedianMs": f"{lat['warm_ms']['median']:.0f}",
+            "LatencyWarmPninetyfiveMs": f"{lat['warm_ms']['p95']:.0f}",
+            "LatencyWarmPninetynineMs": f"{lat['warm_ms']['p99']:.0f}",
+            "LatencyWarmMaxMs": f"{lat['warm_ms']['max']:.0f}",
+            "LatencyCpu": tex_escape(lat["machine"]["cpu"]),
+            "LatencyThreads": lat["machine"]["torch_threads"],
+        })
+        prov["latency_source"] = f"{args.latency.name} ({lat['generated_at']})"
+
     if args.verify_against:
         # NOT computed by this pass. The selected step belongs to the training
         # run; it is carried across only because --verify-against has just
@@ -676,6 +703,11 @@ def main() -> int:
         help="Emit every paper table from ONE evaluation pass. Pass the model "
              "directories in sweep order; the LAST is the reported result. "
              "Numbers are computed here, never read from a saved report.",
+    )
+    parser.add_argument(
+        "--latency", type=Path, metavar="LATENCY_JSON",
+        help="Output of training/latency.py. Its figures become macros so the "
+             "paper quotes a measurement rather than the target.",
     )
     parser.add_argument(
         "--verify-against", type=Path, metavar="RUN_JSON",

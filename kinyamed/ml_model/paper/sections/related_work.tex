@@ -1,0 +1,133 @@
+% RELATED WORK — drafted 2026-09-08 from docs/language-resources.md and
+% docs/licensing.md, both of which read licences and data-availability
+% statements at source rather than from abstracts.
+%
+% NOTHING IN THIS FILE IS CITED FROM AN ABSTRACT. Where the repository does not
+% record a bibliographic detail, that detail is NOT written here -- see the
+% TODO block at the end for what still needs completing from source.
+
+\section{Related work}
+\label{sec:related}
+
+\subsection{Triage instruments}
+
+The two triage systems this work was originally scoped against are the two that
+could not be used, and the reason is licensing rather than clinical fit. The
+Emergency Severity Index carries a royalty-free grant to use the algorithm
+clinically, but reproduction of its descriptors requires written permission, so
+its text cannot be redistributed as corpus content. The Manchester Triage System
+is licensed intellectual property. We therefore built the urgency taxonomy from
+openly licensed clinical guidance instead, and cite the triage instruments
+without reproducing them.
+
+\subsection{Clinical guidance used for concept anchoring}
+
+Concepts are anchored to published WHO guidance where guidance for the
+presentation exists. Seventy of our 128 concepts carry an anchor, drawn from
+three documents with materially different licences:
+
+\begin{center}\small
+\begin{tabular}{p{0.42\textwidth}lr}
+\toprule
+Source & Licence & Concepts \\
+\midrule
+WHO IMCI Chart Booklet, 2014 (ISBN 978 92 4 150682 3) & All rights reserved & 24 \\
+WHO--ICRC \emph{Basic Emergency Care}, 2018 & CC BY-NC-SA 3.0 IGO & 15 \\
+WHO \emph{Managing Complications in Pregnancy and Childbirth}, 2017 & CC BY-NC-SA 3.0 IGO & 11 \\
+Clinician-defined, no WHO anchor located & --- & 20 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The IMCI licence is the constraint that shapes how we use all three. The chart
+booklet is \emph{all rights reserved}, not open-licensed, so we reproduce no
+text from it. A clinical concept --- that chest indrawing indicates severe
+pneumonia, that an inability to drink is a general danger sign --- is a fact and
+is cited; the wording in which the booklet expresses it is not ours to copy. The
+BEC and MCPC material is CC BY-NC-SA 3.0 IGO and we treat it the same way, since
+mixing share-alike text into a released corpus would propagate that term to the
+corpus.
+
+\subsection{Kinyarwanda language resources}
+
+Kinyarwanda NLP has usable encoders and retrievers and very little else, and
+almost nothing in a patient's voice. The resources we assessed fall into three
+groups.
+
+\paragraph{News-domain corpora.} KINNEWS and KIRNEWS provide 3{,}449 Kinyarwanda
+news articles collected from a single news site. MasakhaNER 1.0 and 2.0 provide
+named-entity-annotated Kinyarwanda and Swahili text, also news. Both are useful
+for pretraining and neither contains clinical language or patient speech. We use
+neither: MasakhaNER is non-commercial share-alike, and the KINNEWS licence is not
+stated in its repository at all, which we treat as unusable until confirmed
+rather than as permissive by default.
+
+\paragraph{Patient-facing health text.} We located one collection of genuine
+patient-facing Kinyarwanda health material, and it covers immunisation and
+nothing else, so it maps to a single domain of our taxonomy. A Swahili health
+corpus with an open licence exists and, measured directly rather than assumed,
+contains institutional text --- ministerial press releases, parliamentary
+addresses --- with zero lines combining a first-person marker and a symptom
+word. Register, not volume, is the binding constraint on this task.
+
+\paragraph{Community health worker questions.} The most useful Kinyarwanda
+clinical resource we found is a set of real community health worker questions
+with Kinyarwanda originals and clinician answers, released as a 524-question
+subset under CC BY 4.0 alongside a study of large language models for frontline
+healthcare support in low-resource settings. The full collection of 5{,}609
+questions is not released; the data availability statement names an access route
+rather than a download. We read the statement at source, and this is one of the
+cases where doing so mattered: the headline figure in the abstract is not the
+figure that was released.
+
+That resource is close to ours in setting and different in kind. It records what
+a health worker asks a clinician; we need what a patient says to a health worker.
+It is a genuine sample of real language, which our corpus is not, and its
+existence is the strongest argument that the authored approach we took is a
+stopgap rather than a destination.
+
+\subsection{Where this work sits}
+
+We are not aware of a prior patient-voice medical triage dataset for
+Kinyarwanda, and the audit above did not locate one. That is a statement about
+our search, not about the field. What we can say more firmly is narrower and
+more useful: the resources that exist are news-domain or institutional, the one
+clinical Kinyarwanda corpus we found is in a health worker's voice rather than a
+patient's, and neither the concept taxonomy nor the licensing position we
+adopted could be inherited from any of them.
+
+% ---------------------------------------------------------------------------
+% TODO BEFORE SUBMISSION -- BIBLIOGRAPHY ENTRIES NOT YET VERIFIED AT SOURCE.
+%
+% The claims above are all substantiated by docs/language-resources.md and
+% docs/licensing.md. The BIBLIOGRAPHIC DETAILS below are not all recorded
+% there, and are deliberately not invented in the prose. Complete each from
+% the source document itself, not from a search result or an abstract:
+%
+%   - CHW study. Recorded: "Large language models for frontline healthcare
+%     support in low-resource settings", Nature Health 2026,
+%     nature.com/articles/s44360-025-00038-1, open access via PMC12880909,
+%     article CC BY 4.0. Released subset: figshare 10.6084/m9.figshare.29213147,
+%     CC BY 4.0, 524 questions. NEEDED: full author list, volume/pages.
+%     Recorded names are Samuel Rutunda (first author on the figshare dataset),
+%     Emery Hezagira and Eric Remera (RBC co-authors), and Bilal Akhter Mateen
+%     (corresponding author on the protocol paper) -- these are contact-route
+%     notes, NOT a verified author list, and must not be used as one.
+%   - KINNEWS / KIRNEWS. NEEDED: authors, year, venue. Recorded: 3,449
+%     Kinyarwanda news articles from igihe.com; licence not stated in the repo.
+%   - MasakhaNER 1.0 and 2.0. NEEDED: authors, year, venue for both. Recorded
+%     licence: CC-BY-4.0-NC, with monolingual source data under per-site terms.
+%   - Masakhane. Named in docs/generative-assistant-assessment.md only as a
+%     source of small news-domain sets. If it is to be cited as a research
+%     collective rather than as a dataset, that needs its own reference and a
+%     sentence that says something specific -- do not cite it decoratively.
+%   - ESI and MTS. NEEDED: citable references. Recorded: ESI (c) Emergency
+%     Nurses Association, royalty-free for clinical use of the algorithm,
+%     reproduction requires written permission; MTS proprietary via ALSG.
+%   - WHO IMCI 2014, WHO-ICRC BEC 2018, WHO MCPC 2017. NEEDED: full titles and
+%     WHO publication identifiers. IMCI's ISBN is recorded above.
+%   - The immunisation-only patient-facing collection and the Swahili health
+%     corpus are described but not named in the prose. Name them once the
+%     entries are verified; the measurements quoted are from
+%     docs/swahili-corpus-assessment.md.
+% ---------------------------------------------------------------------------

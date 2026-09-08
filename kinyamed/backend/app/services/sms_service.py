@@ -80,23 +80,33 @@ def get_sms_provider() -> SMSProvider:
 
 
 def build_triage_sms(
-    name: str, urgency: str, queue_number: int, wait: int | None
+    name: str, urgency: str, queue_number: int, wait: int | None,
+    language: str = "kinyarwanda",
 ) -> str:
-    """Compose the Kinyarwanda intake message for a triaged patient."""
-    if urgency == "CRITICAL":
-        return (
-            f"Muraho {name}, ikibazo cyawe ni CRITICAL. "
-            f"Jya kwa muganga NONE NONE. Numero yawe: {queue_number}."
-        )
-    wait_text = f" Itegereze: ~{wait} min." if wait is not None else ""
-    if urgency == "URGENT":
-        return (
-            f"Muraho {name}, ikibazo cyawe ni URGENT. "
-            f"Genda kwa muganga uyu munsi. Numero: {queue_number}.{wait_text}"
-        )
-    return (
-        f"Muraho {name}, ikibazo cyawe ni ROUTINE. "
-        f"Numero yawe ni {queue_number}.{wait_text}"
+    """Compose the patient's SMS from a SPEAKER-AUTHORED template, or return "".
+
+    RULED 2026-09-08. This function used to hold machine-drafted Kinyarwanda --
+    "Jya kwa muganga NONE NONE" -- telling a patient to go to hospital
+    immediately. That is patient-facing clinical instruction and falls under the
+    same rule as the endpoint's response templates: it is speaker-authored or it
+    does not exist.
+
+    RETURNING "" MEANS NO MESSAGE IS SENT. That is the intended behaviour while
+    the templates are unauthored. Sending a machine-drafted instruction is worse
+    than sending nothing: the patient is in the queue either way, and a wrong
+    urgency instruction in their hand is an active harm rather than a missing
+    convenience.
+    """
+    from app.services import response_templates
+
+    template = response_templates.resolve(language, urgency, channel="sms")
+    if template.pending:
+        logger.info("sms_template_pending", language=language, urgency=urgency,
+                    reason=template.reason, action="no message will be sent")
+        return ""
+    return template.text.format(
+        name=name, queue_number=queue_number,
+        wait="" if wait is None else str(wait),
     )
 
 

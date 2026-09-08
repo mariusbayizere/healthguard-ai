@@ -1,13 +1,13 @@
-english,used_by,note,your_swahili,regional_variant,your_notes
-My child,"ALL_RELATIONS, CHILD_RELATIONS, HOUSEHOLD_RELATIONS",,,,
-My wife,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,,,
-My husband,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,,,
-My mother,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS",,,,
-My father,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,,,
-My sister,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,,,
-My neighbour,"ADULT_RELATIONS, ALL_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER","OPEN, AND WE WOULD LIKE YOUR VIEW. This word is gender-neutral in both Kinyarwanda and English, and the Kinyarwanda speaker ruled it INTO the obstetric set knowingly — which means a language that does not mark gender on the relation lets a male patient back into a pregnancy sentence. English resolves it with 'she' later in the sentence. Can Kiswahili? If not, say so: it may mean the set has to narrow.",,,
-My grandmother,"ADULT_RELATIONS, ALL_RELATIONS","The Kinyarwanda word is a general term for an elderly woman rather than specifically the speaker's grandmother; v1's English chose 'My grandmother'. If Kiswahili distinguishes the two, tell us which you wrote and whether the other is also worth having.",,,
-My son,CHILD_RELATIONS,,,,
-My daughter,CHILD_RELATIONS,,,,
-My grandchild,CHILD_RELATIONS,,,,
-My neighbour's child,CHILD_RELATIONS,"Used only where a neighbour brings a child in. If that is not a natural thing to say in Kiswahili, say so rather than forcing it.",,,
+english,used_by,note,your_swahili,regional_variant,your_notes,provenance
+My child,"ALL_RELATIONS, CHILD_RELATIONS, HOUSEHOLD_RELATIONS",,Mwanangu,Mtoto wangu,Yote mawili ni ya kawaida na asilia.,speaker
+My wife,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,Mke wangu,Mke wangu,Standard Swahili.,speaker
+My husband,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,Mume wangu,Mume wangu,Standard Swahili.,speaker
+My mother,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS",,Mama yangu,Mama yangu,"Wagonjwa husema ""Mama"" au ""Mama yangu"".",speaker
+My father,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS",,Baba yangu,Baba yangu,"Wagonjwa husema ""Baba"" au ""Baba yangu"".",speaker
+My sister,"ADULT_RELATIONS, ALL_RELATIONS, HOUSEHOLD_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER",,Dada yangu,Dada yangu,Standard Swahili.,speaker
+My neighbour,"ADULT_RELATIONS, ALL_RELATIONS, OBSTETRIC_RELATIONS, OBSTETRIC_RELATIONS_NO_MOTHER","OPEN, AND WE WOULD LIKE YOUR VIEW. This word is gender-neutral in both Kinyarwanda and English, and the Kinyarwanda speaker ruled it INTO the obstetric set knowingly — which means a language that does not mark gender on the relation lets a male patient back into a pregnancy sentence. English resolves it with 'she' later in the sentence. Can Kiswahili? If not, say so: it may mean the set has to narrow.",Jirani yangu,Jirani yangu,Haina jinsia (gender-neutral).,speaker
+My grandmother,"ADULT_RELATIONS, ALL_RELATIONS","The Kinyarwanda word is a general term for an elderly woman rather than specifically the speaker's grandmother; v1's English chose 'My grandmother'. If Kiswahili distinguishes the two, tell us which you wrote and whether the other is also worth having.",Bibi yangu,Nyanya yangu,"""Bibi"" ni kawaida zaidi TZ/KE; ""Nyanya"" pia inatumika kimkoa.",speaker
+My son,CHILD_RELATIONS,,Mwanangu wa kiume,Mtoto wangu wa kiume,Standard Swahili.,speaker
+My daughter,CHILD_RELATIONS,,Mwanangu wa kike,Mtoto wangu wa kike,Standard Swahili.,speaker
+My grandchild,CHILD_RELATIONS,,Mjukuu wangu,Mjukuu wangu,Standard Swahili.,speaker
+My neighbour's child,CHILD_RELATIONS,"Used only where a neighbour brings a child in. If that is not a natural thing to say in Kiswahili, say so rather than forcing it.",Mtoto wa jirani yangu,Mtoto wa jirani yangu,Standard Swahili.,speaker

@@ -1,0 +1,115 @@
+% SYSTEM — drafted 2026-09-08 from measurements and from the service as built.
+%
+% Latency figures are macros emitted from training/latency_v2d.json. Corpus and
+% code-switching figures are typed for now (sections/ is exempt) and were
+% re-derived from disk, not recalled.
+%
+% NO BASELINE COMPARISON APPEARS HERE. mBERT and AfriBERTa-large have not been
+% trained; training/run_records/ contains zero baseline runs. A comparison table
+% would be fabricated.
+
+\section{The system}
+\label{sec:system}
+
+\subsection{Inference latency}
+
+Measured on the reference machine --- an Intel i5-6200U with two threads
+allocated to torch --- over \LatencyRows\ rows drawn from the frozen evaluation
+split, at batch size one, which is the deployment shape:
+
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+& latency & against a sub-200\,ms target \\
+\midrule
+Cold (first request, $n=1$) & \LatencyColdMs\,ms & exceeds \\
+Warm median & \LatencyWarmMedianMs\,ms & meets \\
+Warm p95 & \LatencyWarmPninetyfiveMs\,ms & meets \\
+Warm p99 & \LatencyWarmPninetynineMs\,ms & meets \\
+Warm maximum & \LatencyWarmMaxMs\,ms & exceeds \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The target is met warm through the 99th percentile on a nine-year-old laptop
+CPU. It is not met in two conditions that are ordinary rather than exotic. The
+first request a process serves costs \LatencyColdMs\,ms, roughly twenty times
+the target, so any deployment that scales to zero or restarts a worker charges
+that to a live patient; we load and warm the model at start-up for this reason.
+And the warm tail reaches \LatencyWarmMaxMs\,ms, so a per-request service level
+written at 200\,ms would be violated occasionally even in steady state. The p99
+is the figure such a target should be written against.
+
+\subsection{Service}
+
+The triage endpoint accepts a free-text symptom description, detects the
+language, classifies urgency, places the patient in a queue ordered by clinical
+priority, and returns the label. The classifier sits behind an interface with
+two implementations: a multilingual keyword baseline, and the fine-tuned model.
+The model is selected by configuration and is not installed by default, because
+the ML dependencies are deliberately absent from the API image; when it is
+configured but unavailable the service logs a warning and continues on the
+baseline rather than failing a request.
+
+\paragraph{The patient-facing response is empty by design.} The endpoint returns
+the urgency label and a separate response slot, and that slot is unfilled in
+every language. The sentence a patient reads --- go to hospital now, see a
+doctor today, it is safe to wait --- is the one piece of text in this system
+that tells a person what to do about their health, and it is authored by a
+speaker or it does not exist. The API states this explicitly rather than
+supplying a placeholder: a response carries a \texttt{pending} flag and a reason
+naming the brief that would fill it. The outbound SMS behaves the same way and
+sends nothing while unauthored, on the reasoning that the patient is in the
+queue either way and a machine-drafted urgency instruction in their hand is an
+active harm rather than a missing convenience.
+
+\subsection{Code-switching: none of the six combinations generates}
+
+The corpus design names six ordered language pairs. \textbf{None of them
+produces a row today}, and we state the position precisely because a corpus
+labelled bilingual that is not is worse than one that admits the gap.
+
+A Kinyarwanda speaker ruled fifteen medical terms for insertion, giving for each
+whether it is genuinely switched or simply borrowed, its noun class, and the
+agreement it triggers. That yielded five borrowed terms with established
+Kinyarwanda forms, which belong in \emph{monolingual} rows rather than mixed
+ones, and four cleanly switched terms.
+
+\begin{center}
+\begin{tabular}{lp{0.62\textwidth}}
+\toprule
+pair & why it does not generate \\
+\midrule
+kw $\rightarrow$ en & four switched terms are ruled, all nouns. Enough to emit
+rows, not enough to be the mixed language the label claims. Pending a speaker's
+answer on ten further terms. \\
+kw $\rightarrow$ fr & no French-origin term is cleanly switched; all are
+borrowed or dual-disposition. \\
+en $\rightarrow$ kw, fr $\rightarrow$ kw & require the reverse insertion
+direction and English or French frame fragments, neither of which exists. \\
+sw $\rightarrow$ en, en $\rightarrow$ sw & require a Swahili-matrix worksheet.
+None exists; the noun classes ruled so far are Kinyarwanda's. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Five of the fifteen terms carry a dual disposition --- the speaker's answer was
+that they are both switched and borrowed, which is a real linguistic answer
+rather than an incomplete one, but the two route a term to different places.
+Two carry two candidate noun classes, and for one of those the two competing
+forms sit in \emph{different} classes, so the choice is between two grammars
+rather than two spellings.
+
+\paragraph{Why the generator refuses rather than approximating.} The earlier
+corpus produced mixed rows by swapping a whole phrase at one syntactic seam,
+which accounted for 48\% of its rows and added no distinct clinical content. The
+model that replaces it inserts a single content morpheme into an intact matrix
+utterance and integrates it morphologically. That requires a noun class, and a
+noun class is a fact about a language that cannot be inferred from the corpus.
+The generator therefore declines to emit anything it cannot integrate, and
+declines a pair whose inventory is too thin to be what the label claims.
+
+Building the generator surfaced two errors it then prevented: an early version
+filtered only on the embedded language and would have inserted
+Kinyarwanda-classed terms into a Swahili frame, and a later one would have
+shipped a four-noun inventory as a bilingual corpus.

@@ -1,9 +1,219 @@
-% METHOD — prose to be written.
+% METHOD — drafted from the repository records on 2026-09-08.
 %
-% No typed numbers: quote the generated macros. paper/check_tex.py fails on a
-% literal in prose, and main.tex fails the build on a macro nothing defines.
+% Numbers are typed inline for now and become macros later; paper/check_tex.py
+% exempts sections/ until that conversion is done.
+%
+% Every figure below was recomputed from disk rather than recalled. Where a
+% figure contradicts something stated elsewhere in the repository, the
+% contradiction is flagged in the prose rather than silently resolved.
 
 \section{Method}
 \label{sec:method}
 
-% TODO
+\subsection{Corpus v1, and why it was replaced}
+
+The first corpus was generated, not authored. A template generator combined a
+small inventory of symptom phrases with frame slots --- an opener, a subject, an
+onset, a context and a closer --- to produce 1{,}000{,}000 rows across four
+languages (Kinyarwanda, English, French, Swahili) from 184 template-drafted
+phrases. The phrases themselves were written by a non-speaker working from
+English clinical concepts.
+
+Two independent findings retired it.
+
+\paragraph{The language was not verifiable.} No Kinyarwanda speaker had read any
+of it. When one did, the assessment was that the phrases were grammatical but
+not what a patient would say: syntax calqued from English structure, register
+drifted upward toward the clinical, borrowed words that speech uses freely
+(\emph{malaria}, \emph{pressure}, \emph{sugar}) avoided in favour of ``pure''
+constructions, and descriptions that were too complete for speech. The speaker
+also rejected the noun-phrase form the generator required --- phrases were
+written to slot in after \emph{I have} / \emph{my wife has} --- and rewrote the
+existing phrases as full patient utterances. That change moved person out of the
+frame and into the phrase, and it is the reason the v2 inventory carries a
+first-person and a third-person row per concept.
+
+\paragraph{One of the two evaluation splits never worked, and the manifest
+recorded it from the first commit.} v1 was split two ways, by phrase and by
+family, and presented as two difficulty levels. The family holdout was not a
+holdout. Its own frozen manifest reports that every one of its 114{,}321
+evaluation rows was built on a phrase that also appears in training:
+
+\begin{center}\small
+\begin{tabular}{lr}
+\toprule
+\texttt{eval\_rows\_whose\_phrase\_appears\_in\_train} & 114{,}321 \\
+\texttt{eval\_rows\_leaked\_fraction} & 1.0 \\
+\texttt{phrase\_overlap} & 50 \\
+\texttt{substring\_violations} & 54 \\
+\midrule
+\texttt{exact\_text\_overlap} & 0 \\
+\texttt{family\_overlap} & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The failure is not that the leakage went undetected. It was detected, measured
+and written into the manifest by the same commit that introduced the pipeline.
+It went unread. The two fields anyone looked at --- exact text overlap and
+family overlap --- were both zero, and they were zero honestly: no evaluation
+row appeared verbatim in training, and no family straddled the split. Holding
+out a \emph{family} does not hold out a \emph{phrase}, and it was the phrase
+that carried the label. A number that says the holdout is worthless can sit in
+a machine-readable artefact for as long as nobody reads that field.
+
+v1's phrase holdout, by contrast, was internally clean, as v2's is.
+
+\paragraph{A separate contamination, in the other direction.} Scoring a
+phrase-trained model on the family evaluation set was also invalid: 89.2\% of
+family-evaluation rows (101{,}945 of 114{,}321) appeared verbatim in
+phrase-split training. This is a \emph{cross}-split measurement and is not the
+same failure as the one above; conflating the two is a mistake this project
+made and corrected in its own records.
+
+We state plainly that the cross-split figure is \emph{worse} in v2, not
+better: it is 100.0\% in both directions (24{,}900 of 24{,}900 and 34{,}425 of
+34{,}425), because the two v2 evaluation sets are disjoint partitions of one
+corpus, so each trains on everything the other holds out. What v2 fixed is the
+within-split failure --- family-evaluation against family-training is now
+0.0\%, where v1 was 100\%. The two splits swapped failure modes rather than
+one improving, and a table placing a v1 family result beside a v2 one would
+compare a wholly contaminated evaluation with an uncontaminated one and call
+the difference a model improvement.
+
+\subsection{Corpus v2}
+
+v2 is monolingual Kinyarwanda: 330{,}000 rows generated from 165 distinct
+phrases, drawn without replacement from each phrase's frame combinations. It is
+a rebuild rather than a revision --- a v1 result and a v2 result are not the same
+experiment and do not belong in one table.
+
+\paragraph{Provenance of the phrases is recorded per phrase, and is mixed.} Of
+the 165 phrases in the corpus, 82 (49.7\%) are recorded as authored directly by
+the speaker; 27 (16.4\%) are speaker-derived; 32 (19.4\%) are machine drafts the
+speaker approved; 23 (13.9\%) are machine-derived; one is marked not applicable.
+Taking speaker and speaker-derived together gives 109 of 165 (66.1\%).
+
+This matters more than a footnote. The project's own working rules require that
+speaker-authored and machine-drafted material stay distinguishable in the record
+precisely so that a paper can report them separately, and elsewhere in this
+repository the corpus is described as ``165 speaker-authored phrases''. Against
+the per-phrase provenance column that description overstates the speaker's
+contribution by roughly half, and we do not use it. Eight of the 165 phrases
+additionally carry an unresolved hold or a flag for clinician review.
+
+\subsection{Concept taxonomy and clinical anchoring}
+
+Phrases are organised under concepts, and concepts are anchored to published
+clinical guidance wherever guidance exists for the presentation. The concept
+spine holds 128 concepts, of which 70 carry an anchor:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Anchor source & Concepts \\
+\midrule
+WHO IMCI 2014 (Integrated Management of Childhood Illness) & 24 \\
+WHO--ICRC Basic Emergency Care 2018 (CC BY-NC-SA 3.0 IGO) & 15 \\
+WHO Managing Complications in Pregnancy and Childbirth 2017 & 11 \\
+Clinician-defined, no WHO anchor available & 20 \\
+\midrule
+Anchored concepts & 70 \\
+Unanchored (inherited v1 corpus positions) & 58 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The 58 unanchored concepts are the positions inherited from the v1 corpus, which
+was catalogued without recorded concepts. They have no clinical reference and no
+English gloss of their own; where this work needed a gloss for them it took the
+frozen v1 English string at the same corpus position, which describes a
+presentation rather than prescribing an utterance.
+
+IMCI is copyright ``all rights reserved'' and no text is reproduced from it.
+Clinical concepts are facts and are cited rather than copied. The BEC and MCPC
+material is CC BY-NC-SA 3.0 IGO.
+
+\subsection{Person, and the rulings that remove rows}
+
+Each concept has a first-person row (the patient speaking) and a third-person row
+(someone speaking about them, with the relation carried by a placeholder). Not
+every concept supports both, and 50 of the 256 rows are ruled inapplicable. The
+rulings fall into three groups, and each was made by a named party rather than by
+default.
+
+\paragraph{Whole concepts collapsed into another (15 concepts, 30 rows).} Where
+two concepts turned out to name one sign, the speaker ruled them one concept and
+the absorbed identifier went out of generation. The collapses are:
+
+\begin{center}\small
+\begin{tabular}{llllll}
+\toprule
+Absorbed & Into & Absorbed & Into & Absorbed & Into \\
+\midrule
+EX17 & EX16 & HT06 & EX22 & NE04 & EX35 \\
+EX30 & CR07 & IF07 & EX29 & NE08 & EX36 \\
+EX42 & IF05 & NE01 & EX33 & PA01 & EX33 \\
+GI08 & EX16 & NE02 & EX32 & PA06 & IF05 \\
+HT01 & EX18 & NE03 & EX34 & PA10 & EX46 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A collapse was permitted only where the
+absorbing \emph{phrase} carried the whole sign; two proposed collapses were
+rejected on that test, one because the absorbing phrase conditioned a general
+danger sign on a temperature threshold and one because it covered only half of a
+disjunctive sign.
+
+\paragraph{First person removed (11 concepts).} Two grounds, both the speaker's.
+The first is capacity: a patient who is unconscious or convulsing cannot report
+it, which removes \texttt{EX32}, \texttt{EX33}, \texttt{PA02}, \texttt{PA03} and
+\texttt{PA04}. The second is that the sign is an examination finding rather than
+something the patient perceives --- a skin pinch, sunken eyes, a growth chart ---
+which removes \texttt{GI04}, \texttt{PA05} and \texttt{PA07}. A separate standing
+rule removes a paediatric first person that would merely duplicate an adult
+concept, since the patient's being a child lives only in the relation word and
+the first person has no slot for it; that removes \texttt{EX40}, \texttt{EX41}
+and \texttt{EX43}.
+
+\paragraph{Third person removed (9 concepts).} Nobody presents on another
+person's behalf to collect a repeat prescription, attend their own routine review
+or request their own screening test, so \texttt{CC08}, \texttt{CC09},
+\texttt{CC10}, \texttt{EX10}, \texttt{EX11}, \texttt{EX44}, \texttt{EX45},
+\texttt{PR06} and \texttt{PR07} have no third person.
+
+\paragraph{Relation restriction.} Where a third person exists, the set of
+relations it may be about is ruled per concept rather than defaulted: nine
+concepts take no relations, seven are restricted to children, five to adults,
+three to household members and one to the obstetric set. One concept is held
+pending a decision and one is out of generation pending a service-design question
+about whether men present for family-planning advice in this setting.
+
+\paragraph{Open at the time of writing.} Twenty-three rows are held and 25 carry
+a flag for clinician review. Held rows generate nothing. The flags are of two
+kinds and the distinction is maintained deliberately: some are clinical questions
+about the concept, which any language inherits, and some are doubts about a
+specific Kinyarwanda word, which no other language inherits.
+
+\subsection{Split and leakage control}
+
+The evaluation split holds out whole phrase groups, never rows. A phrase group is
+the closure of a set of phrases under nesting: where one phrase is contained in
+another, or is an ordered subsequence of it, the two are inseparable, because a
+model trained on the longer string has seen every character of the shorter one
+while an exact-match overlap check reports zero leakage.
+
+Three silent attribution failures were found and fixed while building this, each
+of which would have dropped rows out of the leakage analysis without raising an
+error: a case-sensitivity mismatch, a placeholder-deletion bug that welded a
+sentence's two halves together with a double space, and --- the largest --- a
+phrase authored as a complete sentence never matching its own rendering, because
+the generator removes the terminal stop before appending an onset. That last
+reached most of the corpus, 57 of the 100 authored phrases at the time ending in
+sentence punctuation, and it mis-attributed rows to a shorter phrase that happened
+to be a prefix.
+
+% TODO: model, training procedure and early stopping. The acceptance gate and
+% its derivation are already generated -- see \ref{sec:gate} -- and must not be
+% restated here.

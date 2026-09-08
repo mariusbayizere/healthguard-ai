@@ -1,9 +1,65 @@
-% FUTURE WORK — prose to be written.
-%
-% No typed numbers: quote the generated macros. paper/check_tex.py fails on a
-% literal in prose, and main.tex fails the build on a macro nothing defines.
+% FUTURE WORK — drafted 2026-09-08. Prose numbers for now; macros later.
 
-\section{Future Work}
+\section{Future work}
 \label{sec:future_work}
 
-% TODO
+\subsection{The other three languages}
+
+The corpus is Kinyarwanda only, and the three other languages are at three
+different stages. None of them contributes a row to any result in this paper.
+
+\paragraph{English and French are drafted but unverified.} Both exist as
+256-row review briefs on the same 128-concept spine, carrying candidate
+phrasings with per-row provenance and review verdicts. Every candidate is
+machine-drafted. No English speaker and no French speaker has ruled on them,
+and the French brief records explicitly that no French speaker has seen any of
+it. They are not a corpus and are not treated as one.
+
+The two arms did produce a result worth keeping: built independently against
+the same spine, they lifted the same eleven Kinyarwanda holds on the same
+reasoning --- each being a block on a Kinyarwanda \emph{word} rather than on
+the concept --- and they added the same hold on a concept-level clinical
+question. Two arms agreeing independently is the strongest evidence available
+that those rulings are about concepts rather than about one language.
+
+\paragraph{Swahili is out for authoring.} A Kiswahili speaker has agreed to
+author the arm, and the brief they received is an authoring brief rather than a
+review brief: it contains no Swahili at all. This is deliberate and follows the
+Kinyarwanda finding --- a fluent draft anchors a speaker to its errors, which is
+why the Kinyarwanda arm was re-authored from scratch rather than corrected. The
+brief carries the English gloss, the person split, the applicability and
+relation rulings and the open clinical questions, and an empty column for the
+speaker's own phrasing. A machine-translated Swahili corpus exists in the frozen
+v1 vocabulary and is deliberately withheld from the speaker; it can be compared
+against the authored phrases afterwards, which is the only order in which the
+comparison means anything.
+
+Two gaps in the Swahili arm are recorded and not yet closed. No Swahili relation
+terms exist anywhere in the project, so every third-person placeholder currently
+has nothing to substitute; and the frame slots --- greetings, time expressions,
+closing lines --- have not been authored either.
+
+\subsection{The evaluation base}
+
+The limitation in Section~\ref{sec:limitations} is the one that most constrains
+what can be claimed, and it is a property of the corpus rather than of the
+model. Enlarging the number of distinct phrases per class, rather than the
+number of rows, is the only thing that would make a recall target of 0.95
+measurable at better than quarter granularity.
+
+\subsection{The unresolved boundary}
+
+Every configuration trained separated ROUTINE without error and none resolved
+the CRITICAL/URGENT boundary. The next diagnostic is per-sentence rather than
+per-configuration: which of the held-out CRITICAL sentences is read as URGENT,
+and whether it is the same sentence across models. That distinguishes an
+ambiguous concept from a mislabelled one from an artefact of the split, and it
+is one inference pass rather than another training run.
+
+\subsection{Thresholds that are still not sourced}
+
+Two numbers in the acceptance gate need an authority this project does not
+have. The CRITICAL recall threshold of 0.95 is inherited and its source is not
+verifiable in this repository. The margin by which CRITICAL precision must
+exceed the degenerate ceiling is a judgement about tolerable over-triage in a
+clinic, and no clinician has made it. Both are reported as placeholders.

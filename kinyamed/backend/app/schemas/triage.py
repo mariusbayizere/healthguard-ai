@@ -40,6 +40,15 @@ class TriageResponse(BaseModel):
     possible_conditions: str | None
     confidence_score: float | None
     ai_response_rw: str | None
+    # C1. The patient-facing sentence, and an explicit statement of whether one
+    # exists. `response_pending=True` means no speaker has authored a template
+    # for this language and urgency yet; `patient_response` is then empty and
+    # MUST NOT be shown to a patient. It is not filled with a machine draft,
+    # because a sentence telling someone to go to hospital now is the text this
+    # project does not machine-draft. See services/response_templates.py.
+    patient_response: str | None = None
+    response_pending: bool = True
+    response_pending_reason: str | None = None
     language_detected: str | None
     queue_number: int
     queue_position: int = Field(description="1-based place in the live queue at the time of triage.")

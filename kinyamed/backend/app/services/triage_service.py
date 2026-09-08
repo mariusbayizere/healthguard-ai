@@ -231,10 +231,28 @@ class KeywordClassifier:
         )
 
 
+# What get_classifier() selected, for the startup log and /health. A service
+# that has silently fallen back to the baseline while its configuration names a
+# model is the failure mode worth surfacing, so the selection is recorded rather
+# than inferred from behaviour.
+ACTIVE_CLASSIFIER_DESCRIPTION: str = "not yet selected"
+
+
 @lru_cache(maxsize=1)
 def get_classifier() -> SymptomClassifier:
-    """Return the classifier in use. Swap the implementation here."""
-    return KeywordClassifier()
+    """Return the classifier in use.
+
+    Selection lives in `model_classifier.build_classifier()`, which falls back
+    to the keyword baseline whenever a model is configured but unavailable, and
+    logs why. Imported here rather than at module scope to keep this module
+    importable without the optional ML dependencies.
+    """
+    global ACTIVE_CLASSIFIER_DESCRIPTION
+    from app.services.model_classifier import build_classifier
+
+    classifier, description = build_classifier()
+    ACTIVE_CLASSIFIER_DESCRIPTION = description
+    return classifier
 
 
 def run_triage(

@@ -1,27 +1,51 @@
-% ABSTRACT — prose to be written.
+% ABSTRACT — drafted 2026-09-08, last, from the written sections.
 %
-% NOTHING IN THIS FILE MAY CONTAIN A TYPED NUMBER. Quote the generated macros
-% instead; paper/check_tex.py fails the build if a literal appears in prose.
-% Available macros are listed in main.tex under \RequireGenerated; the full set
-% is in generated/results_macros.tex.
+% EVERY FIGURE HERE APPEARS ELSEWHERE IN THE PAPER. Result figures are the
+% generated macros, so they cannot drift from the run that produced them.
+% Corpus figures are the ones established in Section~\ref{sec:method} and
+% checked against the repository on 2026-09-08:
 %
-% Three corrections established against the corpus on 2026-09-08, so the
-% abstract does not repeat descriptions that were checked and found wrong:
+%   330,000 rows / 165 phrases / 96 concepts   (NOT 111 concepts)
+%   82 of 165 (49.7%) source=speaker           (NOT "165 speaker-authored")
 %
-%   ROWS      330,000  (verified)
-%   PHRASES   165 distinct  (verified)
-%   CONCEPTS  96, NOT 111. 111 is the count of concepts not ruled out;
-%             15 of those have no authored phrase, so they generate nothing.
-%   SOURCE    82 of 165 phrases (49.7%) are source=speaker. 109 (66.1%) are
-%             speaker or speaker_derived. "165 speaker-authored phrases"
-%             overstates it by half, and standing rules 5 and 8 require the
-%             machine and speaker categories to stay distinguishable because
-%             the paper reports them separately.
-%
-% The evaluation base belongs here too: the reporting set is 9 distinct
-% phrases in 5 phrase groups, of which 4 CRITICAL sentences, 4 URGENT and 1
-% ROUTINE. See \input{generated/limitations} for the derived statement.
+% No priority claim. "We are not aware of" only.
 
 \begin{abstract}
-% TODO
+Triage decides who is seen first, and the instruments in general use assume a
+shared clinical language between patient and assessor. In a Rwandan health
+centre the patient speaks Kinyarwanda. We present a dataset and a classifier
+for three-level urgency triage from patient-voice Kinyarwanda, and two
+evaluation failures we consider more useful than the classifier.
+
+The corpus is 330{,}000 rows generated from 165 distinct phrases across 96
+clinical concepts, anchored to WHO guidance where guidance exists. It is
+authored rather than translated: an earlier machine-generated corpus was judged
+unusable by a Kinyarwanda speaker not for accuracy but for register and
+grammatical form. Provenance is recorded per phrase and is mixed --- 82 of the
+165 phrases (49.7\%) are authored directly by the speaker --- and we report that
+split rather than describing the corpus as speaker-authored.
+
+Our first evaluation split never worked: its manifest recorded that every one of
+its 114{,}321 evaluation rows was built on a phrase also present in training,
+in a machine-readable field, in the commit that created it. The two fields being
+read were both honestly zero. Separately, a leakage guarantee that no
+string-similarity rule could produce was needed, because a concept's
+first-person and third-person phrasings share a prefix of zero characters by
+construction; without an explicit declaration, 60 of 61 concepts had their two
+phrasings on opposite sides of the holdout.
+
+Our acceptance gate was a single condition, recall on the critical class. A
+model passed it at \DegenerateRunCriticalRecall\ while achieving
+\DegenerateRunUrgentRecall\ recall on the urgent class, and its critical-class
+precision of \DegenerateRunPrecision\ sat below the \DegenerateCeiling\ that
+merging the two classes earns for free on those rows. The gate certified the
+worse of two models. We replace it with three conditions, two derived and one
+declared unsourced.
+
+The model we report reaches \ResultMacroFOne\ macro F1 and does not meet that
+gate. We are not aware of a prior patient-voice triage dataset for Kinyarwanda,
+though we have not searched systematically. The strongest constraint on every
+number here is that \ResultEvalRows\ evaluation rows are frame permutations of
+\ResultEvalPhrases\ distinct sentences, of which \ResultCriticalSentences\ carry
+the critical label, so per-class recall moves in steps of roughly one quarter.
 \end{abstract}

@@ -65,7 +65,16 @@ Do not paste these until they have been produced by a run:
 - phrase-train / family-eval overlap. **v1 measured 89.2%; v2 measures 100.0%**
   (24,900 of 24,900) — the CROSS-split figure got worse, not better, because the
   two v2 eval sets are disjoint. The 0.0% that belongs beside it is a different
-  measurement, family-eval against its own family-train. Quote both or neither. And
+  measurement, family-eval against its own family-train. Quote both or neither.
+  **AND QUOTE v1's WITHIN-SPLIT FIGURE WITH THEM: it was 100%.** v1's family
+  holdout leaked every one of its 114,321 eval rows
+  (`eval_rows_leaked_fraction: 1.0`), recorded in the family manifest by
+  35f81e5, the commit that introduced the pipeline. It went unread because the
+  two fields anyone checked — `exact_text_overlap` and `family_overlap` — were
+  both honestly 0. Without this, the 0.0% beside 100.0% reads as v2 being worse
+  on both counts, when the within-split number went 100% -> 0.0%. The v1
+  manifests were overwritten in place by the v2 freeze, so retrieve it with
+  `git show 35f81e5:kinyamed/ml_model/dataset/processed/eval_manifest_family_v1.json`. And
   the two holdouts have converged - v2 is monolingual, so each phrase belongs to
   exactly one family and holding one out removes its phrases entirely. Do not
   describe v2 as two difficulty levels; it is one strictness at two ratios

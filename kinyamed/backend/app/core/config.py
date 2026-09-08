@@ -100,6 +100,13 @@ class Settings(BaseSettings):
     MODEL_MAX_LENGTH: int = Field(default=512, ge=16, le=4096)
     MODEL_CONFIDENCE_THRESHOLD: float = Field(default=0.75, ge=0.0, le=1.0)
 
+    # C1. Path to a fine-tuned classifier directory. UNSET BY DEFAULT: torch and
+    # transformers are deliberately absent from the API image (see
+    # requirements.txt), so the service runs the keyword baseline unless a
+    # deployment opts in by setting this and installing the ML extras.
+    TRIAGE_MODEL_PATH: str = ""
+    TRIAGE_MODEL_THREADS: int | None = None
+
     # --- Triage / queue tuning -------------------------------------------
     # Average minutes a clinician spends per patient; drives wait estimates.
     MINUTES_PER_PATIENT: int = Field(default=10, ge=1, le=240)

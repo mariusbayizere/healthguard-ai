@@ -38,6 +38,18 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         version=settings.APP_VERSION,
         environment=settings.ENVIRONMENT,
     )
+
+    # C1. Select and WARM the classifier before the service reports ready.
+    # Measured on the reference hardware, the first inference in a process costs
+    # 1341 ms against a warm median of 66 ms. Loading lazily would charge that
+    # to the first patient through the door, so it is paid at start-up instead.
+    # A failure here must not stop the service: build_classifier() falls back to
+    # the keyword baseline and says so.
+    from app.services import triage_service
+
+    triage_service.get_classifier()
+    logger.info("classifier_selected",
+                classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION)
     try:
         yield
     finally:

@@ -2,22 +2,98 @@
 %
 % THE MEASUREMENT LIMITATION IS GENERATED, NOT WRITTEN. The distinct-sentence
 % counts and the recall granularity they imply are recomputed from the frozen
-% split every time the emitter runs, so they cannot drift from the data the
-% way a typed sentence would. Do not restate those numbers here in prose --
-% \input the generated fragment and write around it.
+% split every time the emitter runs, so they cannot drift. Do not restate those
+% numbers in prose here -- the \input below carries them.
 %
-% Limitations this project has recorded elsewhere and that belong in prose
-% here, none of which the emitter can produce:
-%
-%   - The corpus is Kinyarwanda only. English, French and Swahili arms exist
-%     as briefs, not as authored corpora.
-%   - Half the phrases are not directly speaker-authored (see abstract.tex).
-%   - G1's 0.95 threshold is inherited and its source is unverified.
-%   - G3's margin above the degenerate ceiling is a clinical judgement that
-%     has not been made.
-%   - Eight of the 165 corpus phrases carry an open hold or needs_clinician
-%     flag.
+% Everything else was checked against the record on 2026-09-08 rather than
+% recalled. Two figures in the working summary did not survive that check and
+% are corrected in the prose: the evaluation base is 9 phrases in 5 groups for
+% the reporting set (15 phrases in 8 groups for the whole frozen eval), not
+% "15 phrase groups"; and the reported models were trained at train_fraction
+% 1.0, not 22% -- the 22% subsample belongs to an earlier run that was
+% abandoned mid-training and is not reported.
 
 \input{generated/limitations}
 
-% TODO: prose limitations beyond the measurement base.
+\paragraph{One speaker, and no second-speaker review.} The Kinyarwanda
+phrasings are one person's judgement. A second-speaker protocol is designed and
+documented --- a per-phrase rating scale to catch phrases that are wrong, and an
+independent re-authoring pass to catch phrases that are merely not what someone
+else would say --- but it has not been run, and no ratings exist in the
+repository. What one speaker can establish is that the phrasings are
+consistently theirs; what makes them defensible is a second speaker agreeing
+independently, and that has not happened. Where the speaker was uncertain they
+consulted contacts informally, and one vocabulary question was still outstanding
+with those contacts at the time of writing.
+
+\paragraph{Provenance is mixed, and the corpus is not wholly speaker-authored.}
+As Section~\ref{sec:method} records, 82 of the 165 phrases (49.7\%) are
+authored directly by the speaker and 109 (66.1\%) are speaker-authored or
+speaker-derived; the remainder are machine drafts under speaker approval or
+machine-derived. Eight phrases carry an unresolved hold or a flag for clinician
+review and are nonetheless in the corpus.
+
+\paragraph{No clinician has signed off on anything.} Twenty-five rows are
+flagged as needing clinical review and twenty-three are held pending decisions.
+The open questions are not cosmetic: whether fetal demise belongs in a triage
+taxonomy at all, whether a patient reporting their own new confusion is
+meaningfully confused, whether high fever with refusal to eat is urgent or
+critical, and which of two descriptions of lower chest indrawing is the right
+one. A clinician session is designed and has not been held. Two of the three
+thresholds in our acceptance gate also await a clinical judgement that has not
+been made --- see Section~\ref{sec:gate}.
+
+\paragraph{Monolingual.} The corpus is Kinyarwanda. English and French exist
+only as unverified machine-drafted review briefs, Swahili is out for authoring,
+and none of the three contributes a row to any result reported here. The system
+is therefore not evaluated on the multilingual setting it is ultimately
+intended for.
+
+\paragraph{The two holdouts have converged, so there is only one evaluation.}
+The corpus is split by phrase and by family, and it would be wrong to present
+these as two difficulty levels. Because v2 is monolingual, each phrase belongs
+to exactly one family, so holding out a family removes its phrases entirely: the
+two splits are one strictness at two sampling ratios. Worse, they are disjoint
+partitions of the same corpus, so scoring a model trained on one against the
+other's evaluation set measures memorisation and nothing else --- 100.0\% of
+rows in both directions. Only one honest evaluation number exists per trained
+model, and it is the one we report.
+
+\paragraph{The acceptance gate is not met.} The reported model fails the
+CRITICAL recall condition. We report it because it satisfies both
+non-degeneracy conditions and is the best of the configurations trained, not
+because it is deployable. Nothing here is in use with any patient.
+
+\paragraph{One substantiation source sits in a repository that also ships
+GPT-4-generated text.} We name this first because a reader tracing our sources
+will find it. One of the two corpora we used to \emph{check} whether a
+Kinyarwanda term is attested in real clinical use --- never to supply phrases
+--- is a Rwanda Biomedical Centre training-text file published on a dataset
+repository whose card attributes its contents to two origins: 26{,}390
+sentences from RBC and 42{,}576 sentences from GPT-4 prompting, shipped as
+separate files. We vendored only the RBC file and never downloaded the
+generated one, because a substantiation corpus containing model output would
+let our own machine drafts confirm themselves back to us, which is the specific
+failure our provenance rules exist to prevent. After download we verified that
+the vendored file contains no English prose lines and no model-style
+scaffolding.
+
+Two things about that file we could not confirm from the card, and state rather
+than resolve. Its CC BY 2.0 grant is the depositing organisation's, not RBC's;
+nothing in the record shows RBC granting those terms on its own training
+material, so we treat the licence as provisional and do not redistribute the
+file as corpus provenance. And the card's per-source sentence counts do not map
+cleanly onto the file we hold, which has 28{,}621 non-empty lines against the
+26{,}390 sentences the card attributes to RBC --- a discrepancy that lines
+versus sentences may explain and that we cannot check without the unvendored
+companion.
+
+No text from either attestation corpus appears in the generated dataset. Their
+role is to tell the speaker that a word is in real use, which is grounds to
+consider it and never grounds to write a phrase they have not authored.
+
+\paragraph{The configuration search is inconclusive rather than complete.}
+Three configurations were trained and the search was stopped by judgement, not
+by convergence. We did not tune to the gate, and we did not run the
+per-sentence diagnostic that would distinguish an ambiguous concept from a
+mislabelled one on the unresolved boundary.

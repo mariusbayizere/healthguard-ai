@@ -113,6 +113,13 @@ def test_fingerprint_changes_with_any_trajectory_input() -> None:
         train_fraction = 1.0
         eval_limit = None
         freeze_embeddings = True
+        # Added 2026-09-08 with the early-stopping and layer-freezing work.
+        # Each changes WHICH step's weights are kept, so each must invalidate a
+        # resume, and each is varied below rather than merely declared here.
+        freeze_layers = 0
+        stop_groups = 0
+        patience = 0
+        min_delta = 0.0
 
     manifest = {"files": {"train": {"sha256": "aaa"}, "eval": {"sha256": "bbb"}}}
     baseline = run_fingerprint(manifest, Args())
@@ -123,6 +130,10 @@ def test_fingerprint_changes_with_any_trajectory_input() -> None:
         # Freezing the embeddings changes which parameters the optimiser owns,
         # so a checkpoint from a frozen run must not resume into an unfrozen one.
         ("freeze_embeddings", False),
+        ("freeze_layers", 8),
+        ("stop_groups", 3),
+        ("patience", 5),
+        ("min_delta", 0.002),
     ]:
         changed = Args()
         setattr(changed, field, value)
