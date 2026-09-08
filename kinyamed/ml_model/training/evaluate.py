@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -259,55 +260,103 @@ def _load_runs(paths: list[Path]) -> list[dict]:
     return runs
 
 
-def write_sweep_table(path: Path, runs: list[dict], trainable: dict[str, int]) -> None:
+def write_result_table(path: Path, run: dict, rows: int, phrases: int,
+                       groups: int, counts: dict[str, int], prov: dict,
+                       fingerprint: str) -> None:
+    """The headline per-class table.
+
+    Replaces the placeholder this file used to emit before any model existed.
+    NO PER-LANGUAGE BREAKDOWN: the v2 corpus is Kinyarwanda only, so the
+    language table the earlier writer produced would have had one row and would
+    have implied a multilingual result that was not measured.
+    """
+    pc = run["per_class"]
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n")
-        w("% Written by training/evaluate.py --writeup from saved run records.\n%\n")
+        _provenance_header(w, prov)
+        w("\\begin{table}[t]\n\\centering\n")
+        w("\\caption{Triage performance of the reported model on the frozen "
+          f"phrase holdout. The {rows:,} rows are frame permutations of {phrases} "
+          f"distinct phrases in {groups} phrase groups; the support column is "
+          "therefore not an independent sample size, and the final column gives "
+          "the count that governs the granularity of each recall figure.}\n")
+        w("\\label{tab:results}\n")
+        w("\\begin{tabular}{lrrrrr}\n\\toprule\n")
+        w("Class & Precision & Recall & F1 & Rows & Distinct sentences "
+          "\\\\\n\\midrule\n")
+        for name in CLASS_ORDER:
+            r = pc[name]
+            w(f"{name} & {r['precision']:.4f} & {r['recall']:.4f} & "
+              f"{r['f1-score']:.4f} & {int(r['support']):,} & {counts[name]} "
+              "\\\\\n")
+        w("\\midrule\n")
+        w(f"Macro avg & --- & --- & {run['macro_f1']:.4f} & "
+          f"{rows:,} & {phrases} \\\\\n")
+        w("\\bottomrule\n\\end{tabular}\n")
+        w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
+        w("\\end{table}\n")
+
+
+def write_sweep_table(path: Path, runs: list[dict], trainable: dict[str, int],
+                      prov: dict, fingerprint: str) -> None:
+    with atomic_write(path, "w", encoding="utf-8") as handle:
+        w = handle.write
+        _provenance_header(w, prov)
         w("\\begin{table}[t]\n\\centering\n")
         w("\\caption{Three configurations on the same frozen phrase holdout, same "
           "split seed, same reporting set. Trainable parameters exclude the frozen "
           "250{,}002$\\times$384 embedding table, which is 96{,}199{,}296 of the "
           "model's 117{,}641{,}859 parameters in every row.}\n")
         w("\\label{tab:sweep}\n")
-        w("\\begin{tabular}{lrrrrrr}\n\\toprule\n")
-        w("Run & Trainable & Sel.\\ step & Macro F1 & "
-          "CRIT P/R & URG P/R & Gate \\\\\n\\midrule\n")
+        w("\\small\n\\begin{tabular}{lrrrrr}\n\\toprule\n")
+        w("Run & Trainable & Macro F1 & CRIT P/R & URG P/R & Gate "
+          "\\\\\n\\midrule\n")
         for run in runs:
-            pc, m = run["per_class"], run["metrics"]
-            passed, _ = triage_gate(pc, m["macro_f1"])
-            w(f"{tex_escape(run['_label'])} & {trainable[run['_label']]:,} & "
-              f"{run['selected_step']} & {m['macro_f1']:.4f} & "
+            pc = run["per_class"]
+            passed, _ = triage_gate(pc, run["macro_f1"])
+            # The directory prefix is identical on every row and only costs
+            # width; the distinguishing part is what identifies the run.
+            label = run["_label"].removeprefix("model_").removesuffix("_DO_NOT_SHIP")
+            w(f"{tex_escape(label)} & "
+              f"{trainable.get(run['_label'], 0):,} & "
+              f"{run['macro_f1']:.4f} & "
               f"{pc['CRITICAL']['precision']:.4f}/{pc['CRITICAL']['recall']:.4f} & "
               f"{pc['URGENT']['precision']:.4f}/{pc['URGENT']['recall']:.4f} & "
               f"{'PASS' if passed else 'FAIL'} \\\\\n")
-        w("\\bottomrule\n\\end{tabular}\n\\end{table}\n")
+        w("\\bottomrule\n\\end{tabular}\n")
+        w(f"\\\\[2pt]{{\\scriptsize All rows evaluated in one pass; "
+          f"fingerprint of the reported model \\texttt{{{fingerprint}}}}}\n")
+        w("\\end{table}\n")
 
 
-def write_confusion_table(path: Path, matrix: list[list[int]], label: str) -> None:
+def write_confusion_table(path: Path, matrix: list[list[int]], label: str,
+                          prov: dict, fingerprint: str) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n%\n")
+        _provenance_header(w, prov)
         w("\\begin{table}[t]\n\\centering\n")
         w(f"\\caption{{Confusion matrix for {tex_escape(label)} on the reporting "
           "set. ROUTINE is separated perfectly; the residual error is entirely on "
           "the CRITICAL/URGENT boundary, and this was true of every configuration "
-          "trained.}}\n")
+          "trained.}\n")
         w("\\label{tab:confusion}\n")
         w("\\begin{tabular}{lrrr}\n\\toprule\n")
         w("Truth $\\downarrow$ / Pred $\\rightarrow$ & CRITICAL & URGENT & "
           "ROUTINE \\\\\n\\midrule\n")
         for name, row in zip(CLASS_ORDER, matrix):
             w(f"{name} & " + " & ".join(f"{v:,}" for v in row) + " \\\\\n")
-        w("\\bottomrule\n\\end{tabular}\n\\end{table}\n")
+        w("\\bottomrule\n\\end{tabular}\n")
+        w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
+        w("\\end{table}\n")
 
 
-def write_gate_derivation(path: Path, support: dict[str, float]) -> None:
+def write_gate_derivation(path: Path, support: dict[str, float],
+                          prov: dict) -> None:
     """The gate's three conditions and, for each, where the number came from."""
     ceiling = degenerate_precision_ceiling(support)
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n%\n")
+        _provenance_header(w, prov)
         w("\\subsection{The acceptance gate, and where each threshold comes "
           "from}\n\\label{sec:gate}\n\n")
         w("A model is accepted only if all three conditions hold. They are not "
@@ -340,19 +389,20 @@ def write_gate_derivation(path: Path, support: dict[str, float]) -> None:
           "set being scored rather than hardcoding a value, because it moves with "
           "the set's composition. "
           f"\\textbf{{The margin above that floor ({CRITICAL_PRECISION_MARGIN:.2f}) "
-          "is not derived.}} How far above provably-degenerate a deployable model "
+          "is not derived.} How far above provably-degenerate a deployable model "
           "must sit is a question about tolerable over-triage in a clinic, it is a "
           "clinical judgement that has not yet been made, and we report it as a "
           "placeholder rather than as a standard.\n\n")
 
 
-def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict) -> None:
+def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict,
+                             prov: dict) -> None:
     ceiling = degenerate_precision_ceiling(
         {k: v2c["per_class"][k]["support"] for k in CLASS_ORDER})
     prec = v2c["per_class"]["CRITICAL"]["precision"]
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n%\n")
+        _provenance_header(w, prov)
         w("\\subsection{A single-metric safety gate certified a model that had "
           "abandoned an urgency class}\n\\label{sec:gate-failure}\n\n")
         w("Our acceptance gate was initially a single condition, CRITICAL recall "
@@ -372,7 +422,7 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict) -> None:
           "the merge strategy; it was the merge strategy.\n\n")
         w("Two further observations. First, the gate certified this model while "
           "rejecting a better one: a configuration with macro F1 "
-          f"{v2d['metrics']['macro_f1']:.4f} and all three classes alive failed the "
+          f"{v2d['macro_f1']:.4f} and all three classes alive failed the "
           "same gate on recall alone. Second, our own automated degeneracy check, "
           "written for exactly this failure, used the test "
           "$\\mathrm{recall} \\geq 0.9 \\wedge \\mathrm{precision} < 0.5$ "
@@ -383,10 +433,10 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict) -> None:
 
 
 def write_limitations(path: Path, counts: dict[str, int], rows: int,
-                      phrases: int, groups: int) -> None:
+                      phrases: int, groups: int, prov: dict) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n%\n")
+        _provenance_header(w, prov)
         w("\\subsection{Limitations}\n\\label{sec:limitations}\n\n")
         w("\\paragraph{The reporting set is nine sentences, not eighteen thousand "
           "rows.} The held-out evaluation reports "
@@ -419,54 +469,177 @@ def write_limitations(path: Path, counts: dict[str, int], rows: int,
           "tuning result.\n\n")
 
 
-def writeup(args) -> int:
-    """Emit every paper fragment from saved run records. No inference."""
-    runs = _load_runs(args.writeup)
-    if not args.trainable or len(args.trainable) != len(runs):
-        raise SystemExit("--trainable needs one count per --writeup run")
-    trainable = {run["_label"]: n for run, n in zip(runs, args.trainable)}
-    reported = runs[-1]
-    degenerate = min(runs, key=lambda r: r["metrics"]["macro_f1"])
+def model_fingerprint(model_dir: Path, manifest: dict) -> str:
+    """Identity of (these weights, this eval data, this code).
 
-    support = {k: reported["per_class"][k]["support"] for k in CLASS_ORDER}
-    rows = int(sum(support.values()))
-    # Distinct-sentence counts are a property of the frozen split, recomputed
-    # here rather than quoted, so the limitation cannot drift from the data.
+    Printed on every emitted table. A table whose fingerprint does not match
+    the model and manifest it claims to describe is a table someone edited or
+    regenerated against different inputs, and that is the failure this whole
+    emitter exists to make impossible.
+    """
+    digest = hashlib.sha256()
+    weights = model_dir / "model.safetensors"
+    if weights.exists():
+        with weights.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1 << 20), b""):
+                digest.update(chunk)
+    digest.update(manifest["files"]["train"]["sha256"].encode())
+    digest.update(manifest["files"]["eval"]["sha256"].encode())
+    digest.update(git_commit().encode())
+    return digest.hexdigest()[:16]
+
+
+def _provenance_header(w, prov: dict) -> None:
+    w("% GENERATED FILE - DO NOT EDIT BY HAND.\n")
+    w("% Written by training/evaluate.py --writeup in ONE evaluation pass.\n")
+    w("% Editing this file to change a reported number is fabrication;\n")
+    w("% re-run the emitter instead.\n%\n")
+    for key, val in prov.items():
+        w(f"% {key}: {val}\n")
+    w("%\n")
+
+
+def evaluate_model(model_dir: Path, frame, args, device) -> dict:
+    """One real inference pass. Returns the computed report and matrix."""
+    from sklearn.metrics import classification_report, confusion_matrix
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+    tok_dir = model_dir / "tokenizer"
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(tok_dir if tok_dir.exists() else model_dir))
+    model = AutoModelForSequenceClassification.from_pretrained(str(model_dir)).to(device)
+    model.eval()
+    print(f"  {model_dir.name}: {len(frame):,} rows", flush=True)
+    predictions = predict(model, tokenizer, frame["text"].tolist(), device,
+                          args.batch_size, args.max_length)
+    truths = frame["label_id"].tolist()
+    names = [ID_TO_LABEL[i] for i in range(NUM_LABELS)]
+    report = classification_report(truths, predictions, output_dict=True,
+                                   zero_division=0, labels=list(range(NUM_LABELS)),
+                                   target_names=names)
+    matrix = confusion_matrix(truths, predictions,
+                              labels=list(range(NUM_LABELS))).tolist()
+    return {"per_class": {n: report[n] for n in CLASS_ORDER},
+            "macro_f1": report["macro avg"]["f1-score"],
+            "accuracy": report["accuracy"],
+            "confusion": matrix,
+            "_label": model_dir.name}
+
+
+def verify_against(computed: dict, record_path: Path) -> list[str]:
+    """Every computed figure must equal the training run's own report.
+
+    A mismatch is not a rounding detail. It means the emitter and the training
+    run disagree about what the saved weights do, and until that is explained
+    NOTHING here may go into a paper.
+    """
+    saved = json.loads(record_path.read_text())
+    problems = []
+    for name in CLASS_ORDER:
+        for field in ("precision", "recall", "f1-score"):
+            a = round(computed["per_class"][name][field], 4)
+            b = round(saved["per_class"][name][field], 4)
+            if a != b:
+                problems.append(f"{name}.{field}: emitter {a} vs run record {b}")
+    a = round(computed["macro_f1"], 4)
+    b = round(saved["metrics"]["macro_f1"], 4)
+    if a != b:
+        problems.append(f"macro_f1: emitter {a} vs run record {b}")
+    return problems
+
+
+def writeup(args) -> int:
+    """Emit every paper table from ONE evaluation pass over the real weights.
+
+    Earlier this read three saved JSON run records. That made the tables a
+    transcription of numbers computed elsewhere at three different times, which
+    is decorative rather than verifiable. Now the script loads each model, runs
+    inference against the frozen manifest, and computes everything it prints.
+    """
     import pandas as pd
-    manifest = json.loads(args.manifest.read_text())
+    import torch
+
+    manifest = load_manifest(args.manifest)
     frame = pd.read_csv(manifest["files"]["eval"]["path"])
+    frame["label_id"] = frame["label"].map(LABEL_MAP)
+
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from training.train_holdout import split_eval_by_group
-    _, report_frame, split = split_eval_by_group(frame, 3, manifest["split_seed"])
-    counts = {name: int(report_frame.loc[report_frame["label"] == name,
-                                         "phrase"].nunique())
-              for name in CLASS_ORDER}
+    _, report_frame, split = split_eval_by_group(frame, args.stop_groups,
+                                                 manifest["split_seed"])
+    counts = {n: int(report_frame.loc[report_frame["label"] == n, "phrase"].nunique())
+              for n in CLASS_ORDER}
+    rows = len(report_frame)
+    phrases = int(report_frame["phrase"].nunique())
+    groups = len(split["reporting_groups"])
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Manifest   : {args.manifest} (digests verified)")
+    print(f"Reporting  : {rows:,} rows, {phrases} phrases, {groups} groups")
+    print(f"Evaluating {len(args.writeup)} model(s) on {device}, "
+          f"max_length {args.max_length}:")
+    results = [evaluate_model(d, report_frame, args, device) for d in args.writeup]
+
+    reported = results[-1]
+    reported_dir = args.writeup[-1]
+    degenerate = min(results, key=lambda r: r["macro_f1"])
+
+    if args.verify_against:
+        problems = verify_against(reported, args.verify_against)
+        if problems:
+            print("\nREPRODUCTION FAILED — the emitter disagrees with the training "
+                  "run about these weights:", file=sys.stderr)
+            for problem in problems:
+                print(f"  {problem}", file=sys.stderr)
+            raise SystemExit(
+                "Refusing to write paper tables. Explain the disagreement first."
+            )
+        print(f"\nReproduced {args.verify_against.name} exactly "
+              "(all per-class precision/recall/F1 and macro F1)")
+
+    fingerprint = model_fingerprint(reported_dir, manifest)
+    prov = {
+        "reported_model": reported_dir.name,
+        "run_fingerprint": fingerprint,
+        "manifest": str(args.manifest),
+        "strategy": manifest["strategy"],
+        "split_seed": str(manifest["split_seed"]),
+        "reporting_rows": f"{rows}",
+        "reporting_phrases": f"{phrases}",
+        "reporting_groups": f"{groups}",
+        "max_length": str(args.max_length),
+        "git_commit": git_commit(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    support = {n: reported["per_class"][n]["support"] for n in CLASS_ORDER}
+    trainable = dict(zip([r["_label"] for r in results], args.trainable or []))
 
     args.tex_out.mkdir(parents=True, exist_ok=True)
-    write_sweep_table(args.tex_out / "sweep_table.tex", runs, trainable)
-    write_gate_derivation(args.tex_out / "gate_derivation.tex", support)
+    write_result_table(args.tex_out / "results_table.tex", reported, rows,
+                       phrases, groups, counts, prov, fingerprint)
+    write_confusion_table(args.tex_out / "confusion_table.tex",
+                          reported["confusion"], reported["_label"], prov, fingerprint)
+    write_sweep_table(args.tex_out / "sweep_table.tex", results, trainable,
+                      prov, fingerprint)
+    write_gate_derivation(args.tex_out / "gate_derivation.tex", support, prov)
     write_degeneracy_finding(args.tex_out / "finding_gate_degeneracy.tex",
-                             degenerate, reported)
+                             degenerate, reported, prov)
     write_limitations(args.tex_out / "limitations.tex", counts, rows,
-                      int(report_frame["phrase"].nunique()),
-                      len(split["reporting_groups"]))
-    if args.confusion:
-        write_confusion_table(args.tex_out / "confusion_table.tex",
-                              json.loads(args.confusion.read_text()),
-                              reported["_label"])
+                      phrases, groups, prov)
 
-    passed, lines = triage_gate(reported["per_class"], reported["metrics"]["macro_f1"])
+    passed, lines = triage_gate(reported["per_class"], reported["macro_f1"])
     values = {
-        "ResultMacroFOne": f"{reported['metrics']['macro_f1']:.4f}",
+        "ResultMacroFOne": f"{reported['macro_f1']:.4f}",
         "ResultCriticalRecall": f"{reported['per_class']['CRITICAL']['recall']:.4f}",
-        "ResultCriticalPrecision": f"{reported['per_class']['CRITICAL']['precision']:.4f}",
+        "ResultCriticalPrecision":
+            f"{reported['per_class']['CRITICAL']['precision']:.4f}",
         "ResultUrgentRecall": f"{reported['per_class']['URGENT']['recall']:.4f}",
         "ResultEvalRows": f"{rows:,}",
-        "ResultEvalPhrases": str(int(report_frame["phrase"].nunique())),
-        "ResultEvalGroups": str(len(split["reporting_groups"])),
+        "ResultEvalPhrases": str(phrases),
+        "ResultEvalGroups": str(groups),
         "ResultCriticalSentences": str(counts["CRITICAL"]),
-        "ResultSelectedStep": str(reported["selected_step"]),
         "ResultGatePassed": "true" if passed else "false",
+        "ResultFingerprint": fingerprint,
         "DegenerateCeiling": f"{degenerate_precision_ceiling(support):.4f}",
         "DegenerateRunPrecision":
             f"{degenerate['per_class']['CRITICAL']['precision']:.4f}",
@@ -475,21 +648,18 @@ def writeup(args) -> int:
         "DegenerateRunUrgentRecall":
             f"{degenerate['per_class']['URGENT']['recall']:.4f}",
     }
-    write_macros(args.tex_out / "results_macros.tex", values, {
-        "generated_by": "training/evaluate.py --writeup",
-        "reported_run": reported["_label"],
-        "manifest": str(args.manifest),
-        "strategy": manifest["strategy"],
-        "split_seed": str(manifest["split_seed"]),
-        "git_commit": git_commit(),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-    })
-    print(f"Wrote paper fragments to {args.tex_out}/")
-    for name in ("sweep_table", "gate_derivation", "finding_gate_degeneracy",
-                 "limitations", "results_macros",
-                 *(["confusion_table"] if args.confusion else [])):
-        print(f"  {name}.tex")
-    print("\nGate on the reported run:")
+    if args.verify_against:
+        # NOT computed by this pass. The selected step belongs to the training
+        # run; it is carried across only because --verify-against has just
+        # proved that record describes these exact weights.
+        saved = json.loads(args.verify_against.read_text())
+        values["ResultSelectedStep"] = str(saved["selected_step"])
+        prov["selected_step_source"] = (
+            f"{args.verify_against.name} (verified to match this pass)")
+    write_macros(args.tex_out / "results_macros.tex", values, prov)
+
+    print(f"\nWrote 7 files to {args.tex_out}/ , fingerprint {fingerprint}")
+    print("Gate on the reported model:")
     for line in lines:
         print(f"  {line}")
     return 0
@@ -502,18 +672,24 @@ def main() -> int:
     parser.add_argument("--model", type=Path, default=Path("saved_model_holdout"))
     parser.add_argument("--tex-out", type=Path, default=Path("paper/generated"))
     parser.add_argument(
-        "--writeup", nargs="+", type=Path, metavar="RUN_JSON",
-        help="Emit the paper fragments from saved run records instead of running "
-             "inference. Pass the run reports in sweep order; the LAST one is "
-             "taken as the reported result.",
+        "--writeup", nargs="+", type=Path, metavar="MODEL_DIR",
+        help="Emit every paper table from ONE evaluation pass. Pass the model "
+             "directories in sweep order; the LAST is the reported result. "
+             "Numbers are computed here, never read from a saved report.",
+    )
+    parser.add_argument(
+        "--verify-against", type=Path, metavar="RUN_JSON",
+        help="A training run's own report for the LAST model. Every computed "
+             "figure must match it or nothing is written.",
+    )
+    parser.add_argument(
+        "--stop-groups", type=int, default=3,
+        help="Phrase groups held out as the stopping set, so the reporting set "
+             "here is the same one training reported on.",
     )
     parser.add_argument(
         "--trainable", nargs="+", type=int,
         help="Trainable parameter count per --writeup run, in the same order.",
-    )
-    parser.add_argument(
-        "--confusion", type=Path,
-        help="JSON file holding the reported run's confusion matrix as a 3x3 list.",
     )
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--max-length", type=int, default=64)

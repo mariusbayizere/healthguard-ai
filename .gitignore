@@ -74,3 +74,20 @@ kinyamed/ml_model/dataset/sample/*.stats.json
 # Private working notes — never publish under the repo owner's name.
 kinyamed/ml_model/paper/CORRECTIONS.md
 **/CORRECTIONS.md
+
+# LaTeX build products. The PDF is built next to its source (paper/main.pdf)
+# so it survives a reboot, but it is a derived artifact: it is reproduced by
+#   python training/evaluate.py --writeup ...   (regenerates the tables)
+#   cd paper && tectonic -X compile main.tex --outdir .
+# Committing it would put a binary in the history that nothing can diff and
+# that would silently go stale against the tables it was built from.
+# Anchored patterns in a root .gitignore match from the repo root, so a
+# bare paper/main.pdf missed kinyamed/ml_model/paper/main.pdf entirely.
+**/paper/main.pdf
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz

@@ -1,4 +1,19 @@
 % GENERATED FILE - DO NOT EDIT BY HAND.
+% Written by training/evaluate.py --writeup in ONE evaluation pass.
+% Editing this file to change a reported number is fabrication;
+% re-run the emitter instead.
+%
+% reported_model: model_v2d_freeze8_lr1e-5
+% run_fingerprint: 3fdcb8c5d5f8f137
+% manifest: dataset/processed/eval_manifest_phrase_v2.json
+% strategy: phrase
+% split_seed: 42
+% reporting_rows: 17942
+% reporting_phrases: 9
+% reporting_groups: 5
+% max_length: 96
+% git_commit: ed02093
+% generated_at: 2026-09-08T04:59:19.668469+00:00
 %
 \subsection{The acceptance gate, and where each threshold comes from}
 \label{sec:gate}
@@ -11,5 +26,5 @@ A model is accepted only if all three conditions hold. They are not traded off a
 
 \paragraph{G3: CRITICAL precision $\geq$ the degenerate ceiling plus a margin.} \emph{Floor derived and measured per evaluation set; margin not derived.} A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
 \[ \frac{\mathrm{support(CRITICAL)}}{\mathrm{support(CRITICAL)} + \mathrm{support(URGENT)}} = 0.5349 \]
-on this reporting set. That is what the degenerate strategy is paid for free, so any informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. \textbf{The margin above that floor (0.10) is not derived.}} How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
+on this reporting set. That is what the degenerate strategy is paid for free, so any informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. \textbf{The margin above that floor (0.10) is not derived.} How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
 

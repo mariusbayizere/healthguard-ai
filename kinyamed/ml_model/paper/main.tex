@@ -1,0 +1,112 @@
+% BUILD DRIVER FOR THE RESULTS SECTION.
+%
+% The document is assembled by the same pipeline that computes the numbers.
+% That is the point: a manuscript written elsewhere and filled in by hand
+% breaks the provenance chain at the first copy-paste, and nothing downstream
+% can tell that it happened.
+%
+%   emitter        training/evaluate.py --writeup <model dirs> --verify-against <run json>
+%                    |  runs ONE inference pass over the frozen reporting set
+%                    v
+%   generated/     results_macros.tex  results_table.tex  sweep_table.tex
+%                  confusion_table.tex  gate_derivation.tex
+%                  finding_gate_degeneracy.tex  limitations.tex
+%                    |  every table stamped with the run fingerprint
+%                    v
+%   results.tex    prose, quoting ONLY macros, \input-ing the tables
+%                    |
+%                    v
+%   main.tex       this file
+%
+%   Build:  cd kinyamed/ml_model/paper && latexmk -pdf -halt-on-error main.tex
+%   Check:  python paper/check_tex.py paper/main.tex      (no engine required)
+%
+% The prose sections live in sections/ and are empty stubs. The results
+% section and the limitations statement are NOT stubs: they are assembled from
+% generated fragments and must not be rewritten by hand.
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}   % \toprule \midrule \bottomrule, used by every table
+\usepackage{amsmath}    % \[ \] and \frac, used by the gate derivation
+\usepackage{hyperref}
+
+% ---------------------------------------------------------------------------
+% FAIL LOUDLY ON A MISSING NUMBER.
+%
+% An undefined control sequence is already a LaTeX error, but it reports as
+% "Undefined control sequence \ResultMacroFOne" with no indication of where the
+% macro was supposed to come from. Someone seeing that at 2am will define it by
+% hand, and then the paper carries a number nothing computed.
+%
+% So every figure the prose depends on is asserted here by name, with an error
+% message that says which command regenerates it. A missing macro stops the
+% build with an instruction rather than a puzzle.
+% ---------------------------------------------------------------------------
+\makeatletter
+\newcommand{\RequireGenerated}[1]{%
+  \@ifundefined{#1}{%
+    \GenericError{}{%
+      PROVENANCE ERROR: macro #1 is not defined%
+    }{}{%
+      This macro must come from generated/results_macros.tex, which is written
+      by: python training/evaluate.py --writeup <model dirs> --verify-against
+      <run json>. Re-run the emitter. Do NOT define it by hand -- a number
+      typed here is a number nothing computed.%
+    }%
+  }{}%
+}
+\makeatother
+
+% The macros results.tex quotes. Keep this list in step with the prose; an
+% entry here that the emitter stops producing is caught at build time.
+\input{generated/results_macros}
+
+\RequireGenerated{ResultMacroFOne}
+\RequireGenerated{ResultCriticalRecall}
+\RequireGenerated{ResultCriticalPrecision}
+\RequireGenerated{ResultUrgentRecall}
+\RequireGenerated{ResultEvalRows}
+\RequireGenerated{ResultEvalPhrases}
+\RequireGenerated{ResultEvalGroups}
+\RequireGenerated{ResultCriticalSentences}
+\RequireGenerated{ResultSelectedStep}
+\RequireGenerated{ResultGatePassed}
+\RequireGenerated{ResultFingerprint}
+\RequireGenerated{DegenerateCeiling}
+\RequireGenerated{DegenerateRunPrecision}
+\RequireGenerated{DegenerateRunCriticalRecall}
+\RequireGenerated{DegenerateRunUrgentRecall}
+
+\title{Kinyarwanda triage classification: results}
+\author{}
+\date{Generated build --- run fingerprint \texttt{\ResultFingerprint}}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\small\raggedright
+\textbf{Generated document.} Every figure below is a macro or a table written
+by \texttt{training/evaluate.py -{}-writeup} from one inference pass over the
+frozen holdout, and each table carries the fingerprint of the weights, the
+evaluation data and the commit that produced it. No number in this document was
+typed by hand. If one disagrees with a run record, the run record is right.
+}}
+\end{center}
+
+\vspace{1em}
+
+\input{sections/introduction}
+\input{sections/method}
+
+\input{results}
+
+\input{sections/discussion}
+\input{sections/limitations}
+\input{sections/future_work}
+
+\end{document}

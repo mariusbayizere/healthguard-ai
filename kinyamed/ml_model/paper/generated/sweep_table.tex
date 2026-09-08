@@ -1,17 +1,33 @@
 % GENERATED FILE - DO NOT EDIT BY HAND.
-% Written by training/evaluate.py --writeup from saved run records.
+% Written by training/evaluate.py --writeup in ONE evaluation pass.
+% Editing this file to change a reported number is fabrication;
+% re-run the emitter instead.
+%
+% reported_model: model_v2d_freeze8_lr1e-5
+% run_fingerprint: 3fdcb8c5d5f8f137
+% manifest: dataset/processed/eval_manifest_phrase_v2.json
+% strategy: phrase
+% split_seed: 42
+% reporting_rows: 17942
+% reporting_phrases: 9
+% reporting_groups: 5
+% max_length: 96
+% git_commit: ed02093
+% generated_at: 2026-09-08T04:59:19.668469+00:00
 %
 \begin{table}[t]
 \centering
 \caption{Three configurations on the same frozen phrase holdout, same split seed, same reporting set. Trainable parameters exclude the frozen 250{,}002$\times$384 embedding table, which is 96{,}199{,}296 of the model's 117{,}641{,}859 parameters in every row.}
 \label{tab:sweep}
-\begin{tabular}{lrrrrrr}
+\small
+\begin{tabular}{lrrrrr}
 \toprule
-Run & Trainable & Sel.\ step & Macro F1 & CRIT P/R & URG P/R & Gate \\
+Run & Trainable & Macro F1 & CRIT P/R & URG P/R & Gate \\
 \midrule
-v2b\_freeze10\_lr1e-5 & 3,697,923 & 1200 & 0.7660 & 0.7951/0.9007 & 0.8636/0.6315 & FAIL \\
-v2c\_freeze6\_lr1.5e-5 & 10,795,779 & 450 & 0.5545 & 0.5337/0.9749 & 0.2321/0.0083 & FAIL \\
-v2d\_freeze8\_lr1e-5 & 7,246,851 & 900 & 0.7724 & 0.6633/0.8504 & 0.7426/0.4963 & FAIL \\
+v2b\_freeze10\_lr1e-5 & 3,697,923 & 0.7660 & 0.7951/0.9007 & 0.8636/0.6315 & FAIL \\
+v2c\_freeze6\_lr1.5e-5 & 10,795,779 & 0.5545 & 0.5337/0.9749 & 0.2321/0.0083 & FAIL \\
+v2d\_freeze8\_lr1e-5 & 7,246,851 & 0.7724 & 0.6633/0.8504 & 0.7426/0.4963 & FAIL \\
 \bottomrule
 \end{tabular}
+\\[2pt]{\scriptsize All rows evaluated in one pass; fingerprint of the reported model \texttt{3fdcb8c5d5f8f137}}
 \end{table}

@@ -1,0 +1,91 @@
+% Results section.
+%
+% EVERY NUMBER IN THIS FILE IS A MACRO OR A GENERATED TABLE. Nothing is typed
+% literally. The macros are defined in paper/generated/results_macros.tex and
+% the tables are emitted by:
+%
+%   python training/evaluate.py --manifest <manifest> \
+%       --writeup training/run_records/last_run_v2b_*.json \
+%                 training/run_records/last_run_v2c_*.json \
+%                 training/run_records/last_run_v2d_*.json \
+%       --trainable 3697923 10795779 7246851 \
+%       --confusion <matrix.json> --tex-out paper/generated
+%
+% If a figure here disagrees with a run record, the run record is right and
+% this file was edited by hand, which it must not be.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Reported model}
+
+We report the configuration that trains the top four encoder layers at a peak
+learning rate of $1\times10^{-5}$. Early stopping on a held-out stopping set
+ended the run before its step ceiling and selected step \ResultSelectedStep;
+the ceiling and the stopping step are recorded in
+\texttt{training/run\_records/}. Table~\ref{tab:results} gives its
+performance on the reporting set, which no stopping decision has observed.
+
+\input{generated/results_table}
+
+Macro F1 is \ResultMacroFOne. CRITICAL recall is \ResultCriticalRecall\ at a
+precision of \ResultCriticalPrecision; URGENT recall is \ResultUrgentRecall.
+The model does not meet our acceptance gate: it fails the CRITICAL recall
+condition while satisfying both non-degeneracy conditions
+(Section~\ref{sec:gate}).
+
+The support column should not be read as a sample size. The
+\ResultEvalRows\ reporting rows are frame permutations of
+\ResultEvalPhrases\ distinct phrases in \ResultEvalGroups\ phrase groups, and
+the rightmost column of Table~\ref{tab:results} gives the count that actually
+governs each recall figure. We return to this in
+Section~\ref{sec:limitations}, because it bounds what any of these numbers can
+mean.
+
+\subsection{Where the error is}
+
+\input{generated/confusion_table}
+
+Table~\ref{tab:confusion} locates the residual error precisely. ROUTINE is
+separated without error in both directions. Every misclassification the model
+makes lies on the CRITICAL/URGENT boundary, in both directions: CRITICAL
+presentations read as URGENT, and URGENT presentations read as CRITICAL. This
+was true of every configuration we trained, not only the reported one.
+
+\subsection{Configuration search}
+
+\input{generated/sweep_table}
+
+Table~\ref{tab:sweep} reports three configurations evaluated on the same
+frozen holdout, the same split seed and the same reporting set, differing only
+in how much of the encoder was left trainable and in the peak learning rate.
+The table's caption gives the frozen embedding count, which is identical in
+every row, so the trainable column is the quantity that varies.
+
+Two observations, and we draw a different conclusion from each.
+
+The first is that trainable capacity governs \emph{when} the loss curve turns.
+Holding the learning rate fixed, the middle configuration's loss inflected
+several hundred steps earlier than the smallest one's, and the largest
+configuration's earlier still. The per-evaluation stopping-loss curves that
+show this are committed in \texttt{training/run\_records/}; we do not quote
+inflection steps here because we have no principled estimator for them, only
+a reading of the curves. The effect is what makes the smallest configuration
+expensive rather than wrong.
+
+The second is that capacity does not change \emph{what} the model gets wrong.
+Across a threefold range of trainable parameters and a $1.5\times$ range of
+learning rate, every configuration separated ROUTINE perfectly and none
+resolved the CRITICAL/URGENT boundary. We therefore stopped searching, and we
+report the search as inconclusive on that boundary rather than presenting the
+best row as a tuning result. Section~\ref{sec:limitations} gives the
+measurement-granularity argument for why continuing would not have been
+informative.
+
+\subsection{A single-metric gate certified a model that had abandoned a class}
+
+\input{generated/finding_gate_degeneracy}
+
+\subsection{The acceptance gate}
+
+\input{generated/gate_derivation}
