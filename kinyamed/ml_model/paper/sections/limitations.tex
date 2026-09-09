@@ -92,6 +92,44 @@ No text from either attestation corpus appears in the generated dataset. Their
 role is to tell the speaker that a word is in real use, which is grounds to
 consider it and never grounds to write a phrase they have not authored.
 
+\paragraph{No baseline comparison exists.} We did not train a comparison
+model. The obvious baselines --- multilingual BERT, AfriBERTa --- were scoped
+and not run, so we report no comparison table and make no claim about how this
+model performs relative to alternatives. What we report is one model family
+across three configurations. A reader wanting to know whether a different
+pretrained encoder would do better on this corpus should read that question as
+open, not as answered in our favour.
+
+\paragraph{Six claims require studies that have not run.} The following are
+recorded as \PENDING{} throughout, and no value for any of them exists anywhere
+in our records:
+
+\begin{center}\small
+\begin{tabular}{lp{0.52\textwidth}}
+\toprule
+Claim & Status \\
+\midrule
+Inter-rater agreement ($\kappa$) & \PENDING{no second annotator} \\
+Taxonomy approved by a clinician & \PENDING{no clinician has reviewed it} \\
+Native-speaker authenticity ratings & \PENDING{no rating session has run} \\
+Human-nurse baseline & \PENDING{no nurse study has run} \\
+Community health worker consultation & \PENDING{did not occur} \\
+Deployment & \PENDING{not deployed} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The protocol for each is written and ready to execute; what is missing is a
+person, not an instrument. We state them as pending rather than omitting them
+because a claim quietly dropped from a paper is indistinguishable, to a reader,
+from one that was never made.
+
+\paragraph{Patient-facing text exists in two of four languages.} The sentence a
+patient reads --- and the SMS they receive --- is speaker-authored or absent,
+and it is authored for Kinyarwanda and Swahili only. English and French return
+an explicit pending state. The system runs; it declines to say anything to a
+patient in a language no speaker has written for.
+
 \paragraph{The configuration search is inconclusive rather than complete.}
 Three configurations were trained and the search was stopped by judgement, not
 by convergence. We did not tune to the gate, and we did not run the

@@ -85,6 +85,13 @@
 \RequireGenerated{DegenerateRunCriticalRecall}
 \RequireGenerated{DegenerateRunUrgentRecall}
 
+% Charter §1: the six claims that need people are marked \PENDING{} so a
+% compile shows them as unfilled rather than silently omitting them. Rendered
+% visibly on purpose -- a placeholder nobody can see is the same as a missing
+% claim, and this project has already been bitten by a generated file that
+% quietly outlived its truth.
+\newcommand{\PENDING}[1]{\textbf{[PENDING: #1]}}
+
 \title{Kinyarwanda triage classification: results}
 \author{}
 \date{Generated build --- run fingerprint \texttt{\ResultFingerprint}}
