@@ -9,6 +9,68 @@ repository; the other is planned and not yet started.
   for Kinyarwanda-speaking populations. The dataset pipeline is complete and
   verifiable; a FastAPI backend is in development.
 
+## What is built, what is measured, what is pending
+
+This section is the honest summary. `kinyamed/ml_model/docs/STATUS.md` is the
+same thing per item; this is the short version.
+
+### Built and working
+
+- **Kinyarwanda corpus.** 330,000 rows generated from 165 distinct phrases
+  across 96 clinical concepts, anchored to WHO guidance where guidance exists.
+  Reproducible from seed 42; `make verify-full` re-derives every committed
+  digest.
+- **Trained classifier.** Three-level urgency from patient-voice Kinyarwanda.
+- **API.** Triage endpoint, urgency-ordered queue, doctor assignment, SMS
+  behind a feature flag in dry-run.
+- **Frontend.** Triage intake, live queue, doctor dashboard, wired to the real
+  endpoints. Static files, no build step.
+- **Paper.** 19 pages, every number emitted from one verified inference pass.
+
+### Measured
+
+| | |
+|---|---|
+| Macro F1 | 0.7724 |
+| CRITICAL recall | 0.8504 |
+| Inference latency | warm p95 103 ms, cold 1341 ms |
+| Corpus provenance | 82 of 165 phrases (49.7%) directly speaker-authored |
+
+### Pending, and honest about it
+
+**The model does not meet its own acceptance gate.** CRITICAL recall is 0.8504
+against a threshold of 0.95. It is not deployed and is not cleared for use with
+any patient.
+
+**The evaluation base is nine distinct sentences**, four of them CRITICAL. Every
+performance figure above is bounded by that, and no amount of training changes
+it — only more authored phrases do.
+
+**Three of four languages have no corpus.** English and French exist as
+machine-drafted briefs no speaker has reviewed; Swahili has authored relation
+terms and response templates but no authored phrases. Frame fragments exist for
+Kinyarwanda only, so no other language can generate a row.
+
+**Code-switching generates nothing.** Six language pairs are designed; zero
+produce a row, because the noun-class data needed to insert a word correctly
+has been ruled for one matrix language and is incomplete even there.
+
+**Six claims require studies that have not run** — inter-rater agreement,
+clinician approval of the taxonomy, native-speaker authenticity ratings, a
+human-nurse baseline, community health worker consultation, and deployment. No
+value exists for any of them anywhere in this repository. The protocol for each
+is written and ready to execute under `kinyamed/ml_model/docs/protocols/`.
+
+**No baseline comparison exists.** mBERT and AfriBERTa were scoped and not
+trained.
+
+### The rule this project runs on
+
+Patient-facing text is speaker-authored or absent. The endpoint returns an
+explicit pending state rather than a machine-drafted sentence, and the SMS
+service sends nothing at all in a language no speaker has written for. A stated
+gap is a finding; a filled gap nobody measured is a fabrication.
+
 **Status:** 🚧 under active development. No model has been trained on the
 leakage-controlled splits yet, so this repository currently contains
 **no accuracy claims** — and nothing here has been validated by a clinician.

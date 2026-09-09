@@ -1,0 +1,112 @@
+<!doctype html>
+<meta charset="utf-8"><title>KinyaMed — doctor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<header>
+  <h1>KinyaMed</h1>
+  <nav>
+    <a href="index.html">Triage</a>
+    <a href="queue.html">Queue</a>
+    <a href="dashboard.html" aria-current="page">Doctor</a>
+  </nav>
+</header>
+<main>
+  <div id="flash" class="flash" hidden></div>
+  <section id="login-panel" class="card" hidden>
+    <h2>Sign in</h2>
+    <form onsubmit="doLogin(event)">
+      <label>Username <input name="username" required></label>
+      <label>Password <input name="password" type="password" required></label>
+      <p><button type="submit">Sign in</button></p>
+    </form>
+  </section>
+
+  <div id="main-panel" hidden>
+    <section class="card">
+      <h2>Next to be seen</h2>
+      <p class="muted" id="next-summary">Loading…</p>
+      <table>
+        <thead><tr>
+          <th>#</th><th>Urgency</th><th>Patient</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="caveat">Assignment and status changes are recorded against the
+        queue entry. The urgency shown is the model's, and the model does not
+        currently meet its own acceptance gate — treat it as a suggested order,
+        not a clinical decision.</p>
+    </section>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+let doctors = [];
+
+async function setStatus(id, status) {
+  try {
+    await api(`/queue/${id}/status`, {
+      method: "PATCH", body: JSON.stringify({ status }),
+    });
+    flash(`Marked ${status.toLowerCase()}.`, "ok");
+    load();
+  } catch (err) { flash(err.message); }
+}
+
+async function assign(id, doctorId) {
+  if (!doctorId) return;
+  try {
+    await api(`/queue/${id}/assign-doctor`, {
+      method: "PATCH", body: JSON.stringify({ doctor_id: Number(doctorId) }),
+    });
+    flash("Doctor assigned.", "ok");
+    load();
+  } catch (err) { flash(err.message); }
+}
+
+async function load() {
+  try {
+    if (!doctors.length) {
+      const d = await api("/doctors/on-duty").catch(() => []);
+      doctors = Array.isArray(d) ? d : (d.items || []);
+    }
+    const data = await api("/queue");
+    const rows = (Array.isArray(data) ? data : (data.items || []))
+      .sort((a, b) =>
+        (URGENCY_ORDER[a.urgency_level] ?? 9) - (URGENCY_ORDER[b.urgency_level] ?? 9) ||
+        (a.queue_number - b.queue_number));
+    const tbody = document.getElementById("rows");
+    tbody.replaceChildren();
+    for (const q of rows) {
+      const tr = document.createElement("tr");
+      const num = document.createElement("td"); num.textContent = q.queue_number;
+      const urg = document.createElement("td"); urg.appendChild(urgencyBadge(q.urgency_level));
+      const who = document.createElement("td"); who.textContent = q.patient_name || `#${q.patient_id ?? "?"}`;
+      const st  = document.createElement("td"); st.textContent = q.status || "—";
+
+      const act = document.createElement("td");
+      const sel = document.createElement("select");
+      sel.style.width = "auto";
+      sel.appendChild(new Option("assign…", ""));
+      for (const d of doctors) sel.appendChild(new Option(d.name, d.id));
+      sel.addEventListener("change", () => assign(q.id, sel.value));
+      const seen = document.createElement("button");
+      seen.className = "secondary"; seen.textContent = "In progress";
+      seen.onclick = () => setStatus(q.id, "IN_PROGRESS");
+      const done = document.createElement("button");
+      done.textContent = "Complete";
+      done.onclick = () => setStatus(q.id, "COMPLETED");
+      const wrap = document.createElement("div");
+      wrap.className = "row"; wrap.append(sel, seen, done);
+      act.appendChild(wrap);
+
+      tr.append(num, urg, who, st, act);
+      tbody.appendChild(tr);
+    }
+    document.getElementById("next-summary").textContent =
+      rows.length ? `${rows.length} waiting. ${doctors.length} doctor(s) on duty.`
+                  : "Nobody waiting.";
+  } catch (err) { flash(err.message); }
+}
+
+if (requireAuth()) load();
+</script>

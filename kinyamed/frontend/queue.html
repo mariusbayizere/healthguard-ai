@@ -1,0 +1,87 @@
+<!doctype html>
+<meta charset="utf-8"><title>KinyaMed — queue</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="style.css">
+<header>
+  <h1>KinyaMed</h1>
+  <nav>
+    <a href="index.html">Triage</a>
+    <a href="queue.html" aria-current="page">Queue</a>
+    <a href="dashboard.html">Doctor</a>
+  </nav>
+</header>
+<main>
+  <div id="flash" class="flash" hidden></div>
+  <section id="login-panel" class="card" hidden>
+    <h2>Sign in</h2>
+    <form onsubmit="doLogin(event)">
+      <label>Username <input name="username" required></label>
+      <label>Password <input name="password" type="password" required></label>
+      <p><button type="submit">Sign in</button></p>
+    </form>
+  </section>
+
+  <div id="main-panel" hidden>
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Live queue</h2>
+        <div class="row">
+          <label style="margin:0"><input type="checkbox" id="auto" checked
+            style="width:auto"> auto-refresh</label>
+          <button class="secondary" onclick="load()">Refresh</button>
+        </div>
+      </div>
+      <p class="muted" id="summary">Loading…</p>
+      <table>
+        <thead><tr>
+          <th>#</th><th>Urgency</th><th>Patient</th><th>Status</th>
+          <th>Waiting</th><th>Doctor</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="caveat">Ordered by clinical priority, then by arrival. The
+        estimate is derived from queue depth and a capacity constant; it is not
+        a commitment and is not sent to the patient.</p>
+    </section>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+let timer = null;
+
+async function load() {
+  try {
+    const data = await api("/queue");
+    const rows = Array.isArray(data) ? data : (data.items || []);
+    rows.sort((a, b) =>
+      (URGENCY_ORDER[a.urgency_level] ?? 9) - (URGENCY_ORDER[b.urgency_level] ?? 9) ||
+      (a.queue_number - b.queue_number));
+    const tbody = document.getElementById("rows");
+    tbody.replaceChildren();
+    for (const q of rows) {
+      const tr = document.createElement("tr");
+      const num = document.createElement("td"); num.textContent = q.queue_number;
+      const urg = document.createElement("td"); urg.appendChild(urgencyBadge(q.urgency_level));
+      const who = document.createElement("td"); who.textContent = q.patient_name || `#${q.patient_id ?? "?"}`;
+      const st  = document.createElement("td"); st.textContent = q.status || "—";
+      const wt  = document.createElement("td"); wt.textContent = fmtWait(q.estimated_wait);
+      const dr  = document.createElement("td"); dr.textContent = q.doctor_name || "unassigned";
+      tr.append(num, urg, who, st, wt, dr);
+      tbody.appendChild(tr);
+    }
+    const counts = rows.reduce((a, q) => (a[q.urgency_level] = (a[q.urgency_level] || 0) + 1, a), {});
+    document.getElementById("summary").textContent =
+      rows.length
+        ? `${rows.length} waiting — ${counts.CRITICAL || 0} critical, ` +
+          `${counts.URGENT || 0} urgent, ${counts.ROUTINE || 0} routine.`
+        : "Queue is empty.";
+  } catch (err) { flash(err.message); }
+}
+
+document.getElementById("auto").addEventListener("change", (e) => {
+  clearInterval(timer);
+  if (e.target.checked) timer = setInterval(load, 10000);
+});
+
+if (requireAuth()) { load(); timer = setInterval(load, 10000); }
+</script>
