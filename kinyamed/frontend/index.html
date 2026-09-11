@@ -1,111 +1,13 @@
 <!doctype html>
-<meta charset="utf-8"><title>KinyaMed — triage intake</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="style.css">
-<header>
-  <h1>KinyaMed</h1>
-  <nav>
-    <a href="index.html" aria-current="page">Triage</a>
-    <a href="queue.html">Queue</a>
-    <a href="dashboard.html">Doctor</a>
-  </nav>
-</header>
-<main>
-  <div id="flash" class="flash" hidden></div>
-
-  <section id="login-panel" class="card" hidden>
-    <h2>Sign in</h2>
-    <form onsubmit="doLogin(event)">
-      <label>Username <input name="username" autocomplete="username" required></label>
-      <label>Password <input name="password" type="password"
-             autocomplete="current-password" required></label>
-      <p><button type="submit">Sign in</button></p>
-    </form>
-  </section>
-
-  <div id="main-panel" hidden>
-    <section class="card">
-      <h2>New triage</h2>
-      <form id="triage-form">
-        <label>Patient
-          <select name="patient_id" id="patient-select" required></select>
-        </label>
-        <label>What the patient says
-          <textarea name="symptoms_input" required
-            placeholder="Enter the description in the patient's own words."></textarea>
-        </label>
-        <p class="muted">Record what the patient said, not a summary of it. The
-          classifier was trained on patient-voice descriptions.</p>
-        <p><button type="submit" id="submit-btn">Assess and queue</button></p>
-      </form>
-    </section>
-
-    <section class="card" id="result-card" hidden>
-      <h2>Result</h2>
-      <div class="row">
-        <div><span class="muted">Urgency</span><br><span id="r-urgency"></span></div>
-        <div><span class="muted">Queue number</span><br><strong id="r-queue"></strong></div>
-        <div><span class="muted">Position</span><br><strong id="r-pos"></strong></div>
-        <div><span class="muted">Estimated wait</span><br><strong id="r-wait"></strong></div>
-        <div><span class="muted">Language detected</span><br><strong id="r-lang"></strong></div>
-      </div>
-      <h3>Message for the patient</h3>
-      <div id="r-response"></div>
-      <p class="caveat" id="r-caveat"></p>
-    </section>
-  </div>
-</main>
-<script src="app.js"></script>
-<script>
-async function loadPatients() {
-  const sel = document.getElementById("patient-select");
-  try {
-    const list = await api("/patients?limit=200");
-    const rows = Array.isArray(list) ? list : (list.items || []);
-    sel.innerHTML = "";
-    if (!rows.length) {
-      sel.innerHTML = '<option value="">No patients registered</option>';
-      return;
-    }
-    for (const p of rows) {
-      const o = document.createElement("option");
-      o.value = p.id; o.textContent = `${p.name} (${p.phone || "no phone"})`;
-      sel.appendChild(o);
-    }
-  } catch (err) { flash(err.message); }
-}
-
-document.getElementById("triage-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById("submit-btn");
-  btn.disabled = true; btn.textContent = "Assessing…";
-  try {
-    const r = await api("/triage", {
-      method: "POST",
-      body: JSON.stringify({
-        patient_id: Number(e.target.patient_id.value),
-        symptoms_input: e.target.symptoms_input.value,
-      }),
-    });
-    document.getElementById("r-urgency").replaceChildren(urgencyBadge(r.urgency_level));
-    document.getElementById("r-queue").textContent = r.queue_number;
-    document.getElementById("r-pos").textContent = r.queue_position;
-    document.getElementById("r-wait").textContent = fmtWait(r.estimated_wait);
-    document.getElementById("r-lang").textContent = r.language_detected || "—";
-    renderPatientResponse(r, document.getElementById("r-response"));
-    // The confidence figure is a softmax maximum, not a calibrated
-    // probability, and the model was never calibrated. Showing it as a
-    // percentage without that caveat invites it to be read as one.
-    document.getElementById("r-caveat").textContent =
-      r.confidence_score === null || r.confidence_score === undefined
-        ? "No confidence score returned."
-        : `Model confidence ${r.confidence_score.toFixed(3)} — an uncalibrated ` +
-          `softmax value, not a probability. Do not use it to override clinical judgement.`;
-    document.getElementById("result-card").hidden = false;
-    flash("Triage recorded.", "ok");
-  } catch (err) { flash(err.message); }
-  finally { btn.disabled = false; btn.textContent = "Assess and queue"; }
-});
-
-if (requireAuth()) loadPatients();
-</script>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KinyaMed — triage</title>
+    <meta name="color-scheme" content="light" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

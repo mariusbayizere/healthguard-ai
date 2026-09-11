@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-ink-50 text-ink-900 font-sans text-base antialiased;
+  }
+  /* Every interactive element gets the same visible focus ring. A clinical
+     tool is used with a keyboard more than designers expect, and an invisible
+     focus state is an accessibility failure, not a style choice. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    @apply outline-none shadow-focus rounded-sm;
+  }
+  /* Numbers are read as columns throughout this interface. */
+  .tnum { font-variant-numeric: tabular-nums; }
+}

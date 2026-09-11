@@ -59,7 +59,9 @@ class Results:
 
 
 def run(args: list[str]) -> None:
-    result = subprocess.run([sys.executable, *args], cwd=ROOT, capture_output=True, text=True)
+    result = subprocess.run(
+        [sys.executable, *args], cwd=ROOT, capture_output=True, text=True
+    )
     if result.returncode != 0:
         raise SystemExit(
             f"command failed: {' '.join(args)}\n{result.stdout}\n{result.stderr}"
@@ -67,7 +69,11 @@ def run(args: list[str]) -> None:
 
 
 def check_splits(
-    source: Path, workdir: Path, expected: dict, results: Results, label: str,
+    source: Path,
+    workdir: Path,
+    expected: dict,
+    results: Results,
+    label: str,
     corpus_version: int = 2,
 ) -> None:
     """Re-run both splits from `source` and compare every digest.
@@ -80,11 +86,19 @@ def check_splits(
     for strategy in ("phrase", "family"):
         out = workdir / strategy
         out.mkdir(parents=True, exist_ok=True)
-        run([
-            "dataset/split_dataset.py", "--strategy", strategy,
-            "--input", str(source), "--out-dir", str(out),
-            "--corpus-version", str(corpus_version),
-        ])
+        run(
+            [
+                "dataset/split_dataset.py",
+                "--strategy",
+                strategy,
+                "--input",
+                str(source),
+                "--out-dir",
+                str(out),
+                "--corpus-version",
+                str(corpus_version),
+            ]
+        )
         for side in ("train", "eval"):
             produced = out / f"{side}_{strategy}_holdout.csv"
             want = expected[strategy][side]
@@ -109,18 +123,26 @@ def verify_sample(results: Results) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         regenerated = work / "regenerated.csv"
-        run([
-            "dataset/generate_large_dataset.py",
-            "--target", str(manifest["target"]),
-            "--seed", str(manifest["seed"]),
-            "--output", str(regenerated),
-        ])
+        run(
+            [
+                "dataset/generate_large_dataset.py",
+                "--target",
+                str(manifest["target"]),
+                "--seed",
+                str(manifest["seed"]),
+                "--output",
+                str(regenerated),
+            ]
+        )
         results.add(
             f"sample regenerates from seed {manifest['seed']}",
             sha256(regenerated) == manifest["sha256"],
         )
         expected = {
-            s: {side: manifest["splits"][s][side]["sha256"] for side in ("train", "eval")}
+            s: {
+                side: manifest["splits"][s][side]["sha256"]
+                for side in ("train", "eval")
+            }
             for s in ("phrase", "family")
         }
         check_splits(sample, work / "splits", expected, results, "sample")
@@ -150,23 +172,36 @@ def verify_full(results: Results) -> None:
             continue
 
         sources = {m["source"]["sha256"] for m in manifests.values()}
-        results.add(f"v{version}: both manifests pin the same source corpus", len(sources) == 1)
+        results.add(
+            f"v{version}: both manifests pin the same source corpus", len(sources) == 1
+        )
         expected_source = sources.pop()
 
         free_gb = shutil.disk_usage(tempfile.gettempdir()).free / 1e9
         if free_gb < 2:
-            raise SystemExit(f"needs ~1 GB of scratch space, only {free_gb:.1f} GB free")
+            raise SystemExit(
+                f"needs ~1 GB of scratch space, only {free_gb:.1f} GB free"
+            )
 
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp)
             corpus = work / "symptoms_large.csv"
-            print(f"  regenerating v{version} ({int(target):,} rows) from seed {GENERATOR_SEED} ...")
-            run([
-                "dataset/generate_large_dataset.py",
-                "--target", target, "--seed", str(GENERATOR_SEED),
-                "--output", str(corpus),
-                "--corpus-version", str(version),
-            ])
+            print(
+                f"  regenerating v{version} ({int(target):,} rows) from seed {GENERATOR_SEED} ..."
+            )
+            run(
+                [
+                    "dataset/generate_large_dataset.py",
+                    "--target",
+                    target,
+                    "--seed",
+                    str(GENERATOR_SEED),
+                    "--output",
+                    str(corpus),
+                    "--corpus-version",
+                    str(version),
+                ]
+            )
             got = sha256(corpus)
             results.add(
                 f"v{version}: corpus regenerates from seed {GENERATOR_SEED}",
@@ -174,15 +209,26 @@ def verify_full(results: Results) -> None:
                 f"expected {expected_source[:16]} got {got[:16]}",
             )
             if got != expected_source:
-                print(f"\n  v{version} splits skipped: they cannot match if the corpus does not.")
+                print(
+                    f"\n  v{version} splits skipped: they cannot match if the corpus does not."
+                )
                 continue
 
             expected = {
-                s: {side: manifests[s]["files"][side]["sha256"] for side in ("train", "eval")}
+                s: {
+                    side: manifests[s]["files"][side]["sha256"]
+                    for side in ("train", "eval")
+                }
                 for s in ("phrase", "family")
             }
-            check_splits(corpus, work / "splits", expected, results, f"v{version} corpus",
-                         corpus_version=version)
+            check_splits(
+                corpus,
+                work / "splits",
+                expected,
+                results,
+                f"v{version} corpus",
+                corpus_version=version,
+            )
 
         if version == 2:
             for strategy, manifest in manifests.items():
@@ -215,16 +261,22 @@ def main() -> int:
             print(f"  - {name}: {detail}")
         return 1
     if args.scope == "full":
-        print(f"All {total} checks passed — every committed digest re-derived "
-              f"from seed {GENERATOR_SEED}.")
+        print(
+            f"All {total} checks passed — every committed digest re-derived "
+            f"from seed {GENERATOR_SEED}."
+        )
     else:
         # Say what was actually checked. The 1M manifest digests are committed
         # too, and this scope does not touch them; claiming otherwise is how a
         # green check comes to mean more than it should.
-        print(f"All {total} checks passed — the committed sample and both of its "
-              f"splits re-derived from seed {GENERATOR_SEED}.")
-        print("The 1,000,000-row manifest digests are NOT checked at this scope; "
-              "run --scope full for those.")
+        print(
+            f"All {total} checks passed — the committed sample and both of its "
+            f"splits re-derived from seed {GENERATOR_SEED}."
+        )
+        print(
+            "The 1,000,000-row manifest digests are NOT checked at this scope; "
+            "run --scope full for those."
+        )
     return 0
 
 
