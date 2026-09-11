@@ -93,8 +93,10 @@ def main() -> int:
 
     concepts = concept_phrases(args.brief)
     groups = len(set(concepts.values()))
-    print(f"PHRASE_CONCEPTS: {len(concepts)} phrase(s) across {groups} concept(s) "
-          f"-> {len(concepts) - groups} union(s) a similarity rule cannot make\n")
+    print(
+        f"PHRASE_CONCEPTS: {len(concepts)} phrase(s) across {groups} concept(s) "
+        f"-> {len(concepts) - groups} union(s) a similarity rule cannot make\n"
+    )
 
     pairs = second_phrasings(args.brief)
     if not pairs:

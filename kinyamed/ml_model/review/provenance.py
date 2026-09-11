@@ -56,8 +56,13 @@ UNRESOLVED = "unresolved"
 
 # Order is report order, and is roughly "most speaker" to "least".
 CATEGORIES = (
-    SPEAKER_AUTHORED, SPEAKER_DERIVED, MACHINE_APPROVED,
-    MACHINE_DERIVED, MACHINE_EDITED, UNRESOLVED, NOT_APPLICABLE,
+    SPEAKER_AUTHORED,
+    SPEAKER_DERIVED,
+    MACHINE_APPROVED,
+    MACHINE_DERIVED,
+    MACHINE_EDITED,
+    UNRESOLVED,
+    NOT_APPLICABLE,
 )
 LABELS = {
     SPEAKER_AUTHORED: "speaker-authored — the speaker wrote the words",
@@ -80,15 +85,19 @@ def classify(row: dict, by_key: dict[tuple[str, str], dict]) -> str:
     if (row.get("applies") or "yes").strip().lower() == "no":
         return NOT_APPLICABLE
     if not (row.get("your_phrasing") or "").strip():
-        return row.get("source", "") or ""      # unauthored: nothing to classify
+        return row.get("source", "") or ""  # unauthored: nothing to classify
 
     current = (row.get("source") or "").strip()
     if current in (SPEAKER_AUTHORED, MACHINE_EDITED, UNRESOLVED):
         return current
 
     counterpart = by_key.get((row["concept_id"], OTHER[row["person"]]))
-    counterpart_authored = bool(counterpart and (counterpart.get("your_phrasing") or "").strip())
-    counterpart_source = (counterpart.get("source") or "").strip() if counterpart else ""
+    counterpart_authored = bool(
+        counterpart and (counterpart.get("your_phrasing") or "").strip()
+    )
+    counterpart_source = (
+        (counterpart.get("source") or "").strip() if counterpart else ""
+    )
 
     # A person-transform only exists in the third person: the first person is the
     # form the speaker writes, the third is derived from it.
@@ -108,9 +117,12 @@ def classified(brief: Path = BRIEF) -> list[tuple[dict, str]]:
 
 def report(brief: Path = BRIEF) -> None:
     pairs = classified(brief)
-    authored = [(r, c) for r, c in pairs
-                if (r.get("your_phrasing") or "").strip()
-                and (r.get("applies") or "yes").strip().lower() != "no"]
+    authored = [
+        (r, c)
+        for r, c in pairs
+        if (r.get("your_phrasing") or "").strip()
+        and (r.get("applies") or "yes").strip().lower() != "no"
+    ]
     counts = Counter(c for _, c in authored)
     total = len(authored)
     print(f"{total} authored phrases\n")
@@ -123,24 +135,33 @@ def report(brief: Path = BRIEF) -> None:
     new = sum(counts.get(c, 0) for c in NEWLY_COMPOSED)
     print()
     print(f"  the speaker's own words   {own:3}/{total} = {100 * own / total:.0f}%")
-    print(f"  newly composed by me      {new:3}/{total} = {100 * new / total:.0f}%"
-          f"   (every row carries an explicit accept)")
+    print(
+        f"  newly composed by me      {new:3}/{total} = {100 * new / total:.0f}%"
+        f"   (every row carries an explicit accept)"
+    )
     na = sum(1 for r, c in pairs if c == NOT_APPLICABLE)
-    print(f"\n  {na} rows are not applicable for their person; "
-          f"{len(pairs) - total - na} are still unauthored.")
+    print(
+        f"\n  {na} rows are not applicable for their person; "
+        f"{len(pairs) - total - na} are still unauthored."
+    )
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--write", action="store_true",
-                    help="Backfill the brief's source column from the classification.")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--write",
+        action="store_true",
+        help="Backfill the brief's source column from the classification.",
+    )
     ap.add_argument("brief", nargs="?", type=Path, default=BRIEF)
     args = ap.parse_args()
 
     if args.write:
         sys.path.insert(0, str(ROOT / "review"))
         from walk import save
+
         rows = list(csv.DictReader(args.brief.open(encoding="utf-8")))
         fields = list(rows[0])
         by_key = {(r["concept_id"], r["person"]): r for r in rows}

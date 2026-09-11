@@ -151,7 +151,9 @@ class Settings(BaseSettings):
         if self.BCRYPT_ROUNDS < 12:
             problems.append("BCRYPT_ROUNDS must be at least 12")
         if not self.REFRESH_COOKIE_SECURE:
-            problems.append("REFRESH_COOKIE_SECURE must be on (refresh tokens are bearer credentials)")
+            problems.append(
+                "REFRESH_COOKIE_SECURE must be on (refresh tokens are bearer credentials)"
+            )
         if problems:
             raise ValueError(
                 "Insecure configuration for ENVIRONMENT=production: "
@@ -162,13 +164,17 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         """CORS origins as a list, parsed from the comma-separated setting."""
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+        return [
+            origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()
+        ]
 
     @property
     def rate_limit_exempt_paths(self) -> frozenset[str]:
         """Paths that bypass rate limiting, parsed from the comma-separated setting."""
         return frozenset(
-            path.strip() for path in self.RATE_LIMIT_EXEMPT_PATHS.split(",") if path.strip()
+            path.strip()
+            for path in self.RATE_LIMIT_EXEMPT_PATHS.split(",")
+            if path.strip()
         )
 
     @property

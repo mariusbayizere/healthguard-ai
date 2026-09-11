@@ -34,7 +34,9 @@ class TriageRepository(BaseRepository[TriageResult]):
             db.scalars(
                 select(TriageResult)
                 .options(
-                    joinedload(TriageResult.symptom_report).joinedload(SymptomReport.patient),
+                    joinedload(TriageResult.symptom_report).joinedload(
+                        SymptomReport.patient
+                    ),
                     joinedload(TriageResult.queue_entry),
                 )
                 .where(TriageResult.id == triage_id)

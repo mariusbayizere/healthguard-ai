@@ -28,7 +28,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     services.
     """
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid.uuid4())
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(
@@ -49,7 +51,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         response.headers[REQUEST_ID_HEADER] = request_id
         response.headers["X-Response-Time-ms"] = str(duration_ms)
         logger.info(
-            "request_completed", status_code=response.status_code, duration_ms=duration_ms
+            "request_completed",
+            status_code=response.status_code,
+            duration_ms=duration_ms,
         )
         return response
 
@@ -90,8 +94,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             hits.append(now)
             return True
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        if not settings.RATE_LIMIT_ENABLED or request.url.path in settings.rate_limit_exempt_paths:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        if (
+            not settings.RATE_LIMIT_ENABLED
+            or request.url.path in settings.rate_limit_exempt_paths
+        ):
             return await call_next(request)
 
         key = self._client_key(request)

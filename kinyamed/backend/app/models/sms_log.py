@@ -46,7 +46,7 @@ class SMSLog(TimestampedModel):
     provider_message_id: Mapped[str | None] = mapped_column(String(128))
     error_detail: Mapped[str | None] = mapped_column(Text)
 
-    patient: Mapped["Patient"] = relationship(back_populates="sms_logs")
+    patient: Mapped[Patient] = relationship(back_populates="sms_logs")
 
     def __repr__(self) -> str:
         return f"<SMSLog id={self.id} patient_id={self.patient_id} status={self.status.value}>"

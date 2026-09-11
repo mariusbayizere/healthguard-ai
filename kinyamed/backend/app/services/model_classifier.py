@@ -85,8 +85,11 @@ class ModelClassifier:
         self._torch = torch
         tokenizer_dir = model_path / "tokenizer"
         self._tokenizer = AutoTokenizer.from_pretrained(
-            str(tokenizer_dir if tokenizer_dir.exists() else model_path))
-        self._model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+            str(tokenizer_dir if tokenizer_dir.exists() else model_path)
+        )
+        self._model = AutoModelForSequenceClassification.from_pretrained(
+            str(model_path)
+        )
         self._model.eval()
         self._max_length = max_length
         self._lock = threading.Lock()
@@ -118,14 +121,14 @@ class ModelClassifier:
         # A single lock around inference. torch is not guaranteed thread-safe
         # for concurrent forward passes on one module instance, and correctness
         # outranks throughput on a two-core box serving one clinic.
-        with self._lock:
-            with torch.no_grad():
-                encoded = self._tokenizer(text, return_tensors="pt", truncation=True,
-                                          max_length=self._max_length)
-                logits = self._model(**encoded).logits
-                probs = torch.softmax(logits, dim=-1)[0]
-                index = int(probs.argmax())
-                confidence = float(probs[index])
+        with self._lock, torch.no_grad():
+            encoded = self._tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=self._max_length
+            )
+            logits = self._model(**encoded).logits
+            probs = torch.softmax(logits, dim=-1)[0]
+            index = int(probs.argmax())
+            confidence = float(probs[index])
         label = self._labels[index]
         urgency = _URGENCY[label]
         return Classification(
@@ -139,10 +142,41 @@ class ModelClassifier:
         )
 
 
+class BaselineInProductionError(RuntimeError):
+    """The service was about to serve triage from the keyword baseline."""
+
+
+def _refuse_baseline_in_production(reason: str) -> None:
+    """AUDIT 1.5. In production, the keyword fallback is not an acceptable state.
+
+    The baseline is a hand-written keyword matcher. It has never been evaluated
+    against the frozen holdout -- no macro F1, no CRITICAL recall, nothing --
+    and a deployment that forgets one environment variable would otherwise
+    serve triage decisions from it while logging cheerfully.
+
+    The deployment runbook already says "if the start-up log names the
+    baseline, stop". That was a human step in a checklist. This makes it an
+    assertion, because a checklist step is only performed by someone who reads
+    it.
+
+    Development and test keep the fallback: a laptop without torch must still
+    be able to run the API.
+    """
+    if getattr(settings, "ENVIRONMENT", "development") != "production":
+        return
+    raise BaselineInProductionError(
+        f"Refusing to start in production on the keyword baseline: {reason}. "
+        "The baseline has never been evaluated against the holdout and must "
+        "not serve triage. Set TRIAGE_MODEL_PATH to a validated model and "
+        "install the ML extras, or run with ENVIRONMENT != production."
+    )
+
+
 def build_classifier() -> tuple[object, str]:
     """Return (classifier, a one-line description of what was selected and why)."""
     raw = getattr(settings, "TRIAGE_MODEL_PATH", "") or ""
     if not raw:
+        _refuse_baseline_in_production("TRIAGE_MODEL_PATH is unset")
         return KeywordClassifier(), (
             "keyword baseline (TRIAGE_MODEL_PATH unset — this is the default, "
             "not a failure)"
@@ -150,8 +184,12 @@ def build_classifier() -> tuple[object, str]:
 
     path = Path(raw).expanduser()
     if not path.exists():
-        logger.warning("triage_model_missing", path=str(path),
-                       action="falling back to the keyword baseline")
+        logger.warning(
+            "triage_model_missing",
+            path=str(path),
+            action="falling back to the keyword baseline",
+        )
+        _refuse_baseline_in_production(f"no model at {path}")
         return KeywordClassifier(), f"keyword baseline (no model at {path})"
 
     try:
@@ -161,13 +199,22 @@ def build_classifier() -> tuple[object, str]:
             threads=getattr(settings, "TRIAGE_MODEL_THREADS", None),
         )
     except ImportError as error:
-        logger.warning("triage_model_deps_missing", error=str(error),
-                       action="falling back to the keyword baseline",
-                       hint="torch/transformers are deliberately not in the API image")
+        logger.warning(
+            "triage_model_deps_missing",
+            error=str(error),
+            action="falling back to the keyword baseline",
+            hint="torch/transformers are deliberately not in the API image",
+        )
+        _refuse_baseline_in_production(f"torch unavailable ({error})")
         return KeywordClassifier(), f"keyword baseline (torch unavailable: {error})"
-    except Exception as error:  # a bad artefact must not take the service down
-        logger.error("triage_model_load_failed", path=str(path), error=str(error),
-                     action="falling back to the keyword baseline")
+    except Exception as error:  # noqa: BLE001 — a bad artefact must not take the service down
+        logger.error(
+            "triage_model_load_failed",
+            path=str(path),
+            error=str(error),
+            action="falling back to the keyword baseline",
+        )
+        _refuse_baseline_in_production(f"the model failed to load ({error})")
         return KeywordClassifier(), f"keyword baseline (model failed to load: {error})"
 
     warm_ms = classifier.warm_up()

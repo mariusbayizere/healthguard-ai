@@ -14,9 +14,17 @@ phrases. A v1 number and a v2 number do not belong in one table.
 
 ```python
 import torch, subprocess
-print(subprocess.run(["nvidia-smi","--query-gpu=name,memory.total","--format=csv"],
-                     capture_output=True, text=True).stdout)
-assert torch.cuda.is_available(), "No GPU. Settings -> Accelerator -> GPU, then restart."
+
+print(
+    subprocess.run(
+        ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv"],
+        capture_output=True,
+        text=True,
+    ).stdout
+)
+assert torch.cuda.is_available(), (
+    "No GPU. Settings -> Accelerator -> GPU, then restart."
+)
 print("torch", torch.__version__, "| cuda", torch.version.cuda)
 ```
 
@@ -61,9 +69,11 @@ experiment with separate manifests.
 
 ```python
 import os
-CKPT = "/kaggle/working/checkpoints"; os.makedirs(CKPT, exist_ok=True)
-SAVE  = "/kaggle/working/saved_model_holdout"
-TEX   = "/kaggle/working/generated"
+
+CKPT = "/kaggle/working/checkpoints"
+os.makedirs(CKPT, exist_ok=True)
+SAVE = "/kaggle/working/saved_model_holdout"
+TEX = "/kaggle/working/generated"
 ```
 
 `/kaggle/working` survives as notebook output. Commit the notebook version before

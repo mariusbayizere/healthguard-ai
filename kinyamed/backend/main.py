@@ -10,8 +10,6 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
-
 from app.core.config import settings
 from app.core.database import engine
 from app.core.exceptions import register_exception_handlers
@@ -19,6 +17,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import register_middleware
 from app.routes import api_router, health_router
 from app.schemas.common import ServiceInfoResponse
+from fastapi import FastAPI
 
 configure_logging()
 logger = structlog.get_logger(__name__)
@@ -48,8 +47,9 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     from app.services import triage_service
 
     triage_service.get_classifier()
-    logger.info("classifier_selected",
-                classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION)
+    logger.info(
+        "classifier_selected", classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION
+    )
     try:
         yield
     finally:

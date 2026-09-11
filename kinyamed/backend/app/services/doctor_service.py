@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import structlog
 from sqlalchemy.orm import Session
@@ -71,7 +71,9 @@ def toggle_duty(db: Session, doctor_id: int) -> Doctor:
     """Flip a clinician's duty status."""
     doctor = get_doctor(db, doctor_id)
     doctor_repository.update(db, doctor, is_on_duty=not doctor.is_on_duty)
-    logger.info("doctor_duty_toggled", doctor_id=doctor_id, is_on_duty=doctor.is_on_duty)
+    logger.info(
+        "doctor_duty_toggled", doctor_id=doctor_id, is_on_duty=doctor.is_on_duty
+    )
     return doctor
 
 

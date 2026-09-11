@@ -36,33 +36,37 @@ import csv
 import hashlib
 import json
 import random
+import re
 import sys
 from array import array
 from collections import Counter, defaultdict
-import re
 from itertools import combinations
 from multiprocessing import Pool
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.atomicio import (  # noqa: E402
+from dataset.atomicio import (
     Checkpoint,
     atomic_write,
     atomic_write_json,
     peak_rss_mib_total,
     sweep_partials,
 )
-from dataset.validate_dataset import all_symptom_phrases  # noqa: E402
-from dataset.vocabulary import (GROUPED_CONCEPTS, PHRASE_CONCEPTS,  # noqa: E402
-                                PHRASE_VARIANTS, REL_PLACEHOLDER, SENTENCE_END)
+from dataset.validate_dataset import all_symptom_phrases
+from dataset.vocabulary import (
+    GROUPED_CONCEPTS,
+    PHRASE_CONCEPTS,
+    PHRASE_VARIANTS,
+    REL_PLACEHOLDER,
+    SENTENCE_END,
+)
 
 COLUMNS = ["text", "language", "label", "domain", "family", "phrase", "phrase_group"]
 # Rows per unit of work handed to a worker. Large enough that pickling overhead
 # stays negligible, small enough that the in-flight queue is bounded.
 BATCH_ROWS = 20_000
 MAX_WORKERS = 2
-
 
 
 def _words(comparable: str) -> list[str]:
@@ -103,10 +107,12 @@ def use_corpus_version(version: int) -> None:
         globals().update(_V2_DEFAULTS)
         from dataset import validate_dataset as VD
         from dataset import vocabulary as V2
+
         VD.SYMPTOMS = V2.SYMPTOMS
         return
     from dataset import validate_dataset as VD
     from dataset import vocabulary_v1 as V1
+
     VD.SYMPTOMS = V1.SYMPTOMS
     PHRASE_CONCEPTS = V1.PHRASE_CONCEPTS
     PHRASE_VARIANTS = V1.PHRASE_VARIANTS
@@ -320,7 +326,9 @@ def _find_at_word_boundary(haystack: str, needle: str, start: int = 0) -> int:
         position = found + 1
 
 
-def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]]) -> str | None:
+def attribute_phrase(
+    text: str, family: str, phrase_index: dict[str, list[str]]
+) -> str | None:
     """The seed phrase a row was built around; longest match wins.
 
     Matching is case-insensitive. An utterance-form phrase is capitalised when it
@@ -344,8 +352,11 @@ def attribute_phrase(text: str, family: str, phrase_index: dict[str, list[str]])
             # which never matches "Iyo Mama ahumeka". Those rows attributed to
             # None and dropped out of the phrase holdout with no error raised,
             # the same silent failure the case-sensitivity bug above caused.
-            segments = [s for s in (_match_form(part)
-                                    for part in phrase.split(REL_PLACEHOLDER)) if s]
+            segments = [
+                s
+                for s in (_match_form(part) for part in phrase.split(REL_PLACEHOLDER))
+                if s
+            ]
             position = 0
             for segment in segments:
                 found = _find_at_word_boundary(lowered, segment, position)
@@ -429,8 +440,8 @@ def scan(path: Path, strategy: str, workers: int) -> tuple[array, list[str], dic
 
     def absorb(row_batches: list[list[dict]], phrase_batches: list[list[str]]) -> None:
         nonlocal total
-        for batch, phrases in zip(row_batches, phrase_batches):
-            for row, phrase in zip(batch, phrases):
+        for batch, phrases in zip(row_batches, phrase_batches, strict=True):
+            for row, phrase in zip(batch, phrases, strict=True):
                 pid = vocab_ids.get(phrase)
                 if pid is None:
                     pid = len(vocab)
@@ -475,8 +486,12 @@ def scan(path: Path, strategy: str, workers: int) -> tuple[array, list[str], dic
         "total": total,
         "sizes": dict(sizes),
         "strata": [
-            {"language": lang, "label": label, "groups": sorted(groups),
-             "rows": stratum_rows[(lang, label)]}
+            {
+                "language": lang,
+                "label": label,
+                "groups": sorted(groups),
+                "rows": stratum_rows[(lang, label)],
+            }
             for (lang, label), groups in sorted(strata.items())
         ],
     }
@@ -569,10 +584,16 @@ def write_split(
     train_stats, eval_stats = SideStats(), SideStats()
     eval_texts: set[str] = set()
 
-    with atomic_write(train_path, "w", newline="", encoding="utf-8") as train_handle, \
-            atomic_write(eval_path, "w", newline="", encoding="utf-8") as eval_handle:
-        train_writer = csv.DictWriter(train_handle, fieldnames=COLUMNS, extrasaction="ignore")
-        eval_writer = csv.DictWriter(eval_handle, fieldnames=COLUMNS, extrasaction="ignore")
+    with (
+        atomic_write(train_path, "w", newline="", encoding="utf-8") as train_handle,
+        atomic_write(eval_path, "w", newline="", encoding="utf-8") as eval_handle,
+    ):
+        train_writer = csv.DictWriter(
+            train_handle, fieldnames=COLUMNS, extrasaction="ignore"
+        )
+        eval_writer = csv.DictWriter(
+            eval_handle, fieldnames=COLUMNS, extrasaction="ignore"
+        )
         train_writer.writeheader()
         eval_writer.writeheader()
 
@@ -597,7 +618,10 @@ def write_split(
 
 
 def leakage_report(
-    train_path: Path, train_stats: SideStats, eval_stats: SideStats, eval_texts: set[str]
+    train_path: Path,
+    train_stats: SideStats,
+    eval_stats: SideStats,
+    eval_texts: set[str],
 ) -> dict:
     """What actually crosses the split boundary.
 
@@ -612,7 +636,8 @@ def leakage_report(
 
     shared_phrases = sorted(train_stats.phrases & eval_stats.phrases)
     leaked_rows = sum(
-        count for phrase, count in _eval_rows_by_phrase(eval_stats).items()
+        count
+        for phrase, count in _eval_rows_by_phrase(eval_stats).items()
         if phrase in train_stats.phrases
     )
     violations = substring_violations(train_stats.phrases, eval_stats.phrases)
@@ -640,14 +665,20 @@ def scan_fingerprint(source_digest: str, strategy: str) -> str:
     return f"{source_digest}:{strategy}"
 
 
-def choice_fingerprint(source_digest: str, strategy: str, seed: int, fraction: float) -> str:
+def choice_fingerprint(
+    source_digest: str, strategy: str, seed: int, fraction: float
+) -> str:
     return f"{source_digest}:{strategy}:{seed}:{fraction}"
 
 
-def save_scan(state_dir: Path, phrase_ids: array, vocab: list[str], aggregates: dict) -> None:
+def save_scan(
+    state_dir: Path, phrase_ids: array, vocab: list[str], aggregates: dict
+) -> None:
     with atomic_write(state_dir / "phrase_ids.bin", "wb") as handle:
         phrase_ids.tofile(handle)
-    atomic_write_json(state_dir / "scan.json", {"vocab": vocab, "aggregates": aggregates})
+    atomic_write_json(
+        state_dir / "scan.json", {"vocab": vocab, "aggregates": aggregates}
+    )
 
 
 def load_scan(state_dir: Path) -> tuple[array, list[str], dict]:
@@ -695,10 +726,14 @@ def print_report(
         print(f"  {group:<52} {sizes[group]:>7,}")
 
     print("\nCross-split leakage:")
-    print(f"  identical texts in both splits          {leakage['exact_text_overlap']:,}")
+    print(
+        f"  identical texts in both splits          {leakage['exact_text_overlap']:,}"
+    )
     print(f"  families in both splits                 {leakage['family_overlap']:,}")
     print(f"  seed phrases in both splits             {leakage['phrase_overlap']:,}")
-    print(f"  substring violations across the split   {leakage['substring_violations']:,}")
+    print(
+        f"  substring violations across the split   {leakage['substring_violations']:,}"
+    )
     for violation in leakage["substring_violation_detail"]:
         print(f"      {violation['eval_phrase']!r} <-> {violation['train_phrase']!r}")
     print(
@@ -710,20 +745,32 @@ def print_report(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=Path("dataset/raw/symptoms_large.csv"))
+    parser.add_argument(
+        "--input", type=Path, default=Path("dataset/raw/symptoms_large.csv")
+    )
     parser.add_argument("--strategy", choices=("family", "phrase"), default="family")
     parser.add_argument("--eval-fraction", type=float, default=0.10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out-dir", type=Path, default=Path("dataset/processed"))
     parser.add_argument(
-        "--workers", type=int, default=MAX_WORKERS,
+        "--workers",
+        type=int,
+        default=MAX_WORKERS,
         help=f"Parallel attribution workers, capped at {MAX_WORKERS}.",
     )
     parser.add_argument(
-        "--corpus-version", type=int, choices=(1, 2), default=2,
-        help="1 splits the frozen v1 corpus with v1's phrase inventory; 2 (default) v2.")
-    parser.add_argument("--restart", action="store_true", help="Ignore any existing checkpoint.")
-    parser.add_argument("--dry-run", action="store_true", help="Report without writing splits.")
+        "--corpus-version",
+        type=int,
+        choices=(1, 2),
+        default=2,
+        help="1 splits the frozen v1 corpus with v1's phrase inventory; 2 (default) v2.",
+    )
+    parser.add_argument(
+        "--restart", action="store_true", help="Ignore any existing checkpoint."
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Report without writing splits."
+    )
     args = parser.parse_args()
     use_corpus_version(args.corpus_version)
 
@@ -749,18 +796,24 @@ def main() -> int:
     source_digest = sha256(args.input)
     print(f"Source sha256       : {source_digest[:16]}")
     scan_fp = scan_fingerprint(source_digest, strategy)
-    choice_fp = choice_fingerprint(source_digest, strategy, args.seed, args.eval_fraction)
+    choice_fp = choice_fingerprint(
+        source_digest, strategy, args.seed, args.eval_fraction
+    )
 
     # step 1 — scan
     if checkpoint.done("scan", scan_fp) and (state_dir / "scan.json").exists():
         phrase_ids, vocab, aggregates = load_scan(state_dir)
-        print(f"[1/4] scan       resumed from checkpoint ({aggregates['total']:,} rows)")
+        print(
+            f"[1/4] scan       resumed from checkpoint ({aggregates['total']:,} rows)"
+        )
     else:
         phrase_ids, vocab, aggregates = scan(args.input, strategy, workers)
         save_scan(state_dir, phrase_ids, vocab, aggregates)
         checkpoint.mark("scan", scan_fp, rows=aggregates["total"], workers=workers)
-        print(f"[1/4] scan       {aggregates['total']:,} rows, {len(vocab)} phrases, "
-              f"{len(aggregates['sizes'])} groups")
+        print(
+            f"[1/4] scan       {aggregates['total']:,} rows, {len(vocab)} phrases, "
+            f"{len(aggregates['sizes'])} groups"
+        )
     record("scan")
 
     # step 2 — choose holdout
@@ -789,22 +842,43 @@ def main() -> int:
     )
     train_summary, eval_summary = train_stats.summary(), eval_stats.summary()
     checkpoint.mark(
-        "write", choice_fp,
-        train={"path": str(train_path), "sha256": sha256(train_path), "rows": train_summary["rows"]},
-        eval={"path": str(eval_path), "sha256": sha256(eval_path), "rows": eval_summary["rows"]},
+        "write",
+        choice_fp,
+        train={
+            "path": str(train_path),
+            "sha256": sha256(train_path),
+            "rows": train_summary["rows"],
+        },
+        eval={
+            "path": str(eval_path),
+            "sha256": sha256(eval_path),
+            "rows": eval_summary["rows"],
+        },
     )
-    print(f"[3/4] write      train {train_summary['rows']:,} / eval {eval_summary['rows']:,}")
+    print(
+        f"[3/4] write      train {train_summary['rows']:,} / eval {eval_summary['rows']:,}"
+    )
     record("write")
 
     # step 4 — leakage
     leakage = leakage_report(train_path, train_stats, eval_stats, eval_texts)
-    checkpoint.mark("leakage", choice_fp, **{k: leakage[k] for k in
-                                             ("exact_text_overlap", "substring_violations")})
+    checkpoint.mark(
+        "leakage",
+        choice_fp,
+        **{k: leakage[k] for k in ("exact_text_overlap", "substring_violations")},
+    )
     print(f"[4/4] leakage    {leakage['substring_violations']} substring violations\n")
     record("leakage")
 
-    print_report(strategy, aggregates["total"], train_summary, eval_summary,
-                 holdout, aggregates["sizes"], leakage)
+    print_report(
+        strategy,
+        aggregates["total"],
+        train_summary,
+        eval_summary,
+        holdout,
+        aggregates["sizes"],
+        leakage,
+    )
 
     report = {
         "strategy": strategy,

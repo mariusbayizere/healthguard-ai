@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "review"))
 
-from dataset.vocabulary import REL_PLACEHOLDER  # noqa: E402
-from relation_sets import resolve, rulings  # noqa: E402
+from dataset.vocabulary import REL_PLACEHOLDER
+from relation_sets import resolve, rulings
 
 BRIEF = ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv"
 
@@ -44,8 +44,9 @@ def render(phrase: str, relation: str) -> str:
     is not a sentence start: "Iyo umwana wanjye ahumeka", not "Iyo Umwana wanjye".
     """
     head = phrase.startswith(REL_PLACEHOLDER)
-    return phrase.replace(REL_PLACEHOLDER,
-                          relation if head else relation[0].lower() + relation[1:])
+    return phrase.replace(
+        REL_PLACEHOLDER, relation if head else relation[0].lower() + relation[1:]
+    )
 
 
 def rows_for(domain: str, brief: Path = BRIEF) -> list[dict]:
@@ -58,7 +59,9 @@ def rows_for(domain: str, brief: Path = BRIEF) -> list[dict]:
             continue
         # Rule whatever text is on the row: an authored phrase if there is one,
         # otherwise the draft awaiting a ruling.
-        phrase = (r["your_phrasing"] or "").strip() or (r["suggested_kinyarwanda"] or "").strip()
+        phrase = (r["your_phrasing"] or "").strip() or (
+            r["suggested_kinyarwanda"] or ""
+        ).strip()
         if not phrase:
             continue
         if REL_PLACEHOLDER not in phrase:
@@ -67,27 +70,33 @@ def rows_for(domain: str, brief: Path = BRIEF) -> list[dict]:
         if allowed is None:
             continue  # HELD or do-not-generate: nothing to rule
         for relation in allowed:
-            out.append({
-                "concept_id": r["concept_id"],
-                "relation": relation,
-                "rendered": render(phrase, relation),
-                "your_ruling": "",
-            })
+            out.append(
+                {
+                    "concept_id": r["concept_id"],
+                    "relation": relation,
+                    "rendered": render(phrase, relation),
+                    "your_ruling": "",
+                }
+            )
     return out
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("domain")
-    ap.add_argument("-o", "--out", type=Path,
-                    help="Write a CSV here. Without it, print to stdout.")
+    ap.add_argument(
+        "-o", "--out", type=Path, help="Write a CSV here. Without it, print to stdout."
+    )
     args = ap.parse_args()
 
     rows = rows_for(args.domain)
     if not rows:
-        print(f"no third-person {args.domain} rows with a {REL_PLACEHOLDER} phrase",
-              file=sys.stderr)
+        print(
+            f"no third-person {args.domain} rows with a {REL_PLACEHOLDER} phrase",
+            file=sys.stderr,
+        )
         return 1
 
     ruled = rulings()
@@ -97,6 +106,7 @@ def main() -> int:
 
     if args.out:
         from dataset.atomicio import atomic_write
+
         fields = ["concept_id", "relation", "rendered", "your_ruling"]
         with atomic_write(args.out, "w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=fields)

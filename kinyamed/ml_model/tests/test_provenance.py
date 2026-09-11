@@ -20,10 +20,18 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "review"))
 
-from provenance import (BRIEF, CATEGORIES, MACHINE_APPROVED,  # noqa: E402
-                        MACHINE_DERIVED, NEWLY_COMPOSED, NOT_APPLICABLE,
-                        SPEAKER_AUTHORED, SPEAKER_DERIVED, SPEAKERS_OWN_WORDS,
-                        classified, classify)
+from provenance import (  # noqa: E402
+    BRIEF,
+    CATEGORIES,
+    MACHINE_DERIVED,
+    NEWLY_COMPOSED,
+    NOT_APPLICABLE,
+    SPEAKER_AUTHORED,
+    SPEAKER_DERIVED,
+    SPEAKERS_OWN_WORDS,
+    classified,
+    classify,
+)
 
 
 def _rows():
@@ -34,7 +42,9 @@ def test_every_authored_row_lands_in_a_known_category():
     for row, category in classified():
         if not (row["your_phrasing"] or "").strip():
             continue
-        assert category in CATEGORIES, f"{row['concept_id']} {row['person']} -> {category!r}"
+        assert category in CATEGORIES, (
+            f"{row['concept_id']} {row['person']} -> {category!r}"
+        )
 
 
 def test_the_stored_source_matches_what_the_classifier_derives():
@@ -88,9 +98,12 @@ def test_the_split_reports_the_unflattering_number_too():
     EX18-type rows. A split that only added a flattering category would not be
     worth adopting.
     """
-    counts = Counter(c for r, c in classified()
-                     if (r["your_phrasing"] or "").strip()
-                     and (r.get("applies") or "yes").lower() != "no")
+    counts = Counter(
+        c
+        for r, c in classified()
+        if (r["your_phrasing"] or "").strip()
+        and (r.get("applies") or "yes").lower() != "no"
+    )
     assert counts[MACHINE_DERIVED] > 0, (
         "if this ever reaches zero the category is still worth reporting, but "
         "check it is not being mis-derived"
@@ -100,9 +113,12 @@ def test_the_split_reports_the_unflattering_number_too():
 
 def test_the_roll_ups_partition_the_authored_rows():
     """Nothing may fall outside the two headline groups except `unresolved`."""
-    authored = [(r, c) for r, c in classified()
-                if (r["your_phrasing"] or "").strip()
-                and (r.get("applies") or "yes").lower() != "no"]
+    authored = [
+        (r, c)
+        for r, c in classified()
+        if (r["your_phrasing"] or "").strip()
+        and (r.get("applies") or "yes").lower() != "no"
+    ]
     counts = Counter(c for _, c in authored)
     own = sum(counts.get(c, 0) for c in SPEAKERS_OWN_WORDS)
     fresh = sum(counts.get(c, 0) for c in NEWLY_COMPOSED)

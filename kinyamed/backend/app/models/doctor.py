@@ -22,7 +22,9 @@ class Doctor(TimestampedModel):
     )
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=True
+    )
     specialty: Mapped[str | None] = mapped_column(String(100))
     is_on_duty: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true", index=True
@@ -30,12 +32,12 @@ class Doctor(TimestampedModel):
 
     # A doctor is unassigned from the queue on delete (ON DELETE SET NULL),
     # never taking waiting patients with them.
-    queue_entries: Mapped[list["Queue"]] = relationship(
+    queue_entries: Mapped[list[Queue]] = relationship(
         back_populates="doctor", passive_deletes=True
     )
     # Consultations are clinical history: the database refuses to delete a
     # doctor who has any (ON DELETE RESTRICT).
-    consultations: Mapped[list["Consultation"]] = relationship(
+    consultations: Mapped[list[Consultation]] = relationship(
         back_populates="doctor", passive_deletes=True
     )
 

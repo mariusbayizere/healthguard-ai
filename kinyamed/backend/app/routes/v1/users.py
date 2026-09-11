@@ -17,7 +17,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(data: UserCreate, _admin: AdminUser, db: Session = Depends(get_db)) -> UserResponse:
+def create_user(
+    data: UserCreate, _admin: AdminUser, db: Session = Depends(get_db)
+) -> UserResponse:
     """Create a clinician or administrator account."""
     return UserResponse.model_validate(auth_service.create_user(db, data))
 
@@ -36,7 +38,9 @@ def list_users(
 
 
 @router.patch("/{user_id}/deactivate", response_model=UserResponse)
-def deactivate_user(user_id: int, _admin: AdminUser, db: Session = Depends(get_db)) -> UserResponse:
+def deactivate_user(
+    user_id: int, _admin: AdminUser, db: Session = Depends(get_db)
+) -> UserResponse:
     """Disable an account and end all of its sessions.
 
     Deactivation rather than deletion: the account may own clinical history,
@@ -51,7 +55,9 @@ def deactivate_user(user_id: int, _admin: AdminUser, db: Session = Depends(get_d
 
 
 @router.patch("/{user_id}/activate", response_model=UserResponse)
-def activate_user(user_id: int, _admin: AdminUser, db: Session = Depends(get_db)) -> UserResponse:
+def activate_user(
+    user_id: int, _admin: AdminUser, db: Session = Depends(get_db)
+) -> UserResponse:
     """Re-enable a disabled account."""
     user = user_repository.get_by_id(db, user_id)
     if user is None:

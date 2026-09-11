@@ -36,8 +36,8 @@ class Consultation(TimestampedModel):
     diagnosis: Mapped[str | None] = mapped_column(Text)
     outcome: Mapped[str | None] = mapped_column(String(100), index=True)
 
-    queue_entry: Mapped["Queue"] = relationship(back_populates="consultation")
-    doctor: Mapped["Doctor"] = relationship(back_populates="consultations")
+    queue_entry: Mapped[Queue] = relationship(back_populates="consultation")
+    doctor: Mapped[Doctor] = relationship(back_populates="consultations")
 
     def __repr__(self) -> str:
         return f"<Consultation id={self.id} queue_entry_id={self.queue_entry_id}>"

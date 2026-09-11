@@ -10,8 +10,6 @@ Every test here asserts something a clinic would notice.
 
 from __future__ import annotations
 
-import pytest
-
 
 def _triage(client, patient_id: int, text: str):
     response = client.post(
@@ -30,8 +28,15 @@ def test_symptom_description_reaches_a_queue_position(client, patient_factory):
     # Each of these is read by a specific element of frontend/index.html. A
     # missing one renders as "undefined" rather than failing, which is why they
     # are asserted here rather than left to the eye.
-    for field in ("triage_id", "urgency_level", "queue_number", "queue_position",
-                  "language_detected", "patient_response", "response_pending"):
+    for field in (
+        "triage_id",
+        "urgency_level",
+        "queue_number",
+        "queue_position",
+        "language_detected",
+        "patient_response",
+        "response_pending",
+    ):
         assert field in body, f"{field} missing; the intake view renders it"
 
     assert body["urgency_level"] in {"CRITICAL", "URGENT", "ROUTINE"}
@@ -49,15 +54,22 @@ def test_the_queue_orders_critical_before_routine(client, patient_factory):
     critical = patient_factory(name="Critical Second", phone="+250780000003")
 
     _triage(client, routine["id"], "ndashaka ko bapima amaraso")
-    _triage(client, critical["id"],
-            "mu gituza harandya cyane kandi sinshobora guhumeka neza")
+    _triage(
+        client,
+        critical["id"],
+        "mu gituza harandya cyane kandi sinshobora guhumeka neza",
+    )
 
     rows = client.get("/api/v1/queue").json()
     rows = rows if isinstance(rows, list) else rows.get("items", [])
     assert rows, "queue is empty after two triages"
 
-    order = {"CRITICAL": 0, "URGENT": 1, "ROUTINE": 2}
-    priorities = [order.get(r["urgency_level"], 9) for r in rows]
+    # Imported, not restated. A test with its own copy of the ordering passes
+    # when the ordering is wrong everywhere consistently, which is the failure
+    # it exists to catch.
+    from app.models.triage_result import UrgencyLevel
+
+    priorities = [UrgencyLevel(r["urgency_level"]).priority for r in rows]
     assert priorities == sorted(priorities), (
         f"queue is not urgency-ordered: {[r['urgency_level'] for r in rows]}"
     )
@@ -128,9 +140,7 @@ def test_a_doctor_can_be_assigned_and_the_status_advanced(
     assert advanced.json()["status"] == "IN_PROGRESS"
 
 
-def test_an_empty_description_is_rejected_rather_than_triaged(
-    client, patient_factory
-):
+def test_an_empty_description_is_rejected_rather_than_triaged(client, patient_factory):
     """A blank submission must not produce an urgency.
 
     The classifier will happily return a label for an empty string, and that
@@ -146,9 +156,7 @@ def test_an_empty_description_is_rejected_rather_than_triaged(
     )
 
 
-def test_a_patient_cannot_triage_someone_else(
-    patient_client_factory, patient_factory
-):
+def test_a_patient_cannot_triage_someone_else(patient_client_factory, patient_factory):
     """Submitting on another patient's behalf is staff-only."""
     victim = patient_factory(name="Other Patient", phone="+250780000008")
     # The factory takes an optional patient_id and creates its own record when

@@ -37,8 +37,8 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-from build_english_brief import COLUMNS, OUT  # noqa: E402
-from walk import save  # noqa: E402
+from build_english_brief import COLUMNS, OUT
+from walk import save
 
 REVIEWER_COLUMNS = {"verdict_register", "rw_english_check", "source", "notes"}
 PROVENANCE = "machine_reviewed"
@@ -46,11 +46,15 @@ DEFAULT_REGISTER = "4"
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("exceptions", type=Path,
-                    help="Rows whose register is not the default, or that carry a "
-                         "Rwandan-English doubt. Everything else takes the default.")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "exceptions",
+        type=Path,
+        help="Rows whose register is not the default, or that carry a "
+        "Rwandan-English doubt. Everything else takes the default.",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -58,9 +62,11 @@ def main() -> int:
     for row in csv.DictReader(args.exceptions.open(encoding="utf-8")):
         stray = set(row) - REVIEWER_COLUMNS - {"concept_id", "person"}
         if stray:
-            raise SystemExit(f"{args.exceptions} sets {sorted(stray)}, which this "
-                             "tool does not own. Drafting goes through "
-                             "apply_english_drafts.py.")
+            raise SystemExit(
+                f"{args.exceptions} sets {sorted(stray)}, which this "
+                "tool does not own. Drafting goes through "
+                "apply_english_drafts.py."
+            )
         overrides[(row["concept_id"], row["person"])] = row
 
     rows = list(csv.DictReader(OUT.open(encoding="utf-8")))
@@ -70,14 +76,20 @@ def main() -> int:
     for row in rows:
         # Only rows carrying drafted text are reviewable. A held or applies=no row
         # has nothing to rate, and rating one would imply it is in the corpus.
-        if not row["suggested_english"].strip() or row["hold"] == "yes" \
-                or row["applies"] == "no":
+        if (
+            not row["suggested_english"].strip()
+            or row["hold"] == "yes"
+            or row["applies"] == "no"
+        ):
             # An override aimed at an unreviewable row would be lost in silence,
             # and a lost Rwandan-English flag is the one thing this pass produces
             # that nothing else records. Report it instead.
             if (row["concept_id"], row["person"]) in overrides:
-                why = "held" if row["hold"] == "yes" else (
-                    "applies=no" if row["applies"] == "no" else "no drafted text")
+                why = (
+                    "held"
+                    if row["hold"] == "yes"
+                    else ("applies=no" if row["applies"] == "no" else "no drafted text")
+                )
                 skipped.append((row["concept_id"], row["person"], why))
             # A row that was reviewable and no longer is keeps a stale verdict
             # otherwise. EX42 and PA06 were reviewed, then collapsed into IF05 by
@@ -106,11 +118,15 @@ def main() -> int:
     print(f"  {reviewed - defaulted} carry an explicit verdict")
     print(f"  {flagged} carry a Rwandan-English doubt")
     for concept_id, person in cleared:
-        print(f"  CLEARED: {concept_id} {person} is no longer reviewable; its stale "
-              "verdict and provenance stamp were removed")
+        print(
+            f"  CLEARED: {concept_id} {person} is no longer reviewable; its stale "
+            "verdict and provenance stamp were removed"
+        )
     for concept_id, person, why in skipped:
-        print(f"  NOT APPLIED: {concept_id} {person} is {why}; its verdict and any "
-              "Rwandan-English flag are recorded in the questions document only")
+        print(
+            f"  NOT APPLIED: {concept_id} {person} is {why}; its verdict and any "
+            "Rwandan-English flag are recorded in the questions document only"
+        )
     unknown = set(overrides) - {(r["concept_id"], r["person"]) for r in rows}
     for key in sorted(unknown):
         print(f"  WARNING: {key} is not a reviewable row")

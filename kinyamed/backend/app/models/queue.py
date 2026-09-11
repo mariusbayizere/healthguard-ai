@@ -43,7 +43,9 @@ class QueueStatus(enum.Enum):
 # completed consultation cannot be pushed back into the waiting room.
 ALLOWED_STATUS_TRANSITIONS: dict[QueueStatus, frozenset[QueueStatus]] = {
     QueueStatus.WAITING: frozenset({QueueStatus.IN_PROGRESS, QueueStatus.CANCELLED}),
-    QueueStatus.IN_PROGRESS: frozenset({QueueStatus.DONE, QueueStatus.WAITING, QueueStatus.CANCELLED}),
+    QueueStatus.IN_PROGRESS: frozenset(
+        {QueueStatus.DONE, QueueStatus.WAITING, QueueStatus.CANCELLED}
+    ),
     QueueStatus.DONE: frozenset(),
     QueueStatus.CANCELLED: frozenset(),
 }
@@ -61,9 +63,12 @@ queue_number_seq = Sequence("queue_number_seq", start=1, increment=1)
 class Queue(TimestampedModel):
     __tablename__ = "queue"
     __table_args__ = (
-        CheckConstraint("priority >= 1 AND priority <= 3", name="ck_queue_priority_range"),
         CheckConstraint(
-            "estimated_wait IS NULL OR estimated_wait >= 0", name="ck_queue_estimated_wait_non_negative"
+            "priority >= 1 AND priority <= 3", name="ck_queue_priority_range"
+        ),
+        CheckConstraint(
+            "estimated_wait IS NULL OR estimated_wait >= 0",
+            name="ck_queue_estimated_wait_non_negative",
         ),
         # Covers the live-queue read: filter on status, order by priority then arrival.
         Index("ix_queue_live_order", "status", "priority", "created_at"),
@@ -106,9 +111,9 @@ class Queue(TimestampedModel):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    triage_result: Mapped["TriageResult"] = relationship(back_populates="queue_entry")
-    doctor: Mapped["Doctor | None"] = relationship(back_populates="queue_entries")
-    consultation: Mapped["Consultation | None"] = relationship(
+    triage_result: Mapped[TriageResult] = relationship(back_populates="queue_entry")
+    doctor: Mapped[Doctor | None] = relationship(back_populates="queue_entries")
+    consultation: Mapped[Consultation | None] = relationship(
         back_populates="queue_entry",
         uselist=False,
         cascade="all, delete-orphan",

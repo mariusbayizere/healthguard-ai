@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import date
-from typing import Any, Sequence
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -28,7 +29,9 @@ class AnalyticsRepository(BaseRepository[Analytics]):
         ).all()
         return rows, total
 
-    def upsert(self, db: Session, values: dict[str, Any], *, commit: bool = True) -> Analytics:
+    def upsert(
+        self, db: Session, values: dict[str, Any], *, commit: bool = True
+    ) -> Analytics:
         """Insert today's snapshot, or replace the one already taken today.
 
         Upserted on `snapshot_date` so a scheduler re-running the job corrects
@@ -48,7 +51,9 @@ class AnalyticsRepository(BaseRepository[Analytics]):
             db.commit()
         return snapshot
 
-    def delete_by_date(self, db: Session, snapshot_date: date, *, commit: bool = True) -> int:
+    def delete_by_date(
+        self, db: Session, snapshot_date: date, *, commit: bool = True
+    ) -> int:
         """Delete one day's snapshot. Returns the number of rows removed."""
         result = db.execute(
             Analytics.__table__.delete().where(Analytics.snapshot_date == snapshot_date)

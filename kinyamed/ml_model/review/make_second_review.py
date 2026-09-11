@@ -50,33 +50,55 @@ def main() -> int:
 
     rate_rows, blind_rows = [], []
     for i, r in enumerate(filled):
-        common = {"concept_id": r.get("concept_id", ""), "domain": r["domain"],
-                  "proposed_urgency": r["proposed_urgency"],
-                  "english_gloss": r.get("english_gloss", "")}
+        common = {
+            "concept_id": r.get("concept_id", ""),
+            "domain": r["domain"],
+            "proposed_urgency": r["proposed_urgency"],
+            "english_gloss": r.get("english_gloss", ""),
+        }
         if i in blind:
             # Speaker 1's phrasing is deliberately absent from this file.
-            blind_rows.append({**common, "your_independent_phrasing": "",
-                               "second_phrasing_optional": "", "notes": ""})
+            blind_rows.append(
+                {
+                    **common,
+                    "your_independent_phrasing": "",
+                    "second_phrasing_optional": "",
+                    "notes": "",
+                }
+            )
         else:
-            rate_rows.append({**common, "phrase_to_rate": r["your_phrasing"],
-                              "rating_1_to_4": "", "your_better_phrasing": "",
-                              "notes": ""})
+            rate_rows.append(
+                {
+                    **common,
+                    "phrase_to_rate": r["your_phrasing"],
+                    "rating_1_to_4": "",
+                    "your_better_phrasing": "",
+                    "notes": "",
+                }
+            )
 
     rate_path = args.out_dir / f"second_review_RATE_{args.language}.csv"
     blind_path = args.out_dir / f"second_review_BLIND_{args.language}.csv"
     with rate_path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(rate_rows[0])); w.writeheader(); w.writerows(rate_rows)
+        w = csv.DictWriter(fh, fieldnames=list(rate_rows[0]))
+        w.writeheader()
+        w.writerows(rate_rows)
     with blind_path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(blind_rows[0])); w.writeheader(); w.writerows(blind_rows)
+        w = csv.DictWriter(fh, fieldnames=list(blind_rows[0]))
+        w.writeheader()
+        w.writerows(blind_rows)
 
     key_path = args.out_dir / f"second_review_KEY_{args.language}.csv"
     with key_path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh); w.writerow(["concept_id", "speaker1_phrasing"])
+        w = csv.writer(fh)
+        w.writerow(["concept_id", "speaker1_phrasing"])
         for i in sorted(blind):
             w.writerow([filled[i].get("concept_id", ""), filled[i]["your_phrasing"]])
 
     print(f"  {rate_path}  {len(rate_rows)} phrases to rate")
-    print(f"  {blind_path}  {len(blind_rows)} to author blind ({args.blind_fraction:.0%})")
+    print(
+        f"  {blind_path}  {len(blind_rows)} to author blind ({args.blind_fraction:.0%})"
+    )
     print(f"  {key_path}  speaker 1's phrasings for the blind set — DO NOT SEND")
     print()
     print("  Rating scale to put in front of the second speaker:")

@@ -7,7 +7,6 @@ switches it on for its own cases.
 from __future__ import annotations
 
 import pytest
-
 from app.core.config import settings
 
 

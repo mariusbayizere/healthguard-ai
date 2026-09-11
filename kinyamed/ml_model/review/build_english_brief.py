@@ -76,7 +76,7 @@ sys.path.insert(0, str(HERE))
 # A positional mapping into v1 is a fact about the FROZEN corpus, so the frozen
 # file is the correct source rather than a workaround. Same fix, same reason, as
 # build_french_brief.v1_vocabulary().
-import importlib.util as _ilu  # noqa: E402
+import importlib.util as _ilu
 
 _V1 = ROOT / "dataset" / "vocabulary_v1.py"
 _spec = _ilu.spec_from_file_location("_v1_vocabulary", _V1)
@@ -89,10 +89,10 @@ for _language in ("kinyarwanda", "english"):
             "of the v1 English strings; find the commit that still has them "
             "rather than drafting over the gap."
         )
-SYMPTOMS = _v1.SYMPTOMS  # noqa: E402
-from english_relations import DOMAIN_RELATIONS_EN, PENDING_RULINGS  # noqa: E402
-from relation_sets import rulings  # noqa: E402
-from walk import save  # noqa: E402  - reuse the one atomic writer, not a second one
+SYMPTOMS = _v1.SYMPTOMS
+from english_relations import DOMAIN_RELATIONS_EN, PENDING_RULINGS
+from relation_sets import rulings
+from walk import save
 
 KY_BRIEF = ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv"
 KY_BRIEF_V1 = ROOT / "review" / "speaker_brief_kinyarwanda.csv"
@@ -101,12 +101,29 @@ SHEET = ROOT / "review" / "phrase_review_sheet.csv"
 OUT = ROOT / "review" / "speaker_brief_english_v2.csv"
 
 COLUMNS = [
-    "concept_id", "domain", "proposed_urgency", "english_gloss", "anchor",
-    "person", "applies", "person_note", "form", "relation_set",
-    "suggested_english", "candidate_origin", "confidence",
-    "verdict_fidelity", "suggestion_note", "verdict_register", "rw_english_check",
-    "your_phrasing", "second_phrasing_optional", "notes",
-    "source", "needs_clinician", "hold",
+    "concept_id",
+    "domain",
+    "proposed_urgency",
+    "english_gloss",
+    "anchor",
+    "person",
+    "applies",
+    "person_note",
+    "form",
+    "relation_set",
+    "suggested_english",
+    "candidate_origin",
+    "confidence",
+    "verdict_fidelity",
+    "suggestion_note",
+    "verdict_register",
+    "rw_english_check",
+    "your_phrasing",
+    "second_phrasing_optional",
+    "notes",
+    "source",
+    "needs_clinician",
+    "hold",
 ]
 
 # Recomputed from source on every run. Hand edits here are overwritten, which is
@@ -118,8 +135,16 @@ COLUMNS = [
 # them meant that when the Kinyarwanda session ruled a concept out of generation,
 # this brief did not notice. EX42 and PA06 were collapsed into IF05 and both kept
 # `applies=yes` here, with a drafted English phrase on a dead concept.
-REGENERATED = ["domain", "proposed_urgency", "english_gloss", "anchor",
-               "relation_set", "applies", "person_note"]
+REGENERATED = [
+    "domain",
+    "proposed_urgency",
+    "english_gloss",
+    "anchor",
+    "relation_set",
+    "applies",
+    "person_note",
+]
+
 
 # The eleven collapsed concepts and PR02. Their rows stay on the spine (they are
 # part of the 127) but they generate nothing, so an English candidate for them is
@@ -132,8 +157,9 @@ def collapsed_concepts(spine: list[dict]) -> set[str]:
     persons: dict[str, list[dict]] = {}
     for row in spine:
         persons.setdefault(row["concept_id"], []).append(row)
-    return {cid for cid, rows in persons.items()
-            if all(r["applies"] == "no" for r in rows)}
+    return {
+        cid for cid, rows in persons.items() if all(r["applies"] == "no" for r in rows)
+    }
 
 
 # OB13 was added to the spine on 2026-09-05 when OB06 was re-ruled to fetal
@@ -157,10 +183,16 @@ def ex_to_v1_english() -> dict[str, str]:
             for i, phrase in enumerate(phrases):
                 where[phrase] = (urgency, domain, i)
 
-    existing = [r for r in csv.DictReader(KY_BRIEF_V1.open(encoding="utf-8"))
-                if r["task"] == "VALIDATE existing"]
-    ex_ids = [r["concept_id"] for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))
-              if r["person"] == "first" and r["concept_id"].startswith("EX")]
+    existing = [
+        r
+        for r in csv.DictReader(KY_BRIEF_V1.open(encoding="utf-8"))
+        if r["task"] == "VALIDATE existing"
+    ]
+    ex_ids = [
+        r["concept_id"]
+        for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))
+        if r["person"] == "first" and r["concept_id"].startswith("EX")
+    ]
     if len(existing) != len(ex_ids):
         raise SystemExit(
             f"{len(ex_ids)} EX ids but {len(existing)} existing rows in the first "
@@ -168,13 +200,15 @@ def ex_to_v1_english() -> dict[str, str]:
             "English rows their candidate; it must not be guessed."
         )
 
-    spine = {(r["concept_id"], r["person"]): r
-             for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))}
+    spine = {
+        (r["concept_id"], r["person"]): r
+        for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))
+    }
     out: dict[str, str] = {}
-    for ex_id, row in zip(ex_ids, existing):
+    for ex_id, row in zip(ex_ids, existing, strict=True):
         ky = row["original_corpus_phrase"].strip()
         if not ky:
-            out[ex_id] = ""          # EX31: speaker-added, no v1 row in any language
+            out[ex_id] = ""  # EX31: speaker-added, no v1 row in any language
             continue
         urgency, domain, i = where[ky]
         brief_row = spine[(ex_id, "first")]
@@ -193,14 +227,26 @@ def ex_to_v1_english() -> dict[str, str]:
 # both wordings in every one of these; English should have the same chance to.
 # Must cover every concept collapsed_concepts() finds. build() asserts it, so a
 # new collapse cannot silently lose the record of where its wording went.
-ABSORBED_BY = {"EX42": "IF05", "PA06": "IF05", "PA01": "EX33",
-               "EX17": "EX16", "EX30": "CR07", "GI08": "EX16", "HT01": "EX18",
-               "HT06": "EX22", "IF07": "EX29", "PA10": "EX46",
-               # The five neurological concepts, each collapsed into the EX id
-               # that already carried its sign. Taken from the spine's own
-               # collapse notes, not inferred.
-               "NE01": "EX33", "NE02": "EX32", "NE03": "EX34",
-               "NE04": "EX35", "NE08": "EX36"}
+ABSORBED_BY = {
+    "EX42": "IF05",
+    "PA06": "IF05",
+    "PA01": "EX33",
+    "EX17": "EX16",
+    "EX30": "CR07",
+    "GI08": "EX16",
+    "HT01": "EX18",
+    "HT06": "EX22",
+    "IF07": "EX29",
+    "PA10": "EX46",
+    # The five neurological concepts, each collapsed into the EX id
+    # that already carried its sign. Taken from the spine's own
+    # collapse notes, not inferred.
+    "NE01": "EX33",
+    "NE02": "EX32",
+    "NE03": "EX34",
+    "NE04": "EX35",
+    "NE08": "EX36",
+}
 
 
 def concept_drift() -> dict[str, tuple[float, str, str]]:
@@ -222,20 +268,27 @@ def concept_drift() -> dict[str, tuple[float, str, str]]:
     9). A LEAD, NOT A VERDICT: it misses EX29, whose rewrite turned a cough into
     a fever while keeping enough shared material to score above the threshold.
     """
+
     def stems(text: str) -> set[str]:
         out: set[str] = set()
         for word in re.findall(r"[a-z']+", text.lower()):
             word = word.replace("'", "")
             for i in range(len(word) - 3):
-                out.add(word[i:i + 4])
+                out.add(word[i : i + 4])
         return out
 
-    existing = [r for r in csv.DictReader(KY_BRIEF_V1.open(encoding="utf-8"))
-                if r["task"] == "VALIDATE existing"]
-    ex_ids = [r["concept_id"] for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))
-              if r["person"] == "first" and r["concept_id"].startswith("EX")]
+    existing = [
+        r
+        for r in csv.DictReader(KY_BRIEF_V1.open(encoding="utf-8"))
+        if r["task"] == "VALIDATE existing"
+    ]
+    ex_ids = [
+        r["concept_id"]
+        for r in csv.DictReader(KY_BRIEF.open(encoding="utf-8"))
+        if r["person"] == "first" and r["concept_id"].startswith("EX")
+    ]
     out: dict[str, tuple[float, str, str]] = {}
-    for ex_id, row in zip(ex_ids, existing):
+    for ex_id, row in zip(ex_ids, existing, strict=True):
         original, rewrite = row["original_corpus_phrase"], row["speaker_phrase"]
         if not original or not rewrite:
             continue
@@ -254,25 +307,31 @@ def sheet_drafts() -> dict[str, tuple[str, str]]:
     against OB01-OB12: both sequences are 5 CRITICAL, 5 URGENT, 2 ROUTINE in the
     same clinical order, and the glosses agree line for line.
     """
-    rows = [r for r in csv.DictReader(SHEET.open(encoding="utf-8"))
-            if r["language"] == "english" and r["status"] == "draft"]
+    rows = [
+        r
+        for r in csv.DictReader(SHEET.open(encoding="utf-8"))
+        if r["language"] == "english" and r["status"] == "draft"
+    ]
     out: dict[str, tuple[str, str]] = {}
     obstetric: list[dict] = []
     for r in rows:
         gloss = r["english_gloss"]
         if gloss.startswith("["):
-            out[gloss[1:gloss.index("]")]] = (r["phrase"], r["id"])
+            out[gloss[1 : gloss.index("]")]] = (r["phrase"], r["id"])
         elif r["domain"] == "obstetric":
             obstetric.append(r)
     if len(obstetric) != 12:
-        raise SystemExit(f"expected 12 untagged obstetric drafts, found {len(obstetric)}")
+        raise SystemExit(
+            f"expected 12 untagged obstetric drafts, found {len(obstetric)}"
+        )
     for i, r in enumerate(obstetric, start=1):
         out[f"OB{i:02d}"] = (r["phrase"], r["id"])
     return out
 
 
-def relation_set_name(concept_id: str, domain: str, person: str,
-                      ruled: dict[str, str]) -> str:
+def relation_set_name(
+    concept_id: str, domain: str, person: str, ruled: dict[str, str]
+) -> str:
     """The named set an English third person expands over. Names, not strings.
 
     Storing the NAME rather than the eight relations is deliberate: the strings
@@ -299,7 +358,9 @@ def build() -> list[dict]:
             "English candidates would be dropped with no record of where the "
             "concept went. Add each with the ruling that names its target."
         )
-    anchors = {r["concept_id"]: r for r in csv.DictReader(ANCHORS.open(encoding="utf-8"))}
+    anchors = {
+        r["concept_id"]: r for r in csv.DictReader(ANCHORS.open(encoding="utf-8"))
+    }
     v1_english = ex_to_v1_english()
     drafts = sheet_drafts()
     ruled = rulings()
@@ -313,8 +374,9 @@ def build() -> list[dict]:
     # written before the person split and declare no person, so the row that
     # takes one is the row that applies: the paediatric drafts are already carer
     # voice ("my child is having a fit") and their first person is applies=no.
-    applies_first = {r["concept_id"]: r["applies"] != "no"
-                     for r in ky if r["person"] == "first"}
+    applies_first = {
+        r["concept_id"]: r["applies"] != "no" for r in ky if r["person"] == "first"
+    }
 
     rows: list[dict] = []
     for src in ky:
@@ -344,10 +406,14 @@ def build() -> list[dict]:
             notes.append("applies=no inherited from the Kinyarwanda brief")
         if src["hold"] == "yes":
             row["hold"] = "yes"
-            notes.append("HOLD INHERITED from Kinyarwanda — lift it here if the "
-                         "reason is Kinyarwanda wording rather than the concept")
+            notes.append(
+                "HOLD INHERITED from Kinyarwanda — lift it here if the "
+                "reason is Kinyarwanda wording rather than the concept"
+            )
         if src["needs_clinician"].strip():
-            row["needs_clinician"] = "INHERITED — restate in English terms during the domain pass"
+            row["needs_clinician"] = (
+                "INHERITED — restate in English terms during the domain pass"
+            )
 
         candidate, origin, note = "", "", ""
         if cid in COLLAPSED or cid in OUT_OF_GENERATION:
@@ -355,29 +421,40 @@ def build() -> list[dict]:
             absorbed = v1_english.get(cid, "") if is_ex else ""
             # Record the drop once, on the row the candidate would have gone to,
             # rather than twice per concept.
-            carries = (person == "first") if is_ex else (
-                (person == "first") == applies_first.get(cid, True))
+            carries = (
+                (person == "first")
+                if is_ex
+                else ((person == "first") == applies_first.get(cid, True))
+            )
             if carries and (drafted or absorbed):
                 origin = "dropped"
-                why = (f"collapsed into {ABSORBED_BY.get(cid, 'another concept')}"
-                       if cid in COLLAPSED
-                       else "out of generation pending the service-design ruling")
+                why = (
+                    f"collapsed into {ABSORBED_BY.get(cid, 'another concept')}"
+                    if cid in COLLAPSED
+                    else "out of generation pending the service-design ruling"
+                )
                 text = drafted[0] if drafted else absorbed
                 label = f"draft {drafted[1]}" if drafted else "v1 English"
-                note = (f"{label} dropped ({why}): {text!r}. "
-                        "Recorded so the drop is visible, not silent.")
+                note = (
+                    f"{label} dropped ({why}): {text!r}. "
+                    "Recorded so the drop is visible, not silent."
+                )
         elif is_ex:
             if person == "first":
                 candidate = v1_english.get(cid, "")
                 origin = "v1_corpus" if candidate else ""
                 if not candidate:
-                    note = ("no v1 English phrase exists: EX31 is the row the speaker "
-                            "ADDED to the first brief, so it has no counterpart in any "
-                            "other language and English must be drafted from scratch.")
+                    note = (
+                        "no v1 English phrase exists: EX31 is the row the speaker "
+                        "ADDED to the first brief, so it has no counterpart in any "
+                        "other language and English must be drafted from scratch."
+                    )
                 else:
-                    note = ("v1 corpus string at this position, carried as a CANDIDATE. "
-                            "It is currently a noun_phrase rendered after a subject; as "
-                            "an utterance it needs the subject folded in.")
+                    note = (
+                        "v1 corpus string at this position, carried as a CANDIDATE. "
+                        "It is currently a noun_phrase rendered after a subject; as "
+                        "an utterance it needs the subject folded in."
+                    )
                     # An EX id names a POSITION in v1, and the speaker's rewrite of
                     # that position was free to land on a different presentation. So
                     # fidelity cannot be assumed for any EX row, only for the ones
@@ -402,8 +479,10 @@ def build() -> list[dict]:
             drafted = drafts.get(cid)
             if drafted and (person == "first") == applies_first.get(cid, True):
                 candidate, origin = drafted[0], "sheet_draft"
-                note = (f"draft {drafted[1]} from phrase_review_sheet.csv, "
-                        "Claude 2026-08-31, never reviewed")
+                note = (
+                    f"draft {drafted[1]} from phrase_review_sheet.csv, "
+                    "Claude 2026-08-31, never reviewed"
+                )
                 if person == "third":
                     note += ". Written in carer voice already; needs {REL} substituted "
                     note += "for the relation before it can expand."
@@ -441,18 +520,24 @@ def merge(fresh: list[dict], existing: list[dict]) -> tuple[list[dict], list[str
         for column in COLUMNS:
             if column in REGENERATED:
                 if old.get(column, "") != row[column]:
-                    drift.append(f"{row['concept_id']} {row['person']} {column}: "
-                                 f"{old.get(column, '')!r} -> {row[column]!r}")
+                    drift.append(
+                        f"{row['concept_id']} {row['person']} {column}: "
+                        f"{old.get(column, '')!r} -> {row[column]!r}"
+                    )
             elif column not in ("concept_id", "person"):
                 row[column] = old.get(column, row[column])
     return fresh, drift
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--check", action="store_true",
-                    help="Report drift in derived columns without writing.")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--check",
+        action="store_true",
+        help="Report drift in derived columns without writing.",
+    )
     args = ap.parse_args()
 
     rows = build()
@@ -479,8 +564,10 @@ def main() -> int:
 
     save(OUT, COLUMNS, rows)
     for concept_id, name in PENDING_RULINGS.items():
-        print(f"  PENDING: {concept_id} -> {name} is applied here but is NOT yet in "
-              "routine_relation_sets.csv")
+        print(
+            f"  PENDING: {concept_id} -> {name} is applied here but is NOT yet in "
+            "routine_relation_sets.csv"
+        )
     filled = sum(1 for r in rows if r["suggested_english"].strip())
     ruled_rows = sum(1 for r in rows if r["your_phrasing"].strip())
     print(f"wrote {OUT.relative_to(ROOT)}: {len(rows)} rows")

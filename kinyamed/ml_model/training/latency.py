@@ -37,13 +37,12 @@ import platform
 import statistics
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.atomicio import atomic_write  # noqa: E402
-from training.config import ID_TO_LABEL, NUM_LABELS  # noqa: E402
+from dataset.atomicio import atomic_write
 
 
 def machine() -> dict[str, str]:
@@ -57,9 +56,10 @@ def machine() -> dict[str, str]:
     except OSError:
         pass
     import torch
+
     return {
         "cpu": model_name or platform.processor() or "unknown",
-        "cores_available": str(len(getattr(__import__("os"), "sched_getaffinity")(0))),
+        "cores_available": str(len(__import__("os").sched_getaffinity(0))),
         "torch": torch.__version__,
         "torch_threads": str(torch.get_num_threads()),
         "python": platform.python_version(),
@@ -68,14 +68,19 @@ def machine() -> dict[str, str]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--model", type=Path, required=True)
     ap.add_argument("--manifest", type=Path, required=True)
     ap.add_argument("--rows", type=int, default=1000)
     ap.add_argument("--max-length", type=int, default=96)
-    ap.add_argument("--threads", type=int, default=None,
-                    help="Pin torch threads. Recorded in the output either way.")
+    ap.add_argument(
+        "--threads",
+        type=int,
+        default=None,
+        help="Pin torch threads. Recorded in the output either way.",
+    )
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out", type=Path, default=Path("training/latency_v2d.json"))
     args = ap.parse_args()
@@ -89,12 +94,16 @@ def main() -> int:
 
     manifest = json.loads(args.manifest.read_text())
     frame = pd.read_csv(manifest["files"]["eval"]["path"])
-    texts = frame["text"].sample(n=min(args.rows, len(frame)),
-                                 random_state=args.seed).tolist()
+    texts = (
+        frame["text"]
+        .sample(n=min(args.rows, len(frame)), random_state=args.seed)
+        .tolist()
+    )
 
     tok_dir = args.model / "tokenizer"
     tokenizer = AutoTokenizer.from_pretrained(
-        str(tok_dir if tok_dir.exists() else args.model))
+        str(tok_dir if tok_dir.exists() else args.model)
+    )
     model = AutoModelForSequenceClassification.from_pretrained(str(args.model))
     model.eval()
 
@@ -104,8 +113,9 @@ def main() -> int:
         """One end-to-end request: tokenise, forward, argmax. Wall clock."""
         start = time.perf_counter()
         with torch.no_grad():
-            encoded = tokenizer(text, return_tensors="pt", truncation=True,
-                                max_length=args.max_length)
+            encoded = tokenizer(
+                text, return_tensors="pt", truncation=True, max_length=args.max_length
+            )
             logits = model(**encoded).logits
             int(logits.argmax(dim=-1).item())
         return (time.perf_counter() - start) * 1000.0
@@ -125,11 +135,11 @@ def main() -> int:
     def pct(p: float) -> float:
         # Nearest-rank, stated because percentile conventions differ and a p95
         # computed two ways can differ by a millisecond at this sample size.
-        k = max(1, int(round(p / 100.0 * len(warm_sorted))))
+        k = max(1, round(p / 100.0 * len(warm_sorted)))
         return warm_sorted[k - 1]
 
     result = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "model": str(args.model),
         "model_name": args.model.name,
         "manifest": str(args.manifest),
@@ -139,8 +149,9 @@ def main() -> int:
         "seed": args.seed,
         "machine": machine(),
         "token_length": {
-            "min": min(lengths), "median": int(statistics.median(lengths)),
-            "p95": sorted(lengths)[max(0, int(round(0.95 * len(lengths))) - 1)],
+            "min": min(lengths),
+            "median": int(statistics.median(lengths)),
+            "p95": sorted(lengths)[max(0, round(0.95 * len(lengths)) - 1)],
             "max": max(lengths),
         },
         "cold_ms": round(cold_ms, 2),
@@ -162,11 +173,15 @@ def main() -> int:
     m, w = result["machine"], result["warm_ms"]
     print(f"model      : {args.model.name}")
     print(f"machine    : {m['cpu']}")
-    print(f"             {m['cores_available']} cores available, "
-          f"torch {m['torch']} using {m['torch_threads']} threads")
+    print(
+        f"             {m['cores_available']} cores available, "
+        f"torch {m['torch']} using {m['torch_threads']} threads"
+    )
     print(f"rows       : {result['rows']:,} at batch 1, max_length {args.max_length}")
-    print(f"tokens     : median {result['token_length']['median']}, "
-          f"p95 {result['token_length']['p95']}, max {result['token_length']['max']}")
+    print(
+        f"tokens     : median {result['token_length']['median']}, "
+        f"p95 {result['token_length']['p95']}, max {result['token_length']['max']}"
+    )
     print()
     print(f"  COLD (first request, n=1) : {result['cold_ms']:8.2f} ms")
     print(f"  WARM median               : {w['median']:8.2f} ms")

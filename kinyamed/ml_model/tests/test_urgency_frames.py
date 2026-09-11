@@ -41,8 +41,11 @@ def test_empty_maps_leave_the_families_exactly_as_they_were():
     """The v1 guarantee. Empty must mean *no* narrowing, not 'narrowed to nothing'."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     # v1's own maps, not v2's - v2 populated CLOSERS_BY_URGENCY at the freeze.
     assert V1.CONTEXTS_BY_URGENCY == {}
     assert V1.CLOSERS_BY_URGENCY == {}
@@ -56,12 +59,18 @@ def test_restricting_critical_shrinks_only_critical():
     """Populating the map narrows the intended class and nothing else."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     _, total_before, crit_before = _sizes()
-    kept = tuple(c for c in V1.CLOSERS["kinyarwanda"]
-                 if c not in V.V2_CRITICAL_CLOSER_EXCLUSIONS)
-    assert len(kept) == len(V1.CLOSERS["kinyarwanda"]) - 1, "expected to drop exactly one"
+    kept = tuple(
+        c for c in V1.CLOSERS["kinyarwanda"] if c not in V.V2_CRITICAL_CLOSER_EXCLUSIONS
+    )
+    assert len(kept) == len(V1.CLOSERS["kinyarwanda"]) - 1, (
+        "expected to drop exactly one"
+    )
 
     # Set it on the GENERATOR, not on vocabulary: the generator is what reads it,
     # and mutating the shared module leaked into other tests before the freeze
@@ -74,7 +83,9 @@ def test_restricting_critical_shrinks_only_critical():
         assert total_after < total_before
         non_crit_before = total_before - crit_before
         non_crit_after = total_after - crit_after
-        assert non_crit_after == non_crit_before, "a restriction leaked into another class"
+        assert non_crit_after == non_crit_before, (
+            "a restriction leaked into another class"
+        )
     finally:
         G.CLOSERS_BY_URGENCY = V1.CLOSERS_BY_URGENCY
 
@@ -85,16 +96,23 @@ def test_the_excluded_closer_is_the_casual_one():
     """The ruling, as a test: CRITICAL drops the sign-off, keeps the question."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     excluded = V.V2_CRITICAL_CLOSER_EXCLUSIONS
-    assert ". Murakoze." in excluded, "the bare thank-you reads casual after an emergency"
+    assert ". Murakoze." in excluded, (
+        "the bare thank-you reads casual after an emergency"
+    )
     # '. Urakoze.' arrived with the frame fragments and is the same sign-off, so
     # the v2 freeze excludes it too - the ruling anticipated exactly this.
     live = V.CLOSERS_BY_URGENCY["CRITICAL"]["kinyarwanda"]
     assert ". Urakoze." not in live and ". Murakoze." not in live
     assert ". Nkora iki?" in live, "a question is not a sign-off"
-    assert ". Nkora iki?" not in excluded, "'What do I do?' is a real question in an emergency"
+    assert ". Nkora iki?" not in excluded, (
+        "'What do I do?' is a real question in an emergency"
+    )
     assert ". Ndakeneye ubufasha vuba." not in excluded
     assert ". Mfasha muganga." not in excluded
     # Against v2's closers: '. Urakoze.' arrived with the frame fragments and
@@ -114,11 +132,18 @@ def test_critical_still_clears_its_bucket_after_the_restriction():
     """
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     # Measured on the REAL v2 inventory now that it exists, not projected.
-    frame_full = (len(V.OPENERS["kinyarwanda"]) * len(V.ONSETS["kinyarwanda"])
-                  * len(V.CONTEXTS["kinyarwanda"]) * len(V.CLOSERS["kinyarwanda"]))
+    frame_full = (
+        len(V.OPENERS["kinyarwanda"])
+        * len(V.ONSETS["kinyarwanda"])
+        * len(V.CONTEXTS["kinyarwanda"])
+        * len(V.CLOSERS["kinyarwanda"])
+    )
     kept = len(V.CLOSERS_BY_URGENCY["CRITICAL"]["kinyarwanda"])
     frame_restricted = frame_full // len(V.CLOSERS["kinyarwanda"]) * kept
 
@@ -127,8 +152,11 @@ def test_critical_still_clears_its_bucket_after_the_restriction():
     # progress; see the design doc for the derivation.
     # v2 is monolingual, so one inventory feeds one family per (language, class).
     G.use_corpus_version(2)
-    instances = sum(f.combinations for f in G.build_families()
-                    if f.urgency == "CRITICAL") // frame_restricted or 1
+    instances = (
+        sum(f.combinations for f in G.build_families() if f.urgency == "CRITICAL")
+        // frame_restricted
+        or 1
+    )
     families_drawing_on_one_inventory = 1
 
     need = V2_TARGET * CLASS_SHARE

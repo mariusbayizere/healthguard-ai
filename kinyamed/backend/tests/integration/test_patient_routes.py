@@ -7,7 +7,8 @@ import pytest
 
 def test_create_returns_201_and_normalises_phone(client):
     response = client.post(
-        "/api/v1/patients", json={"name": "  Uwimana  ", "phone": "0788 123 456", "gender": "FEMALE"}
+        "/api/v1/patients",
+        json={"name": "  Uwimana  ", "phone": "0788 123 456", "gender": "FEMALE"},
     )
     assert response.status_code == 201
     body = response.json()
@@ -41,7 +42,9 @@ def test_list_is_paginated(client, patient_factory):
 
 
 def test_list_rejects_an_unbounded_page_size(client):
-    assert client.get("/api/v1/patients", params={"page_size": 10_000}).status_code == 422
+    assert (
+        client.get("/api/v1/patients", params={"page_size": 10_000}).status_code == 422
+    )
 
 
 def test_search_matches_name_or_phone(client, patient_factory):
@@ -76,13 +79,16 @@ def test_delete_with_clinical_records_is_refused_then_allowed_with_cascade(
     """The old code raised an unhandled IntegrityError here (HTTP 500)."""
     patient = patient_factory()
     client.post(
-        "/api/v1/triage", json={"patient_id": patient["id"], "symptoms_input": "mfite umuriro"}
+        "/api/v1/triage",
+        json={"patient_id": patient["id"], "symptoms_input": "mfite umuriro"},
     )
 
     refused = client.delete(f"/api/v1/patients/{patient['id']}")
     assert refused.status_code == 409
     assert "cascade=true" in refused.json()["error"]["message"]
 
-    forced = client.delete(f"/api/v1/patients/{patient['id']}", params={"cascade": True})
+    forced = client.delete(
+        f"/api/v1/patients/{patient['id']}", params={"cascade": True}
+    )
     assert forced.status_code == 204
     assert client.get("/api/v1/queue").json()["total"] == 0, "records must cascade away"

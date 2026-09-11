@@ -46,7 +46,7 @@ def main() -> int:
         per_domain[rs[0]["domain"]].append(cid)
 
     overlap: set[str] = set()
-    for dom, cids in sorted(per_domain.items()):
+    for _dom, cids in sorted(per_domain.items()):
         k = max(1, round(len(cids) * args.overlap_fraction))
         overlap.update(rng.sample(sorted(cids), k))
 
@@ -64,19 +64,26 @@ def main() -> int:
             out = [{**r, "your_phrasing": "", "notes": ""} for r in out]
         path = args.brief.with_name(args.brief.stem + f"_author{name}.csv")
         with path.open("w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=list(out[0])); w.writeheader(); w.writerows(out)
-        print(f"  {path.name:<46} {len(assigned):>3} concepts, {len(out):>3} rows "
-              f"({len(overlap)} shared)")
+            w = csv.DictWriter(fh, fieldnames=list(out[0]))
+            w.writeheader()
+            w.writerows(out)
+        print(
+            f"  {path.name:<46} {len(assigned):>3} concepts, {len(out):>3} rows "
+            f"({len(overlap)} shared)"
+        )
 
     key = args.brief.with_name(args.brief.stem + "_OVERLAP_KEY.csv")
     with key.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh); w.writerow(["concept_id", "domain"])
+        w = csv.writer(fh)
+        w.writerow(["concept_id", "domain"])
         for cid in concepts:
             if cid in overlap:
                 w.writerow([cid, by_concept[cid][0]["domain"]])
     print(f"  {key.name:<46} {len(overlap)} concepts — DO NOT SEND to either author")
-    print(f"\n  coverage: {len(overlap | a_only | b_only)} of {len(concepts)} concepts, "
-          f"no gaps: {len(overlap | a_only | b_only) == len(concepts)}")
+    print(
+        f"\n  coverage: {len(overlap | a_only | b_only)} of {len(concepts)} concepts, "
+        f"no gaps: {len(overlap | a_only | b_only) == len(concepts)}"
+    )
     return 0
 
 

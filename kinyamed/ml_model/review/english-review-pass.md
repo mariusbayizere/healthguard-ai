@@ -725,7 +725,7 @@ the summary below is what the review found before the corpus was checked.
 lowercases it.**
 
 ```python
-if continues:                                  # opener ends in a comma
+if continues:  # opener ends in a comma
     phrase = phrase[0].lower() + phrase[1:]
 ```
 

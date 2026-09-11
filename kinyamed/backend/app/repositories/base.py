@@ -12,7 +12,8 @@ at all.
 
 from __future__ import annotations
 
-from typing import Any, Generic, Sequence, Type, TypeVar
+from collections.abc import Sequence
+from typing import Any, Generic, TypeVar
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session
@@ -25,7 +26,7 @@ ModelType = TypeVar("ModelType", bound=TimestampedModel)
 class BaseRepository(Generic[ModelType]):
     """Type-safe CRUD operations shared by every model repository."""
 
-    def __init__(self, model: Type[ModelType]) -> None:
+    def __init__(self, model: type[ModelType]) -> None:
         self.model = model
 
     # ── Reads ────────────────────────────────────────────────────────────
@@ -35,7 +36,10 @@ class BaseRepository(Generic[ModelType]):
 
     def exists(self, db: Session, record_id: int) -> bool:
         """Whether a record with this primary key exists, without loading it."""
-        return db.scalar(select(self.model.id).where(self.model.id == record_id)) is not None
+        return (
+            db.scalar(select(self.model.id).where(self.model.id == record_id))
+            is not None
+        )
 
     def get_all(
         self, db: Session, *, skip: int = 0, limit: int = 50
@@ -60,7 +64,9 @@ class BaseRepository(Generic[ModelType]):
         derived from those columns, which silently yields 1 on Postgres.
         """
         return int(
-            db.scalar(select(func.count()).select_from(statement.order_by(None).subquery()))
+            db.scalar(
+                select(func.count()).select_from(statement.order_by(None).subquery())
+            )
             or 0
         )
 

@@ -12,7 +12,7 @@ rules.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 from sqlalchemy.orm import Session
@@ -25,7 +25,12 @@ from app.core.exceptions import (
     QueueEntryNotActiveError,
     QueueEntryNotFoundError,
 )
-from app.models.queue import ACTIVE_STATUSES, ALLOWED_STATUS_TRANSITIONS, Queue, QueueStatus
+from app.models.queue import (
+    ACTIVE_STATUSES,
+    ALLOWED_STATUS_TRANSITIONS,
+    Queue,
+    QueueStatus,
+)
 from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import doctor_repository, queue_repository
 
@@ -42,7 +47,7 @@ class QueueItem:
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _capacity(db: Session) -> int:
@@ -58,7 +63,7 @@ def _wait_for(priority: int, ahead: int, capacity: int) -> int:
     """
     if priority == UrgencyLevel.CRITICAL.priority:
         return 0  # critical cases are seen immediately
-    minutes = int(round(ahead / capacity)) * settings.MINUTES_PER_PATIENT
+    minutes = round(ahead / capacity) * settings.MINUTES_PER_PATIENT
     if priority == UrgencyLevel.URGENT.priority:
         return min(minutes, settings.URGENT_MAX_WAIT_MINUTES)
     return minutes
@@ -115,7 +120,11 @@ def position_of(db: Session, entry: Queue) -> int:
 def describe(db: Session, entry: Queue) -> QueueItem:
     """Build the position/wait view of a single entry."""
     position = position_of(db, entry)
-    wait = _wait_for(entry.priority, max(position - 1, 0), _capacity(db)) if position else 0
+    wait = (
+        _wait_for(entry.priority, max(position - 1, 0), _capacity(db))
+        if position
+        else 0
+    )
     return QueueItem(entry=entry, position=position, estimated_wait=wait)
 
 
@@ -179,7 +188,9 @@ def change_status(
     return entry
 
 
-def assign_doctor(db: Session, entry: Queue, doctor_id: int, *, commit: bool = True) -> Queue:
+def assign_doctor(
+    db: Session, entry: Queue, doctor_id: int, *, commit: bool = True
+) -> Queue:
     """Assign an on-duty clinician and start the consultation."""
     doctor = doctor_repository.get_by_id(db, doctor_id)
     if doctor is None:

@@ -25,18 +25,24 @@ def test_the_two_indigestion_phrasings_are_not_substrings_of_each_other() -> Non
     """The premise. If this ever became false the declaration would be redundant."""
     assert EX16 not in EX17 and EX17 not in EX16
     shared = 0
-    for a, b in zip(EX16, EX17):
+    # strict=False: two phrasings of different lengths, compared until they
+    # diverge. Equal lengths would be the coincidence, not the contract.
+    for a, b in zip(EX16, EX17, strict=False):
         if a != b:
             break
         shared += 1
     assert shared > 15, "the shared prefix is what makes splitting them a leak"
 
 
-def _components(monkeypatch, phrases: list[str], variants: dict[str, str]) -> dict[str, str]:
+def _components(
+    monkeypatch, phrases: list[str], variants: dict[str, str]
+) -> dict[str, str]:
     import dataset.split_dataset as S
     import dataset.vocabulary as V
 
-    monkeypatch.setattr(S, "all_symptom_phrases", lambda: {"kinyarwanda": tuple(phrases)})
+    monkeypatch.setattr(
+        S, "all_symptom_phrases", lambda: {"kinyarwanda": tuple(phrases)}
+    )
     monkeypatch.setattr(S, "PHRASE_VARIANTS", variants)
     monkeypatch.setattr(V, "PHRASE_VARIANTS", variants, raising=False)
     return S.phrase_components()
@@ -46,8 +52,11 @@ def test_divergent_phrasings_split_without_the_declaration(monkeypatch) -> None:
     """Without it they are two groups — which is the bug, shown rather than asserted away."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     groups = _components(monkeypatch, [EX16, EX17], {})
     assert groups[EX16] != groups[EX17]
 
@@ -55,8 +64,11 @@ def test_divergent_phrasings_split_without_the_declaration(monkeypatch) -> None:
 def test_a_declared_second_phrasing_shares_its_primary_group(monkeypatch) -> None:
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     groups = _components(monkeypatch, [EX16, EX17], {EX17: EX16})
     assert groups[EX16] == groups[EX17], (
         "a declared pairing must put both phrasings in one phrase group, or the "
@@ -79,33 +91,78 @@ def test_reader_extracts_pairs_and_rejects_malformed_ones(tmp_path: Path) -> Non
 
     def brief(rows: list[dict]) -> Path:
         path = tmp_path / f"brief{len(list(tmp_path.iterdir()))}.csv"
-        fields = ["concept_id", "person", "applies", "your_phrasing", "second_phrasing_optional"]
+        fields = [
+            "concept_id",
+            "person",
+            "applies",
+            "your_phrasing",
+            "second_phrasing_optional",
+        ]
         with path.open("w", newline="", encoding="utf-8") as fh:
             w = csv.DictWriter(fh, fieldnames=fields)
             w.writeheader()
             w.writerows(rows)
         return path
 
-    ok = brief([
-        {"concept_id": "EX16", "person": "first", "applies": "yes",
-         "your_phrasing": EX16, "second_phrasing_optional": EX17},
-        {"concept_id": "GI02", "person": "first", "applies": "yes",
-         "your_phrasing": "Ndaruka amaraso.", "second_phrasing_optional": ""},
-    ])
+    ok = brief(
+        [
+            {
+                "concept_id": "EX16",
+                "person": "first",
+                "applies": "yes",
+                "your_phrasing": EX16,
+                "second_phrasing_optional": EX17,
+            },
+            {
+                "concept_id": "GI02",
+                "person": "first",
+                "applies": "yes",
+                "your_phrasing": "Ndaruka amaraso.",
+                "second_phrasing_optional": "",
+            },
+        ]
+    )
     assert second_phrasings(ok) == {EX17: EX16}
 
     # applies=no rows contribute nothing
-    skipped = brief([{"concept_id": "GI08", "person": "first", "applies": "no",
-                      "your_phrasing": EX16, "second_phrasing_optional": EX17}])
+    skipped = brief(
+        [
+            {
+                "concept_id": "GI08",
+                "person": "first",
+                "applies": "no",
+                "your_phrasing": EX16,
+                "second_phrasing_optional": EX17,
+            }
+        ]
+    )
     assert second_phrasings(skipped) == {}
 
-    orphan = brief([{"concept_id": "EX16", "person": "first", "applies": "yes",
-                     "your_phrasing": "", "second_phrasing_optional": EX17}])
+    orphan = brief(
+        [
+            {
+                "concept_id": "EX16",
+                "person": "first",
+                "applies": "yes",
+                "your_phrasing": "",
+                "second_phrasing_optional": EX17,
+            }
+        ]
+    )
     with pytest.raises(SystemExit, match="no primary"):
         second_phrasings(orphan)
 
-    same = brief([{"concept_id": "EX16", "person": "first", "applies": "yes",
-                   "your_phrasing": EX16, "second_phrasing_optional": EX16}])
+    same = brief(
+        [
+            {
+                "concept_id": "EX16",
+                "person": "first",
+                "applies": "yes",
+                "your_phrasing": EX16,
+                "second_phrasing_optional": EX16,
+            }
+        ]
+    )
     with pytest.raises(SystemExit, match="identical"):
         second_phrasings(same)
 
@@ -118,6 +175,6 @@ def test_the_real_brief_parses(ml_root: Path) -> None:
     from review.second_phrasings import second_phrasings
 
     brief = ml_root / "review/speaker_brief_kinyarwanda_v2.csv"
-    if not brief.exists():                                  # pragma: no cover
+    if not brief.exists():  # pragma: no cover
         pytest.skip("brief not present")
     assert isinstance(second_phrasings(brief), dict)

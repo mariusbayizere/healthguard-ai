@@ -35,22 +35,34 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-from build_french_brief import COLUMNS, OUT  # noqa: E402
-from french_relations import agreement_risks, obstetric_scope  # noqa: E402
-from walk import save  # noqa: E402
+from build_french_brief import COLUMNS, OUT
+from french_relations import agreement_risks, obstetric_scope
+from walk import save
 
-DRAFTER_COLUMNS = {"suggested_french", "candidate_origin", "verdict_fidelity",
-                   "suggestion_note", "confidence", "form", "needs_clinician",
-                   "hold", "notes"}
+DRAFTER_COLUMNS = {
+    "suggested_french",
+    "candidate_origin",
+    "verdict_fidelity",
+    "suggestion_note",
+    "confidence",
+    "form",
+    "needs_clinician",
+    "hold",
+    "notes",
+}
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("drafts", type=Path)
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--force", action="store_true",
-                    help="Also overwrite rows that already carry a ruling.")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Also overwrite rows that already carry a ruling.",
+    )
     args = ap.parse_args()
 
     drafts = list(csv.DictReader(args.drafts.open(encoding="utf-8")))
@@ -72,7 +84,9 @@ def main() -> int:
         key = (draft["concept_id"], draft["person"])
         row = index.get(key)
         if row is None:
-            raise SystemExit(f"{key} is not a row in the brief; the spine is fixed at 128 x 2")
+            raise SystemExit(
+                f"{key} is not a row in the brief; the spine is fixed at 128 x 2"
+            )
         if row["your_phrasing"].strip() and not args.force:
             skipped.append(key)
             continue
@@ -96,7 +110,9 @@ def main() -> int:
             flagged.append((key, row["suggested_french"], risks))
         applied += 1
 
-    print(f"{args.drafts.name}: {applied} rows applied, {len(skipped)} skipped as ruled")
+    print(
+        f"{args.drafts.name}: {applied} rows applied, {len(skipped)} skipped as ruled"
+    )
     for key in lifted:
         print(f"  HOLD LIFTED: {key}")
     for key in skipped:

@@ -30,10 +30,14 @@ NULL_ANCHOR = "clinician-defined (no WHO emergency-care anchor)"
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--split-labels-only", action="store_true",
-                    help="Only pairs that also disagree on urgency.")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--split-labels-only",
+        action="store_true",
+        help="Only pairs that also disagree on urgency.",
+    )
     args = ap.parse_args()
 
     shared: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
@@ -44,7 +48,9 @@ def main() -> int:
 
     groups = {a: m for a, m in shared.items() if len(m) > 1}
     conflicted = {a: m for a, m in groups.items() if len({x[2] for x in m}) > 1}
-    for anchor, members in sorted((conflicted if args.split_labels_only else groups).items()):
+    for anchor, members in sorted(
+        (conflicted if args.split_labels_only else groups).items()
+    ):
         labels = {m[2] for m in members}
         note = "  <-- and they disagree on urgency" if len(labels) > 1 else ""
         print(f"{anchor!r}{note}")
@@ -52,8 +58,10 @@ def main() -> int:
             print(f"    {concept_id}  {domain:20s} {urgency}")
         print()
 
-    print(f"{len(groups)} anchors are cited by more than one concept; "
-          f"{len(conflicted)} of those carry conflicting urgency labels.")
+    print(
+        f"{len(groups)} anchors are cited by more than one concept; "
+        f"{len(conflicted)} of those carry conflicting urgency labels."
+    )
     return 0
 
 

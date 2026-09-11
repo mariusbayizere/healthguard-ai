@@ -37,7 +37,9 @@ def test_checkpoint_round_trip(tmp_path: Path, payload: dict) -> None:
     assert restored["step"] == 42
 
 
-def test_checkpoint_from_another_configuration_is_refused(tmp_path: Path, payload: dict) -> None:
+def test_checkpoint_from_another_configuration_is_refused(
+    tmp_path: Path, payload: dict
+) -> None:
     """Resuming a different LR or split into a half-trained optimiser would
     produce a model no manifest describes."""
     path = tmp_path / "state.pt"
@@ -125,8 +127,12 @@ def test_fingerprint_changes_with_any_trajectory_input() -> None:
     baseline = run_fingerprint(manifest, Args())
 
     for field, value in [
-        ("seed", 7), ("batch_size", 32), ("learning_rate", 5e-5),
-        ("max_length", 128), ("train_fraction", 0.5), ("epochs", 3),
+        ("seed", 7),
+        ("batch_size", 32),
+        ("learning_rate", 5e-5),
+        ("max_length", 128),
+        ("train_fraction", 0.5),
+        ("epochs", 3),
         # Freezing the embeddings changes which parameters the optimiser owns,
         # so a checkpoint from a frozen run must not resume into an unfrozen one.
         ("freeze_embeddings", False),

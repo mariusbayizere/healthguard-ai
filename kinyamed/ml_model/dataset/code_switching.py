@@ -60,9 +60,12 @@ WORKSHEET = ROOT / "review" / "code_switching_worksheet.csv"
 # established these six reflect Rwandan usage. Do not add a pair here on
 # plausibility; a speaker answers it.
 MIXED_PAIRS: tuple[tuple[str, str], ...] = (
-    ("kinyarwanda", "english"), ("english", "kinyarwanda"),
-    ("kinyarwanda", "french"), ("french", "kinyarwanda"),
-    ("swahili", "english"), ("english", "swahili"),
+    ("kinyarwanda", "english"),
+    ("english", "kinyarwanda"),
+    ("kinyarwanda", "french"),
+    ("french", "kinyarwanda"),
+    ("swahili", "english"),
+    ("english", "swahili"),
 )
 
 SWITCHED = "switched"
@@ -85,10 +88,11 @@ MINIMUM_SWITCHABLE_TERMS: int | None = None
 @dataclass(frozen=True)
 class InsertableTerm:
     """One speaker-ruled term. Every field below was ruled, not inferred."""
+
     term: str
     matrix_language: str
     source_language: str
-    disposition: str          # SWITCHED or BORROWED
+    disposition: str  # SWITCHED or BORROWED
     noun_class: str
     agreement_example: str
 
@@ -124,7 +128,7 @@ def load_worksheet(path: Path = WORKSHEET) -> tuple[list[InsertableTerm], list[s
         seen += 1
         disposition = _normalise(row.get("is_it_switched_or_borrowed"))
         if not disposition:
-            continue                      # simply unruled; reported in aggregate
+            continue  # simply unruled; reported in aggregate
         if disposition not in (SWITCHED, BORROWED):
             # "switched/borrowed" is the speaker saying BOTH, which is a real
             # linguistic answer and not a malformed one -- but the two send a
@@ -157,10 +161,16 @@ def load_worksheet(path: Path = WORKSHEET) -> tuple[list[InsertableTerm], list[s
                 "example. The class alone does not say what it triggers."
             )
             continue
-        ruled.append(InsertableTerm(
-            term, (row.get("matrix_language") or "").strip(),
-            (row.get("source_language") or "").strip(),
-            disposition, noun_class, agreement))
+        ruled.append(
+            InsertableTerm(
+                term,
+                (row.get("matrix_language") or "").strip(),
+                (row.get("source_language") or "").strip(),
+                disposition,
+                noun_class,
+                agreement,
+            )
+        )
 
     if seen and not ruled and not problems and not unresolved:
         problems.append(
@@ -181,8 +191,9 @@ def switchable_terms(path: Path = WORKSHEET) -> list[InsertableTerm]:
     return [t for t in ruled if t.is_switchable]
 
 
-def generate(matrix: str, embedded: str, phrases: list[str],
-             path: Path = WORKSHEET) -> list[dict]:
+def generate(
+    matrix: str, embedded: str, phrases: list[str], path: Path = WORKSHEET
+) -> list[dict]:
     """Emit code-switched rows, or refuse.
 
     Refusal is not an error condition to be handled around. It is the correct
@@ -203,9 +214,13 @@ def generate(matrix: str, embedded: str, phrases: list[str],
     # Kinyarwanda-classed terms into a Swahili frame, which is the unintegrated
     # bare insertion this module exists to prevent, wearing a concord that
     # belongs to another language.
-    terms = [t for t in ruled if t.is_switchable
-             and t.matrix_language == matrix
-             and t.source_language in (embedded[:2], embedded)]
+    terms = [
+        t
+        for t in ruled
+        if t.is_switchable
+        and t.matrix_language == matrix
+        and t.source_language in (embedded[:2], embedded)
+    ]
 
     blocking = [p for p in problems if not p.startswith("UNRESOLVED ")]
 
@@ -226,11 +241,15 @@ def generate(matrix: str, embedded: str, phrases: list[str],
             f"below the declared minimum of {MINIMUM_SWITCHABLE_TERMS}."
         )
     if blocking or not terms:
-        detail = "\n  ".join(blocking) if blocking else (
-            f"no term is ruled {SWITCHED} with {matrix} as its MATRIX language "
-            f"and {embedded} as its source. The worksheet records noun class and "
-            f"agreement for one matrix language only; {matrix} needs its own, "
-            f"ruled by a {matrix} speaker."
+        detail = (
+            "\n  ".join(blocking)
+            if blocking
+            else (
+                f"no term is ruled {SWITCHED} with {matrix} as its MATRIX language "
+                f"and {embedded} as its source. The worksheet records noun class and "
+                f"agreement for one matrix language only; {matrix} needs its own, "
+                f"ruled by a {matrix} speaker."
+            )
         )
         raise SystemExit(
             "REFUSING TO GENERATE CODE-SWITCHED ROWS.\n"
@@ -247,17 +266,19 @@ def generate(matrix: str, embedded: str, phrases: list[str],
     rows: list[dict] = []
     for phrase in phrases:
         for term in terms:
-            rows.append({
-                "matrix_language": matrix,
-                "embedded_language": embedded,
-                "phrase": phrase,
-                "inserted_term": term.term,
-                "noun_class": term.noun_class,
-                "agreement": term.agreement_example,
-                # Not speaker-authored. The speaker ruled the TERM; nobody
-                # approved this sentence.
-                "provenance": "machine_generated",
-            })
+            rows.append(
+                {
+                    "matrix_language": matrix,
+                    "embedded_language": embedded,
+                    "phrase": phrase,
+                    "inserted_term": term.term,
+                    "noun_class": term.noun_class,
+                    "agreement": term.agreement_example,
+                    # Not speaker-authored. The speaker ruled the TERM; nobody
+                    # approved this sentence.
+                    "provenance": "machine_generated",
+                }
+            )
     return rows
 
 
@@ -265,10 +286,12 @@ def status(path: Path = WORKSHEET) -> str:
     ruled, problems = load_worksheet(path)
     switched = [t for t in ruled if t.is_switchable]
     borrowed = [t for t in ruled if not t.is_switchable]
-    lines = [f"worksheet : {path}",
-             f"ruled     : {len(ruled)} ({len(switched)} switched, "
-             f"{len(borrowed)} borrowed)",
-             f"pairs     : {len(MIXED_PAIRS)} declared"]
+    lines = [
+        f"worksheet : {path}",
+        f"ruled     : {len(ruled)} ({len(switched)} switched, "
+        f"{len(borrowed)} borrowed)",
+        f"pairs     : {len(MIXED_PAIRS)} declared",
+    ]
     if problems:
         lines.append("BLOCKED   :")
         lines.extend(f"  - {p}" for p in problems)

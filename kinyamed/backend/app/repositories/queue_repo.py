@@ -6,8 +6,8 @@ second, id as a deterministic tie-break.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Sequence
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session, joinedload
@@ -24,7 +24,9 @@ class QueueRepository(BaseRepository[Queue]):
     def __init__(self) -> None:
         super().__init__(Queue)
 
-    def _with_patient_chain(self, statement: Select[tuple[Queue]]) -> Select[tuple[Queue]]:
+    def _with_patient_chain(
+        self, statement: Select[tuple[Queue]]
+    ) -> Select[tuple[Queue]]:
         """Eager-load triage result -> symptom report -> patient.
 
         Rendering the queue touches all three for every row; under lazy loading
@@ -39,7 +41,9 @@ class QueueRepository(BaseRepository[Queue]):
     def get_with_relations(self, db: Session, queue_id: int) -> Queue | None:
         """Return one queue entry with its patient chain loaded, or None."""
         return (
-            db.scalars(self._with_patient_chain(select(Queue)).where(Queue.id == queue_id))
+            db.scalars(
+                self._with_patient_chain(select(Queue)).where(Queue.id == queue_id)
+            )
             .unique()
             .one_or_none()
         )
@@ -78,7 +82,9 @@ class QueueRepository(BaseRepository[Queue]):
         """Count entries still occupying a place in the waiting room."""
         return int(
             db.scalar(
-                select(func.count()).select_from(Queue).where(Queue.status.in_(ACTIVE_STATUSES))
+                select(func.count())
+                .select_from(Queue)
+                .where(Queue.status.in_(ACTIVE_STATUSES))
             )
             or 0
         )
@@ -117,12 +123,16 @@ class QueueRepository(BaseRepository[Queue]):
         """Return every queue status count in one pass over the table."""
         row = db.execute(
             select(
-                func.count().filter(Queue.status == QueueStatus.WAITING).label("waiting"),
+                func.count()
+                .filter(Queue.status == QueueStatus.WAITING)
+                .label("waiting"),
                 func.count()
                 .filter(Queue.status == QueueStatus.IN_PROGRESS)
                 .label("in_progress"),
                 func.count().filter(Queue.status == QueueStatus.DONE).label("done"),
-                func.count().filter(Queue.status == QueueStatus.CANCELLED).label("cancelled"),
+                func.count()
+                .filter(Queue.status == QueueStatus.CANCELLED)
+                .label("cancelled"),
             ).select_from(Queue)
         ).one()
         return {
@@ -136,7 +146,9 @@ class QueueRepository(BaseRepository[Queue]):
         """Throughput counters plus quoted-versus-measured wait times."""
         row = db.execute(
             select(
-                func.count().filter(Queue.status == QueueStatus.WAITING).label("waiting"),
+                func.count()
+                .filter(Queue.status == QueueStatus.WAITING)
+                .label("waiting"),
                 func.count()
                 .filter(Queue.status == QueueStatus.IN_PROGRESS)
                 .label("in_progress"),
@@ -144,7 +156,9 @@ class QueueRepository(BaseRepository[Queue]):
                 .filter(Queue.status == QueueStatus.DONE, Queue.completed_at >= since)
                 .label("completed_today"),
                 func.avg(Queue.estimated_wait).label("avg_quoted"),
-                func.avg(func.extract("epoch", Queue.completed_at - Queue.created_at) / 60.0)
+                func.avg(
+                    func.extract("epoch", Queue.completed_at - Queue.created_at) / 60.0
+                )
                 .filter(Queue.completed_at.is_not(None))
                 .label("avg_actual"),
             ).select_from(Queue)
@@ -161,7 +175,9 @@ class QueueRepository(BaseRepository[Queue]):
         """Mean measured minutes from joining the queue to completion."""
         value = db.scalar(
             select(
-                func.avg(func.extract("epoch", Queue.completed_at - Queue.created_at) / 60.0)
+                func.avg(
+                    func.extract("epoch", Queue.completed_at - Queue.created_at) / 60.0
+                )
             ).where(Queue.completed_at.is_not(None))
         )
         return round(float(value or 0.0), 1)

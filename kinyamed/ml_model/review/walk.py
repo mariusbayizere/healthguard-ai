@@ -44,16 +44,20 @@ def _reclassify(rows: list[dict]) -> None:
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from provenance import classify
-        by_key = {(r["concept_id"], r["person"]): r for r in rows
-                  if "concept_id" in r and "person" in r}
+
+        by_key = {
+            (r["concept_id"], r["person"]): r
+            for r in rows
+            if "concept_id" in r and "person" in r
+        }
         if not by_key:
-            return                       # frame-fragment brief: no concepts
+            return  # frame-fragment brief: no concepts
         for row in rows:
             new = classify(row, by_key)
             if new:
                 row["source"] = new
-    except Exception:
-        pass                             # never block a save on the report
+    except Exception:  # noqa: BLE001 — never block a save on the report
+        pass
 
 
 def save(path: Path, fields: list[str], rows: list[dict]) -> None:
@@ -70,7 +74,9 @@ def save(path: Path, fields: list[str], rows: list[dict]) -> None:
     from dataset.atomicio import atomic_write
 
     with atomic_write(path, "w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=fields); w.writeheader(); w.writerows(rows)
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
 
 
 def main() -> int:
@@ -79,40 +85,55 @@ def main() -> int:
     ap.add_argument("--phrase-col", default="your_phrasing")
     ap.add_argument("--suggest-col", default="suggested_kinyarwanda")
     ap.add_argument("--domain", help="Work through one domain only.")
-    ap.add_argument("--include-held", action="store_true",
-                    help="Also present rows marked hold=yes. The hold is there "
-                         "because a ruling is outstanding; lift it in the brief "
-                         "rather than authoring past it.")
+    ap.add_argument(
+        "--include-held",
+        action="store_true",
+        help="Also present rows marked hold=yes. The hold is there "
+        "because a ruling is outstanding; lift it in the brief "
+        "rather than authoring past it.",
+    )
     args = ap.parse_args()
 
     rows = list(csv.DictReader(args.brief.open(encoding="utf-8")))
     fields = list(rows[0])
-    for extra in (args.phrase_col, args.suggest_col, "source", "confidence", "suggestion_note"):
+    for extra in (
+        args.phrase_col,
+        args.suggest_col,
+        "source",
+        "confidence",
+        "suggestion_note",
+    ):
         if extra not in fields:
             fields.append(extra)
             for r in rows:
                 r.setdefault(extra, "")
 
-    todo = [r for r in rows
-            if not (r.get(args.phrase_col) or "").strip()
-            and (r.get("applies") or "yes").strip().lower() != "no"
-            # A held row is an open question, not outstanding work. Presenting it
-            # invites exactly the authored-over-a-hold that rules 7 and 8 exist to
-            # prevent, so it is skipped unless asked for explicitly.
-            and (args.include_held
-                 or (r.get("hold") or "").strip().lower() != "yes")
-            # rows already in the corpus are legitimately empty (the no-opener
-            # variant is an empty string) and are not outstanding work
-            and (r.get("status") or "").strip().lower() != "existing"
-            and (not args.domain or r.get("domain") == args.domain)]
-    held = sum(1 for r in rows
-               if not (r.get(args.phrase_col) or "").strip()
-               and (r.get("applies") or "yes").strip().lower() != "no"
-               and (r.get("hold") or "").strip().lower() == "yes"
-               and (not args.domain or r.get("domain") == args.domain))
+    todo = [
+        r
+        for r in rows
+        if not (r.get(args.phrase_col) or "").strip()
+        and (r.get("applies") or "yes").strip().lower() != "no"
+        # A held row is an open question, not outstanding work. Presenting it
+        # invites exactly the authored-over-a-hold that rules 7 and 8 exist to
+        # prevent, so it is skipped unless asked for explicitly.
+        and (args.include_held or (r.get("hold") or "").strip().lower() != "yes")
+        # rows already in the corpus are legitimately empty (the no-opener
+        # variant is an empty string) and are not outstanding work
+        and (r.get("status") or "").strip().lower() != "existing"
+        and (not args.domain or r.get("domain") == args.domain)
+    ]
+    held = sum(
+        1
+        for r in rows
+        if not (r.get(args.phrase_col) or "").strip()
+        and (r.get("applies") or "yes").strip().lower() != "no"
+        and (r.get("hold") or "").strip().lower() == "yes"
+        and (not args.domain or r.get("domain") == args.domain)
+    )
     if held and not args.include_held:
-        print(f"skipping {held} held row(s) — a ruling lifts the hold, "
-              f"not --include-held")
+        print(
+            f"skipping {held} held row(s) — a ruling lifts the hold, not --include-held"
+        )
     if not todo:
         print("Nothing outstanding.")
         return 0
@@ -123,16 +144,20 @@ def main() -> int:
     for i, r in enumerate(todo, 1):
         print("-" * 72)
         label = r.get("english_gloss") or r.get("slot", "")
-        print(f"[{i}/{len(todo)}] {r.get('domain','')} {r.get('proposed_urgency','')} "
-              f"{r.get('person','')}")
+        print(
+            f"[{i}/{len(todo)}] {r.get('domain', '')} {r.get('proposed_urgency', '')} "
+            f"{r.get('person', '')}"
+        )
         print(f"  gloss      : {label}")
         if r.get("person_note"):
             print(f"  note       : {r['person_note']}")
         if r.get("suggestion_note"):
             print(f"  basis      : {r['suggestion_note']}")
         sug = (r.get(args.suggest_col) or "").strip()
-        print(f"  suggestion : {sug if sug else '(none — write your own)'}"
-              + (f"   [{r.get('confidence')}]" if r.get("confidence") else ""))
+        print(
+            f"  suggestion : {sug if sug else '(none — write your own)'}"
+            + (f"   [{r.get('confidence')}]" if r.get("confidence") else "")
+        )
 
         try:
             choice = input("  > ").strip()
@@ -144,6 +169,7 @@ def main() -> int:
             break
         if choice == "s":
             continue
+
         def ask(prompt: str) -> str | None:
             try:
                 return input(prompt).strip()
@@ -151,12 +177,14 @@ def main() -> int:
                 return None
 
         if choice == "n":
-            r["applies"] = "no"; r["source"] = "not_applicable"
+            r["applies"] = "no"
+            r["source"] = "not_applicable"
         elif choice == "r" or not sug:
             new = ask("  your phrasing: ")
             if not new:
                 continue
-            r[args.phrase_col] = new; r["source"] = "speaker"
+            r[args.phrase_col] = new
+            r["source"] = "speaker"
         elif choice == "e":
             print(f"  current: {sug}")
             new = ask("  edited : ")
@@ -165,17 +193,23 @@ def main() -> int:
             r[args.phrase_col] = new
             r["source"] = "machine_approved" if new == sug else "machine_edited"
         else:
-            r[args.phrase_col] = sug; r["source"] = "machine_approved"
+            r[args.phrase_col] = sug
+            r["source"] = "machine_approved"
 
         _reclassify(rows)
         save(args.brief, fields, rows)
 
     _reclassify(rows)
     save(args.brief, fields, rows)
-    done = sum(1 for r in rows if (r.get(args.phrase_col) or "").strip()
-               or (r.get("applies") or "yes").lower() == "no")
+    done = sum(
+        1
+        for r in rows
+        if (r.get(args.phrase_col) or "").strip()
+        or (r.get("applies") or "yes").lower() == "no"
+    )
     print(f"\nSaved. {done}/{len(rows)} resolved.")
     import collections
+
     c = collections.Counter(r.get("source") or "(none)" for r in rows)
     print("Provenance:", {k: v for k, v in c.items() if k != "(none)"})
     return 0

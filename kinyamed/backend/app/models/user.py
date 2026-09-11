@@ -46,7 +46,9 @@ class User(TimestampedModel):
         ),
     )
 
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=True
+    )
     # bcrypt digest; the plaintext password never leaves the request that set it.
     hashed_password: Mapped[str] = mapped_column(String(128), nullable=False)
     full_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -61,15 +63,21 @@ class User(TimestampedModel):
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     patient_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("patients.id", ondelete="SET NULL"), nullable=True, index=True
+        Integer,
+        ForeignKey("patients.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     doctor_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("doctors.id", ondelete="SET NULL"), nullable=True, index=True
+        Integer,
+        ForeignKey("doctors.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
 
-    patient: Mapped["Patient | None"] = relationship(lazy="joined")
-    doctor: Mapped["Doctor | None"] = relationship(lazy="joined")
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+    patient: Mapped[Patient | None] = relationship(lazy="joined")
+    doctor: Mapped[Doctor | None] = relationship(lazy="joined")
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
@@ -87,16 +95,20 @@ class RefreshToken(TimestampedModel):
 
     __tablename__ = "refresh_tokens"
 
-    jti: Mapped[str] = mapped_column(String(36), unique=True, nullable=False, index=True)
+    jti: Mapped[str] = mapped_column(
+        String(36), unique=True, nullable=False, index=True
+    )
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Coarse client fingerprint, for showing a user their active sessions.
     user_agent: Mapped[str | None] = mapped_column(String(255))
 
-    user: Mapped["User"] = relationship(back_populates="refresh_tokens")
+    user: Mapped[User] = relationship(back_populates="refresh_tokens")
 
     @property
     def is_revoked(self) -> bool:

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.core.config import settings
 from app.models.user import UserRole
 
@@ -85,10 +84,12 @@ def test_wrong_password_and_unknown_email_are_indistinguishable(anon_client):
     anon_client.post("/api/v1/auth/register", json=REGISTRATION)
 
     wrong = anon_client.post(
-        "/api/v1/auth/login", json={"email": REGISTRATION["email"], "password": "wrong-password"}
+        "/api/v1/auth/login",
+        json={"email": REGISTRATION["email"], "password": "wrong-password"},
     )
     unknown = anon_client.post(
-        "/api/v1/auth/login", json={"email": "nobody@example.rw", "password": "wrong-password"}
+        "/api/v1/auth/login",
+        json={"email": "nobody@example.rw", "password": "wrong-password"},
     )
     assert wrong.status_code == unknown.status_code == 401
     assert wrong.json() == unknown.json()
@@ -116,7 +117,9 @@ def test_me_requires_a_token(anon_client):
 
 
 def test_me_returns_the_token_holder(anon_client):
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
     body = anon_client.get(
         "/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"}
     ).json()
@@ -125,7 +128,9 @@ def test_me_returns_the_token_holder(anon_client):
 
 
 def test_a_tampered_token_is_rejected(anon_client):
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
     response = anon_client.get(
         "/api/v1/auth/me", headers={"Authorization": f"Bearer {token[:-2]}xy"}
     )
@@ -187,7 +192,9 @@ def test_logout_succeeds_without_a_session(anon_client):
 def test_logout_all_ends_every_device(anon_client, db):
     from app.models.user import RefreshToken
 
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
     anon_client.post(
         "/api/v1/auth/login",
         json={"email": REGISTRATION["email"], "password": REGISTRATION["password"]},
@@ -202,7 +209,9 @@ def test_logout_all_ends_every_device(anon_client, db):
 
 
 def test_changing_password_ends_other_sessions_and_changes_the_credential(anon_client):
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
 
     changed = anon_client.post(
         "/api/v1/auth/change-password",
@@ -228,17 +237,24 @@ def test_changing_password_ends_other_sessions_and_changes_the_credential(anon_c
 
 
 def test_wrong_current_password_does_not_change_the_credential(anon_client):
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
     response = anon_client.post(
         "/api/v1/auth/change-password",
-        json={"current_password": "not-the-password", "new_password": "another-passphrase"},
+        json={
+            "current_password": "not-the-password",
+            "new_password": "another-passphrase",
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 401
 
 
 def test_sessions_lists_only_live_sessions(anon_client):
-    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()["access_token"]
+    token = anon_client.post("/api/v1/auth/register", json=REGISTRATION).json()[
+        "access_token"
+    ]
     headers = {"Authorization": f"Bearer {token}"}
     assert len(anon_client.get("/api/v1/auth/sessions", headers=headers).json()) == 1
 

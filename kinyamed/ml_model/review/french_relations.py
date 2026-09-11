@@ -40,7 +40,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.vocabulary import (  # noqa: E402
+from dataset.vocabulary import (
     ADULT_RELATIONS,
     CHILD_RELATIONS,
     DOMAIN_RELATIONS,
@@ -50,25 +50,43 @@ from dataset.vocabulary import (  # noqa: E402
 
 # The eight, in the Kinyarwanda order, from v1 `SUBJECTS["french"]`.
 ALL_RELATIONS: tuple[str, ...] = (
-    "Mon enfant", "Ma femme", "Mon mari", "Ma mere",
-    "Mon pere", "Ma soeur", "Mon voisin", "Ma grand-mere",
+    "Mon enfant",
+    "Ma femme",
+    "Mon mari",
+    "Ma mere",
+    "Mon pere",
+    "Ma soeur",
+    "Mon voisin",
+    "Ma grand-mere",
 )
 
 # Only `Mon enfant` is a v1 subject; the other four are drafted, exactly as
 # their English counterparts (`My son`, `My daughter`, ...) were.
 CHILD_RELATIONS_FR: tuple[str, ...] = (
-    "Mon enfant", "Mon fils", "Ma fille",
-    "Mon petit-enfant", "L'enfant de mon voisin",
+    "Mon enfant",
+    "Mon fils",
+    "Ma fille",
+    "Mon petit-enfant",
+    "L'enfant de mon voisin",
 )
 
 HOUSEHOLD_RELATIONS_FR: tuple[str, ...] = (
-    "Ma femme", "Mon mari", "Ma mere", "Mon pere",
-    "Ma soeur", "Mon enfant",
+    "Ma femme",
+    "Mon mari",
+    "Ma mere",
+    "Mon pere",
+    "Ma soeur",
+    "Mon enfant",
 )
 
 ADULT_RELATIONS_FR: tuple[str, ...] = (
-    "Ma femme", "Mon mari", "Ma mere", "Mon pere",
-    "Ma soeur", "Mon voisin", "Ma grand-mere",
+    "Ma femme",
+    "Mon mari",
+    "Ma mere",
+    "Mon pere",
+    "Ma soeur",
+    "Mon voisin",
+    "Ma grand-mere",
 )
 
 NO_RELATIONS_FR: tuple[str, ...] = ()
@@ -87,7 +105,10 @@ NO_RELATIONS_FR: tuple[str, ...] = ()
 # standing the English `she` has. It is recorded because it is the one member of
 # any French set that is not a one-for-one carry of the Kinyarwanda wording.
 OBSTETRIC_RELATIONS_FR: tuple[str, ...] = (
-    "Ma femme", "Ma mere", "Ma soeur", "Ma voisine",
+    "Ma femme",
+    "Ma mere",
+    "Ma soeur",
+    "Ma voisine",
 )
 
 DOMAIN_RELATIONS_FR: dict[str, tuple[str, ...]] = {
@@ -116,10 +137,19 @@ PENDING_RULINGS: dict[str, str] = {
 # agreement follows; the same is true of `Mon petit-enfant` and
 # `L'enfant de mon voisin`.
 GENDER: dict[str, str] = {
-    "Mon enfant": "m", "Ma femme": "f", "Mon mari": "m", "Ma mere": "f",
-    "Mon pere": "m", "Ma soeur": "f", "Mon voisin": "m", "Ma grand-mere": "f",
-    "Mon fils": "m", "Ma fille": "f", "Mon petit-enfant": "m",
-    "L'enfant de mon voisin": "m", "Ma voisine": "f",
+    "Mon enfant": "m",
+    "Ma femme": "f",
+    "Mon mari": "m",
+    "Ma mere": "f",
+    "Mon pere": "m",
+    "Ma soeur": "f",
+    "Mon voisin": "m",
+    "Ma grand-mere": "f",
+    "Mon fils": "m",
+    "Ma fille": "f",
+    "Mon petit-enfant": "m",
+    "L'enfant de mon voisin": "m",
+    "Ma voisine": "f",
 }
 
 # FR-2. Recorded as a non-problem so nobody re-opens it. French possessive
@@ -157,15 +187,46 @@ NAMED: dict[str, tuple[str, ...]] = {
 # when the subject's gender is unknown. Listing them would flag the fix as the
 # defect.
 INFLECTING = {
-    "essouffle", "somnolent", "allonge", "depiste", "mordu", "inconscient",
-    "confus", "fatigue", "inquiet", "enceinte", "assis", "couche", "tombe",
-    "blesse", "brule", "gueri", "guerie", "epuise", "pret", "ne", "premier",
-    "enfle", "deforme", "perdu", "reveille", "gonfle", "sourd", "gros",
+    "essouffle",
+    "somnolent",
+    "allonge",
+    "depiste",
+    "mordu",
+    "inconscient",
+    "confus",
+    "fatigue",
+    "inquiet",
+    "enceinte",
+    "assis",
+    "couche",
+    "tombe",
+    "blesse",
+    "brule",
+    "gueri",
+    "guerie",
+    "epuise",
+    "pret",
+    "ne",
+    "premier",
+    "enfle",
+    "deforme",
+    "perdu",
+    "reveille",
+    "gonfle",
+    "sourd",
+    "gros",
     # Irregular feminines, which are the ones a translator's ear misses because
     # they do not look like they inflect. `mou`/`molle` caught PA03: the sheet
     # draft's "mon enfant est mou" is wrong for `Ma fille`, and CHILD_RELATIONS
     # contains her.
-    "mou", "sec", "blanc", "vieux", "nouveau", "fou", "doux", "franc",
+    "mou",
+    "sec",
+    "blanc",
+    "vieux",
+    "nouveau",
+    "fou",
+    "doux",
+    "franc",
 }
 
 # `etre` + X agrees. `avoir` + noun does not, which is why almost every draft
@@ -177,7 +238,7 @@ _ETRE = re.compile(
 )
 
 
-def obstetric_scope(rows: "list[dict]") -> "dict[str, bool]":
+def obstetric_scope(rows: list[dict]) -> dict[str, bool]:
     """concept id -> whether that CONCEPT's speaker is known to be female.
 
     THE SCOPE IS PER CONCEPT, NOT PER ROW, and that is the whole point. A
@@ -195,8 +256,9 @@ def obstetric_scope(rows: "list[dict]") -> "dict[str, bool]":
     scope: dict[str, bool] = {}
     for row in rows:
         cid = row["concept_id"]
-        obstetric = (row.get("domain") == "obstetric"
-                     or row.get("relation_set", "").startswith("OBSTETRIC_RELATIONS"))
+        obstetric = row.get("domain") == "obstetric" or row.get(
+            "relation_set", ""
+        ).startswith("OBSTETRIC_RELATIONS")
         scope[cid] = scope.get(cid, False) or obstetric
     return scope
 
@@ -225,7 +287,9 @@ def agreement_risks(phrase: str, obstetric: bool = False) -> list[str]:
     # A bare participle opening a phrase ("mordu par un serpent") agrees too.
     head = phrase.split()[0].lower().strip(",.'") if phrase.split() else ""
     if head in INFLECTING:
-        found.append(f"opens with {head!r} — a participle agreeing with an unstated subject")
+        found.append(
+            f"opens with {head!r} — a participle agreeing with an unstated subject"
+        )
     return found
 
 
@@ -247,11 +311,14 @@ def check_mirrors_kinyarwanda() -> list[str]:
     ]
     problems = [
         f"{name}: French has {len(fr)} members, Kinyarwanda has {len(ky)}"
-        for name, fr, ky in pairs if len(fr) != len(ky)
+        for name, fr, ky in pairs
+        if len(fr) != len(ky)
     ]
     expected = tuple(r for r in ALL_RELATIONS if r != "Mon enfant")
-    if ADULT_RELATIONS_FR != expected:
-        problems.append("ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order")
+    if expected != ADULT_RELATIONS_FR:
+        problems.append(
+            "ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order"
+        )
     # The obstetric four are ALL_RELATIONS members with the neighbour resolved to
     # the feminine. Anything else there is a re-decided ruling, not a mirrored one.
     allowed = set(ALL_RELATIONS) | {"Ma voisine"}
@@ -259,8 +326,10 @@ def check_mirrors_kinyarwanda() -> list[str]:
     if stray:
         problems.append(f"OBSTETRIC_RELATIONS has non-mirrored members: {stray}")
     if any(GENDER[r] != "f" for r in OBSTETRIC_RELATIONS_FR):
-        problems.append("OBSTETRIC_RELATIONS is not uniformly feminine; FR-1's "
-                        "obstetric exemption depends on it")
+        problems.append(
+            "OBSTETRIC_RELATIONS is not uniformly feminine; FR-1's "
+            "obstetric exemption depends on it"
+        )
     missing = [r for s in NAMED.values() for r in s if r not in GENDER]
     if missing:
         problems.append(f"no gender recorded for {sorted(set(missing))}")
@@ -271,8 +340,11 @@ if __name__ == "__main__":
     issues = check_mirrors_kinyarwanda()
     for issue in issues:
         print(issue)
-    print("French relation sets mirror the Kinyarwanda rulings"
-          if not issues else f"{len(issues)} problems")
+    print(
+        "French relation sets mirror the Kinyarwanda rulings"
+        if not issues
+        else f"{len(issues)} problems"
+    )
     for name, members in NAMED.items():
         genders = "".join(GENDER[r] for r in members)
         print(f"  {name:34} {len(members)}  {genders or '-'}")

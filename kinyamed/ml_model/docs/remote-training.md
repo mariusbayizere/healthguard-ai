@@ -78,7 +78,9 @@ Identical, except mount Drive first and point `--checkpoint-path` and
 `--save-path` inside it, so a disconnect does not lose the run:
 
 ```python
-from google.colab import drive; drive.mount('/content/drive')
+from google.colab import drive
+
+drive.mount("/content/drive")
 # --checkpoint-path /content/drive/MyDrive/healthguard/checkpoints/train_state.pt
 ```
 

@@ -23,7 +23,9 @@ class PaginationParams(BaseModel):
     """Validated, bounded pagination. A client cannot ask for the whole table."""
 
     page: int = Field(default=1, ge=1)
-    page_size: int = Field(default=settings.DEFAULT_PAGE_SIZE, ge=1, le=settings.MAX_PAGE_SIZE)
+    page_size: int = Field(
+        default=settings.DEFAULT_PAGE_SIZE, ge=1, le=settings.MAX_PAGE_SIZE
+    )
 
     @property
     def offset(self) -> int:
@@ -38,7 +40,9 @@ class PaginatedResponse(BaseModel, Generic[T]):
     """A page of results plus everything a client needs to navigate."""
 
     items: list[T]
-    total: int = Field(description="Total rows matching the query, ignoring pagination.")
+    total: int = Field(
+        description="Total rows matching the query, ignoring pagination."
+    )
     page: int
     page_size: int
     total_pages: int
@@ -48,7 +52,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
     @classmethod
     def build(
         cls, items: list[T], *, total: int, params: PaginationParams
-    ) -> "PaginatedResponse[T]":
+    ) -> PaginatedResponse[T]:
         """Assemble a page, deriving every navigation field from the totals."""
         total_pages = math.ceil(total / params.page_size) if total else 0
         return cls(

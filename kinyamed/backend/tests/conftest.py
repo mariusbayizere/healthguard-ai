@@ -24,7 +24,9 @@ def _admin_url() -> str:
 
     url = os.environ.get("DATABASE_URL") or dotenv_values(".env").get("DATABASE_URL")
     if not url:
-        raise RuntimeError("DATABASE_URL must be set (directly or in .env) to run the tests")
+        raise RuntimeError(
+            "DATABASE_URL must be set (directly or in .env) to run the tests"
+        )
     return url
 
 
@@ -81,7 +83,7 @@ def _database() -> Iterator[None]:
 
 
 @pytest.fixture
-def db() -> Iterator["Session"]:  # noqa: F821 - imported lazily below
+def db() -> Iterator[Session]:  # noqa: F821 - imported lazily below
     """A session that is rolled back and whose tables are cleared after the test."""
     from app.core.database import SessionLocal, engine
     from sqlalchemy import text
@@ -111,10 +113,9 @@ def make_client(db):
     instance: they set an Authorization header on it, so a shared client would
     silently run every request as whichever role was resolved last.
     """
-    from fastapi.testclient import TestClient
-
     import main
     from app.core.database import get_db
+    from fastapi.testclient import TestClient
 
     main.app.dependency_overrides[get_db] = lambda: db
     created: list[TestClient] = []
@@ -134,7 +135,7 @@ def make_client(db):
 
 
 @pytest.fixture
-def anon_client(make_client) -> "TestClient":  # noqa: F821
+def anon_client(make_client) -> TestClient:  # noqa: F821
     """An unauthenticated TestClient whose requests share the test's session."""
     return make_client()
 
@@ -148,8 +149,8 @@ def user_factory(db):
     counter = {"n": 0}
 
     def _create(
-        role: "UserRole" = None, password: str = "correct-horse-battery", **extra
-    ) -> "User":
+        role: UserRole = None, password: str = "correct-horse-battery", **extra
+    ) -> User:
         counter["n"] += 1
         role = role or UserRole.ADMIN
         user = User(
@@ -185,7 +186,7 @@ def admin_user(user_factory):
 
 
 @pytest.fixture
-def client(make_client, admin_user) -> "TestClient":  # noqa: F821
+def client(make_client, admin_user) -> TestClient:  # noqa: F821
     """The default client: authenticated as an administrator.
 
     Most tests exercise behaviour rather than authorisation, so they run with

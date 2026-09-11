@@ -142,8 +142,13 @@ regardless of who the patient is, and there is no feminine form anywhere in the
 corpus:
 
 ```python
-CONTEXTS["french"] = ("", " et cela empire", " et je ne peux pas dormir",
-                      " et je suis inquiet", " et je n'ai pas de medicament")
+CONTEXTS["french"] = (
+    "",
+    " et cela empire",
+    " et je ne peux pas dormir",
+    " et je suis inquiet",
+    " et je n'ai pas de medicament",
+)
 ```
 
 Found the same way the English defect was — by asking what FR-1 implies for the

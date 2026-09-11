@@ -11,8 +11,8 @@ ended rather than just refusing the one request.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime
 
 import structlog
 from sqlalchemy.orm import Session
@@ -26,7 +26,6 @@ from app.core.exceptions import (
     RefreshTokenReusedError,
 )
 from app.core.security import (
-    ACCESS_TOKEN,
     REFRESH_TOKEN,
     TokenError,
     create_access_token,
@@ -50,9 +49,11 @@ logger = structlog.get_logger(__name__)
 class IssuedSession:
     """The pair of tokens handed back after a successful login or refresh."""
 
-    __slots__ = ("access_token", "refresh_token", "expires_in", "user")
+    __slots__ = ("access_token", "expires_in", "refresh_token", "user")
 
-    def __init__(self, access_token: str, refresh_token: str, expires_in: int, user: User) -> None:
+    def __init__(
+        self, access_token: str, refresh_token: str, expires_in: int, user: User
+    ) -> None:
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.expires_in = expires_in
@@ -60,7 +61,7 @@ class IssuedSession:
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _issue_session(
@@ -68,7 +69,9 @@ def _issue_session(
 ) -> IssuedSession:
     """Mint an access/refresh pair and record the refresh token."""
     access_token, _ = create_access_token(subject=user.id, role=user.role.value)
-    refresh_token, refresh_claims = create_refresh_token(subject=user.id, role=user.role.value)
+    refresh_token, refresh_claims = create_refresh_token(
+        subject=user.id, role=user.role.value
+    )
 
     refresh_token_repository.create(
         db,
@@ -89,7 +92,9 @@ def _issue_session(
     )
 
 
-def register_patient(db: Session, data: RegisterRequest, *, user_agent: str | None) -> IssuedSession:
+def register_patient(
+    db: Session, data: RegisterRequest, *, user_agent: str | None
+) -> IssuedSession:
     """Create a patient login together with their clinical record."""
     if user_repository.email_taken(db, data.email):
         raise EmailAlreadyRegisteredError(data.email)
@@ -160,7 +165,9 @@ def authenticate(
     return session
 
 
-def refresh_session(db: Session, token: str, *, user_agent: str | None) -> IssuedSession:
+def refresh_session(
+    db: Session, token: str, *, user_agent: str | None
+) -> IssuedSession:
     """Rotate a refresh token, detecting reuse of one already rotated away."""
     try:
         claims = decode_token(token, expected_type=REFRESH_TOKEN)
@@ -176,7 +183,9 @@ def refresh_session(db: Session, token: str, *, user_agent: str | None) -> Issue
         # replaying it; either way every session for the user is now suspect.
         revoked = refresh_token_repository.revoke_all_for_user(db, record.user_id)
         logger.warning(
-            "refresh_token_reuse_detected", user_id=record.user_id, sessions_ended=revoked
+            "refresh_token_reuse_detected",
+            user_id=record.user_id,
+            sessions_ended=revoked,
         )
         raise RefreshTokenReusedError()
 

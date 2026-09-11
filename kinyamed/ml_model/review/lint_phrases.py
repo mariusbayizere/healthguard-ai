@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.vocabulary import CLOSERS, CONTEXTS, ONSETS, SUBJECTS  # noqa: E402
+from dataset.vocabulary import CONTEXTS, ONSETS, SUBJECTS
 
 
 def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
@@ -38,7 +38,9 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
     # renderer collapses duplicate punctuation, so a full stop is now correct.
     # A trailing comma or semicolon still is not.
     if phrase.rstrip()[-1:] in ",;:":
-        problems.append("ends with a comma or colon: the following slot continues the sentence")
+        problems.append(
+            "ends with a comma or colon: the following slot continues the sentence"
+        )
     if unicodedata.normalize("NFC", phrase) != phrase:
         problems.append("not NFC-normalised (breaks substring leakage detection)")
     if "’" in phrase or "‘" in phrase:
@@ -51,7 +53,9 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
     onset_heads = {o.strip().split()[0].lower() for o in ONSETS[language] if o.strip()}
     last = phrase.split()[-1].lower().strip(",.")
     if last in onset_heads:
-        problems.append(f"ends with {last!r}, which also begins an onset -> '{phrase} {last} ...'")
+        problems.append(
+            f"ends with {last!r}, which also begins an onset -> '{phrase} {last} ...'"
+        )
 
     # A CONTEXT is appended and begins with a connective. A phrase that already
     # carries its own connective clause will produce two in a row.
@@ -59,12 +63,16 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
     # utterance often chains "kandi", and forbidding it would push the speaker
     # back toward the stilted phrasing this whole exercise is correcting. The
     # real fix is context fragments that do not open with the same connective.
-    context_heads = {c.strip().split()[0].lower() for c in CONTEXTS[language] if c.strip()}
+    context_heads = {
+        c.strip().split()[0].lower() for c in CONTEXTS[language] if c.strip()
+    }
     for head in context_heads:
         if f" {head} " in f" {phrase.lower()} ":
-            warnings.append(f"contains {head!r}, which a context clause also opens with. "
-                            f"Fine if it reads naturally; the context slot needs "
-                            f"non-{head!r} variants")
+            warnings.append(
+                f"contains {head!r}, which a context clause also opens with. "
+                f"Fine if it reads naturally; the context slot needs "
+                f"non-{head!r} variants"
+            )
             break
 
     # Standing rule: {REL} should be the grammatical subject. A weak positional
@@ -72,16 +80,20 @@ def check(phrase: str, language: str) -> tuple[list[str], list[str]]:
     if "{REL}" in phrase:
         head = phrase.split()
         if head and not (head[0] == "{REL}" or (len(head) > 1 and head[1] == "{REL}")):
-            warnings.append("{REL} is not at the head of the phrase; check it is the "
-                            "grammatical subject rather than an object")
+            warnings.append(
+                "{REL} is not at the head of the phrase; check it is the "
+                "grammatical subject rather than an object"
+            )
 
     # Length. Written for noun phrases, where anything long was carrying its own
     # onset or context. An utterance is a whole sentence and is legitimately
     # longer - the speaker's own approved phrases run to 14 words - so this is a
     # warning at a higher threshold, not an error.
     if len(phrase.split()) > 16:
-        warnings.append(f"{len(phrase.split())} words: check it is not carrying its own "
-                        "onset or context, which the slots also supply")
+        warnings.append(
+            f"{len(phrase.split())} words: check it is not carrying its own "
+            "onset or context, which the slots also supply"
+        )
     return problems, warnings
 
 
@@ -94,8 +106,13 @@ def main() -> int:
 
     rows = list(csv.DictReader(args.csv_path.open(encoding="utf-8")))
     col = args.column or next(
-        (c for c in ("your_phrasing", f"current_{args.language}_phrase", "phrase")
-         if c in rows[0]), None)
+        (
+            c
+            for c in ("your_phrasing", f"current_{args.language}_phrase", "phrase")
+            if c in rows[0]
+        ),
+        None,
+    )
     if col is None:
         raise SystemExit(f"no phrase column found in {args.csv_path}")
 

@@ -20,13 +20,13 @@ import json
 import subprocess
 import sys
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.atomicio import atomic_write_json  # noqa: E402
-from dataset.split_dataset import phrase_components  # noqa: E402
+from dataset.atomicio import atomic_write_json
+from dataset.split_dataset import phrase_components
 
 # 2 as of the v2 freeze, 2026-09-05. Bumping this is what stops freeze_eval
 # overwriting eval_manifest_*_v1.json and destroying the v1 record - the v1
@@ -74,9 +74,15 @@ def cell_matrix(path: Path) -> tuple[dict[str, dict[str, int]], Counter, Counter
     return {k: dict(v) for k, v in matrix.items()}, languages, labels, total
 
 
-def print_matrix(matrix: dict[str, dict[str, int]], languages: Counter, labels: Counter, total: int) -> list[str]:
+def print_matrix(
+    matrix: dict[str, dict[str, int]], languages: Counter, labels: Counter, total: int
+) -> list[str]:
     """Print the matrix and return the cells too thin to report on."""
-    header = f"  {'language':<13}" + "".join(f"{label:>12}" for label in CLASS_ORDER) + f"{'row total':>12}"
+    header = (
+        f"  {'language':<13}"
+        + "".join(f"{label:>12}" for label in CLASS_ORDER)
+        + f"{'row total':>12}"
+    )
     print(header)
     print("  " + "-" * (len(header) - 2))
     thin: list[str] = []
@@ -93,10 +99,14 @@ def print_matrix(matrix: dict[str, dict[str, int]], languages: Counter, labels: 
         line += f"{languages[language]:>12,}"
         print(line)
     print("  " + "-" * (len(header) - 2))
-    footer = f"  {'col total':<13}" + "".join(f"{labels.get(label, 0):>12,}" for label in CLASS_ORDER)
+    footer = f"  {'col total':<13}" + "".join(
+        f"{labels.get(label, 0):>12,}" for label in CLASS_ORDER
+    )
     print(footer + f"{total:>12,}")
     if thin:
-        print(f"\n  * below {THIN_CELL_THRESHOLD:,} rows — too thin to quote a per-cell metric")
+        print(
+            f"\n  * below {THIN_CELL_THRESHOLD:,} rows — too thin to quote a per-cell metric"
+        )
     return thin
 
 
@@ -119,14 +129,15 @@ def build_manifest(strategy: str, out_dir: Path, source: Path) -> dict:
 
     holdout = split_report["holdout_groups"]
     holdout_detail = [
-        {"group": group, "phrases": sorted(members.get(group, [group]))} for group in sorted(holdout)
+        {"group": group, "phrases": sorted(members.get(group, [group]))}
+        for group in sorted(holdout)
     ]
 
     matrix, languages, labels, total = cell_matrix(eval_path)
 
     return {
         "manifest_version": MANIFEST_VERSION,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "git_commit": git_commit(),
         "strategy": strategy,
         "eval_fraction_target": split_report["eval_fraction_target"],
@@ -164,7 +175,9 @@ def verify(manifest_path: Path) -> int:
     print(f"  strategy {manifest['strategy']}, split seed {manifest['split_seed']}")
 
     failures = 0
-    checks = [("source", Path(manifest["source"]["path"]), manifest["source"]["sha256"])]
+    checks = [
+        ("source", Path(manifest["source"]["path"]), manifest["source"]["sha256"])
+    ]
     for name, entry in manifest["files"].items():
         checks.append((name, Path(entry["path"]), entry["sha256"]))
 
@@ -191,11 +204,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--strategy", choices=("phrase", "family"), default="phrase")
     parser.add_argument("--out-dir", type=Path, default=Path("dataset/processed"))
-    parser.add_argument("--source", type=Path, default=Path("dataset/raw/symptoms_large.csv"))
+    parser.add_argument(
+        "--source", type=Path, default=Path("dataset/raw/symptoms_large.csv")
+    )
     parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
 
-    manifest_path = args.out_dir / f"eval_manifest_{args.strategy}_v{MANIFEST_VERSION}.json"
+    manifest_path = (
+        args.out_dir / f"eval_manifest_{args.strategy}_v{MANIFEST_VERSION}.json"
+    )
     if args.verify:
         return verify(manifest_path)
 
@@ -203,18 +220,28 @@ def main() -> int:
 
     print(f"Frozen eval manifest : {manifest_path}")
     print(f"  strategy           : {manifest['strategy']}")
-    print(f"  split seed         : {manifest['split_seed']}   generator seed: {manifest['generator_seed']}")
+    print(
+        f"  split seed         : {manifest['split_seed']}   generator seed: {manifest['generator_seed']}"
+    )
     print(f"  git commit         : {manifest['git_commit'] or 'not a git repository'}")
     print(f"  source sha256      : {manifest['source']['sha256'][:16]}")
-    print(f"  train              : {manifest['files']['train']['rows']:,} rows, "
-          f"sha256 {manifest['files']['train']['sha256'][:16]}")
-    print(f"  eval               : {manifest['files']['eval']['rows']:,} rows, "
-          f"sha256 {manifest['files']['eval']['sha256'][:16]}")
-    print(f"  held-out groups    : {len(manifest['holdout_groups'])} "
-          f"({manifest['held_out_phrase_count']} phrases)")
+    print(
+        f"  train              : {manifest['files']['train']['rows']:,} rows, "
+        f"sha256 {manifest['files']['train']['sha256'][:16]}"
+    )
+    print(
+        f"  eval               : {manifest['files']['eval']['rows']:,} rows, "
+        f"sha256 {manifest['files']['eval']['sha256'][:16]}"
+    )
+    print(
+        f"  held-out groups    : {len(manifest['holdout_groups'])} "
+        f"({manifest['held_out_phrase_count']} phrases)"
+    )
     print(f"  substring leaks    : {manifest['leakage']['substring_violations']}")
 
-    print(f"\nEval per-cell counts (language x class), {manifest['eval_total']:,} rows:")
+    print(
+        f"\nEval per-cell counts (language x class), {manifest['eval_total']:,} rows:"
+    )
     matrix, languages, labels, total = (
         manifest["eval_matrix"],
         Counter(manifest["eval_languages"]),

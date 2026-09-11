@@ -41,7 +41,8 @@ def word_shingles(text: str, size: int = 3) -> set[int]:
     if len(words) < size:
         return {hash(" ".join(words)) & MAX_HASH}
     return {
-        hash(" ".join(words[i : i + size])) & MAX_HASH for i in range(len(words) - size + 1)
+        hash(" ".join(words[i : i + size])) & MAX_HASH
+        for i in range(len(words) - size + 1)
     }
 
 
@@ -93,8 +94,8 @@ def jaccard(left: set[int], right: set[int]) -> float:
 
 def structural_analysis(path: Path) -> dict:
     """Exact near-duplicate structure over the whole dataset."""
-    from dataset.validate_dataset import all_symptom_phrases
     from dataset.split_dataset import attribute_phrase
+    from dataset.validate_dataset import all_symptom_phrases
 
     phrase_index = all_symptom_phrases()
     phrase_counts: Counter[str] = Counter()
@@ -135,7 +136,12 @@ def structural_analysis(path: Path) -> dict:
 
 
 def jaccard_analysis(
-    path: Path, sample_size: int, threshold: float, permutations: int, bands: int, seed: int
+    path: Path,
+    sample_size: int,
+    threshold: float,
+    permutations: int,
+    bands: int,
+    seed: int,
 ) -> dict:
     """Sampled MinHash/LSH estimate of the near-duplicate rate."""
     rng = random.Random(seed)
@@ -174,14 +180,18 @@ def jaccard_analysis(
         "candidate_pairs": len(candidates),
         "near_duplicate_pairs": near_pairs,
         "documents_with_a_near_duplicate": len(involved),
-        "near_duplicate_document_rate": round(len(involved) / max(len(reservoir), 1), 5),
+        "near_duplicate_document_rate": round(
+            len(involved) / max(len(reservoir), 1), 5
+        ),
         "seconds": round(time.monotonic() - started, 1),
     }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=Path("dataset/raw/symptoms_large.csv"))
+    parser.add_argument(
+        "--input", type=Path, default=Path("dataset/raw/symptoms_large.csv")
+    )
     parser.add_argument("--sample", type=int, default=60_000)
     parser.add_argument("--threshold", type=float, default=0.8)
     parser.add_argument("--permutations", type=int, default=64)
@@ -193,19 +203,32 @@ def main() -> int:
     print("Structural near-duplicates (exact, whole dataset)")
     print(f"  rows                       {structural['total']:,}")
     print(f"  distinct seed phrases      {structural['distinct_phrases']}")
-    print(f"  rows sharing a phrase      min {structural['rows_per_phrase_min']:,} / "
-          f"median {structural['rows_per_phrase_median']:,} / "
-          f"max {structural['rows_per_phrase_max']:,} "
-          f"(mean {structural['rows_per_phrase_mean']:,})")
+    print(
+        f"  rows sharing a phrase      min {structural['rows_per_phrase_min']:,} / "
+        f"median {structural['rows_per_phrase_median']:,} / "
+        f"max {structural['rows_per_phrase_max']:,} "
+        f"(mean {structural['rows_per_phrase_mean']:,})"
+    )
     print(f"  rows matching no phrase    {structural['unmatched_rows']:,}")
 
     sampled = jaccard_analysis(
-        args.input, args.sample, args.threshold, args.permutations, args.bands, args.seed
+        args.input,
+        args.sample,
+        args.threshold,
+        args.permutations,
+        args.bands,
+        args.seed,
     )
-    print(f"\nJaccard near-duplicates (MinHash/LSH estimate, sample of {sampled['sample_size']:,})")
-    print(f"  word 3-gram shingles, {sampled['permutations']} permutations, {sampled['bands']} bands")
+    print(
+        f"\nJaccard near-duplicates (MinHash/LSH estimate, sample of {sampled['sample_size']:,})"
+    )
+    print(
+        f"  word 3-gram shingles, {sampled['permutations']} permutations, {sampled['bands']} bands"
+    )
     print(f"  candidate pairs            {sampled['candidate_pairs']:,}")
-    print(f"  pairs at J >= {sampled['threshold']}          {sampled['near_duplicate_pairs']:,}")
+    print(
+        f"  pairs at J >= {sampled['threshold']}          {sampled['near_duplicate_pairs']:,}"
+    )
     print(
         f"  documents with a neighbour {sampled['documents_with_a_near_duplicate']:,} "
         f"({sampled['near_duplicate_document_rate']:.2%} of sample)"

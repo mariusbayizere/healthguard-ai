@@ -62,7 +62,8 @@ def rows() -> list[dict]:
 def generating(rs: list[dict]) -> list[dict]:
     """Rows that produce corpus phrases: authored, applicable, not held."""
     return [
-        r for r in rs
+        r
+        for r in rs
         if (r["applies"] or "yes").strip().lower() != "no"
         and r["your_phrasing"].strip()
         and r["hold"].strip().lower() != "yes"
@@ -90,8 +91,10 @@ def symptoms_block(gen: list[dict]) -> tuple[str, dict]:
         if second and second not in seen:
             seen[second] = f"{r['concept_id']} {r['person']} (second phrasing)"
             by[r["proposed_urgency"].strip()][r["domain"].strip()].append(second)
-    out = ["SYMPTOMS: dict[str, dict[str, dict[str, tuple[str, ...]]]] = {",
-           '    "kinyarwanda": {']
+    out = [
+        "SYMPTOMS: dict[str, dict[str, dict[str, tuple[str, ...]]]] = {",
+        '    "kinyarwanda": {',
+    ]
     for urgency in ("CRITICAL", "URGENT", "ROUTINE"):
         out.append(f'        "{urgency}": {{')
         for domain in sorted(by.get(urgency, {})):
@@ -130,16 +133,18 @@ def emit(name: str, values: list[str]) -> str:
 
 def replace_assignment(src: str, name: str, new: str) -> str:
     """Replace a whole top-level assignment, however many lines it spans."""
-    pattern = re.compile(rf"^{re.escape(name)}\b[^\n]*=.*?(?=\n[A-Z_]+\s*[:=]|\n# ---|\Z)",
-                         re.S | re.M)
+    pattern = re.compile(
+        rf"^{re.escape(name)}\b[^\n]*=.*?(?=\n[A-Z_]+\s*[:=]|\n# ---|\Z)", re.S | re.M
+    )
     if not pattern.search(src):
         raise SystemExit(f"could not find the assignment for {name}")
     return pattern.sub(lambda _: new + "\n\n", src, count=1)
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--write", action="store_true", help="rewrite vocabulary.py")
     args = ap.parse_args()
 
@@ -150,14 +155,18 @@ def main() -> int:
 
     print(f"brief                     {len(rs)} rows")
     print(f"generating phrases        {len(gen)}")
-    print(f"held (excluded)           {len(held)}  of which authored {len(held_authored)}")
+    print(
+        f"held (excluded)           {len(held)}  of which authored {len(held_authored)}"
+    )
     for r in held_authored:
         print(f"    OUT: {r['concept_id']} {r['person']}  {r['your_phrasing'][:52]}")
 
     sym, counts = symptoms_block(gen)
     for urgency in ("CRITICAL", "URGENT", "ROUTINE"):
         total = sum(counts.get(urgency, {}).values())
-        print(f"  {urgency:8} {total:3} phrases across {len(counts.get(urgency, {}))} domains")
+        print(
+            f"  {urgency:8} {total:3} phrases across {len(counts.get(urgency, {}))} domains"
+        )
 
     forms = {}
     for r in gen:
@@ -170,20 +179,31 @@ def main() -> int:
             # sentence. It is the same concept in the same shape as its primary.
             forms[second] = form
     blank = [p for p, f in forms.items() if f != "utterance"]
-    print(f"PHRASE_FORMS              {len(forms)} entries"
-          + (f"  WARNING non-utterance: {blank}" if blank else "  all utterance"))
+    print(
+        f"PHRASE_FORMS              {len(forms)} entries"
+        + (f"  WARNING non-utterance: {blank}" if blank else "  all utterance")
+    )
 
-    rel = subprocess.run([sys.executable, str(ROOT / "review" / "relation_sets.py"),
-                          "--materialise"], capture_output=True, text=True)
+    rel = subprocess.run(
+        [sys.executable, str(ROOT / "review" / "relation_sets.py"), "--materialise"],
+        capture_output=True,
+        text=True,
+    )
     concept_relations = rel.stdout.strip()
     print(f"CONCEPT_RELATIONS         {concept_relations.count(':')} phrase mappings")
 
-    var = subprocess.run([sys.executable, str(ROOT / "review" / "second_phrasings.py"),
-                          str(BRIEF)], capture_output=True, text=True)
+    var = subprocess.run(
+        [sys.executable, str(ROOT / "review" / "second_phrasings.py"), str(BRIEF)],
+        capture_output=True,
+        text=True,
+    )
     print("PHRASE_VARIANTS/CONCEPTS  " + var.stdout.strip().splitlines()[0])
 
     add = fragments()
-    print("frame fragments written   " + ", ".join(f"{k}+{len(v)}" for k, v in sorted(add.items())))
+    print(
+        "frame fragments written   "
+        + ", ".join(f"{k}+{len(v)}" for k, v in sorted(add.items()))
+    )
 
     if not args.write:
         print("\n--check only; nothing written. Re-run with --write.")
@@ -204,16 +224,18 @@ def main() -> int:
         if second:
             phrase_concepts[second] = r["concept_id"].strip()
             variants[second] = primary
-    live = set(phrase_concepts)
-    print(f"PHRASE_CONCEPTS           {len(phrase_concepts)} phrases across "
-          f"{len(set(phrase_concepts.values()))} concepts  (held rows excluded)")
+    print(
+        f"PHRASE_CONCEPTS           {len(phrase_concepts)} phrases across "
+        f"{len(set(phrase_concepts.values()))} concepts  (held rows excluded)"
+    )
     print(f"PHRASE_VARIANTS           {len(variants)}")
 
     # CONCEPT_RELATIONS: keep only mappings whose phrase actually generates.
     # Built by CALLING the resolver rather than parsing its output, so this
     # cannot drift from what render_third_person.py showed the speaker.
-    from relation_sets import resolve
     from dataset.vocabulary import DOMAIN_RELATIONS, RELATIONS
+    from relation_sets import resolve
+
     rel_map = {}
     for r in gen:
         if r["person"] != "third" or "{REL}" not in r["your_phrasing"]:
@@ -225,75 +247,123 @@ def main() -> int:
         # writing it in would hide which entries are real rulings.
         if allowed is not None and tuple(allowed) != tuple(default):
             rel_map[r["your_phrasing"].strip()] = tuple(allowed)
-    print(f"CONCEPT_RELATIONS         {len(rel_map)} phrases carry a NARROWING "
-          f"(the rest take their domain default)")
+    print(
+        f"CONCEPT_RELATIONS         {len(rel_map)} phrases carry a NARROWING "
+        f"(the rest take their domain default)"
+    )
     for ph, al in sorted(rel_map.items()):
         print(f"    {len(al)} relations  {ph[:56]}")
 
     src = VOCAB.read_text(encoding="utf-8")
     src = replace_assignment(src, "SYMPTOMS", sym)
     src = replace_assignment(src, "LANGUAGES", 'LANGUAGES = ("kinyarwanda",)')
-    src = replace_assignment(src, "MIXED_PAIRS",
-                             "MIXED_PAIRS: tuple[tuple[str, str], ...] = ()")
+    src = replace_assignment(
+        src, "MIXED_PAIRS", "MIXED_PAIRS: tuple[tuple[str, str], ...] = ()"
+    )
 
     def as_dict(name, mapping, note):
-        body = "\n".join(f"    {k!r}:\n        {v!r}," for k, v in sorted(mapping.items()))
-        return f"# {note}\n{name}: dict[str, str] = {{\n{body}\n}}" if mapping else \
-               f"# {note}\n{name}: dict[str, str] = {{}}"
+        body = "\n".join(
+            f"    {k!r}:\n        {v!r}," for k, v in sorted(mapping.items())
+        )
+        return (
+            f"# {note}\n{name}: dict[str, str] = {{\n{body}\n}}"
+            if mapping
+            else f"# {note}\n{name}: dict[str, str] = {{}}"
+        )
 
-    src = replace_assignment(src, "PHRASE_FORMS", as_dict(
-        "PHRASE_FORMS", forms,
-        "Materialised at the v2 freeze from the brief's form column. Every v2 phrase "
-        "is an utterance; a blank here defaults to noun_phrase and prefixes a subject "
-        "onto a complete sentence."))
-    src = replace_assignment(src, "PHRASE_VARIANTS", as_dict(
-        "PHRASE_VARIANTS", variants,
-        "Materialised at the v2 freeze. A concept's second phrasing joins its primary."))
+    src = replace_assignment(
+        src,
+        "PHRASE_FORMS",
+        as_dict(
+            "PHRASE_FORMS",
+            forms,
+            "Materialised at the v2 freeze from the brief's form column. Every v2 phrase "
+            "is an utterance; a blank here defaults to noun_phrase and prefixes a subject "
+            "onto a complete sentence.",
+        ),
+    )
+    src = replace_assignment(
+        src,
+        "PHRASE_VARIANTS",
+        as_dict(
+            "PHRASE_VARIANTS",
+            variants,
+            "Materialised at the v2 freeze. A concept's second phrasing joins its primary.",
+        ),
+    )
     body = "\n".join(f"    {k!r}:\n        {v!r}," for k, v in sorted(rel_map.items()))
-    src = replace_assignment(src, "CONCEPT_RELATIONS",
+    src = replace_assignment(
+        src,
+        "CONCEPT_RELATIONS",
         "# Materialised at the v2 freeze from routine_relation_sets.csv, through the same\n"
         "# resolver render_third_person.py used to show the speaker each rendering. A\n"
         "# phrase absent here takes its domain default.\n"
         "CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {\n" + body + "\n}"
-        if rel_map else "CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}")
-    src = replace_assignment(src, "PHRASE_CONCEPTS", as_dict(
-        "PHRASE_CONCEPTS", phrase_concepts,
-        "Materialised at the v2 freeze, from the GENERATING set only - held phrases are "
-        "not in the inventory and declaring one would make phrase_components raise."))
+        if rel_map
+        else "CONCEPT_RELATIONS: dict[str, tuple[str, ...]] = {}",
+    )
+    src = replace_assignment(
+        src,
+        "PHRASE_CONCEPTS",
+        as_dict(
+            "PHRASE_CONCEPTS",
+            phrase_concepts,
+            "Materialised at the v2 freeze, from the GENERATING set only - held phrases are "
+            "not in the inventory and declaring one would make phrase_components raise.",
+        ),
+    )
 
     # frame fragments: append the written ones to the v1 slots
     from dataset import vocabulary as V
-    for slot, name in (("opener", "OPENERS"), ("context", "CONTEXTS"), ("closer", "CLOSERS")):
+
+    for slot, name in (
+        ("opener", "OPENERS"),
+        ("context", "CONTEXTS"),
+        ("closer", "CLOSERS"),
+    ):
         existing = list(getattr(V, name)["kinyarwanda"])
         merged = existing + [f for f in add.get(slot, []) if f not in existing]
         src = replace_assignment(src, name, emit(name, merged))
         print(f"  {name}: {len(existing)} -> {len(merged)}")
 
     # CRITICAL loses its two sign-offs; '. Urakoze.' now exists and is the same closer
-    closers = list(V.CLOSERS["kinyarwanda"]) + [f for f in add.get("closer", [])
-                                                if f not in V.CLOSERS["kinyarwanda"]]
-    excluded = tuple(c for c in closers if c.strip() in (". Murakoze.", ". Urakoze.")
-                     or c.strip().lower().lstrip(". ").rstrip(".") in ("murakoze", "urakoze"))
+    closers = list(V.CLOSERS["kinyarwanda"]) + [
+        f for f in add.get("closer", []) if f not in V.CLOSERS["kinyarwanda"]
+    ]
+    excluded = tuple(
+        c
+        for c in closers
+        if c.strip() in (". Murakoze.", ". Urakoze.")
+        or c.strip().lower().lstrip(". ").rstrip(".") in ("murakoze", "urakoze")
+    )
     critical = tuple(c for c in closers if c not in excluded)
-    src = replace_assignment(src, "CLOSERS_BY_URGENCY",
+    src = replace_assignment(
+        src,
+        "CLOSERS_BY_URGENCY",
         "# Materialised at the v2 freeze. CRITICAL loses the pure sign-offs: thanking\n"
         "# someone trivialises an emergency. '. Nkora iki?' stays - asking what to do is\n"
         "# a real question in one. URGENT and ROUTINE are deliberately unrestricted.\n"
         "CLOSERS_BY_URGENCY: dict[str, dict[str, tuple[str, ...]]] = {\n"
         '    "CRITICAL": {\n        "kinyarwanda": (\n'
         + "".join(f"            {c!r},\n" for c in critical)
-        + "        ),\n    },\n}")
+        + "        ),\n    },\n}",
+    )
     # replace_assignment swallows whatever follows a block until the next
     # top-level name, and the first run of this script silently DELETED
     # V2_CRITICAL_CLOSER_EXCLUSIONS that way. Re-emit it explicitly: it is the
     # record of why CLOSERS_BY_URGENCY looks as it does, and a materialiser that
     # can lose a ruling is worse than no materialiser.
     if "V2_CRITICAL_CLOSER_EXCLUSIONS" not in src:
-        src += ("\n\n# Restored by materialise_v2.py - the ruled CRITICAL closer exclusions.\n"
-                "V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = "
-                + repr(tuple(e for e in excluded)) + "\n")
-    print(f"  CLOSERS_BY_URGENCY: CRITICAL keeps {len(critical)} of {len(closers)}, "
-          f"excluding {[e for e in excluded]}")
+        src += (
+            "\n\n# Restored by materialise_v2.py - the ruled CRITICAL closer exclusions.\n"
+            "V2_CRITICAL_CLOSER_EXCLUSIONS: tuple[str, ...] = "
+            + repr(tuple(e for e in excluded))
+            + "\n"
+        )
+    print(
+        f"  CLOSERS_BY_URGENCY: CRITICAL keeps {len(critical)} of {len(closers)}, "
+        f"excluding {[e for e in excluded]}"
+    )
 
     VOCAB.write_text(src, encoding="utf-8")
     print(f"\nwrote {VOCAB}")

@@ -9,12 +9,11 @@ from __future__ import annotations
 
 from logging.config import fileConfig
 
+import app.models  # noqa: F401  - imported for its side effect of registering mappers
 from alembic import context
-from sqlalchemy import create_engine, pool
-
 from app.core.config import settings
 from app.core.database import Base
-import app.models  # noqa: F401  - imported for its side effect of registering mappers
+from sqlalchemy import create_engine, pool
 
 config = context.config
 

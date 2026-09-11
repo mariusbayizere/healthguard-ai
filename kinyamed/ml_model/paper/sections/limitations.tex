@@ -130,6 +130,20 @@ and it is authored for Kinyarwanda and Swahili only. English and French return
 an explicit pending state. The system runs; it declines to say anything to a
 patient in a language no speaker has written for.
 
+\paragraph{The client requires connectivity, in a setting that does not have
+it.} The system is intended for health centres with intermittent connectivity,
+and neither half of it tolerates an outage. Classification is server-side --- a
+449\,MB encoder that will not run in a browser on the hardware these clinics
+have --- so a disconnected client cannot triage at all; it could at best capture
+symptoms for later. The queue view is worse than unavailable during an outage:
+it retains the last rows it successfully fetched and continues to render them
+without an age, so a board that is minutes stale reads as current, and a patient
+who arrived during the outage is simply absent from it. Submissions made while
+disconnected are lost rather than queued. We record this as a constraint rather
+than reporting a solution: an offline mode for this system is a capture-and-sync
+design needing server-side idempotency and a conflict rule for replayed triage,
+and neither exists. The full inventory is in \texttt{docs/frontend-limitations.md}.
+
 \paragraph{The configuration search is inconclusive rather than complete.}
 Three configurations were trained and the search was stopped by judgement, not
 by convergence. We did not tune to the gate, and we did not run the

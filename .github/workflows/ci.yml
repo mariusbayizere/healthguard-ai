@@ -126,3 +126,84 @@ jobs:
             echo "::error::These should be ignored, not tracked:"; echo "$bad"; exit 1
           fi
           echo "No generated artefacts are tracked."
+
+  backend:
+    # AUDIT 1.1. Until 2026-09-09 this workflow ran only the ML package, so the
+    # backend suite ran when someone remembered. That is how a red HEAD reached
+    # this remote: every local gate was run except the one that was skipped.
+    name: Backend suite
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kinyamed/backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: kinyamed/backend/requirements*.txt
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check -r requirements-dev.txt
+
+      - name: Test suite
+        # -rs so a skip is visible. A silently skipped test is a test nobody
+        # is running, which is the state this job exists to end.
+        run: python -m pytest -q -rs
+
+  frontend:
+    # AUDIT 1.1. The frontend had no test runner at all until 2026-09-09 and
+    # still had no automation after it gained one.
+    name: Frontend typecheck, tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kinyamed/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: kinyamed/frontend/package-lock.json
+
+      - name: Install from the lockfile
+        # `ci`, not `install`: it fails on a lockfile that disagrees with
+        # package.json rather than silently resolving a different tree.
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm run test
+
+      - name: Production build
+        # A build failure is a real failure: tsc passing while vite cannot
+        # bundle has happened here already.
+        run: npm run build
+
+  lint:
+    # AUDIT 1.2. 15,585 lines of Python with no linter configured. Kept as a
+    # separate job so a style failure is distinguishable at a glance from a
+    # test failure.
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ruff
+        # Must match `required-version` in pyproject.toml, which is what
+        # stops a differently-versioned ruff from formatting differently.
+        run: python -m pip install --disable-pip-version-check ruff==0.16.6
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check .

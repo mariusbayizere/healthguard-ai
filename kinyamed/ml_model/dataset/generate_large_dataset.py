@@ -30,22 +30,22 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.vocabulary import (  # noqa: E402
+from dataset.vocabulary import (
     CLOSERS,
+    CLOSERS_BY_URGENCY,
+    CONCEPT_RELATIONS,
     CONTEXTS,
+    CONTEXTS_BY_URGENCY,
+    DOMAIN_RELATIONS,
     DOMAINS,
     LANGUAGES,
     MIXED_PAIRS,
+    ONSETS,
+    OPENERS,
     PHRASE_FORMS,
     REL_PLACEHOLDER,
     RELATIONS,
-    DOMAIN_RELATIONS,
-    CONCEPT_RELATIONS,
-    CONTEXTS_BY_URGENCY,
-    CLOSERS_BY_URGENCY,
-    ONSETS,
     SENTENCE_END,
-    OPENERS,
     SUBJECTS,
     SYMPTOMS,
 )
@@ -79,7 +79,11 @@ MIN_EXAMPLES_PER_DOMAIN = 500
 # which would make a sample-based CI check permanently red and worthless.
 QUALITY_REFERENCE_ROWS = 1_000_000
 
-CLASS_TARGETS = {"CRITICAL": (0.28, 0.38), "URGENT": (0.32, 0.42), "ROUTINE": (0.28, 0.38)}
+CLASS_TARGETS = {
+    "CRITICAL": (0.28, 0.38),
+    "URGENT": (0.32, 0.42),
+    "ROUTINE": (0.28, 0.38),
+}
 # A monolingual corpus is 100% its language. The v1 band (0.08-0.15) described a
 # four-language corpus with a mixed bucket and would fail by construction here.
 LANGUAGE_TARGETS = {language: (0.99, 1.0) for language in LANGUAGES}
@@ -121,11 +125,11 @@ DEFAULT_FORM = NOUN_PHRASE
 class Family:
     """One template family: a fixed (language, urgency, domain) slot product."""
 
-    language: str          # label written to the dataset
+    language: str  # label written to the dataset
     urgency: str
     domain: str
-    frame_language: str    # supplies opener/subject/onset/context/closer
-    phrase_language: str   # supplies the clinical phrase
+    frame_language: str  # supplies opener/subject/onset/context/closer
+    phrase_language: str  # supplies the clinical phrase
     slots: tuple[tuple[str, ...], ...] = field(repr=False)
     form: str = DEFAULT_FORM
 
@@ -181,8 +185,11 @@ def assert_slots_are_distinct() -> None:
     and the duplicate rate climbs silently. Fail loudly instead.
     """
     for name, table in (
-        ("OPENERS", OPENERS), ("SUBJECTS", SUBJECTS), ("ONSETS", ONSETS),
-        ("CONTEXTS", CONTEXTS), ("CLOSERS", CLOSERS),
+        ("OPENERS", OPENERS),
+        ("SUBJECTS", SUBJECTS),
+        ("ONSETS", ONSETS),
+        ("CONTEXTS", CONTEXTS),
+        ("CLOSERS", CLOSERS),
     ):
         for language, values in table.items():
             if len(set(values)) != len(values):
@@ -234,7 +241,9 @@ def _tidy(text: str) -> str:
     text = re.sub(r"\s+([.!?,])", r"\1", text)
     text = re.sub(r"([.!?])(?=[^\s])", r"\1 ", text)
     # capitalise the first letter, and any letter opening a new sentence
-    text = re.sub(r"(^|[.!?]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), text)
+    text = re.sub(
+        r"(^|[.!?]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), text
+    )
     return text
 
 
@@ -315,12 +324,16 @@ def use_corpus_version(version: int) -> None:
         return
 
     from dataset import vocabulary_v1 as V1
+
     SYMPTOMS, OPENERS, ONSETS = V1.SYMPTOMS, V1.OPENERS, V1.ONSETS
     CONTEXTS, CLOSERS, SUBJECTS = V1.CONTEXTS, V1.CLOSERS, V1.SUBJECTS
     LANGUAGES, MIXED_PAIRS = V1.LANGUAGES, V1.MIXED_PAIRS
     RELATIONS, DOMAIN_RELATIONS = V1.RELATIONS, V1.DOMAIN_RELATIONS
     CONCEPT_RELATIONS, PHRASE_FORMS = V1.CONCEPT_RELATIONS, V1.PHRASE_FORMS
-    CONTEXTS_BY_URGENCY, CLOSERS_BY_URGENCY = V1.CONTEXTS_BY_URGENCY, V1.CLOSERS_BY_URGENCY
+    CONTEXTS_BY_URGENCY, CLOSERS_BY_URGENCY = (
+        V1.CONTEXTS_BY_URGENCY,
+        V1.CLOSERS_BY_URGENCY,
+    )
     VALID_LANGUAGES = frozenset({*LANGUAGES, "mixed"})
     # v1 was four pure languages at 13% each with the remaining 48% mixed.
     PURE_LANGUAGE_SHARE = 0.13
@@ -332,8 +345,14 @@ def build_families() -> list[Family]:
     assert_slots_are_distinct()
     families: list[Family] = []
 
-    def add(label_language: str, frame: str, phrase_lang: str, urgency: str, domain: str,
-            phrases: tuple[str, ...]) -> None:
+    def add(
+        label_language: str,
+        frame: str,
+        phrase_lang: str,
+        urgency: str,
+        domain: str,
+        phrases: tuple[str, ...],
+    ) -> None:
         # Phrases in one cell may declare different forms. Each form becomes its
         # own family, because they take different slot sets and therefore have
         # different combination counts. With nothing declared this is a single
@@ -350,7 +369,9 @@ def build_families() -> list[Family]:
             for phrase in in_form:
                 if REL_PLACEHOLDER in phrase:
                     # A concept-level set wins over its domain's.
-                    allowed = CONCEPT_RELATIONS.get(phrase, DOMAIN_RELATIONS.get(domain))
+                    allowed = CONCEPT_RELATIONS.get(
+                        phrase, DOMAIN_RELATIONS.get(domain)
+                    )
                     pool = RELATIONS.get(phrase_lang, ("",))
                     if allowed is not None:
                         if len(allowed) == 0:
@@ -370,8 +391,9 @@ def build_families() -> list[Family]:
                     # "Iyo umwana wanjye ahumeka", not "Iyo Umwana wanjye".
                     head = phrase.startswith(REL_PLACEHOLDER)
                     expanded.extend(
-                        phrase.replace(REL_PLACEHOLDER,
-                                       rel if head else rel[0].lower() + rel[1:])
+                        phrase.replace(
+                            REL_PLACEHOLDER, rel if head else rel[0].lower() + rel[1:]
+                        )
                         for rel in pool
                     )
                 else:
@@ -392,7 +414,9 @@ def build_families() -> list[Family]:
                         # A class may narrow its contexts/closers where the frame
                         # would contradict the label. Empty maps mean no
                         # narrowing, which is v1's behaviour exactly.
-                        CONTEXTS_BY_URGENCY.get(urgency, {}).get(frame, CONTEXTS[frame]),
+                        CONTEXTS_BY_URGENCY.get(urgency, {}).get(
+                            frame, CONTEXTS[frame]
+                        ),
                         CLOSERS_BY_URGENCY.get(urgency, {}).get(frame, CLOSERS[frame]),
                     ),
                     form=form,
@@ -499,7 +523,13 @@ def generate(target: int, output: Path, seed: int, report_every: int) -> dict:
                 seen.add(fingerprint)
 
                 writer.writerow(
-                    [text, family.language, family.urgency, family.domain, family.family_id]
+                    [
+                        text,
+                        family.language,
+                        family.urgency,
+                        family.domain,
+                        family.family_id,
+                    ]
                 )
                 labels[family.urgency] += 1
                 languages[family.language] += 1
@@ -514,9 +544,14 @@ def generate(target: int, output: Path, seed: int, report_every: int) -> dict:
                     print(
                         f"[{written:>9,}/{target:,}] "
                         f"{elapsed:6.1f}s {rate:8,.0f}/s | "
-                        + " ".join(f"{k}={v / written:.1%}" for k, v in sorted(labels.items()))
+                        + " ".join(
+                            f"{k}={v / written:.1%}" for k, v in sorted(labels.items())
+                        )
                         + " | "
-                        + " ".join(f"{k}={v / written:.1%}" for k, v in sorted(languages.items())),
+                        + " ".join(
+                            f"{k}={v / written:.1%}"
+                            for k, v in sorted(languages.items())
+                        ),
                         flush=True,
                     )
 
@@ -544,12 +579,16 @@ def check_quality(stats: dict) -> list[str]:
     for label, (low, high) in CLASS_TARGETS.items():
         share = stats["labels"].get(label, 0) / total
         if not low <= share <= high:
-            problems.append(f"class {label} at {share:.1%}, target {low:.0%}-{high:.0%}")
+            problems.append(
+                f"class {label} at {share:.1%}, target {low:.0%}-{high:.0%}"
+            )
 
     for language, (low, high) in LANGUAGE_TARGETS.items():
         share = stats["languages"].get(language, 0) / total
         if not low <= share <= high:
-            problems.append(f"language {language} at {share:.1%}, target {low:.0%}-{high:.0%}")
+            problems.append(
+                f"language {language} at {share:.1%}, target {low:.0%}-{high:.0%}"
+            )
 
     floor = max(1, round(MIN_EXAMPLES_PER_DOMAIN * total / QUALITY_REFERENCE_ROWS))
     for domain in DOMAINS:
@@ -567,19 +606,31 @@ def check_quality(stats: dict) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--target", type=int, default=TARGET_ROWS_V2,
+        "--target",
+        type=int,
+        default=TARGET_ROWS_V2,
         help="Examples to generate (default: the v2 target of 1,008,000).",
     )
     parser.add_argument(
-        "--output", type=Path, default=Path("dataset/raw/symptoms_large.csv"),
+        "--output",
+        type=Path,
+        default=Path("dataset/raw/symptoms_large.csv"),
         help="Destination CSV.",
     )
-    parser.add_argument("--seed", type=int, default=42, help="RNG seed for reproducibility.")
     parser.add_argument(
-        "--corpus-version", type=int, choices=(1, 2), default=2,
+        "--seed", type=int, default=42, help="RNG seed for reproducibility."
+    )
+    parser.add_argument(
+        "--corpus-version",
+        type=int,
+        choices=(1, 2),
+        default=2,
         help="1 re-derives the frozen v1 corpus from dataset/vocabulary_v1.py; "
-             "2 (default) builds v2 from dataset/vocabulary.py.")
-    parser.add_argument("--report-every", type=int, default=10_000, help="Progress interval.")
+        "2 (default) builds v2 from dataset/vocabulary.py.",
+    )
+    parser.add_argument(
+        "--report-every", type=int, default=10_000, help="Progress interval."
+    )
     args = parser.parse_args()
 
     use_corpus_version(args.corpus_version)

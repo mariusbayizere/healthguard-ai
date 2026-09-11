@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.vocabulary import (  # noqa: E402
+from dataset.vocabulary import (
     ADULT_RELATIONS,
     CHILD_RELATIONS,
     DOMAIN_RELATIONS,
@@ -40,23 +40,41 @@ from dataset.vocabulary import (  # noqa: E402
 # split is nearly free in English and expensive in Kinyarwanda, where the object
 # marker changes with the person - CR01 and CR05 are held on exactly that.
 ALL_RELATIONS: tuple[str, ...] = (
-    "My child", "My wife", "My husband", "My mother",
-    "My father", "My sister", "My neighbour", "My grandmother",
+    "My child",
+    "My wife",
+    "My husband",
+    "My mother",
+    "My father",
+    "My sister",
+    "My neighbour",
+    "My grandmother",
 )
 
 CHILD_RELATIONS_EN: tuple[str, ...] = (
-    "My child", "My son", "My daughter",
-    "My grandchild", "My neighbour's child",
+    "My child",
+    "My son",
+    "My daughter",
+    "My grandchild",
+    "My neighbour's child",
 )
 
 HOUSEHOLD_RELATIONS_EN: tuple[str, ...] = (
-    "My wife", "My husband", "My mother", "My father",
-    "My sister", "My child",
+    "My wife",
+    "My husband",
+    "My mother",
+    "My father",
+    "My sister",
+    "My child",
 )
 
 ADULT_RELATIONS_EN: tuple[str, ...] = (
-    "My wife", "My husband", "My mother", "My father",
-    "My sister", "My neighbour", "My grandmother",
+    "My wife",
+    "My husband",
+    "My mother",
+    "My father",
+    "My sister",
+    "My neighbour",
+    "My grandmother",
 )
 
 NO_RELATIONS_EN: tuple[str, ...] = ()
@@ -135,18 +153,24 @@ def check_mirrors_kinyarwanda() -> list[str]:
         ("CHILD_RELATIONS", CHILD_RELATIONS_EN, CHILD_RELATIONS),
         ("HOUSEHOLD_RELATIONS", HOUSEHOLD_RELATIONS_EN, HOUSEHOLD_RELATIONS),
         ("ADULT_RELATIONS", ADULT_RELATIONS_EN, ADULT_RELATIONS),
-        ("OBSTETRIC_RELATIONS", DOMAIN_RELATIONS_EN["obstetric"],
-         DOMAIN_RELATIONS["obstetric"]),
+        (
+            "OBSTETRIC_RELATIONS",
+            DOMAIN_RELATIONS_EN["obstetric"],
+            DOMAIN_RELATIONS["obstetric"],
+        ),
     ]
     problems = [
         f"{name}: English has {len(en)} members, Kinyarwanda has {len(ky)}"
-        for name, en, ky in pairs if len(en) != len(ky)
+        for name, en, ky in pairs
+        if len(en) != len(ky)
     ]
     # ADULT_RELATIONS is pinned as ALL minus the child, in order, on the
     # Kinyarwanda side. The same must hold here or the two drift apart.
     expected = tuple(r for r in ALL_RELATIONS if r != "My child")
-    if ADULT_RELATIONS_EN != expected:
-        problems.append("ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order")
+    if expected != ADULT_RELATIONS_EN:
+        problems.append(
+            "ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order"
+        )
     return problems
 
 
@@ -154,6 +178,9 @@ if __name__ == "__main__":
     issues = check_mirrors_kinyarwanda()
     for issue in issues:
         print(issue)
-    print("English relation sets mirror the Kinyarwanda rulings"
-          if not issues else f"{len(issues)} problems")
+    print(
+        "English relation sets mirror the Kinyarwanda rulings"
+        if not issues
+        else f"{len(issues)} problems"
+    )
     raise SystemExit(1 if issues else 0)

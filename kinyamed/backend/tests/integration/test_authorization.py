@@ -35,7 +35,9 @@ def test_probes_stay_public(anon_client, method: str, path: str):
 
 
 @pytest.mark.parametrize(("method", "path"), PROTECTED_PATHS)
-def test_every_data_endpoint_requires_authentication(anon_client, method: str, path: str):
+def test_every_data_endpoint_requires_authentication(
+    anon_client, method: str, path: str
+):
     response = anon_client.request(method, path, json={})
     assert response.status_code == 401, f"{method} {path} is reachable without a token"
     assert response.json()["error"]["code"] == "INVALID_TOKEN"
@@ -61,9 +63,12 @@ def test_patient_cannot_read_analytics(patient_client_factory):
 
 def test_patient_cannot_manage_doctors(patient_client_factory):
     client, _ = patient_client_factory()
-    assert client.post(
-        "/api/v1/doctors", json={"name": "Fake", "email": "fake@kinyamed.rw"}
-    ).status_code == 403
+    assert (
+        client.post(
+            "/api/v1/doctors", json={"name": "Fake", "email": "fake@kinyamed.rw"}
+        ).status_code
+        == 403
+    )
 
 
 def test_patient_can_read_their_own_record(patient_client_factory):
@@ -103,12 +108,16 @@ def test_patient_can_triage_themselves_and_see_only_their_own_place(
     ).json()
     client.post(
         "/api/v1/triage",
-        json={"patient_id": other["id"], "symptoms_input": "mfite ububabare bw'igituza"},
+        json={
+            "patient_id": other["id"],
+            "symptoms_input": "mfite ububabare bw'igituza",
+        },
     )
 
     patient, patient_id = patient_client_factory()
     submitted = patient.post(
-        "/api/v1/triage", json={"patient_id": patient_id, "symptoms_input": "mfite umuriro"}
+        "/api/v1/triage",
+        json={"patient_id": patient_id, "symptoms_input": "mfite umuriro"},
     )
     assert submitted.status_code == 201
 
@@ -123,19 +132,23 @@ def test_patient_cannot_read_another_patients_triage(patient_client_factory, cli
         "/api/v1/patients", json={"name": "Other Patient", "phone": "0788900004"}
     ).json()
     triage = client.post(
-        "/api/v1/triage", json={"patient_id": other["id"], "symptoms_input": "mfite umuriro"}
+        "/api/v1/triage",
+        json={"patient_id": other["id"], "symptoms_input": "mfite umuriro"},
     ).json()
 
     patient, _ = patient_client_factory()
     assert patient.get(f"/api/v1/triage/{triage['triage_id']}").status_code == 403
 
 
-def test_patient_cannot_read_another_patients_queue_entry(patient_client_factory, client):
+def test_patient_cannot_read_another_patients_queue_entry(
+    patient_client_factory, client
+):
     other = client.post(
         "/api/v1/patients", json={"name": "Other Patient", "phone": "0788900005"}
     ).json()
     client.post(
-        "/api/v1/triage", json={"patient_id": other["id"], "symptoms_input": "mfite umuriro"}
+        "/api/v1/triage",
+        json={"patient_id": other["id"], "symptoms_input": "mfite umuriro"},
     )
     entry = client.get("/api/v1/queue").json()["items"][0]
 
@@ -149,21 +162,28 @@ def test_doctor_can_work_the_queue(doctor_client, client):
         "/api/v1/patients", json={"name": "Queue Patient", "phone": "0788900010"}
     ).json()
     client.post(
-        "/api/v1/triage", json={"patient_id": patient["id"], "symptoms_input": "mfite umuriro"}
+        "/api/v1/triage",
+        json={"patient_id": patient["id"], "symptoms_input": "mfite umuriro"},
     )
 
     queue = doctor_client.get("/api/v1/queue")
     assert queue.status_code == 200
     entry = queue.json()["items"][0]
-    assert doctor_client.patch(
-        f"/api/v1/queue/{entry['id']}/status", json={"status": "IN_PROGRESS"}
-    ).status_code == 200
+    assert (
+        doctor_client.patch(
+            f"/api/v1/queue/{entry['id']}/status", json={"status": "IN_PROGRESS"}
+        ).status_code
+        == 200
+    )
 
 
 def test_doctor_cannot_create_doctors_or_read_analytics(doctor_client):
-    assert doctor_client.post(
-        "/api/v1/doctors", json={"name": "New Dr", "email": "new@kinyamed.rw"}
-    ).status_code == 403
+    assert (
+        doctor_client.post(
+            "/api/v1/doctors", json={"name": "New Dr", "email": "new@kinyamed.rw"}
+        ).status_code
+        == 403
+    )
     assert doctor_client.get("/api/v1/analytics/summary").status_code == 403
     assert doctor_client.get("/api/v1/users").status_code == 403
 
@@ -225,10 +245,9 @@ def test_deactivating_an_account_revokes_its_access(anon_client, client):
 
 def test_role_link_consistency_is_enforced_by_the_database(db):
     """A doctor account must never point at a patient chart."""
-    from sqlalchemy.exc import IntegrityError
-
     from app.models.patient import Patient
     from app.models.user import User, UserRole
+    from sqlalchemy.exc import IntegrityError
 
     patient = Patient(name="Chart", phone="+250788900020")
     db.add(patient)

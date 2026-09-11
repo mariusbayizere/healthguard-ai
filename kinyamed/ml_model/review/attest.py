@@ -74,22 +74,35 @@ def speaker_texts() -> list[tuple[str, str]]:
             continue
         phrase = (r.get("your_phrasing") or "").strip()
         if phrase:
-            out.append((f"{r['concept_id']} {r['person']} [{r.get('source','')}]", phrase))
+            out.append(
+                (f"{r['concept_id']} {r['person']} [{r.get('source', '')}]", phrase)
+            )
     return out
 
 
 def approved_texts() -> list[tuple[str, str]]:
     """(label, text) for v1 vocabulary already shipping in the corpus."""
-    from dataset.vocabulary import (CLOSERS, CONTEXTS, ONSETS, OPENERS,
-                                    SUBJECTS, SYMPTOMS)
+    from dataset.vocabulary import (
+        CLOSERS,
+        CONTEXTS,
+        ONSETS,
+        OPENERS,
+        SUBJECTS,
+        SYMPTOMS,
+    )
+
     out = []
     for urgency, domains in SYMPTOMS.get("kinyarwanda", {}).items():
         for domain, phrases in domains.items():
             for p in phrases:
                 out.append((f"v1 {domain} {urgency}", p))
-    for name, table in (("opener", OPENERS), ("subject", SUBJECTS),
-                        ("onset", ONSETS), ("context", CONTEXTS),
-                        ("closer", CLOSERS)):
+    for name, table in (
+        ("opener", OPENERS),
+        ("subject", SUBJECTS),
+        ("onset", ONSETS),
+        ("context", CONTEXTS),
+        ("closer", CLOSERS),
+    ):
         for frag in table.get("kinyarwanda", ()):
             if frag.strip():
                 out.append((f"v1 {name}", frag))
@@ -104,7 +117,7 @@ def review_sheet_texts() -> list[tuple[str, str]]:
         for col in ("phrase", "speaker_corrected_phrase"):
             t = (r.get(col) or "").strip()
             if t:
-                out.append((f"{r.get('id','')} {r.get('status','')}", t))
+                out.append((f"{r.get('id', '')} {r.get('status', '')}", t))
     return out
 
 
@@ -115,7 +128,7 @@ def chw_texts() -> list[tuple[str, str]]:
             t = (r.get(col) or "").strip()
             if t:
                 kind = "Q" if col.startswith("question") else "A"
-                out.append((f"chw:{r.get('chw_id','?')} {kind}", t))
+                out.append((f"chw:{r.get('chw_id', '?')} {kind}", t))
     return out
 
 
@@ -138,9 +151,17 @@ def rbc_texts() -> list[tuple[str, str]]:
 SOURCES = [
     ("speaker", "the speaker authored or accepted it", speaker_texts),
     ("approved", "v1 vocabulary, already in the corpus", approved_texts),
-    ("review_sheet", "phrase review sheet (includes unapproved drafts)", review_sheet_texts),
+    (
+        "review_sheet",
+        "phrase review sheet (includes unapproved drafts)",
+        review_sheet_texts,
+    ),
     ("chw", "real CHW/clinician Kinyarwanda, CC BY 4.0 — ASR transcript", chw_texts),
-    ("rbc", "RBC health/CHW training curriculum, CC BY 2.0 — written, instructional", rbc_texts),
+    (
+        "rbc",
+        "RBC health/CHW training curriculum, CC BY 2.0 — written, instructional",
+        rbc_texts,
+    ),
 ]
 
 # Corpora of real Kinyarwanda that this project has not authored with. A hit
@@ -151,9 +172,9 @@ LEAD_SOURCES = ("chw", "rbc")
 def find(term: str, pairs: list[tuple[str, str]], whole: bool) -> list[tuple[str, str]]:
     if whole:
         pat = re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE)
-        return [(l, t) for l, t in pairs if pat.search(t)]
+        return [(ref, txt) for ref, txt in pairs if pat.search(txt)]
     low = term.lower()
-    return [(l, t) for l, t in pairs if low in t.lower()]
+    return [(ref, txt) for ref, txt in pairs if low in txt.lower()]
 
 
 def excerpt(text: str, term: str, width: int = 90) -> str:
@@ -162,19 +183,32 @@ def excerpt(text: str, term: str, width: int = 90) -> str:
         return text[:width]
     start = max(0, i - width // 2)
     end = min(len(text), i + len(term) + width // 2)
-    return ("..." if start else "") + text[start:end].strip() + ("..." if end < len(text) else "")
+    return (
+        ("..." if start else "")
+        + text[start:end].strip()
+        + ("..." if end < len(text) else "")
+    )
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("terms", nargs="+", help="Kinyarwanda word or stem to look for.")
-    ap.add_argument("--whole-word", action="store_true",
-                    help="Require word boundaries. Off by default: a stem hides "
-                         "behind noun-class prefixes.")
-    ap.add_argument("--context", action="store_true",
-                    help="Show every match, not just the first few.")
-    ap.add_argument("--max", type=int, default=3, help="Excerpts per source (default 3).")
+    ap.add_argument(
+        "--whole-word",
+        action="store_true",
+        help="Require word boundaries. Off by default: a stem hides "
+        "behind noun-class prefixes.",
+    )
+    ap.add_argument(
+        "--context",
+        action="store_true",
+        help="Show every match, not just the first few.",
+    )
+    ap.add_argument(
+        "--max", type=int, default=3, help="Excerpts per source (default 3)."
+    )
     args = ap.parse_args()
 
     loaded = [(name, why, fn()) for name, why, fn in SOURCES]
@@ -198,7 +232,7 @@ def main() -> int:
             if name == "chw":
                 # How many distinct CHWs used it. One speaker could be an ASR
                 # artefact; several is a real term.
-                who = {l.split()[0] for l, _ in hits}
+                who = {ref.split()[0] for ref, _ in hits}
                 extra = f", {len(who)} distinct CHW/clinician record(s)"
             elif name == "rbc":
                 # No ASR layer here, so the useful count is how many distinct
@@ -206,7 +240,7 @@ def main() -> int:
                 # settled vocabulary, one hit in a heading may be incidental.
                 extra = f", {len({t for _, t in hits})} distinct line(s)"
             print(f"  {name:13} {len(hits)} hit(s){extra}   ({why})")
-            shown = hits if args.context else hits[:args.max]
+            shown = hits if args.context else hits[: args.max]
             for label, text in shown:
                 print(f"      [{label}] {excerpt(text, term)}")
             if not args.context and len(hits) > args.max:
@@ -217,18 +251,30 @@ def main() -> int:
             exit_code = 0
         elif any(s in verdict for s in LEAD_SOURCES):
             where = " and ".join(s for s in LEAD_SOURCES if s in verdict)
-            print(f"  VERDICT: attested in real Rwandan health Kinyarwanda ({where}), but")
-            print("           NOT in any phrase this project has approved. This is a lead")
-            print("           for the speaker — it does not authorise writing the phrase.")
+            print(
+                f"  VERDICT: attested in real Rwandan health Kinyarwanda ({where}), but"
+            )
+            print(
+                "           NOT in any phrase this project has approved. This is a lead"
+            )
+            print(
+                "           for the speaker — it does not authorise writing the phrase."
+            )
             if "rbc" in verdict and "chw" not in verdict:
-                print("           rbc only: instructional register, so this attests the term")
-                print("           and says nothing about how a patient would phrase it.")
+                print(
+                    "           rbc only: instructional register, so this attests the term"
+                )
+                print(
+                    "           and says nothing about how a patient would phrase it."
+                )
             exit_code = 0
         elif "review_sheet" in verdict:
             print("  VERDICT: only in the review sheet. If those rows are drafts, this")
             print("           is my own unapproved drafting and is NOT evidence.")
         else:
-            print("  VERDICT: NOT ATTESTED anywhere. Do not invent it — ask the speaker.")
+            print(
+                "  VERDICT: NOT ATTESTED anywhere. Do not invent it — ask the speaker."
+            )
         print()
     return exit_code
 

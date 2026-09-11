@@ -9,7 +9,6 @@ nothing reproduces v1 exactly.
 from __future__ import annotations
 
 import pytest
-
 from dataset.generate_large_dataset import (
     DEFAULT_FORM,
     NOUN_PHRASE,
@@ -29,8 +28,11 @@ def test_undeclared_phrases_default_to_noun_phrase() -> None:
 def test_v1_vocabulary_produces_only_noun_phrase_families() -> None:
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     forms = {f.form for f in build_families()}
     assert forms == {NOUN_PHRASE}, (
         "a phrase has been declared an utterance in the committed vocabulary; "
@@ -40,9 +42,19 @@ def test_v1_vocabulary_produces_only_noun_phrase_families() -> None:
 
 def make(form: str, phrases: tuple[str, ...], subjects: tuple[str, ...]) -> Family:
     return Family(
-        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
-        frame_language="kinyarwanda", phrase_language="kinyarwanda",
-        slots=(("", "Muganga, "), subjects, phrases, ("", " kuva ejo"), ("",), ("", ". Nkora iki?")),
+        language="kinyarwanda",
+        urgency="URGENT",
+        domain="cardiac_respiratory",
+        frame_language="kinyarwanda",
+        phrase_language="kinyarwanda",
+        slots=(
+            ("", "Muganga, "),
+            subjects,
+            phrases,
+            ("", " kuva ejo"),
+            ("",),
+            ("", ". Nkora iki?"),
+        ),
         form=form,
     )
 
@@ -103,8 +115,11 @@ def test_attribution_survives_capitalisation() -> None:
     family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
     index = {"kinyarwanda": [phrase]}
     f = Family(
-        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
-        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        language="kinyarwanda",
+        urgency="URGENT",
+        domain="cardiac_respiratory",
+        frame_language="kinyarwanda",
+        phrase_language="kinyarwanda",
         slots=(("", "Muganga, "), ("",), (phrase,), ("",), ("",), ("", ". Nkora iki?")),
         form=UTTERANCE,
     )
@@ -117,10 +132,19 @@ def test_attribution_survives_capitalisation() -> None:
 
 def test_render_collapses_duplicate_sentence_punctuation() -> None:
     f = Family(
-        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
-        frame_language="kinyarwanda", phrase_language="kinyarwanda",
-        slots=(("",), ("",), ("Ndakorora cyane.",), ("",),
-               (". Byatangiye gitunguranye.",), (". Nkora iki?",)),
+        language="kinyarwanda",
+        urgency="URGENT",
+        domain="cardiac_respiratory",
+        frame_language="kinyarwanda",
+        phrase_language="kinyarwanda",
+        slots=(
+            ("",),
+            ("",),
+            ("Ndakorora cyane.",),
+            ("",),
+            (". Byatangiye gitunguranye.",),
+            (". Nkora iki?",),
+        ),
         form=UTTERANCE,
     )
     out = f.render(0)
@@ -130,8 +154,8 @@ def test_render_collapses_duplicate_sentence_punctuation() -> None:
 
 def test_rel_placeholder_expands_over_every_relation() -> None:
     """One authored sentence must render as all eight relations."""
-    import dataset.vocabulary as V
     import dataset.generate_large_dataset as G
+    import dataset.vocabulary as V
 
     canonical = "{REL} ntashobora guhumeka neza."
     V.PHRASE_FORMS[canonical] = UTTERANCE
@@ -140,9 +164,13 @@ def test_rel_placeholder_expands_over_every_relation() -> None:
     V.SYMPTOMS["kinyarwanda"]["URGENT"]["cardiac_respiratory"] = (canonical,)
     G.SYMPTOMS = V.SYMPTOMS
     try:
-        f = next(x for x in build_families()
-                 if x.language == "kinyarwanda" and x.domain == "cardiac_respiratory"
-                 and x.urgency == "URGENT")
+        f = next(
+            x
+            for x in build_families()
+            if x.language == "kinyarwanda"
+            and x.domain == "cardiac_respiratory"
+            and x.urgency == "URGENT"
+        )
         assert len(f.slots[2]) == len(V.RELATIONS["kinyarwanda"])
         assert "{REL}" not in " ".join(f.slots[2]), "placeholder left unexpanded"
     finally:
@@ -154,8 +182,8 @@ def test_rel_placeholder_expands_over_every_relation() -> None:
 def test_rel_expansions_share_one_phrase_identity() -> None:
     """All eight relations must attribute to the canonical phrase, or the
     holdout could put 'umwana wanjye' in train and 'mama' in eval."""
-    from dataset.split_dataset import attribute_phrase
     import dataset.vocabulary as V
+    from dataset.split_dataset import attribute_phrase
 
     canonical = "{REL} ntashobora guhumeka neza."
     family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
@@ -163,7 +191,10 @@ def test_rel_expansions_share_one_phrase_identity() -> None:
     for rel in V.RELATIONS["kinyarwanda"]:
         text = canonical.replace("{REL}", rel)
         assert attribute_phrase(text, family, index) == canonical
-        assert attribute_phrase("Muganga, " + text[0].lower() + text[1:], family, index) == canonical
+        assert (
+            attribute_phrase("Muganga, " + text[0].lower() + text[1:], family, index)
+            == canonical
+        )
 
 
 def test_rel_expansions_attribute_when_the_placeholder_is_mid_phrase() -> None:
@@ -176,8 +207,8 @@ def test_rel_expansions_attribute_when_the_placeholder_is_mid_phrase() -> None:
     holdout without raising anything. Three authored phrases have this shape:
     CR04 third, EX07 third and OB05 third.
     """
-    from dataset.split_dataset import attribute_phrase
     import dataset.vocabulary as V
+    from dataset.split_dataset import attribute_phrase
 
     family = "kinyarwanda->kinyarwanda:URGENT:cardiac_respiratory"
     for canonical in (
@@ -197,8 +228,11 @@ def test_rel_expansions_attribute_when_the_placeholder_is_mid_phrase() -> None:
 
 def test_terminal_stop_dropped_before_a_continuation() -> None:
     f = Family(
-        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
-        frame_language="kinyarwanda", phrase_language="kinyarwanda",
+        language="kinyarwanda",
+        urgency="URGENT",
+        domain="cardiac_respiratory",
+        frame_language="kinyarwanda",
+        phrase_language="kinyarwanda",
         slots=(("",), ("",), ("Ndakorora cyane.",), (" kuva ejo",), ("",), ("",)),
         form=UTTERANCE,
     )
@@ -207,10 +241,19 @@ def test_terminal_stop_dropped_before_a_continuation() -> None:
 
 def test_terminal_stop_kept_before_a_new_sentence() -> None:
     f = Family(
-        language="kinyarwanda", urgency="URGENT", domain="cardiac_respiratory",
-        frame_language="kinyarwanda", phrase_language="kinyarwanda",
-        slots=(("",), ("",), ("Ndakorora cyane.",), ("",),
-               (". Byatangiye gitunguranye.",), ("",)),
+        language="kinyarwanda",
+        urgency="URGENT",
+        domain="cardiac_respiratory",
+        frame_language="kinyarwanda",
+        phrase_language="kinyarwanda",
+        slots=(
+            ("",),
+            ("",),
+            ("Ndakorora cyane.",),
+            ("",),
+            (". Byatangiye gitunguranye.",),
+            ("",),
+        ),
         form=UTTERANCE,
     )
     assert f.render(0) == "Ndakorora cyane. Byatangiye gitunguranye.", f.render(0)
@@ -222,7 +265,6 @@ def test_relation_is_lowercased_mid_sentence() -> None:
     "Iyo {REL} ahumeka..." must render "Iyo umwana wanjye ahumeka", not
     "Iyo Umwana wanjye ahumeka".
     """
-    import dataset.vocabulary as V
     import dataset.generate_large_dataset as G
 
     head_phrase = "{REL} arakorora cyane."
@@ -240,9 +282,13 @@ def test_relation_is_lowercased_mid_sentence() -> None:
     G.DOMAIN_RELATIONS = {}
     G.PHRASE_FORMS = {head_phrase: UTTERANCE, mid_phrase: UTTERANCE}
     try:
-        f = next(x for x in build_families()
-                 if x.language == "kinyarwanda" and x.domain == "paediatric"
-                 and x.urgency == "URGENT")
+        f = next(
+            x
+            for x in build_families()
+            if x.language == "kinyarwanda"
+            and x.domain == "paediatric"
+            and x.urgency == "URGENT"
+        )
         rendered = set(f.slots[2])
         assert "Umwana wanjye arakorora cyane." in rendered, rendered
         assert "Iyo umwana wanjye ahumeka, birababaza." in rendered, rendered
@@ -252,8 +298,8 @@ def test_relation_is_lowercased_mid_sentence() -> None:
 
 
 def test_domain_relation_set_restricts_expansion() -> None:
-    import dataset.vocabulary as V
     import dataset.generate_large_dataset as G
+    import dataset.vocabulary as V
 
     phrase = "{REL} aratwite."
     saved = V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"]
@@ -261,8 +307,11 @@ def test_domain_relation_set_restricts_expansion() -> None:
     V.SYMPTOMS["kinyarwanda"]["CRITICAL"]["obstetric"] = (phrase,)
     G.SYMPTOMS, G.PHRASE_FORMS = V.SYMPTOMS, V.PHRASE_FORMS
     try:
-        f = next(x for x in build_families()
-                 if x.language == "kinyarwanda" and x.domain == "obstetric")
+        f = next(
+            x
+            for x in build_families()
+            if x.language == "kinyarwanda" and x.domain == "obstetric"
+        )
         assert len(f.slots[2]) == len(V.DOMAIN_RELATIONS["obstetric"])
         joined = " ".join(f.slots[2])
         for excluded in ("Umugabo wanjye", "Papa", "Umukecuru"):
@@ -280,19 +329,27 @@ def test_empty_relation_set_produces_no_third_person_rows() -> None:
     phrase and simply contributes nothing in third person. It must not raise,
     and it must not silently fall back to the full relation list.
     """
-    import dataset.vocabulary as V
     import dataset.generate_large_dataset as G
+    import dataset.vocabulary as V
 
     phrase = "{REL} ashaka kongererwa imiti."
     saved = V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"]
     V.PHRASE_FORMS[phrase] = UTTERANCE
     V.CONCEPT_RELATIONS[phrase] = V.NO_RELATIONS
     V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = (phrase,)
-    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.CONCEPT_RELATIONS
+    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = (
+        V.SYMPTOMS,
+        V.PHRASE_FORMS,
+        V.CONCEPT_RELATIONS,
+    )
     try:
-        fams = [x for x in build_families()
-                if x.language == "kinyarwanda" and x.domain == "chronic_care"
-                and x.urgency == "ROUTINE"]
+        fams = [
+            x
+            for x in build_families()
+            if x.language == "kinyarwanda"
+            and x.domain == "chronic_care"
+            and x.urgency == "ROUTINE"
+        ]
         for f in fams:
             assert phrase not in f.slots[2], "an empty set must contribute no rows"
             for rel in V.RELATIONS["kinyarwanda"]:
@@ -308,16 +365,20 @@ def test_empty_relation_set_produces_no_third_person_rows() -> None:
 
 def test_misconfigured_relation_set_raises() -> None:
     """A non-empty set naming nothing available is a bug, not an intention."""
-    import pytest as _pytest
-    import dataset.vocabulary as V
     import dataset.generate_large_dataset as G
+    import dataset.vocabulary as V
+    import pytest as _pytest
 
     phrase = "{REL} arwaye."
     saved = V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"]
     V.PHRASE_FORMS[phrase] = UTTERANCE
     V.CONCEPT_RELATIONS[phrase] = ("Somebody Who Does Not Exist",)
     V.SYMPTOMS["kinyarwanda"]["ROUTINE"]["chronic_care"] = (phrase,)
-    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = V.SYMPTOMS, V.PHRASE_FORMS, V.CONCEPT_RELATIONS
+    G.SYMPTOMS, G.PHRASE_FORMS, G.CONCEPT_RELATIONS = (
+        V.SYMPTOMS,
+        V.PHRASE_FORMS,
+        V.CONCEPT_RELATIONS,
+    )
     try:
         with _pytest.raises(SystemExit, match="misconfiguration"):
             build_families()

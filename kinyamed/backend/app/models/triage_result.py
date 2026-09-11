@@ -64,8 +64,8 @@ class TriageResult(TimestampedModel):
     confidence_score: Mapped[float | None] = mapped_column(Float)
     ai_response_rw: Mapped[str | None] = mapped_column(Text)
 
-    symptom_report: Mapped["SymptomReport"] = relationship(back_populates="triage_result")
-    queue_entry: Mapped["Queue | None"] = relationship(
+    symptom_report: Mapped[SymptomReport] = relationship(back_populates="triage_result")
+    queue_entry: Mapped[Queue | None] = relationship(
         back_populates="triage_result",
         uselist=False,
         cascade="all, delete-orphan",

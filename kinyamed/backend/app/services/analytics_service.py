@@ -7,8 +7,8 @@ told at intake) and *measured* (what actually happened).
 
 from __future__ import annotations
 
-from datetime import date, datetime, time, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, date, datetime, time
 
 import structlog
 from sqlalchemy.orm import Session
@@ -31,7 +31,7 @@ CLEAR_ALL_TOKEN = "CLEAR_ALL"
 
 
 def _start_of_today_utc() -> datetime:
-    return datetime.combine(datetime.now(timezone.utc).date(), time.min, tzinfo=timezone.utc)
+    return datetime.combine(datetime.now(UTC).date(), time.min, tzinfo=UTC)
 
 
 def _percentage(count: int, total: int) -> float:
@@ -65,9 +65,18 @@ def build_urgency_breakdown(db: Session) -> dict:
     total = counts["total"]
     return {
         "total": total,
-        "critical": {"count": counts["critical"], "percentage": _percentage(counts["critical"], total)},
-        "urgent": {"count": counts["urgent"], "percentage": _percentage(counts["urgent"], total)},
-        "routine": {"count": counts["routine"], "percentage": _percentage(counts["routine"], total)},
+        "critical": {
+            "count": counts["critical"],
+            "percentage": _percentage(counts["critical"], total),
+        },
+        "urgent": {
+            "count": counts["urgent"],
+            "percentage": _percentage(counts["urgent"], total),
+        },
+        "routine": {
+            "count": counts["routine"],
+            "percentage": _percentage(counts["routine"], total),
+        },
     }
 
 
@@ -103,7 +112,7 @@ def save_daily_snapshot(db: Session) -> Analytics:
     snapshot = analytics_repository.upsert(
         db,
         {
-            "snapshot_date": datetime.now(timezone.utc).date(),
+            "snapshot_date": datetime.now(UTC).date(),
             "total_patients": patient_repository.count(db),
             "total_triaged": triage["total"],
             "critical_cases": triage["critical"],

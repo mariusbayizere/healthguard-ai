@@ -1,6 +1,6 @@
 import csv
-import random
 import os
+import random
 
 # ─── RAW SYMPTOM DATA ─────────────────────────────────────────────
 # Each entry: (symptom_text, language, urgency_label)
@@ -8,25 +8,69 @@ import os
 
 CRITICAL_SYMPTOMS = [
     # Kinyarwanda
-    ("Ndumva agahinda mu gituza kenshi kandi sinshobora guhema neza", "kinyarwanda", "CRITICAL"),
+    (
+        "Ndumva agahinda mu gituza kenshi kandi sinshobora guhema neza",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
     ("Umugabo wanjye arasinziriye ntashobora gusubuka", "kinyarwanda", "CRITICAL"),
-    ("Mfite amaraso menshi avuye hanze ntashobora guhagarara", "kinyarwanda", "CRITICAL"),
-    ("Umwana wanjye aragorwa no guhema, agira urusaku mu mazuru", "kinyarwanda", "CRITICAL"),
-    ("Mfite ibibazo by'umutima, ndumva nk'aho umutima wahagarara", "kinyarwanda", "CRITICAL"),
-    ("Sinshobora kuvuga neza, uruhande rumwe rw'umubiri rwanze gukora", "kinyarwanda", "CRITICAL"),
+    (
+        "Mfite amaraso menshi avuye hanze ntashobora guhagarara",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Umwana wanjye aragorwa no guhema, agira urusaku mu mazuru",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Mfite ibibazo by'umutima, ndumva nk'aho umutima wahagarara",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Sinshobora kuvuga neza, uruhande rumwe rw'umubiri rwanze gukora",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
     ("Ndumva nk'aho mpfa, ubushyuhe bwanjye ni 40 degrees", "kinyarwanda", "CRITICAL"),
-    ("Mfite ibizunguzungu byinshi kandi nasimbutse inshuro ebyiri", "kinyarwanda", "CRITICAL"),
-    ("Umugore wanjye yaravuye amaraso menshi nyuma yo kubyara", "kinyarwanda", "CRITICAL"),
-    ("Umwana arakorwa n'ibizunguzungu, amaso ye aragaragara hejuru", "kinyarwanda", "CRITICAL"),
-    ("Ndumva umunwa wanjye wagoramye, sinshobora kureba neza", "kinyarwanda", "CRITICAL"),
+    (
+        "Mfite ibizunguzungu byinshi kandi nasimbutse inshuro ebyiri",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Umugore wanjye yaravuye amaraso menshi nyuma yo kubyara",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Umwana arakorwa n'ibizunguzungu, amaso ye aragaragara hejuru",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
+    (
+        "Ndumva umunwa wanjye wagoramye, sinshobora kureba neza",
+        "kinyarwanda",
+        "CRITICAL",
+    ),
     ("Mfite umurambo ukabije, sinshobora guhaguruka", "kinyarwanda", "CRITICAL"),
     # English
     ("I have severe chest pain and cannot breathe properly", "english", "CRITICAL"),
     ("Patient is unconscious and not responding to stimulation", "english", "CRITICAL"),
     ("Heavy bleeding that will not stop after 20 minutes", "english", "CRITICAL"),
-    ("Child is having convulsions and high fever above 40 degrees", "english", "CRITICAL"),
+    (
+        "Child is having convulsions and high fever above 40 degrees",
+        "english",
+        "CRITICAL",
+    ),
     ("I think I am having a heart attack, left arm is numb", "english", "CRITICAL"),
-    ("Stroke symptoms: face drooping, arm weakness, slurred speech", "english", "CRITICAL"),
+    (
+        "Stroke symptoms: face drooping, arm weakness, slurred speech",
+        "english",
+        "CRITICAL",
+    ),
     ("Severe allergic reaction, throat is closing up", "english", "CRITICAL"),
     ("Patient fell from height and cannot move legs", "english", "CRITICAL"),
     ("Severe head injury after accident, bleeding from ears", "english", "CRITICAL"),
@@ -34,29 +78,61 @@ CRITICAL_SYMPTOMS = [
     ("Pregnant woman with severe abdominal pain and bleeding", "english", "CRITICAL"),
     ("Child swallowed unknown substance, now vomiting blood", "english", "CRITICAL"),
     # Mixed Kinyarwanda-English
-    ("Mfite chest pain ikabije, sinshobora guhema neza since this morning", "mixed", "CRITICAL"),
-    ("My husband arasinziriye kandi ntashobora kuwubura, emergency", "mixed", "CRITICAL"),
-    ("Ndumva heart yanjye itera cyane kandi mfite dizziness ikabije", "mixed", "CRITICAL"),
+    (
+        "Mfite chest pain ikabije, sinshobora guhema neza since this morning",
+        "mixed",
+        "CRITICAL",
+    ),
+    (
+        "My husband arasinziriye kandi ntashobora kuwubura, emergency",
+        "mixed",
+        "CRITICAL",
+    ),
+    (
+        "Ndumva heart yanjye itera cyane kandi mfite dizziness ikabije",
+        "mixed",
+        "CRITICAL",
+    ),
     ("Umwana wanjye aragorwa, temperature ye ni 41 degrees, help", "mixed", "CRITICAL"),
     ("Narasimbutse mu rugo, mfite bleeding itahagarara mu mutwe", "mixed", "CRITICAL"),
     ("I cannot breathe, ndumva throat yanjye ifunga slowly", "mixed", "CRITICAL"),
-    ("Stroke symptoms, uruhande rumwe rwanjye rwahagaraye kugira action", "mixed", "CRITICAL"),
+    (
+        "Stroke symptoms, uruhande rumwe rwanjye rwahagaraye kugira action",
+        "mixed",
+        "CRITICAL",
+    ),
     ("Pregnant, mfite severe pain mu nda kandi ndavuye amaraso", "mixed", "CRITICAL"),
 ]
 
 URGENT_SYMPTOMS = [
     # Kinyarwanda
-    ("Mfite umuriro ukabije kuva ejo, ubushyuhe ni 39 degrees", "kinyarwanda", "URGENT"),
+    (
+        "Mfite umuriro ukabije kuva ejo, ubushyuhe ni 39 degrees",
+        "kinyarwanda",
+        "URGENT",
+    ),
     ("Ndumva ububabare bukabije mu nda kuva ijoro", "kinyarwanda", "URGENT"),
     ("Mfite inkorora ikabije kandi ndavoma amaraso make", "kinyarwanda", "URGENT"),
     ("Ubushyuhe bwanjye ni 38.5, mfite inkorora n'umunaniro", "kinyarwanda", "URGENT"),
-    ("Mfite ibara ry'umuhondo mu maso no mu maso, sinyoye neza", "kinyarwanda", "URGENT"),
-    ("Umwana wanjye ariyisanga ararira, mfite ubwoba bw'malaria", "kinyarwanda", "URGENT"),
+    (
+        "Mfite ibara ry'umuhondo mu maso no mu maso, sinyoye neza",
+        "kinyarwanda",
+        "URGENT",
+    ),
+    (
+        "Umwana wanjye ariyisanga ararira, mfite ubwoba bw'malaria",
+        "kinyarwanda",
+        "URGENT",
+    ),
     ("Ndumva ububabare bukabije mu gituza iyo ndema", "kinyarwanda", "URGENT"),
     ("Mfite diarrhea kuva hashize iminsi 3, ndangirika", "kinyarwanda", "URGENT"),
     ("Umurambo wanjye urababara cyane nyuma yo kugwa", "kinyarwanda", "URGENT"),
     ("Mfite inkorora n'umuriro kuva hashize iminsi 4", "kinyarwanda", "URGENT"),
-    ("Ndumva amarira make avuye mu maso, ubushyuhe ni 38 degrees", "kinyarwanda", "URGENT"),
+    (
+        "Ndumva amarira make avuye mu maso, ubushyuhe ni 38 degrees",
+        "kinyarwanda",
+        "URGENT",
+    ),
     ("Mfite ibibazo byo kurara, ndababara cyane mu gituza", "kinyarwanda", "URGENT"),
     ("Umwana mfite ubushyuhe bwinshi no gutera imitsi", "kinyarwanda", "URGENT"),
     ("Ndavoma kenshi kandi sinariye uyu munsi wose", "kinyarwanda", "URGENT"),
@@ -84,7 +160,11 @@ URGENT_SYMPTOMS = [
     ("I have been vomiting kuva this morning, sinariye anything", "mixed", "URGENT"),
     ("Mfite diarrhea for 3 days, ndumva dehydrated cyane", "mixed", "URGENT"),
     ("Wound yanjye iranga infection, itukura kandi yivuye pus", "mixed", "URGENT"),
-    ("Mfite high blood pressure today, ndumva dizzy kandi nababara umutwe", "mixed", "URGENT"),
+    (
+        "Mfite high blood pressure today, ndumva dizzy kandi nababara umutwe",
+        "mixed",
+        "URGENT",
+    ),
     ("Umwana mfite fever na rash, spreading across the body", "mixed", "URGENT"),
     ("Ndumva severe toothache, face yanjye yivuye kuva yesterday", "mixed", "URGENT"),
     ("I have UTI symptoms, mfite fever na back pain ikabije", "mixed", "URGENT"),
@@ -96,15 +176,35 @@ ROUTINE_SYMPTOMS = [
     ("Ndumva umutwe urarya gato ntabwo ari ikabije", "kinyarwanda", "ROUTINE"),
     ("Ndashaka gupimwa ingano n'ubuzima rusange", "kinyarwanda", "ROUTINE"),
     ("Mfite uburibwe bworoheje mu mugongo kuva ejo", "kinyarwanda", "ROUTINE"),
-    ("Ndashaka gusuzumwa demoyen'amajyambere ya mwana wanjye", "kinyarwanda", "ROUTINE"),
+    (
+        "Ndashaka gusuzumwa demoyen'amajyambere ya mwana wanjye",
+        "kinyarwanda",
+        "ROUTINE",
+    ),
     ("Mfite amazuru yoroheje, sinjya gusinda neza", "kinyarwanda", "ROUTINE"),
-    ("Ndashaka gutunga imiti yo kurwanya malaria nk'igihe cyose", "kinyarwanda", "ROUTINE"),
+    (
+        "Ndashaka gutunga imiti yo kurwanya malaria nk'igihe cyose",
+        "kinyarwanda",
+        "ROUTINE",
+    ),
     ("Mfite inkorora yoroheje na amazuru, ndi nzima ariko", "kinyarwanda", "ROUTINE"),
-    ("Ndashaka gupima amaraso kugirango menye ubuzima bwanjye", "kinyarwanda", "ROUTINE"),
+    (
+        "Ndashaka gupima amaraso kugirango menye ubuzima bwanjye",
+        "kinyarwanda",
+        "ROUTINE",
+    ),
     ("Umunaniro woroheje w'imibiri, sinzi impamvu", "kinyarwanda", "ROUTINE"),
-    ("Mfite uburibwe bworoheje mu nkokora kuva hashize iminsi", "kinyarwanda", "ROUTINE"),
+    (
+        "Mfite uburibwe bworoheje mu nkokora kuva hashize iminsi",
+        "kinyarwanda",
+        "ROUTINE",
+    ),
     ("Ndashaka gutunga imiti yo gutuza umugongo", "kinyarwanda", "ROUTINE"),
-    ("Umwana wanjye afite inkorora yoroheje, ntabwo ari umuriro", "kinyarwanda", "ROUTINE"),
+    (
+        "Umwana wanjye afite inkorora yoroheje, ntabwo ari umuriro",
+        "kinyarwanda",
+        "ROUTINE",
+    ),
     ("Ndashaka kujya na muganga kubera isuzuma rusange", "kinyarwanda", "ROUTINE"),
     ("Mfite ibibazo byo kurarira neza gusa, ariko ndi nzima", "kinyarwanda", "ROUTINE"),
     # English
@@ -135,6 +235,7 @@ ROUTINE_SYMPTOMS = [
     ("Ndashaka annual blood test na general checkup", "mixed", "ROUTINE"),
     ("Mfite sore throat yoroheje, ndi nzima ariko, no fever", "mixed", "ROUTINE"),
 ]
+
 
 def build_dataset(output_path: str, augment: bool = True):
     all_data = CRITICAL_SYMPTOMS + URGENT_SYMPTOMS + ROUTINE_SYMPTOMS
@@ -171,12 +272,13 @@ def build_dataset(output_path: str, augment: bool = True):
     for _, _, label in final_data:
         counts[label] += 1
 
-    print(f"Dataset built successfully!")
+    print("Dataset built successfully!")
     print(f"Total examples : {len(final_data)}")
     print(f"CRITICAL       : {counts['CRITICAL']}")
     print(f"URGENT         : {counts['URGENT']}")
     print(f"ROUTINE        : {counts['ROUTINE']}")
     print(f"Saved to       : {output_path}")
+
 
 if __name__ == "__main__":
     build_dataset("dataset/raw/symptoms_raw.csv")

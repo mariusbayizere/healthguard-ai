@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -11,7 +11,11 @@ from app.core.database import get_db
 from app.core.dependencies import CurrentUser, StaffUser, assert_may_act_for_patient
 from app.models.queue import Queue, QueueStatus
 from app.schemas.common import PaginatedResponse, PaginationParams, pagination
-from app.schemas.queue import QueueDoctorAssignment, QueueItemResponse, QueueStatusUpdate
+from app.schemas.queue import (
+    QueueDoctorAssignment,
+    QueueItemResponse,
+    QueueStatusUpdate,
+)
 from app.services import queue_service
 from app.services.queue_service import QueueItem
 
@@ -19,7 +23,7 @@ router = APIRouter(prefix="/queue", tags=["Queue"])
 
 
 def _waiting_minutes(entry: Queue) -> int:
-    end = entry.completed_at or entry.started_at or datetime.now(timezone.utc)
+    end = entry.completed_at or entry.started_at or datetime.now(UTC)
     return max(int((end - entry.created_at).total_seconds() // 60), 0)
 
 
@@ -124,7 +128,9 @@ def assign_doctor(
     return _to_response(queue_service.describe(db, entry))
 
 
-@router.delete("/{queue_id}", response_model=QueueItemResponse, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{queue_id}", response_model=QueueItemResponse, status_code=status.HTTP_200_OK
+)
 def remove_from_queue(
     queue_id: int, _staff: StaffUser, db: Session = Depends(get_db)
 ) -> QueueItemResponse:

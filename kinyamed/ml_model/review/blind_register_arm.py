@@ -50,9 +50,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.vocabulary import SYMPTOMS  # noqa: E402
+from dataset.vocabulary import SYMPTOMS
+
 sys.path.insert(0, str(HERE))
-from walk import save  # noqa: E402
+from walk import save
 
 SHEET = ROOT / "review" / "phrase_review_sheet.csv"
 ITEMS = ROOT / "review" / "blind" / "register_arm_items.csv"
@@ -83,6 +84,7 @@ def written_this_session() -> str:
             text.append(path.read_text(errors="ignore").lower())
     return "\n".join(text)
 
+
 ITEM_COLUMNS = ["item_id", "phrase", "domain", "proposed_urgency", "register", "note"]
 KEY_COLUMNS = ["item_id", "origin", "source_id", "phrase"]
 
@@ -100,24 +102,39 @@ def v1_items() -> list[dict]:
     for urgency, domains in SYMPTOMS["english"].items():
         for domain, phrases in domains.items():
             for i, phrase in enumerate(phrases):
-                out.append({"phrase": phrase, "domain": domain,
-                            "proposed_urgency": urgency, "origin": "v1_corpus",
-                            "source_id": f"v1[{urgency}/{domain}/{i}]"})
+                out.append(
+                    {
+                        "phrase": phrase,
+                        "domain": domain,
+                        "proposed_urgency": urgency,
+                        "origin": "v1_corpus",
+                        "source_id": f"v1[{urgency}/{domain}/{i}]",
+                    }
+                )
     return out
 
 
 def draft_items() -> list[dict]:
-    return [{"phrase": r["phrase"], "domain": r["domain"],
-             "proposed_urgency": r["proposed_urgency"], "origin": "machine_draft",
-             "source_id": r["id"]}
-            for r in csv.DictReader(SHEET.open(encoding="utf-8"))
-            if r["language"] == "english" and r["status"] == "draft"]
+    return [
+        {
+            "phrase": r["phrase"],
+            "domain": r["domain"],
+            "proposed_urgency": r["proposed_urgency"],
+            "origin": "machine_draft",
+            "source_id": r["id"],
+        }
+        for r in csv.DictReader(SHEET.open(encoding="utf-8"))
+        if r["language"] == "english" and r["status"] == "draft"
+    ]
 
 
 def build() -> int:
     if ITEMS.exists():
-        rated = [r for r in csv.DictReader(ITEMS.open(encoding="utf-8"))
-                 if r["register"].strip()]
+        rated = [
+            r
+            for r in csv.DictReader(ITEMS.open(encoding="utf-8"))
+            if r["register"].strip()
+        ]
         if rated:
             raise SystemExit(
                 f"refusing to rebuild: {ITEMS.name} already carries {len(rated)} "
@@ -141,27 +158,45 @@ def build() -> int:
     items, key = [], []
     for index, entry in enumerate(pool, start=1):
         item_id = f"R{index:03d}"
-        items.append({"item_id": item_id, "phrase": entry["phrase"],
-                      "domain": entry["domain"],
-                      "proposed_urgency": entry["proposed_urgency"],
-                      "register": "", "note": ""})
-        key.append({"item_id": item_id, "origin": entry["origin"],
-                    "source_id": entry["source_id"], "phrase": entry["phrase"]})
+        items.append(
+            {
+                "item_id": item_id,
+                "phrase": entry["phrase"],
+                "domain": entry["domain"],
+                "proposed_urgency": entry["proposed_urgency"],
+                "register": "",
+                "note": "",
+            }
+        )
+        key.append(
+            {
+                "item_id": item_id,
+                "origin": entry["origin"],
+                "source_id": entry["source_id"],
+                "phrase": entry["phrase"],
+            }
+        )
 
     ITEMS.parent.mkdir(parents=True, exist_ok=True)
     save(ITEMS, ITEM_COLUMNS, items)
     save(KEY, KEY_COLUMNS, key)
-    print(f"wrote {ITEMS.relative_to(ROOT)}: {len(items)} items "
-          f"({n} v1, {n} drafts), seed {SEED}")
-    print(f"  excluded as already quoted in review/: "
-          f"{46 - len(v1)} v1, {80 - len(drafts)} drafts")
+    print(
+        f"wrote {ITEMS.relative_to(ROOT)}: {len(items)} items "
+        f"({n} v1, {n} drafts), seed {SEED}"
+    )
+    print(
+        f"  excluded as already quoted in review/: "
+        f"{46 - len(v1)} v1, {80 - len(drafts)} drafts"
+    )
     print(f"wrote {KEY.relative_to(ROOT)} — do not open it until the ratings are in")
     print("\nRate the `register` column 1-4:")
     for score, meaning in sorted(SCALE.items(), reverse=True):
         print(f"  {score}  {meaning}")
-    print("\nOne question only: would someone say this to a health worker, in "
-          "English, in Rwanda?\nNot whether it is the right phrase for its "
-          "concept — that is the brief's job.")
+    print(
+        "\nOne question only: would someone say this to a health worker, in "
+        "English, in Rwanda?\nNot whether it is the right phrase for its "
+        "concept — that is the brief's job."
+    )
     return 0
 
 
@@ -169,8 +204,9 @@ def score() -> int:
     items = {r["item_id"]: r for r in csv.DictReader(ITEMS.open(encoding="utf-8"))}
     key = list(csv.DictReader(KEY.open(encoding="utf-8")))
 
-    rated = [(k, items[k["item_id"]]) for k in key
-             if items[k["item_id"]]["register"].strip()]
+    rated = [
+        (k, items[k["item_id"]]) for k in key if items[k["item_id"]]["register"].strip()
+    ]
     if not rated:
         raise SystemExit(f"no ratings in {ITEMS.name} yet")
 
@@ -179,23 +215,29 @@ def score() -> int:
         try:
             by_origin.setdefault(k["origin"], []).append(int(item["register"]))
         except ValueError:
-            raise SystemExit(f"{k['item_id']}: register {item['register']!r} is not 1-4")
+            raise SystemExit(
+                f"{k['item_id']}: register {item['register']!r} is not 1-4"
+            ) from None
 
     print(f"{len(rated)} of {len(key)} items rated\n")
     for origin, scores in sorted(by_origin.items()):
         mean = statistics.mean(scores)
         low = sum(1 for s in scores if s <= 2)
-        print(f"  {origin:15s} n={len(scores):3d}  mean {mean:.2f}  "
-              f"{low} rated 2 or below")
+        print(
+            f"  {origin:15s} n={len(scores):3d}  mean {mean:.2f}  "
+            f"{low} rated 2 or below"
+        )
 
     if len(by_origin) == 2:
         (a, sa), (b, sb) = sorted(by_origin.items())
         gap = statistics.mean(sa) - statistics.mean(sb)
         print(f"\n  gap ({a} - {b}): {gap:+.2f}")
-        print("  A gap near zero means the rater could not separate the shipped "
-              "corpus\n  from the drafts. It does NOT mean either population is "
-              "good — both\n  can be rated low together, and that is its own "
-              "result.")
+        print(
+            "  A gap near zero means the rater could not separate the shipped "
+            "corpus\n  from the drafts. It does NOT mean either population is "
+            "good — both\n  can be rated low together, and that is its own "
+            "result."
+        )
 
     worst = sorted(rated, key=lambda p: int(p[1]["register"]))[:10]
     print("\nlowest rated:")
@@ -207,8 +249,9 @@ def score() -> int:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     group = ap.add_mutually_exclusive_group(required=True)
     group.add_argument("--build", action="store_true")
     group.add_argument("--score", action="store_true")

@@ -26,8 +26,8 @@ for _router in (
 
 __all__ = [
     "analytics_router",
-    "auth_router",
     "api_router",
+    "auth_router",
     "doctors_router",
     "health_router",
     "patients_router",

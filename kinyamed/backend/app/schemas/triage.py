@@ -50,7 +50,16 @@ class TriageResponse(BaseModel):
     response_pending: bool = True
     response_pending_reason: str | None = None
     language_detected: str | None
+    # The queue entry's own primary key, distinct from queue_number (which is
+    # the human-facing ticket). Returned so a client can address
+    # /queue/{id}/status and /queue/{id}/assign-doctor for the row it just
+    # created, without a second fetch to discover it.
+    queue_id: int
     queue_number: int
-    queue_position: int = Field(description="1-based place in the live queue at the time of triage.")
-    estimated_wait: int | None = Field(description="Minutes, as quoted to the patient by SMS.")
+    queue_position: int = Field(
+        description="1-based place in the live queue at the time of triage."
+    )
+    estimated_wait: int | None = Field(
+        description="Minutes, as quoted to the patient by SMS."
+    )
     created_at: datetime

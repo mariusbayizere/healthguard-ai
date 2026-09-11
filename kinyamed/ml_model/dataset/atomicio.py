@@ -16,9 +16,9 @@ import json
 import os
 import resource
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator
 
 
 def peak_rss_mib() -> float:

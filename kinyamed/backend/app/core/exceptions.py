@@ -62,7 +62,9 @@ class ValidationError(HealthGuardBaseError):
 
     status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
 
-    def __init__(self, message: str, code: str = "VALIDATION_ERROR", **details: Any) -> None:
+    def __init__(
+        self, message: str, code: str = "VALIDATION_ERROR", **details: Any
+    ) -> None:
         super().__init__(message=message, code=code, details=details)
 
 
@@ -201,7 +203,9 @@ class AuthenticationError(HealthGuardBaseError):
 
     status_code = status.HTTP_401_UNAUTHORIZED
 
-    def __init__(self, message: str = "Not authenticated", code: str = "NOT_AUTHENTICATED") -> None:
+    def __init__(
+        self, message: str = "Not authenticated", code: str = "NOT_AUTHENTICATED"
+    ) -> None:
         super().__init__(message=message, code=code)
 
 
@@ -268,7 +272,9 @@ class DatabaseOperationError(HealthGuardBaseError):
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
     def __init__(self, operation: str, detail: str) -> None:
-        super().__init__(f"Database {operation} failed: {detail}", code="DATABASE_ERROR")
+        super().__init__(
+            f"Database {operation} failed: {detail}", code="DATABASE_ERROR"
+        )
 
 
 class RateLimitExceededError(HealthGuardBaseError):
@@ -320,12 +326,17 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(IntegrityError)
-    async def _handle_integrity_error(request: Request, exc: IntegrityError) -> JSONResponse:
+    async def _handle_integrity_error(
+        request: Request, exc: IntegrityError
+    ) -> JSONResponse:
         # A constraint violation reaching this point is a race we did not
         # pre-check. Log the detail but never return it: the driver quotes the
         # offending row, which may contain patient data.
         logger.warning(
-            "integrity_error", path=request.url.path, method=request.method, error=str(exc)
+            "integrity_error",
+            path=request.url.path,
+            method=request.method,
+            error=str(exc),
         )
         return error_response(
             status.HTTP_409_CONFLICT,
@@ -335,7 +346,9 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(SQLAlchemyError)
-    async def _handle_database_error(request: Request, exc: SQLAlchemyError) -> JSONResponse:
+    async def _handle_database_error(
+        request: Request, exc: SQLAlchemyError
+    ) -> JSONResponse:
         logger.error(
             "database_error",
             path=request.url.path,

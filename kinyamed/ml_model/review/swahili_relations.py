@@ -68,19 +68,44 @@ GENERATE_VARIANTS = False
 # worksheet -- they are not discarded, they are simply not wired into a set that
 # means something else.
 ALL_RELATIONS: tuple[str, ...] = tuple(
-    TERMS[k] for k in ("My child", "My wife", "My husband", "My mother",
-                       "My father", "My sister", "My neighbour"))
+    TERMS[k]
+    for k in (
+        "My child",
+        "My wife",
+        "My husband",
+        "My mother",
+        "My father",
+        "My sister",
+        "My neighbour",
+    )
+)
 
 CHILD_RELATIONS_SW: tuple[str, ...] = tuple(
-    TERMS[k] for k in ("My child", "My son", "My daughter", "My grandchild",
-                       "My neighbour's child"))
+    TERMS[k]
+    for k in (
+        "My child",
+        "My son",
+        "My daughter",
+        "My grandchild",
+        "My neighbour's child",
+    )
+)
 
 HOUSEHOLD_RELATIONS_SW: tuple[str, ...] = tuple(
-    TERMS[k] for k in ("My wife", "My husband", "My mother", "My father",
-                       "My sister", "My child"))
+    TERMS[k]
+    for k in (
+        "My wife",
+        "My husband",
+        "My mother",
+        "My father",
+        "My sister",
+        "My child",
+    )
+)
 
 ADULT_RELATIONS_SW: tuple[str, ...] = tuple(
-    r for r in ALL_RELATIONS if r != TERMS["My child"])
+    r for r in ALL_RELATIONS if r != TERMS["My child"]
+)
 
 NO_RELATIONS_SW: tuple[str, ...] = ()
 
@@ -93,13 +118,15 @@ NO_RELATIONS_SW: tuple[str, ...] = ()
 # Inherited rather than narrowed, because narrowing is the Kinyarwanda speaker's
 # ruling to change.
 DOMAIN_RELATIONS_SW: dict[str, tuple[str, ...]] = {
-    "obstetric": tuple(TERMS[k] for k in ("My wife", "My mother", "My sister",
-                                          "My neighbour")),
+    "obstetric": tuple(
+        TERMS[k] for k in ("My wife", "My mother", "My sister", "My neighbour")
+    ),
     "paediatric": CHILD_RELATIONS_SW,
 }
 
 OBSTETRIC_RELATIONS_NO_MOTHER: tuple[str, ...] = tuple(
-    r for r in DOMAIN_RELATIONS_SW["obstetric"] if r != TERMS["My mother"])
+    r for r in DOMAIN_RELATIONS_SW["obstetric"] if r != TERMS["My mother"]
+)
 
 NAMED: dict[str, tuple[str, ...]] = {
     "ALL_RELATIONS": ALL_RELATIONS,
@@ -122,18 +149,36 @@ def check_mirrors_kinyarwanda() -> list[str]:
     # ALL and ADULT are one smaller than the Kinyarwanda rulings BY DECISION,
     # not by drift: the Umukecuru slot is unfilled. Declared here so the mirror
     # check still fails on an accidental change while passing on this one.
-    expected = {"ALL_RELATIONS": 7, "CHILD_RELATIONS": 5, "HOUSEHOLD_RELATIONS": 6,
-                "ADULT_RELATIONS": 6, "OBSTETRIC_RELATIONS": 4}
-    DELIBERATE_DIVERGENCE = {"ALL_RELATIONS": "Umukecuru slot unfilled: no "
-                             "Kiswahili elderly-woman term was supplied",
-                             "ADULT_RELATIONS": "follows ALL_RELATIONS"}
-    problems = [f"{name}: {len(NAMED[name])} members, Kinyarwanda ruling has {n}"
-                for name, n in expected.items() if len(NAMED[name]) != n]
-    if ADULT_RELATIONS_SW != tuple(r for r in ALL_RELATIONS if r != TERMS["My child"]):
-        problems.append("ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order")
+    expected = {
+        "ALL_RELATIONS": 7,
+        "CHILD_RELATIONS": 5,
+        "HOUSEHOLD_RELATIONS": 6,
+        "ADULT_RELATIONS": 6,
+        "OBSTETRIC_RELATIONS": 4,
+    }
+    # Read, not merely declared. A dict that documents a deliberate divergence
+    # and is never consulted is a comment wearing the costume of code, and a
+    # reader is entitled to assume it is enforced.
+    deliberate = {
+        "ALL_RELATIONS": "Umukecuru slot unfilled: no Kiswahili "
+        "elderly-woman term was supplied",
+        "ADULT_RELATIONS": "follows ALL_RELATIONS",
+    }
+    problems = [
+        f"{name}: {len(NAMED[name])} members, Kinyarwanda ruling has {n}"
+        + (f" (DELIBERATE: {deliberate[name]})" if name in deliberate else "")
+        for name, n in expected.items()
+        if len(NAMED[name]) != n
+    ]
+    if tuple(r for r in ALL_RELATIONS if r != TERMS["My child"]) != ADULT_RELATIONS_SW:
+        problems.append(
+            "ADULT_RELATIONS must be ALL_RELATIONS minus the child, in order"
+        )
     if len(set(TERMS.values())) != len(TERMS):
-        problems.append("two relations share a surface form; they would be "
-                        "indistinguishable after substitution")
+        problems.append(
+            "two relations share a surface form; they would be "
+            "indistinguishable after substitution"
+        )
     return problems
 
 
@@ -158,7 +203,10 @@ if __name__ == "__main__":
     issues = check_mirrors_kinyarwanda()
     for issue in issues:
         print(f"  MIRROR: {issue}")
-    print("Swahili relation sets mirror the Kinyarwanda rulings"
-          if not issues else f"{len(issues)} mirror problems")
+    print(
+        "Swahili relation sets mirror the Kinyarwanda rulings"
+        if not issues
+        else f"{len(issues)} mirror problems"
+    )
     for line in containment_within_sets():
         print(f"  CONTAINMENT: {line}")

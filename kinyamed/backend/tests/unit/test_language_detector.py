@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from app.models.triage_result import UrgencyLevel
 from app.services.triage_service import (
     LANGUAGE_MARKERS,
@@ -41,7 +40,9 @@ def test_markers_are_unique_to_one_language() -> None:
     seen: dict[str, str] = {}
     for language, terms in LANGUAGE_MARKERS.items():
         for term in terms:
-            assert term not in seen, f"{term!r} in both {seen.get(term)!r} and {language!r}"
+            assert term not in seen, (
+                f"{term!r} in both {seen.get(term)!r} and {language!r}"
+            )
             seen[term] = language
 
 
@@ -66,4 +67,7 @@ def test_classification(text: str, expected: UrgencyLevel) -> None:
 
 def test_substring_matches_do_not_trigger_urgency() -> None:
     """'painting' must not be read as 'pain'."""
-    assert get_classifier().classify("I am painting my house").urgency is UrgencyLevel.ROUTINE
+    assert (
+        get_classifier().classify("I am painting my house").urgency
+        is UrgencyLevel.ROUTINE
+    )

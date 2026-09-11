@@ -90,28 +90,44 @@ def resolve(language: str, urgency: str, channel: str = "app") -> ResponseTempla
 
     if language not in SUPPORTED:
         return ResponseTemplate(
-            language, urgency, "", True,
-            f"language {language!r} is not one of {SUPPORTED}")
+            language,
+            urgency,
+            "",
+            True,
+            f"language {language!r} is not one of {SUPPORTED}",
+        )
 
     authored = load(language, channel)
     if not authored:
         return ResponseTemplate(
-            language, urgency, "", True,
+            language,
+            urgency,
+            "",
+            True,
             f"no {channel} template is authored for {language}. The brief is "
             f"{_brief_path(language).name}; three rows per channel, one per "
-            "urgency, awaiting a speaker. NOT machine-drafted by design.")
+            "urgency, awaiting a speaker. NOT machine-drafted by design.",
+        )
 
     text = authored.get(urgency, "")
     if not text:
         return ResponseTemplate(
-            language, urgency, "", True,
-            f"{language} has authored templates but not for urgency {urgency!r}")
+            language,
+            urgency,
+            "",
+            True,
+            f"{language} has authored templates but not for urgency {urgency!r}",
+        )
 
     return ResponseTemplate(language, urgency, text, False, "")
 
 
 def status() -> dict[str, dict[str, bool]]:
     """Per language, which urgency classes have an authored response."""
-    return {f"{lang}/{ch}": {u: bool(load(lang, ch).get(u))
-                             for u in ("CRITICAL", "URGENT", "ROUTINE")}
-            for lang in SUPPORTED for ch in ("app", "sms")}
+    return {
+        f"{lang}/{ch}": {
+            u: bool(load(lang, ch).get(u)) for u in ("CRITICAL", "URGENT", "ROUTINE")
+        }
+        for lang in SUPPORTED
+        for ch in ("app", "sms")
+    }

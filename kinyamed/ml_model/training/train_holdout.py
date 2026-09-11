@@ -40,16 +40,19 @@ from transformers import (
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.atomicio import atomic_write, sweep_partials  # noqa: E402
-from training.config import ID_TO_LABEL, LABEL_MAP, MODEL_NAME, NUM_LABELS  # noqa: E402
+from dataset.atomicio import atomic_write, sweep_partials
+from training.config import ID_TO_LABEL, LABEL_MAP, MODEL_NAME, NUM_LABELS
 
 # The gate lives in ONE place. This module used to carry its own
 # `MINIMUM_CRITICAL_RECALL = 0.95` beside evaluate.py's, so a change to the
 # safety threshold in one file would silently not apply in the other — the
 # same two-sources-of-truth shape that cost this project a day on PR06 and on
 # the concept relation rulings. Imported now, never redefined.
-from training.evaluate import (CLASS_ORDER, MINIMUM_CRITICAL_RECALL,  # noqa: E402,F401
-                               triage_gate)
+from training.evaluate import (  # noqa: F401
+    CLASS_ORDER,
+    MINIMUM_CRITICAL_RECALL,
+    triage_gate,
+)
 
 
 class SymptomDataset(Dataset):
@@ -138,11 +141,15 @@ def load_checkpoint(path: Path, fingerprint: str) -> dict | None:
         return None
     try:
         payload = torch.load(path, map_location="cpu", weights_only=False)
-    except Exception as error:  # a torn or stale checkpoint must not be fatal
-        print(f"  checkpoint at {path} is unreadable ({type(error).__name__}); starting fresh")
+    except Exception as error:  # noqa: BLE001 — a torn or stale checkpoint must not be fatal
+        print(
+            f"  checkpoint at {path} is unreadable ({type(error).__name__}); starting fresh"
+        )
         return None
     if payload.get("fingerprint") != fingerprint:
-        print(f"  checkpoint at {path} belongs to a different configuration; starting fresh")
+        print(
+            f"  checkpoint at {path} belongs to a different configuration; starting fresh"
+        )
         return None
     return payload
 
@@ -246,8 +253,9 @@ def load_split(
     return train, evaluation, manifest
 
 
-def split_eval_by_group(frame: pd.DataFrame, n_stop: int, seed: int
-                        ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
+def split_eval_by_group(
+    frame: pd.DataFrame, n_stop: int, seed: int
+) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     """Cut the held-out eval into a STOPPING set and a REPORTING set, by group.
 
     WHY THIS EXISTS. The phrase holdout is 15 distinct sentences in 8 phrase
@@ -279,8 +287,7 @@ def split_eval_by_group(frame: pd.DataFrame, n_stop: int, seed: int
             "phrase groups. There would be nothing left to report on."
         )
     label_of = {
-        g: frame.loc[frame["phrase_group"] == g, "label"].mode().iat[0]
-        for g in groups
+        g: frame.loc[frame["phrase_group"] == g, "label"].mode().iat[0] for g in groups
     }
     by_label: dict[str, list[str]] = defaultdict(list)
     for g in groups:
@@ -313,9 +320,11 @@ def split_eval_by_group(frame: pd.DataFrame, n_stop: int, seed: int
         "stopping_phrases": int(stop_frame["phrase"].nunique()),
         "reporting_phrases": int(report_frame["phrase"].nunique()),
         "stopping_critical_phrases": int(
-            stop_frame.loc[stop_frame["label"] == "CRITICAL", "phrase"].nunique()),
+            stop_frame.loc[stop_frame["label"] == "CRITICAL", "phrase"].nunique()
+        ),
         "reporting_critical_phrases": int(
-            report_frame.loc[report_frame["label"] == "CRITICAL", "phrase"].nunique()),
+            report_frame.loc[report_frame["label"] == "CRITICAL", "phrase"].nunique()
+        ),
         "seed": seed,
     }
     return stop_frame, report_frame, assignment
@@ -378,7 +387,9 @@ def class_weights(labels: list[int], device: torch.device) -> torch.Tensor:
     total = sum(counts.values())
     raw = [total / (NUM_LABELS * counts.get(index, 1)) for index in range(NUM_LABELS)]
     mean = sum(raw) / len(raw)
-    return torch.tensor([value / mean for value in raw], dtype=torch.float, device=device)
+    return torch.tensor(
+        [value / mean for value in raw], dtype=torch.float, device=device
+    )
 
 
 @torch.no_grad()
@@ -400,7 +411,11 @@ def evaluate(model, loader: DataLoader, device: torch.device, criterion) -> dict
 
     target_names = [ID_TO_LABEL[index] for index in range(NUM_LABELS)]
     report = classification_report(
-        truths, predictions, target_names=target_names, output_dict=True, zero_division=0
+        truths,
+        predictions,
+        target_names=target_names,
+        output_dict=True,
+        zero_division=0,
     )
     matrix = confusion_matrix(truths, predictions, labels=list(range(NUM_LABELS)))
     return {
@@ -442,8 +457,7 @@ def print_metrics(metrics: dict) -> None:
     print("\n  TRIAGE GATE")
     for line in lines:
         print(f"    {line}")
-    print(f"    -> {'PASS' if passed else 'BELOW TARGET'} "
-          f"(all three must hold)")
+    print(f"    -> {'PASS' if passed else 'BELOW TARGET'} (all three must hold)")
 
 
 def main() -> int:
@@ -454,7 +468,9 @@ def main() -> int:
         default=Path("dataset/processed/eval_manifest_phrase_v1.json"),
     )
     parser.add_argument("--train-fraction", type=float, default=1.0)
-    parser.add_argument("--eval-limit", type=int, default=None, help="Cap eval rows (smoke runs).")
+    parser.add_argument(
+        "--eval-limit", type=int, default=None, help="Cap eval rows (smoke runs)."
+    )
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -463,51 +479,75 @@ def main() -> int:
     parser.add_argument("--warmup-ratio", type=float, default=0.1)
     parser.add_argument("--weight-decay", type=float, default=0.01)
     parser.add_argument("--log-every", type=int, default=25)
-    parser.add_argument("--eval-every", type=int, default=None, help="Eval mid-training.")
+    parser.add_argument(
+        "--eval-every", type=int, default=None, help="Eval mid-training."
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--threads", type=int, default=None)
     parser.add_argument(
-        "--freeze-embeddings", dest="freeze_embeddings", action="store_true", default=True,
+        "--freeze-embeddings",
+        dest="freeze_embeddings",
+        action="store_true",
+        default=True,
         help="Train only the encoder and head (default). Removes ~96M embedding "
-             "parameters from gradients and optimiser state.",
+        "parameters from gradients and optimiser state.",
     )
     parser.add_argument(
-        "--no-freeze-embeddings", dest="freeze_embeddings", action="store_false",
+        "--no-freeze-embeddings",
+        dest="freeze_embeddings",
+        action="store_false",
         help="Fine-tune the embedding matrix too; needs ~1.15 GB more.",
     )
     parser.add_argument(
-        "--freeze-layers", type=int, default=0, metavar="N",
+        "--freeze-layers",
+        type=int,
+        default=0,
+        metavar="N",
         help="Freeze the bottom N encoder layers as well as the embeddings. "
-             "12-layer model: 10 leaves 3.7M trainable, 8 leaves 7.2M, 0 leaves "
-             "21.4M.",
+        "12-layer model: 10 leaves 3.7M trainable, 8 leaves 7.2M, 0 leaves "
+        "21.4M.",
     )
     parser.add_argument(
-        "--stop-groups", type=int, default=0, metavar="N",
+        "--stop-groups",
+        type=int,
+        default=0,
+        metavar="N",
         help="Hold N of the eval phrase groups out as a STOPPING set; the rest "
-             "become the REPORTING set the headline is taken from. 0 disables "
-             "the third split and stops/reports on the same rows, which makes "
-             "the headline optimistic.",
+        "become the REPORTING set the headline is taken from. 0 disables "
+        "the third split and stops/reports on the same rows, which makes "
+        "the headline optimistic.",
     )
     parser.add_argument(
-        "--patience", type=int, default=0, metavar="N",
+        "--patience",
+        type=int,
+        default=0,
+        metavar="N",
         help="Stop after N consecutive evals without an improvement in stopping "
-             "loss. 0 disables early stopping, but best-checkpoint selection "
-             "still applies whenever --eval-every is set.",
+        "loss. 0 disables early stopping, but best-checkpoint selection "
+        "still applies whenever --eval-every is set.",
     )
     parser.add_argument(
-        "--min-delta", type=float, default=0.0,
+        "--min-delta",
+        type=float,
+        default=0.0,
         help="Improvement in stopping loss that counts as progress.",
     )
     parser.add_argument(
-        "--report-limit", type=int, default=None,
+        "--report-limit",
+        type=int,
+        default=None,
         help="Cap the REPORTING set (default: use all of it).",
     )
     parser.add_argument(
-        "--checkpoint-every", type=int, default=200,
+        "--checkpoint-every",
+        type=int,
+        default=200,
         help="Steps between resumable checkpoints; 0 disables.",
     )
     parser.add_argument(
-        "--checkpoint-path", type=Path, default=Path("training/checkpoints/train_state.pt")
+        "--checkpoint-path",
+        type=Path,
+        default=Path("training/checkpoints/train_state.pt"),
     )
     parser.add_argument(
         "--restart", action="store_true", help="Ignore any existing checkpoint."
@@ -530,42 +570,63 @@ def main() -> int:
         eval_limit=None,
         seed=args.seed,
     )
-    print(f"Manifest        : {args.manifest} (strategy {manifest['strategy']}, digests verified)")
+    print(
+        f"Manifest        : {args.manifest} (strategy {manifest['strategy']}, digests verified)"
+    )
     print(f"Device          : {device}  threads={torch.get_num_threads()}")
 
-    print(f"Train rows      : {len(train_frame):,}  {dict(Counter(train_frame['label']))}")
-    print(f"Train phrases   : {train_frame['phrase'].nunique()} distinct in "
-          f"{train_frame['phrase_group'].nunique()} groups")
+    print(
+        f"Train rows      : {len(train_frame):,}  {dict(Counter(train_frame['label']))}"
+    )
+    print(
+        f"Train phrases   : {train_frame['phrase'].nunique()} distinct in "
+        f"{train_frame['phrase_group'].nunique()} groups"
+    )
 
     if args.stop_groups:
         stop_frame, report_frame, split = split_eval_by_group(
-            eval_frame, args.stop_groups, args.seed)
+            eval_frame, args.stop_groups, args.seed
+        )
         stop_frame = cap_per_class(stop_frame, args.eval_limit, args.seed)
         report_frame = cap_per_class(report_frame, args.report_limit, args.seed)
-        print(f"\nTHIRD SPLIT     : {args.stop_groups} phrase groups stop, "
-              f"{len(split['reporting_groups'])} report. Chosen by group, never "
-              "by row.")
-        print(f"  stopping set  : {len(stop_frame):,} rows, "
-              f"{split['stopping_phrases']} distinct phrases "
-              f"({split['stopping_critical_phrases']} CRITICAL)")
-        print(f"  REPORTING set : {len(report_frame):,} rows, "
-              f"{split['reporting_phrases']} distinct phrases "
-              f"({split['reporting_critical_phrases']} CRITICAL)")
-        print("  the headline comes from the REPORTING set, which no stopping "
-              "decision has seen")
-        print(f"  CRITICAL recall there is over "
-              f"{split['reporting_critical_phrases']} distinct sentences — read "
-              "it as that, not as a row count")
+        print(
+            f"\nTHIRD SPLIT     : {args.stop_groups} phrase groups stop, "
+            f"{len(split['reporting_groups'])} report. Chosen by group, never "
+            "by row."
+        )
+        print(
+            f"  stopping set  : {len(stop_frame):,} rows, "
+            f"{split['stopping_phrases']} distinct phrases "
+            f"({split['stopping_critical_phrases']} CRITICAL)"
+        )
+        print(
+            f"  REPORTING set : {len(report_frame):,} rows, "
+            f"{split['reporting_phrases']} distinct phrases "
+            f"({split['reporting_critical_phrases']} CRITICAL)"
+        )
+        print(
+            "  the headline comes from the REPORTING set, which no stopping "
+            "decision has seen"
+        )
+        print(
+            f"  CRITICAL recall there is over "
+            f"{split['reporting_critical_phrases']} distinct sentences — read "
+            "it as that, not as a row count"
+        )
         for group in split["stopping_groups"]:
             print(f"    stop  <- {group[:70]}")
     else:
         stop_frame, report_frame, split = eval_frame, eval_frame, None
         stop_frame = cap_per_class(stop_frame, args.eval_limit, args.seed)
         report_frame = stop_frame
-        print(f"\nEval rows       : {len(stop_frame):,}  "
-              f"{dict(Counter(stop_frame['label']))}")
-        print("  NO THIRD SPLIT: stopping and reporting use the same rows, so "
-              "the headline is optimistic by construction.")
+        print(
+            f"\nEval rows       : {len(stop_frame):,}  "
+            f"{dict(Counter(stop_frame['label']))}"
+        )
+        print(
+            "  NO THIRD SPLIT: stopping and reporting use the same rows, so "
+            "the headline is optimistic by construction."
+        )
     eval_frame = stop_frame
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -591,9 +652,13 @@ def main() -> int:
     # optimiser state shrink. Reporting both stops the budget being taken
     # against the trainable slice alone.
     resident = (n_total + 3 * n_train) * 4 / 1e9
-    print(f"Parameters      : {n_total:,} total, {n_train:,} trainable "
-          f"({n_train / n_total:.1%}), {n_total - n_train:,} frozen")
-    print(f"Projected fp32  : {resident:.2f} GB (params + grads + AdamW over trainable)")
+    print(
+        f"Parameters      : {n_total:,} total, {n_train:,} trainable "
+        f"({n_train / n_total:.1%}), {n_total - n_train:,} frozen"
+    )
+    print(
+        f"Projected fp32  : {resident:.2f} GB (params + grads + AdamW over trainable)"
+    )
 
     train_dataset = SymptomDataset(train_frame, tokenizer, args.max_length)
     # Length only; the per-epoch loader is rebuilt below so a resume can start
@@ -614,9 +679,10 @@ def main() -> int:
     )
 
     weights = class_weights(train_frame["label_id"].tolist(), device)
-    print(f"Class weights   : " + ", ".join(
-        f"{ID_TO_LABEL[i]}={weights[i]:.3f}" for i in range(NUM_LABELS)
-    ))
+    print(
+        "Class weights   : "
+        + ", ".join(f"{ID_TO_LABEL[i]}={weights[i]:.3f}" for i in range(NUM_LABELS))
+    )
     criterion = torch.nn.CrossEntropyLoss(weight=weights)
 
     steps_per_epoch = steps_per_epoch_full
@@ -625,7 +691,9 @@ def main() -> int:
     scheduler = get_linear_schedule_with_warmup(
         optimiser, int(total_steps * args.warmup_ratio), total_steps
     )
-    print(f"Steps           : {total_steps:,} (batch {args.batch_size}, seq {args.max_length})\n")
+    print(
+        f"Steps           : {total_steps:,} (batch {args.batch_size}, seq {args.max_length})\n"
+    )
 
     history: list[dict] = []
     losses: list[float] = []
@@ -659,9 +727,9 @@ def main() -> int:
         )
     else:
         print(
-            f"Checkpoint      : {checkpoint_path} "
-            f"(every {args.checkpoint_every} steps)"
-            if args.checkpoint_every else "Checkpoint      : disabled"
+            f"Checkpoint      : {checkpoint_path} (every {args.checkpoint_every} steps)"
+            if args.checkpoint_every
+            else "Checkpoint      : disabled"
         )
 
     started = time.monotonic() - resumed_seconds
@@ -670,21 +738,24 @@ def main() -> int:
     def write_checkpoint(epoch: int, batch_in_epoch: int) -> None:
         if not args.checkpoint_every:
             return
-        save_checkpoint(checkpoint_path, {
-            "fingerprint": fingerprint,
-            "step": step,
-            "epoch": epoch,
-            "batch_in_epoch": batch_in_epoch,
-            "model": model.state_dict(),
-            "optimiser": optimiser.state_dict(),
-            "scheduler": scheduler.state_dict(),
-            "history": history,
-            "losses": losses,
-            "elapsed": time.monotonic() - started,
-            "rng_python": random.getstate(),
-            "rng_numpy": np.random.get_state(),
-            "rng_torch": torch.get_rng_state(),
-        })
+        save_checkpoint(
+            checkpoint_path,
+            {
+                "fingerprint": fingerprint,
+                "step": step,
+                "epoch": epoch,
+                "batch_in_epoch": batch_in_epoch,
+                "model": model.state_dict(),
+                "optimiser": optimiser.state_dict(),
+                "scheduler": scheduler.state_dict(),
+                "history": history,
+                "losses": losses,
+                "elapsed": time.monotonic() - started,
+                "rng_python": random.getstate(),
+                "rng_numpy": np.random.get_state(),
+                "rng_torch": torch.get_rng_state(),
+            },
+        )
 
     # BEST-CHECKPOINT SELECTION. The trainer previously saved whatever the last
     # step produced, so a run that had already collapsed into memorisation still
@@ -758,23 +829,36 @@ def main() -> int:
                 if improved:
                     best_loss = interim["loss"]
                     best_step = step
-                    best_metrics = {k: v for k, v in interim.items()
-                                    if k not in ("report", "confusion_matrix")}
+                    best_metrics = {
+                        k: v
+                        for k, v in interim.items()
+                        if k not in ("report", "confusion_matrix")
+                    }
                     since_improved = 0
-                    save_checkpoint(best_path, {"fingerprint": fingerprint,
-                                                "step": step,
-                                                "model": model.state_dict()})
+                    save_checkpoint(
+                        best_path,
+                        {
+                            "fingerprint": fingerprint,
+                            "step": step,
+                            "model": model.state_dict(),
+                        },
+                    )
                 else:
                     since_improved += 1
                 mark = "  <- best" if improved else f"  ({since_improved} since best)"
-                print(f"  [interim eval] step {step}  stopping loss "
-                      f"{interim['loss']:.4f}  critical_recall "
-                      f"{interim['critical_recall']:.4f}{mark}", flush=True)
+                print(
+                    f"  [interim eval] step {step}  stopping loss "
+                    f"{interim['loss']:.4f}  critical_recall "
+                    f"{interim['critical_recall']:.4f}{mark}",
+                    flush=True,
+                )
                 if args.patience and since_improved >= args.patience:
-                    print(f"\nEARLY STOP      : stopping loss has not improved "
-                          f"for {since_improved} evals "
-                          f"({since_improved * args.eval_every} steps). "
-                          f"Best was {best_loss:.4f} at step {best_step:,}.")
+                    print(
+                        f"\nEARLY STOP      : stopping loss has not improved "
+                        f"for {since_improved} evals "
+                        f"({since_improved * args.eval_every} steps). "
+                        f"Best was {best_loss:.4f} at step {best_step:,}."
+                    )
                     stopped_early = True
                     stop = True
                     break
@@ -812,11 +896,15 @@ def main() -> int:
             )
         model.load_state_dict(payload["model"])
         restored_from = best_step
-        print(f"\nSelected step   : {best_step:,} of {step:,} "
-              f"(stopping loss {best_loss:.4f})")
+        print(
+            f"\nSelected step   : {best_step:,} of {step:,} "
+            f"(stopping loss {best_loss:.4f})"
+        )
         if not stopped_early:
-            print("  NOTE: the budget ran out before patience did, so the "
-                  "optimum may be later than this. Raise --max-steps to find out.")
+            print(
+                "  NOTE: the budget ran out before patience did, so the "
+                "optimum may be later than this. Raise --max-steps to find out."
+            )
         best_path.unlink()
     elif args.eval_every:
         print("\nSelected step   : none — no eval improved on the initial value")
@@ -825,24 +913,31 @@ def main() -> int:
         print("\nStopping set (chose the step; NOT the headline)")
         print_metrics(evaluate(model, eval_loader, device, criterion))
 
-    print("\nREPORTING SET — no stopping decision has seen these rows"
-          if split is not None else "\nEvaluation")
+    print(
+        "\nREPORTING SET — no stopping decision has seen these rows"
+        if split is not None
+        else "\nEvaluation"
+    )
     metrics = evaluate(model, report_loader, device, criterion)
     print_metrics(metrics)
     if split is not None:
-        print(f"\n  CRITICAL recall above is over "
-              f"{split['reporting_critical_phrases']} distinct sentences in "
-              f"{len(split['reporting_groups'])} phrase groups. The row count is "
-              "frame permutations of those sentences and is not an independent "
-              "sample size.")
+        print(
+            f"\n  CRITICAL recall above is over "
+            f"{split['reporting_critical_phrases']} distinct sentences in "
+            f"{len(split['reporting_groups'])} phrase groups. The row count is "
+            "frame permutations of those sentences and is not an independent "
+            "sample size."
+        )
         balance = Counter(report_frame["label"])
         if max(balance.values()) > 2 * min(balance.values()):
-            print("  The reporting set is class-IMBALANCED "
-                  f"({dict(balance)}) because phrase groups carry different "
-                  "numbers of frames. Per-class precision and recall are "
-                  "unaffected and are the numbers to read; accuracy and "
-                  "weighted F1 above are not, and must not be quoted as "
-                  "headline figures.")
+            print(
+                "  The reporting set is class-IMBALANCED "
+                f"({dict(balance)}) because phrase groups carry different "
+                "numbers of frames. Per-class precision and recall are "
+                "unaffected and are the numbers to read; accuracy and "
+                "weighted F1 above are not, and must not be quoted as "
+                "headline figures."
+            )
 
     result = {
         "manifest": str(args.manifest),
@@ -861,9 +956,7 @@ def main() -> int:
         "loss_last_window": round(last_mean, 4),
         "loss_history": history,
         "metrics": {k: v for k, v in metrics.items() if k != "report"},
-        "per_class": {
-            name: metrics["report"][name] for name in CLASS_ORDER
-        },
+        "per_class": {name: metrics["report"][name] for name in CLASS_ORDER},
         "args": {k: str(v) for k, v in vars(args).items()},
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)

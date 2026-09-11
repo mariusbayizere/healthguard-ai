@@ -44,6 +44,8 @@ def configure_logging(environment: str | None = None) -> None:
 
     # Send uvicorn/sqlalchemy records through the same renderer so a deployment
     # emits one log format rather than two.
-    logging.basicConfig(format="%(message)s", stream=sys.stdout, level=level, force=True)
+    logging.basicConfig(
+        format="%(message)s", stream=sys.stdout, level=level, force=True
+    )
     # SQL statements carry patient data; they are opt-in via DB_ECHO only.
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)

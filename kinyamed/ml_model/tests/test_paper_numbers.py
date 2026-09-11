@@ -95,9 +95,13 @@ def _manifest_over(tmp_path: Path) -> tuple[dict, Path, Path]:
     from dataset.freeze_eval import sha256
 
     train = tmp_path / "train.csv"
-    train.write_text("text,language,label\nchest pain,english,CRITICAL\n", encoding="utf-8")
+    train.write_text(
+        "text,language,label\nchest pain,english,CRITICAL\n", encoding="utf-8"
+    )
     evaluation = tmp_path / "eval.csv"
-    evaluation.write_text("text,language,label\nmild cough,english,ROUTINE\n", encoding="utf-8")
+    evaluation.write_text(
+        "text,language,label\nmild cough,english,ROUTINE\n", encoding="utf-8"
+    )
     manifest = {
         "strategy": "phrase",
         "split_seed": 42,

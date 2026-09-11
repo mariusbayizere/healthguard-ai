@@ -16,7 +16,11 @@ def test_summary_counts_each_acuity(client, patient_factory):
     _triage(client, patient_factory, "ndumva nkeneye kubonana na muganga")
 
     body = client.get("/api/v1/analytics/summary").json()
-    assert (body["critical_cases"], body["urgent_cases"], body["routine_cases"]) == (1, 1, 1)
+    assert (body["critical_cases"], body["urgent_cases"], body["routine_cases"]) == (
+        1,
+        1,
+        1,
+    )
     assert body["total_patients"] == 3
     assert body["queue_waiting"] == 3
 
@@ -49,7 +53,9 @@ def test_snapshot_is_upserted_per_day(client, patient_factory):
     _triage(client, patient_factory, "mfite ububabare bw'igituza")
     second = client.post("/api/v1/analytics/daily/snapshot").json()
 
-    assert first["id"] == second["id"], "re-running must update today's row, not duplicate it"
+    assert first["id"] == second["id"], (
+        "re-running must update today's row, not duplicate it"
+    )
     assert second["total_triaged"] == 2
     listing = client.get("/api/v1/analytics/daily").json()
     assert listing["total"] == 1
@@ -70,4 +76,9 @@ def test_snapshot_records_patients_and_triage_separately(client, patient_factory
 def test_bulk_delete_requires_confirmation(client):
     client.post("/api/v1/analytics/daily/snapshot")
     assert client.delete("/api/v1/analytics/daily").status_code == 409
-    assert client.delete("/api/v1/analytics/daily", params={"confirm": "CLEAR_ALL"}).status_code == 204
+    assert (
+        client.delete(
+            "/api/v1/analytics/daily", params={"confirm": "CLEAR_ALL"}
+        ).status_code
+        == 204
+    )

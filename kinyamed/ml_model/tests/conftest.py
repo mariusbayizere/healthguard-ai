@@ -50,5 +50,6 @@ def _reset_corpus_version():
     yield
     import dataset.generate_large_dataset as G
     import dataset.split_dataset as SD
+
     G.use_corpus_version(2)
     SD.use_corpus_version(2)

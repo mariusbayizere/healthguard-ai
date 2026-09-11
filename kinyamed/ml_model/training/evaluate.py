@@ -25,13 +25,13 @@ import hashlib
 import json
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.atomicio import atomic_write  # noqa: E402
-from training.config import ID_TO_LABEL, LABEL_MAP, NUM_LABELS  # noqa: E402
+from dataset.atomicio import atomic_write
+from training.config import ID_TO_LABEL, LABEL_MAP, NUM_LABELS
 
 CLASS_ORDER = ("CRITICAL", "URGENT", "ROUTINE")
 LANGUAGE_ORDER = ("kinyarwanda", "english", "french", "swahili", "mixed")
@@ -119,16 +119,22 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
     floor = ceiling + CRITICAL_PRECISION_MARGIN
 
     checks = [
-        (recall >= MINIMUM_CRITICAL_RECALL,
-         f"G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL} "
-         f"(inherited, source unverified)"),
-        (macro_f1 >= MINIMUM_MACRO_F1,
-         f"G2  macro F1           {macro_f1:.4f} >= {MINIMUM_MACRO_F1:.4f} "
-         f"(derived: a dead class caps macro F1 at 2/3)"),
-        (precision >= floor,
-         f"G3  CRITICAL precision {precision:.4f} >= {floor:.4f} "
-         f"(= {ceiling:.4f} degenerate ceiling + {CRITICAL_PRECISION_MARGIN:.2f} "
-         f"UNDERIVED margin)"),
+        (
+            recall >= MINIMUM_CRITICAL_RECALL,
+            f"G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL} "
+            f"(inherited, source unverified)",
+        ),
+        (
+            macro_f1 >= MINIMUM_MACRO_F1,
+            f"G2  macro F1           {macro_f1:.4f} >= {MINIMUM_MACRO_F1:.4f} "
+            f"(derived: a dead class caps macro F1 at 2/3)",
+        ),
+        (
+            precision >= floor,
+            f"G3  CRITICAL precision {precision:.4f} >= {floor:.4f} "
+            f"(= {ceiling:.4f} degenerate ceiling + {CRITICAL_PRECISION_MARGIN:.2f} "
+            f"UNDERIVED margin)",
+        ),
     ]
     lines = [f"{'PASS' if ok else 'FAIL'}  {text}" for ok, text in checks]
     return all(ok for ok, _ in checks), lines
@@ -136,8 +142,12 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
 
 def git_commit() -> str:
     try:
-        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, timeout=5)
+        out = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
         return out.stdout.strip() or "unknown"
     except (OSError, subprocess.SubprocessError):
         return "unknown"
@@ -165,15 +175,22 @@ def load_manifest(path: Path) -> dict:
     return manifest
 
 
-def predict(model, tokenizer, texts: list[str], device, batch_size: int, max_length: int) -> list[int]:
+def predict(
+    model, tokenizer, texts: list[str], device, batch_size: int, max_length: int
+) -> list[int]:
     """Batched inference. One pass over the eval set, reused for every breakdown."""
     import torch
 
     predictions: list[int] = []
     for start in range(0, len(texts), batch_size):
         batch = texts[start : start + batch_size]
-        encoded = tokenizer(batch, max_length=max_length, padding=True,
-                            truncation=True, return_tensors="pt")
+        encoded = tokenizer(
+            batch,
+            max_length=max_length,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+        )
         encoded = {k: v.to(device) for k, v in encoded.items()}
         with torch.no_grad():
             logits = model(**encoded).logits
@@ -185,18 +202,27 @@ def predict(model, tokenizer, texts: list[str], device, batch_size: int, max_len
 
 
 def tex_escape(value: str) -> str:
-    for old, new in (("\\", r"\textbackslash "), ("_", r"\_"), ("%", r"\%"),
-                     ("&", r"\&"), ("#", r"\#")):
+    for old, new in (
+        ("\\", r"\textbackslash "),
+        ("_", r"\_"),
+        ("%", r"\%"),
+        ("&", r"\&"),
+        ("#", r"\#"),
+    ):
         value = value.replace(old, new)
     return value
 
 
-def write_macros(path: Path, values: dict[str, str], provenance: dict[str, str]) -> None:
+def write_macros(
+    path: Path, values: dict[str, str], provenance: dict[str, str]
+) -> None:
     """Define every number the prose quotes, so none can be typed by hand."""
     with atomic_write(path, "w", encoding="utf-8") as handle:
         handle.write("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
         handle.write("% Written by training/evaluate.py from a verified run.\n")
-        handle.write("% Editing this file to change a reported number is fabrication;\n")
+        handle.write(
+            "% Editing this file to change a reported number is fabrication;\n"
+        )
         handle.write("% re-run the evaluation instead.\n%\n")
         for key, val in provenance.items():
             handle.write(f"% {key}: {val}\n")
@@ -205,8 +231,13 @@ def write_macros(path: Path, values: dict[str, str], provenance: dict[str, str])
             handle.write(f"\\newcommand{{\\{name}}}{{{val}}}\n")
 
 
-def write_table(path: Path, per_class: dict, per_language: dict,
-                provenance: dict[str, str], totals: dict) -> None:
+def write_table(
+    path: Path,
+    per_class: dict,
+    per_language: dict,
+    provenance: dict[str, str],
+    totals: dict,
+) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         w("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
@@ -214,21 +245,34 @@ def write_table(path: Path, per_class: dict, per_language: dict,
         for key, val in provenance.items():
             w(f"% {key}: {val}\n")
         w("\n\\begin{table}[t]\n\\centering\n")
-        w("\\caption{Triage performance on the frozen %s holdout "
-          "(%s eval rows, split seed %s). Digests verified against \\texttt{%s}.}\n"
-          % (tex_escape(provenance["strategy"]), totals["rows"],
-             provenance["split_seed"], tex_escape(provenance["manifest"])))
+        w(
+            # The payload is LaTeX, which is made of braces. An f-string or
+            # .format() would need every brace in it doubled -- more escaping
+            # than the rule removes, and it would stop reading as LaTeX.
+            "\\caption{Triage performance on the frozen %s holdout "  # noqa: UP031
+            "(%s eval rows, split seed %s). Digests verified against \\texttt{%s}.}\n"
+            % (
+                tex_escape(provenance["strategy"]),
+                totals["rows"],
+                provenance["split_seed"],
+                tex_escape(provenance["manifest"]),
+            )
+        )
         w("\\label{tab:results}\n")
         w("\\begin{tabular}{lrrrr}\n\\toprule\n")
         w("Class & Precision & Recall & F1 & Support \\\\\n\\midrule\n")
         for name in CLASS_ORDER:
             row = per_class[name]
-            w(f"{name} & {row['precision']:.4f} & {row['recall']:.4f} & "
-              f"{row['f1-score']:.4f} & {int(row['support']):,} \\\\\n")
+            w(
+                f"{name} & {row['precision']:.4f} & {row['recall']:.4f} & "
+                f"{row['f1-score']:.4f} & {int(row['support']):,} \\\\\n"
+            )
         w("\\midrule\n")
-        w(f"Macro avg & {per_class['macro avg']['precision']:.4f} & "
-          f"{per_class['macro avg']['recall']:.4f} & "
-          f"{per_class['macro avg']['f1-score']:.4f} & {totals['rows']} \\\\\n")
+        w(
+            f"Macro avg & {per_class['macro avg']['precision']:.4f} & "
+            f"{per_class['macro avg']['recall']:.4f} & "
+            f"{per_class['macro avg']['f1-score']:.4f} & {totals['rows']} \\\\\n"
+        )
         w("\\bottomrule\n\\end{tabular}\n\n")
 
         w("\\vspace{1em}\n\\begin{tabular}{lrr}\n\\toprule\n")
@@ -251,6 +295,7 @@ def write_table(path: Path, per_class: dict, per_language: dict,
 # verified its own data digests.
 # ---------------------------------------------------------------------------
 
+
 def _load_runs(paths: list[Path]) -> list[dict]:
     runs = []
     for path in paths:
@@ -260,9 +305,16 @@ def _load_runs(paths: list[Path]) -> list[dict]:
     return runs
 
 
-def write_result_table(path: Path, run: dict, rows: int, phrases: int,
-                       groups: int, counts: dict[str, int], prov: dict,
-                       fingerprint: str) -> None:
+def write_result_table(
+    path: Path,
+    run: dict,
+    rows: int,
+    phrases: int,
+    groups: int,
+    counts: dict[str, int],
+    prov: dict,
+    fingerprint: str,
+) -> None:
     """The headline per-class table.
 
     Replaces the placeholder this file used to emit before any model existed.
@@ -275,198 +327,249 @@ def write_result_table(path: Path, run: dict, rows: int, phrases: int,
         w = handle.write
         _provenance_header(w, prov)
         w("\\begin{table}[t]\n\\centering\n")
-        w("\\caption{Triage performance of the reported model on the frozen "
-          f"phrase holdout. The {rows:,} rows are frame permutations of {phrases} "
-          f"distinct phrases in {groups} phrase groups; the support column is "
-          "therefore not an independent sample size, and the final column gives "
-          "the count that governs the granularity of each recall figure.}\n")
+        w(
+            "\\caption{Triage performance of the reported model on the frozen "
+            f"phrase holdout. The {rows:,} rows are frame permutations of {phrases} "
+            f"distinct phrases in {groups} phrase groups; the support column is "
+            "therefore not an independent sample size, and the final column gives "
+            "the count that governs the granularity of each recall figure.}\n"
+        )
         w("\\label{tab:results}\n")
         w("\\begin{tabular}{lrrrrr}\n\\toprule\n")
-        w("Class & Precision & Recall & F1 & Rows & Distinct sentences "
-          "\\\\\n\\midrule\n")
+        w(
+            "Class & Precision & Recall & F1 & Rows & Distinct sentences "
+            "\\\\\n\\midrule\n"
+        )
         for name in CLASS_ORDER:
             r = pc[name]
-            w(f"{name} & {r['precision']:.4f} & {r['recall']:.4f} & "
-              f"{r['f1-score']:.4f} & {int(r['support']):,} & {counts[name]} "
-              "\\\\\n")
+            w(
+                f"{name} & {r['precision']:.4f} & {r['recall']:.4f} & "
+                f"{r['f1-score']:.4f} & {int(r['support']):,} & {counts[name]} "
+                "\\\\\n"
+            )
         w("\\midrule\n")
-        w(f"Macro avg & --- & --- & {run['macro_f1']:.4f} & "
-          f"{rows:,} & {phrases} \\\\\n")
+        w(
+            f"Macro avg & --- & --- & {run['macro_f1']:.4f} & "
+            f"{rows:,} & {phrases} \\\\\n"
+        )
         w("\\bottomrule\n\\end{tabular}\n")
         w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
         w("\\end{table}\n")
 
 
-def write_sweep_table(path: Path, runs: list[dict], trainable: dict[str, int],
-                      prov: dict, fingerprint: str) -> None:
+def write_sweep_table(
+    path: Path,
+    runs: list[dict],
+    trainable: dict[str, int],
+    prov: dict,
+    fingerprint: str,
+) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
         w("\\begin{table}[t]\n\\centering\n")
-        w("\\caption{Three configurations on the same frozen phrase holdout, same "
-          "split seed, same reporting set. Trainable parameters exclude the frozen "
-          "250{,}002$\\times$384 embedding table, which is 96{,}199{,}296 of the "
-          "model's 117{,}641{,}859 parameters in every row.}\n")
+        w(
+            "\\caption{Three configurations on the same frozen phrase holdout, same "
+            "split seed, same reporting set. Trainable parameters exclude the frozen "
+            "250{,}002$\\times$384 embedding table, which is 96{,}199{,}296 of the "
+            "model's 117{,}641{,}859 parameters in every row.}\n"
+        )
         w("\\label{tab:sweep}\n")
         w("\\small\n\\begin{tabular}{lrrrrr}\n\\toprule\n")
-        w("Run & Trainable & Macro F1 & CRIT P/R & URG P/R & Gate "
-          "\\\\\n\\midrule\n")
+        w("Run & Trainable & Macro F1 & CRIT P/R & URG P/R & Gate \\\\\n\\midrule\n")
         for run in runs:
             pc = run["per_class"]
             passed, _ = triage_gate(pc, run["macro_f1"])
             # The directory prefix is identical on every row and only costs
             # width; the distinguishing part is what identifies the run.
             label = run["_label"].removeprefix("model_").removesuffix("_DO_NOT_SHIP")
-            w(f"{tex_escape(label)} & "
-              f"{trainable.get(run['_label'], 0):,} & "
-              f"{run['macro_f1']:.4f} & "
-              f"{pc['CRITICAL']['precision']:.4f}/{pc['CRITICAL']['recall']:.4f} & "
-              f"{pc['URGENT']['precision']:.4f}/{pc['URGENT']['recall']:.4f} & "
-              f"{'PASS' if passed else 'FAIL'} \\\\\n")
+            w(
+                f"{tex_escape(label)} & "
+                f"{trainable.get(run['_label'], 0):,} & "
+                f"{run['macro_f1']:.4f} & "
+                f"{pc['CRITICAL']['precision']:.4f}/{pc['CRITICAL']['recall']:.4f} & "
+                f"{pc['URGENT']['precision']:.4f}/{pc['URGENT']['recall']:.4f} & "
+                f"{'PASS' if passed else 'FAIL'} \\\\\n"
+            )
         w("\\bottomrule\n\\end{tabular}\n")
-        w(f"\\\\[2pt]{{\\scriptsize All rows evaluated in one pass; "
-          f"fingerprint of the reported model \\texttt{{{fingerprint}}}}}\n")
+        w(
+            f"\\\\[2pt]{{\\scriptsize All rows evaluated in one pass; "
+            f"fingerprint of the reported model \\texttt{{{fingerprint}}}}}\n"
+        )
         w("\\end{table}\n")
 
 
-def write_confusion_table(path: Path, matrix: list[list[int]], label: str,
-                          prov: dict, fingerprint: str) -> None:
+def write_confusion_table(
+    path: Path, matrix: list[list[int]], label: str, prov: dict, fingerprint: str
+) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
         w("\\begin{table}[t]\n\\centering\n")
-        w(f"\\caption{{Confusion matrix for {tex_escape(label)} on the reporting "
-          "set. ROUTINE is separated perfectly; the residual error is entirely on "
-          "the CRITICAL/URGENT boundary, and this was true of every configuration "
-          "trained.}\n")
+        w(
+            f"\\caption{{Confusion matrix for {tex_escape(label)} on the reporting "
+            "set. ROUTINE is separated perfectly; the residual error is entirely on "
+            "the CRITICAL/URGENT boundary, and this was true of every configuration "
+            "trained.}\n"
+        )
         w("\\label{tab:confusion}\n")
         w("\\begin{tabular}{lrrr}\n\\toprule\n")
-        w("Truth $\\downarrow$ / Pred $\\rightarrow$ & CRITICAL & URGENT & "
-          "ROUTINE \\\\\n\\midrule\n")
-        for name, row in zip(CLASS_ORDER, matrix):
+        w(
+            "Truth $\\downarrow$ / Pred $\\rightarrow$ & CRITICAL & URGENT & "
+            "ROUTINE \\\\\n\\midrule\n"
+        )
+        for name, row in zip(CLASS_ORDER, matrix, strict=True):
             w(f"{name} & " + " & ".join(f"{v:,}" for v in row) + " \\\\\n")
         w("\\bottomrule\n\\end{tabular}\n")
         w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
         w("\\end{table}\n")
 
 
-def write_gate_derivation(path: Path, support: dict[str, float],
-                          prov: dict) -> None:
+def write_gate_derivation(path: Path, support: dict[str, float], prov: dict) -> None:
     """The gate's three conditions and, for each, where the number came from."""
     ceiling = degenerate_precision_ceiling(support)
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\subsection{The acceptance gate, and where each threshold comes "
-          "from}\n\\label{sec:gate}\n\n")
-        w("A model is accepted only if all three conditions hold. They are not "
-          "traded off against one another.\n\n")
-        w("\\paragraph{G1: CRITICAL recall $\\geq 0.95$.} "
-          "\\emph{Inherited; source not verified.} This threshold predates the "
-          "current record and carries only the note that missing a critical case "
-          "is the failure that matters. It is consistent with the trauma "
-          "field-triage convention of holding under-triage at or below 5\\%, but "
-          "we have not verified that attribution against a source and do not "
-          "claim it. We keep the value because loosening a safety threshold on no "
-          "evidence is worse than retaining an unsourced one.\n\n")
-        w("\\paragraph{G2: macro F1 $\\geq 2/3$.} "
-          "\\emph{Derived exactly.} Macro F1 is the unweighted mean of three "
-          "per-class F1 scores. If any one class is abandoned its F1 is zero, so "
-          "macro F1 $\\leq (1+1+0)/3 = 0.6667$ \\emph{even when the other two "
-          "classes are perfect}. Requiring macro F1 above $2/3$ is therefore a "
-          "guarantee that no class has been abandoned, and it is the tightest such "
-          "guarantee obtainable from a single scalar. This is a floor of "
-          "non-degeneracy, not of quality.\n\n")
-        w("\\paragraph{G3: CRITICAL precision $\\geq$ the degenerate ceiling "
-          "plus a margin.} \\emph{Floor derived and measured per evaluation set; "
-          "margin not derived.} A model that merges CRITICAL and URGENT and labels "
-          "the union CRITICAL earns, by construction, a CRITICAL precision of\n")
-        w("\\[ \\frac{\\mathrm{support(CRITICAL)}}"
-          "{\\mathrm{support(CRITICAL)} + \\mathrm{support(URGENT)}} "
-          f"= {ceiling:.4f} \\]\n")
-        w("on this reporting set. That is what the degenerate strategy is paid for "
-          "free, so any informative model must exceed it. We compute it against the "
-          "set being scored rather than hardcoding a value, because it moves with "
-          "the set's composition. "
-          f"\\textbf{{The margin above that floor ({CRITICAL_PRECISION_MARGIN:.2f}) "
-          "is not derived.} How far above provably-degenerate a deployable model "
-          "must sit is a question about tolerable over-triage in a clinic, it is a "
-          "clinical judgement that has not yet been made, and we report it as a "
-          "placeholder rather than as a standard.\n\n")
+        w(
+            "\\subsection{The acceptance gate, and where each threshold comes "
+            "from}\n\\label{sec:gate}\n\n"
+        )
+        w(
+            "A model is accepted only if all three conditions hold. They are not "
+            "traded off against one another.\n\n"
+        )
+        w(
+            "\\paragraph{G1: CRITICAL recall $\\geq 0.95$.} "
+            "\\emph{Inherited; source not verified.} This threshold predates the "
+            "current record and carries only the note that missing a critical case "
+            "is the failure that matters. It is consistent with the trauma "
+            "field-triage convention of holding under-triage at or below 5\\%, but "
+            "we have not verified that attribution against a source and do not "
+            "claim it. We keep the value because loosening a safety threshold on no "
+            "evidence is worse than retaining an unsourced one.\n\n"
+        )
+        w(
+            "\\paragraph{G2: macro F1 $\\geq 2/3$.} "
+            "\\emph{Derived exactly.} Macro F1 is the unweighted mean of three "
+            "per-class F1 scores. If any one class is abandoned its F1 is zero, so "
+            "macro F1 $\\leq (1+1+0)/3 = 0.6667$ \\emph{even when the other two "
+            "classes are perfect}. Requiring macro F1 above $2/3$ is therefore a "
+            "guarantee that no class has been abandoned, and it is the tightest such "
+            "guarantee obtainable from a single scalar. This is a floor of "
+            "non-degeneracy, not of quality.\n\n"
+        )
+        w(
+            "\\paragraph{G3: CRITICAL precision $\\geq$ the degenerate ceiling "
+            "plus a margin.} \\emph{Floor derived and measured per evaluation set; "
+            "margin not derived.} A model that merges CRITICAL and URGENT and labels "
+            "the union CRITICAL earns, by construction, a CRITICAL precision of\n"
+        )
+        w(
+            "\\[ \\frac{\\mathrm{support(CRITICAL)}}"
+            "{\\mathrm{support(CRITICAL)} + \\mathrm{support(URGENT)}} "
+            f"= {ceiling:.4f} \\]\n"
+        )
+        w(
+            "on this reporting set. That is what the degenerate strategy is paid for "
+            "free, so any informative model must exceed it. We compute it against the "
+            "set being scored rather than hardcoding a value, because it moves with "
+            "the set's composition. "
+            f"\\textbf{{The margin above that floor ({CRITICAL_PRECISION_MARGIN:.2f}) "
+            "is not derived.} How far above provably-degenerate a deployable model "
+            "must sit is a question about tolerable over-triage in a clinic, it is a "
+            "clinical judgement that has not yet been made, and we report it as a "
+            "placeholder rather than as a standard.\n\n"
+        )
 
 
-def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict,
-                             prov: dict) -> None:
+def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> None:
     ceiling = degenerate_precision_ceiling(
-        {k: v2c["per_class"][k]["support"] for k in CLASS_ORDER})
+        {k: v2c["per_class"][k]["support"] for k in CLASS_ORDER}
+    )
     prec = v2c["per_class"]["CRITICAL"]["precision"]
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\subsection{A single-metric safety gate certified a model that had "
-          "abandoned an urgency class}\n\\label{sec:gate-failure}\n\n")
-        w("Our acceptance gate was initially a single condition, CRITICAL recall "
-          "$\\geq 0.95$, on the reasoning that missing a critical presentation is "
-          "the failure that matters. One configuration passed it with a CRITICAL "
-          f"recall of {v2c['per_class']['CRITICAL']['recall']:.4f} while achieving "
-          f"an URGENT recall of {v2c['per_class']['URGENT']['recall']:.4f}: it "
-          "assigned the CRITICAL label to "
-          f"{int(v2c['per_class']['URGENT']['support']):,} URGENT rows almost "
-          "without exception. It passed the safety gate \\emph{because} it "
-          "over-triaged, and the gate contained no term that could observe this.\n\n")
-        w("The degeneracy is measurable rather than interpretive. A model that "
-          "merges CRITICAL and URGENT earns a CRITICAL precision of "
-          f"${ceiling:.4f}$ on this set by construction. The model scored "
-          f"${prec:.4f}$, which is ${ceiling - prec:.4f}$ \\emph{{below}} its own "
-          "set's degenerate ceiling. Within a thousandth, it did not approximate "
-          "the merge strategy; it was the merge strategy.\n\n")
-        w("Two further observations. First, the gate certified this model while "
-          "rejecting a better one: a configuration with macro F1 "
-          f"{v2d['macro_f1']:.4f} and all three classes alive failed the "
-          "same gate on recall alone. Second, our own automated degeneracy check, "
-          "written for exactly this failure, used the test "
-          "$\\mathrm{recall} \\geq 0.9 \\wedge \\mathrm{precision} < 0.5$ "
-          f"and did not fire, because ${prec:.4f}$ sits above a hardcoded $0.5$ "
-          f"while the true degenerate ceiling for this set was ${ceiling:.4f}$. The "
-          "lesson is not that the constant was too low: it is that the ceiling is a "
-          "property of the evaluation set and must be computed against it.\n\n")
+        w(
+            "\\subsection{A single-metric safety gate certified a model that had "
+            "abandoned an urgency class}\n\\label{sec:gate-failure}\n\n"
+        )
+        w(
+            "Our acceptance gate was initially a single condition, CRITICAL recall "
+            "$\\geq 0.95$, on the reasoning that missing a critical presentation is "
+            "the failure that matters. One configuration passed it with a CRITICAL "
+            f"recall of {v2c['per_class']['CRITICAL']['recall']:.4f} while achieving "
+            f"an URGENT recall of {v2c['per_class']['URGENT']['recall']:.4f}: it "
+            "assigned the CRITICAL label to "
+            f"{int(v2c['per_class']['URGENT']['support']):,} URGENT rows almost "
+            "without exception. It passed the safety gate \\emph{because} it "
+            "over-triaged, and the gate contained no term that could observe this.\n\n"
+        )
+        w(
+            "The degeneracy is measurable rather than interpretive. A model that "
+            "merges CRITICAL and URGENT earns a CRITICAL precision of "
+            f"${ceiling:.4f}$ on this set by construction. The model scored "
+            f"${prec:.4f}$, which is ${ceiling - prec:.4f}$ \\emph{{below}} its own "
+            "set's degenerate ceiling. Within a thousandth, it did not approximate "
+            "the merge strategy; it was the merge strategy.\n\n"
+        )
+        w(
+            "Two further observations. First, the gate certified this model while "
+            "rejecting a better one: a configuration with macro F1 "
+            f"{v2d['macro_f1']:.4f} and all three classes alive failed the "
+            "same gate on recall alone. Second, our own automated degeneracy check, "
+            "written for exactly this failure, used the test "
+            "$\\mathrm{recall} \\geq 0.9 \\wedge \\mathrm{precision} < 0.5$ "
+            f"and did not fire, because ${prec:.4f}$ sits above a hardcoded $0.5$ "
+            f"while the true degenerate ceiling for this set was ${ceiling:.4f}$. The "
+            "lesson is not that the constant was too low: it is that the ceiling is a "
+            "property of the evaluation set and must be computed against it.\n\n"
+        )
 
 
-def write_limitations(path: Path, counts: dict[str, int], rows: int,
-                      phrases: int, groups: int, prov: dict) -> None:
+def write_limitations(
+    path: Path, counts: dict[str, int], rows: int, phrases: int, groups: int, prov: dict
+) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
         w("\\subsection{Limitations}\n\\label{sec:limitations}\n\n")
-        w("\\paragraph{The reporting set is nine sentences, not eighteen thousand "
-          "rows.} The held-out evaluation reports "
-          f"{rows:,} rows, but those rows are frame permutations of only "
-          f"{phrases} distinct phrases in {groups} phrase groups, and the row count "
-          "is therefore not an independent sample size. Per class the position is "
-          "starker:\n\n\\begin{center}\n\\begin{tabular}{lrr}\n\\toprule\n")
+        w(
+            "\\paragraph{The reporting set is nine sentences, not eighteen thousand "
+            "rows.} The held-out evaluation reports "
+            f"{rows:,} rows, but those rows are frame permutations of only "
+            f"{phrases} distinct phrases in {groups} phrase groups, and the row count "
+            "is therefore not an independent sample size. Per class the position is "
+            "starker:\n\n\\begin{center}\n\\begin{tabular}{lrr}\n\\toprule\n"
+        )
         w("Class & Distinct sentences & One sentence is \\\\\n\\midrule\n")
         for name in CLASS_ORDER:
             n = counts[name]
             w(f"{name} & {n} & {1.0 / n:.2f} of recall \\\\\n")
         w("\\bottomrule\n\\end{tabular}\n\\end{center}\n\n")
-        w("CRITICAL and URGENT recall therefore move in steps of approximately "
-          "one quarter: a single sentence being read systematically as the "
-          "neighbouring class costs about 25 percentage points, and no choice of "
-          "optimiser or learning rate can recover it. ROUTINE is a single "
-          "sentence, so its reported recall of 1.0 means that one sentence was "
-          "classified correctly and should not be read as a class-level result. "
-          "\\textbf{A CRITICAL recall target of 0.95 over four sentences requires "
-          "essentially all frames of all four to be correct}, and the distance "
-          "between our result and that target is smaller than the granularity of "
-          "the measurement.\n\n")
-        w("\\paragraph{Consequences for the sweep.} Three configurations spanning "
-          "a threefold range of trainable parameters and a $1.5\\times$ range of "
-          "learning rate all left the same residual error, on the "
-          "CRITICAL/URGENT boundary, while separating ROUTINE perfectly. We stopped "
-          "searching on the grounds that the remaining error is a property of the "
-          "corpus and the split rather than of the optimisation, and we report the "
-          "configuration search as inconclusive on that boundary rather than as a "
-          "tuning result.\n\n")
+        w(
+            "CRITICAL and URGENT recall therefore move in steps of approximately "
+            "one quarter: a single sentence being read systematically as the "
+            "neighbouring class costs about 25 percentage points, and no choice of "
+            "optimiser or learning rate can recover it. ROUTINE is a single "
+            "sentence, so its reported recall of 1.0 means that one sentence was "
+            "classified correctly and should not be read as a class-level result. "
+            "\\textbf{A CRITICAL recall target of 0.95 over four sentences requires "
+            "essentially all frames of all four to be correct}, and the distance "
+            "between our result and that target is smaller than the granularity of "
+            "the measurement.\n\n"
+        )
+        w(
+            "\\paragraph{Consequences for the sweep.} Three configurations spanning "
+            "a threefold range of trainable parameters and a $1.5\\times$ range of "
+            "learning rate all left the same residual error, on the "
+            "CRITICAL/URGENT boundary, while separating ROUTINE perfectly. We stopped "
+            "searching on the grounds that the remaining error is a property of the "
+            "corpus and the split rather than of the optimisation, and we report the "
+            "configuration search as inconclusive on that boundary rather than as a "
+            "tuning result.\n\n"
+        )
 
 
 def model_fingerprint(model_dir: Path, manifest: dict) -> str:
@@ -506,24 +609,41 @@ def evaluate_model(model_dir: Path, frame, args, device) -> dict:
 
     tok_dir = model_dir / "tokenizer"
     tokenizer = AutoTokenizer.from_pretrained(
-        str(tok_dir if tok_dir.exists() else model_dir))
-    model = AutoModelForSequenceClassification.from_pretrained(str(model_dir)).to(device)
+        str(tok_dir if tok_dir.exists() else model_dir)
+    )
+    model = AutoModelForSequenceClassification.from_pretrained(str(model_dir)).to(
+        device
+    )
     model.eval()
     print(f"  {model_dir.name}: {len(frame):,} rows", flush=True)
-    predictions = predict(model, tokenizer, frame["text"].tolist(), device,
-                          args.batch_size, args.max_length)
+    predictions = predict(
+        model,
+        tokenizer,
+        frame["text"].tolist(),
+        device,
+        args.batch_size,
+        args.max_length,
+    )
     truths = frame["label_id"].tolist()
     names = [ID_TO_LABEL[i] for i in range(NUM_LABELS)]
-    report = classification_report(truths, predictions, output_dict=True,
-                                   zero_division=0, labels=list(range(NUM_LABELS)),
-                                   target_names=names)
-    matrix = confusion_matrix(truths, predictions,
-                              labels=list(range(NUM_LABELS))).tolist()
-    return {"per_class": {n: report[n] for n in CLASS_ORDER},
-            "macro_f1": report["macro avg"]["f1-score"],
-            "accuracy": report["accuracy"],
-            "confusion": matrix,
-            "_label": model_dir.name}
+    report = classification_report(
+        truths,
+        predictions,
+        output_dict=True,
+        zero_division=0,
+        labels=list(range(NUM_LABELS)),
+        target_names=names,
+    )
+    matrix = confusion_matrix(
+        truths, predictions, labels=list(range(NUM_LABELS))
+    ).tolist()
+    return {
+        "per_class": {n: report[n] for n in CLASS_ORDER},
+        "macro_f1": report["macro avg"]["f1-score"],
+        "accuracy": report["accuracy"],
+        "confusion": matrix,
+        "_label": model_dir.name,
+    }
 
 
 def verify_against(computed: dict, record_path: Path) -> list[str]:
@@ -565,10 +685,14 @@ def writeup(args) -> int:
 
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from training.train_holdout import split_eval_by_group
-    _, report_frame, split = split_eval_by_group(frame, args.stop_groups,
-                                                 manifest["split_seed"])
-    counts = {n: int(report_frame.loc[report_frame["label"] == n, "phrase"].nunique())
-              for n in CLASS_ORDER}
+
+    _, report_frame, split = split_eval_by_group(
+        frame, args.stop_groups, manifest["split_seed"]
+    )
+    counts = {
+        n: int(report_frame.loc[report_frame["label"] == n, "phrase"].nunique())
+        for n in CLASS_ORDER
+    }
     rows = len(report_frame)
     phrases = int(report_frame["phrase"].nunique())
     groups = len(split["reporting_groups"])
@@ -576,8 +700,10 @@ def writeup(args) -> int:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Manifest   : {args.manifest} (digests verified)")
     print(f"Reporting  : {rows:,} rows, {phrases} phrases, {groups} groups")
-    print(f"Evaluating {len(args.writeup)} model(s) on {device}, "
-          f"max_length {args.max_length}:")
+    print(
+        f"Evaluating {len(args.writeup)} model(s) on {device}, "
+        f"max_length {args.max_length}:"
+    )
     results = [evaluate_model(d, report_frame, args, device) for d in args.writeup]
 
     reported = results[-1]
@@ -587,15 +713,20 @@ def writeup(args) -> int:
     if args.verify_against:
         problems = verify_against(reported, args.verify_against)
         if problems:
-            print("\nREPRODUCTION FAILED — the emitter disagrees with the training "
-                  "run about these weights:", file=sys.stderr)
+            print(
+                "\nREPRODUCTION FAILED — the emitter disagrees with the training "
+                "run about these weights:",
+                file=sys.stderr,
+            )
             for problem in problems:
                 print(f"  {problem}", file=sys.stderr)
             raise SystemExit(
                 "Refusing to write paper tables. Explain the disagreement first."
             )
-        print(f"\nReproduced {args.verify_against.name} exactly "
-              "(all per-class precision/recall/F1 and macro F1)")
+        print(
+            f"\nReproduced {args.verify_against.name} exactly "
+            "(all per-class precision/recall/F1 and macro F1)"
+        )
 
     fingerprint = model_fingerprint(reported_dir, manifest)
     prov = {
@@ -617,30 +748,50 @@ def writeup(args) -> int:
         "reporting_groups": f"{groups}",
         "max_length": str(args.max_length),
         "git_commit": git_commit(),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
     }
     support = {n: reported["per_class"][n]["support"] for n in CLASS_ORDER}
-    trainable = dict(zip([r["_label"] for r in results], args.trainable or []))
+    # strict=False on purpose: --trainable is optional and may be omitted or
+    # given for only some runs. The consumer reads it with .get(label, 0), so
+    # a short list is a supported input and must not raise.
+    trainable = dict(
+        zip([r["_label"] for r in results], args.trainable or [], strict=False)
+    )
 
     args.tex_out.mkdir(parents=True, exist_ok=True)
-    write_result_table(args.tex_out / "results_table.tex", reported, rows,
-                       phrases, groups, counts, prov, fingerprint)
-    write_confusion_table(args.tex_out / "confusion_table.tex",
-                          reported["confusion"], reported["_label"], prov, fingerprint)
-    write_sweep_table(args.tex_out / "sweep_table.tex", results, trainable,
-                      prov, fingerprint)
+    write_result_table(
+        args.tex_out / "results_table.tex",
+        reported,
+        rows,
+        phrases,
+        groups,
+        counts,
+        prov,
+        fingerprint,
+    )
+    write_confusion_table(
+        args.tex_out / "confusion_table.tex",
+        reported["confusion"],
+        reported["_label"],
+        prov,
+        fingerprint,
+    )
+    write_sweep_table(
+        args.tex_out / "sweep_table.tex", results, trainable, prov, fingerprint
+    )
     write_gate_derivation(args.tex_out / "gate_derivation.tex", support, prov)
-    write_degeneracy_finding(args.tex_out / "finding_gate_degeneracy.tex",
-                             degenerate, reported, prov)
-    write_limitations(args.tex_out / "limitations.tex", counts, rows,
-                      phrases, groups, prov)
+    write_degeneracy_finding(
+        args.tex_out / "finding_gate_degeneracy.tex", degenerate, reported, prov
+    )
+    write_limitations(
+        args.tex_out / "limitations.tex", counts, rows, phrases, groups, prov
+    )
 
     passed, lines = triage_gate(reported["per_class"], reported["macro_f1"])
     values = {
         "ResultMacroFOne": f"{reported['macro_f1']:.4f}",
         "ResultCriticalRecall": f"{reported['per_class']['CRITICAL']['recall']:.4f}",
-        "ResultCriticalPrecision":
-            f"{reported['per_class']['CRITICAL']['precision']:.4f}",
+        "ResultCriticalPrecision": f"{reported['per_class']['CRITICAL']['precision']:.4f}",
         "ResultUrgentRecall": f"{reported['per_class']['URGENT']['recall']:.4f}",
         "ResultEvalRows": f"{rows:,}",
         "ResultEvalPhrases": str(phrases),
@@ -649,12 +800,9 @@ def writeup(args) -> int:
         "ResultGatePassed": "true" if passed else "false",
         "ResultFingerprint": fingerprint,
         "DegenerateCeiling": f"{degenerate_precision_ceiling(support):.4f}",
-        "DegenerateRunPrecision":
-            f"{degenerate['per_class']['CRITICAL']['precision']:.4f}",
-        "DegenerateRunCriticalRecall":
-            f"{degenerate['per_class']['CRITICAL']['recall']:.4f}",
-        "DegenerateRunUrgentRecall":
-            f"{degenerate['per_class']['URGENT']['recall']:.4f}",
+        "DegenerateRunPrecision": f"{degenerate['per_class']['CRITICAL']['precision']:.4f}",
+        "DegenerateRunCriticalRecall": f"{degenerate['per_class']['CRITICAL']['recall']:.4f}",
+        "DegenerateRunUrgentRecall": f"{degenerate['per_class']['URGENT']['recall']:.4f}",
     }
     if args.latency:
         # Measured by training/latency.py in a separate process, because a
@@ -663,16 +811,18 @@ def writeup(args) -> int:
         # the machine that produced it, since a latency number without a
         # machine is not a number.
         lat = json.loads(args.latency.read_text())
-        values.update({
-            "LatencyRows": f"{lat['rows']:,}",
-            "LatencyColdMs": f"{lat['cold_ms']:.0f}",
-            "LatencyWarmMedianMs": f"{lat['warm_ms']['median']:.0f}",
-            "LatencyWarmPninetyfiveMs": f"{lat['warm_ms']['p95']:.0f}",
-            "LatencyWarmPninetynineMs": f"{lat['warm_ms']['p99']:.0f}",
-            "LatencyWarmMaxMs": f"{lat['warm_ms']['max']:.0f}",
-            "LatencyCpu": tex_escape(lat["machine"]["cpu"]),
-            "LatencyThreads": lat["machine"]["torch_threads"],
-        })
+        values.update(
+            {
+                "LatencyRows": f"{lat['rows']:,}",
+                "LatencyColdMs": f"{lat['cold_ms']:.0f}",
+                "LatencyWarmMedianMs": f"{lat['warm_ms']['median']:.0f}",
+                "LatencyWarmPninetyfiveMs": f"{lat['warm_ms']['p95']:.0f}",
+                "LatencyWarmPninetynineMs": f"{lat['warm_ms']['p99']:.0f}",
+                "LatencyWarmMaxMs": f"{lat['warm_ms']['max']:.0f}",
+                "LatencyCpu": tex_escape(lat["machine"]["cpu"]),
+                "LatencyThreads": lat["machine"]["torch_threads"],
+            }
+        )
         prov["latency_source"] = f"{args.latency.name} ({lat['generated_at']})"
 
     if args.verify_against:
@@ -682,7 +832,8 @@ def writeup(args) -> int:
         saved = json.loads(args.verify_against.read_text())
         values["ResultSelectedStep"] = str(saved["selected_step"])
         prov["selected_step_source"] = (
-            f"{args.verify_against.name} (verified to match this pass)")
+            f"{args.verify_against.name} (verified to match this pass)"
+        )
     write_macros(args.tex_out / "results_macros.tex", values, prov)
 
     print(f"\nWrote 7 files to {args.tex_out}/ , fingerprint {fingerprint}")
@@ -694,38 +845,54 @@ def writeup(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path,
-                        default=Path("dataset/processed/eval_manifest_phrase_v1.json"))
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("dataset/processed/eval_manifest_phrase_v1.json"),
+    )
     parser.add_argument("--model", type=Path, default=Path("saved_model_holdout"))
     parser.add_argument("--tex-out", type=Path, default=Path("paper/generated"))
     parser.add_argument(
-        "--writeup", nargs="+", type=Path, metavar="MODEL_DIR",
+        "--writeup",
+        nargs="+",
+        type=Path,
+        metavar="MODEL_DIR",
         help="Emit every paper table from ONE evaluation pass. Pass the model "
-             "directories in sweep order; the LAST is the reported result. "
-             "Numbers are computed here, never read from a saved report.",
+        "directories in sweep order; the LAST is the reported result. "
+        "Numbers are computed here, never read from a saved report.",
     )
     parser.add_argument(
-        "--latency", type=Path, metavar="LATENCY_JSON",
+        "--latency",
+        type=Path,
+        metavar="LATENCY_JSON",
         help="Output of training/latency.py. Its figures become macros so the "
-             "paper quotes a measurement rather than the target.",
+        "paper quotes a measurement rather than the target.",
     )
     parser.add_argument(
-        "--verify-against", type=Path, metavar="RUN_JSON",
+        "--verify-against",
+        type=Path,
+        metavar="RUN_JSON",
         help="A training run's own report for the LAST model. Every computed "
-             "figure must match it or nothing is written.",
+        "figure must match it or nothing is written.",
     )
     parser.add_argument(
-        "--stop-groups", type=int, default=3,
+        "--stop-groups",
+        type=int,
+        default=3,
         help="Phrase groups held out as the stopping set, so the reporting set "
-             "here is the same one training reported on.",
+        "here is the same one training reported on.",
     )
     parser.add_argument(
-        "--trainable", nargs="+", type=int,
+        "--trainable",
+        nargs="+",
+        type=int,
         help="Trainable parameter count per --writeup run, in the same order.",
     )
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--max-length", type=int, default=64)
-    parser.add_argument("--limit", type=int, default=None, help="Cap eval rows (debugging).")
+    parser.add_argument(
+        "--limit", type=int, default=None, help="Cap eval rows (debugging)."
+    )
     args = parser.parse_args()
 
     if args.writeup:
@@ -745,7 +912,9 @@ def main() -> int:
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
     manifest = load_manifest(args.manifest)
-    print(f"Manifest   : {args.manifest} (strategy {manifest['strategy']}, digests verified)")
+    print(
+        f"Manifest   : {args.manifest} (strategy {manifest['strategy']}, digests verified)"
+    )
 
     frame = pd.read_csv(manifest["files"]["eval"]["path"])
     if args.limit:
@@ -754,20 +923,35 @@ def main() -> int:
     print(f"Eval rows  : {len(frame):,}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    tokenizer = AutoTokenizer.from_pretrained(str(args.model / "tokenizer")
-                                              if (args.model / "tokenizer").exists()
-                                              else str(args.model))
-    model = AutoModelForSequenceClassification.from_pretrained(str(args.model)).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(args.model / "tokenizer")
+        if (args.model / "tokenizer").exists()
+        else str(args.model)
+    )
+    model = AutoModelForSequenceClassification.from_pretrained(str(args.model)).to(
+        device
+    )
     model.eval()
     print(f"Model      : {args.model}  device {device}\n")
 
-    predictions = predict(model, tokenizer, frame["text"].tolist(), device,
-                          args.batch_size, args.max_length)
+    predictions = predict(
+        model,
+        tokenizer,
+        frame["text"].tolist(),
+        device,
+        args.batch_size,
+        args.max_length,
+    )
     truths = frame["label_id"].tolist()
 
-    report = classification_report(truths, predictions, output_dict=True, zero_division=0,
-                                   labels=list(range(NUM_LABELS)),
-                                   target_names=[ID_TO_LABEL[i] for i in range(NUM_LABELS)])
+    report = classification_report(
+        truths,
+        predictions,
+        output_dict=True,
+        zero_division=0,
+        labels=list(range(NUM_LABELS)),
+        target_names=[ID_TO_LABEL[i] for i in range(NUM_LABELS)],
+    )
     accuracy = accuracy_score(truths, predictions)
     critical_recall = report["CRITICAL"]["recall"]
 
@@ -780,7 +964,7 @@ def main() -> int:
         }
 
     provenance = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "git_commit": git_commit(),
         "manifest": str(args.manifest),
         "strategy": manifest["strategy"],
@@ -804,19 +988,27 @@ def main() -> int:
 
     args.tex_out.mkdir(parents=True, exist_ok=True)
     write_macros(args.tex_out / "results_macros.tex", values, provenance)
-    write_table(args.tex_out / "results_table.tex", report, per_language, provenance,
-                {"rows": f"{len(frame):,}"})
+    write_table(
+        args.tex_out / "results_table.tex",
+        report,
+        per_language,
+        provenance,
+        {"rows": f"{len(frame):,}"},
+    )
 
     print("=" * 60)
     print(f"  accuracy         : {accuracy:.4f}")
     print(f"  macro F1         : {report['macro avg']['f1-score']:.4f}")
-    print(f"  CRITICAL recall  : {critical_recall:.4f} "
-          f"(target >= {MINIMUM_CRITICAL_RECALL}) -> "
-          f"{'PASS' if critical_recall >= MINIMUM_CRITICAL_RECALL else 'BELOW TARGET'}")
+    print(
+        f"  CRITICAL recall  : {critical_recall:.4f} "
+        f"(target >= {MINIMUM_CRITICAL_RECALL}) -> "
+        f"{'PASS' if critical_recall >= MINIMUM_CRITICAL_RECALL else 'BELOW TARGET'}"
+    )
     print("\nConfusion matrix (rows = truth, cols = predicted)")
     print("            " + "".join(f"{n:>10}" for n in CLASS_ORDER))
-    for i, row in enumerate(confusion_matrix(truths, predictions,
-                                             labels=list(range(NUM_LABELS)))):
+    for i, row in enumerate(
+        confusion_matrix(truths, predictions, labels=list(range(NUM_LABELS)))
+    ):
         print(f"  {ID_TO_LABEL[i]:<10}" + "".join(f"{v:>10,}" for v in row))
 
     print(f"\nWrote {args.tex_out / 'results_macros.tex'}")

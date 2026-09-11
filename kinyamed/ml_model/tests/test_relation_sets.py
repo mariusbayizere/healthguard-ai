@@ -23,8 +23,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "review"))
 
 from dataset import vocabulary as V  # noqa: E402
-from relation_sets import (NAMED, SENTINELS, materialise,  # noqa: E402
-                           resolve, rulings)
+from relation_sets import NAMED, SENTINELS, materialise, resolve, rulings  # noqa: E402
 from render_third_person import render, rows_for  # noqa: E402
 
 
@@ -43,8 +42,9 @@ def test_adult_relations_is_every_relation_except_a_child():
     Contrast CHILD_RELATIONS, which names child terms; this is the complement of
     one relation, not a separate list, so it must stay in step with RELATIONS.
     """
-    assert V.ADULT_RELATIONS == tuple(
-        r for r in V.RELATIONS["kinyarwanda"] if r != "Umwana wanjye"
+    assert (
+        tuple(r for r in V.RELATIONS["kinyarwanda"] if r != "Umwana wanjye")
+        == V.ADULT_RELATIONS
     ), "ADULT_RELATIONS must be RELATIONS minus the child, in the same order"
     assert "Umukecuru" in V.ADULT_RELATIONS, "an elderly woman is an adult"
     assert len(V.ADULT_RELATIONS) == len(V.RELATIONS["kinyarwanda"]) - 1
@@ -82,8 +82,8 @@ def test_an_unruled_concept_falls_back_to_its_domain():
 
 
 def test_a_sentinel_ruling_generates_no_third_person():
-    assert resolve("PR02", "preventive") is None   # do not generate
-    assert resolve("OB12", "obstetric") is None    # held
+    assert resolve("PR02", "preventive") is None  # do not generate
+    assert resolve("OB12", "obstetric") is None  # held
 
 
 def test_materialise_refuses_to_zero_an_authored_phrase():
@@ -96,16 +96,21 @@ def test_materialise_refuses_to_zero_an_authored_phrase():
     OB11 through as ready to materialise.
     """
     ruled = dict(rulings())
-    ruled["GI05"] = "NO_RELATIONS"   # GI05 third IS authored
+    ruled["GI05"] = "NO_RELATIONS"  # GI05 third IS authored
     mapping, conflicts = materialise(ruled=ruled)
 
     assert any("GI05" in c for c in conflicts), (
         "an authored phrase ruled NO_RELATIONS must be reported, not silently zeroed"
     )
-    gi05 = next(r["your_phrasing"].strip()
-                for r in csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                                        .open(encoding="utf-8"))
-                if r["concept_id"] == "GI05" and r["person"] == "third")
+    gi05 = next(
+        r["your_phrasing"].strip()
+        for r in csv.DictReader(
+            (ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv").open(
+                encoding="utf-8"
+            )
+        )
+        if r["concept_id"] == "GI05" and r["person"] == "third"
+    )
     assert gi05 not in mapping, "the phrase must not be mapped to an empty set"
 
 
@@ -138,8 +143,10 @@ def test_review_render_matches_the_generator_substitution():
 
     def as_generator(phrase: str, relation: str) -> str:
         is_head = phrase.startswith(V.REL_PLACEHOLDER)
-        return phrase.replace(V.REL_PLACEHOLDER,
-                              relation if is_head else relation[0].lower() + relation[1:])
+        return phrase.replace(
+            V.REL_PLACEHOLDER,
+            relation if is_head else relation[0].lower() + relation[1:],
+        )
 
     for phrase in (head, mid):
         assert render(phrase, rel) == as_generator(phrase, rel)
@@ -177,11 +184,17 @@ def test_a_held_row_neither_generates_nor_blocks(tmp_path):
     depending on a row staying held: a fixture that depends on an open question
     fails the day the question is answered, which is what happened here.
     """
-    source = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                                 .open(encoding="utf-8")))
+    source = list(
+        csv.DictReader(
+            (ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv").open(
+                encoding="utf-8"
+            )
+        )
+    )
     fields = list(source[0])
-    victim = next(r for r in source
-                  if r["concept_id"] == "GI05" and r["person"] == "third")
+    victim = next(
+        r for r in source if r["concept_id"] == "GI05" and r["person"] == "third"
+    )
     assert victim["your_phrasing"].strip(), "fixture needs an authored third person"
     phrase = victim["your_phrasing"].strip()
     victim["hold"] = "yes"
@@ -193,7 +206,7 @@ def test_a_held_row_neither_generates_nor_blocks(tmp_path):
         writer.writerows(source)
 
     ruled = dict(rulings())
-    ruled["GI05"] = "NO_RELATIONS"          # a ruling that contradicts the phrase
+    ruled["GI05"] = "NO_RELATIONS"  # a ruling that contradicts the phrase
     mapping, conflicts = materialise(brief=brief, ruled=ruled)
 
     assert phrase not in mapping, "a held row must not generate"
@@ -210,8 +223,13 @@ def test_ob11_is_no_longer_in_conflict():
     rather than the invariant. What matters is: the third person is authored, it
     still generates, and materialisation reports no conflict.
     """
-    rows = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                               .open(encoding="utf-8")))
+    rows = list(
+        csv.DictReader(
+            (ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv").open(
+                encoding="utf-8"
+            )
+        )
+    )
     ob11 = next(r for r in rows if r["concept_id"] == "OB11" and r["person"] == "third")
     assert ob11["hold"] != "yes", "the hold was lifted when the conflict was resolved"
     assert ob11["your_phrasing"].strip(), "its third person is authored"
@@ -243,8 +261,13 @@ def test_no_pregnancy_phrase_can_reach_a_relation_that_cannot_be_pregnant():
 
     pregnant = re.compile(r"\baratwite\b|kubyara")
     obstetric = set(V.DOMAIN_RELATIONS["obstetric"])
-    rows = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                               .open(encoding="utf-8")))
+    rows = list(
+        csv.DictReader(
+            (ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv").open(
+                encoding="utf-8"
+            )
+        )
+    )
     checked = 0
     for row in rows:
         if row["person"] != "third" or (row.get("applies") or "yes").lower() == "no":
@@ -263,7 +286,9 @@ def test_no_pregnancy_phrase_can_reach_a_relation_that_cannot_be_pregnant():
             f"{row['concept_id']} ({row['domain']}) says {phrase!r} but allows "
             f"{impossible} — relations that cannot be pregnant"
         )
-    assert checked >= 10, "fixture problem: the corpus should have many pregnancy phrases"
+    assert checked >= 10, (
+        "fixture problem: the corpus should have many pregnancy phrases"
+    )
 
 
 @pytest.mark.parametrize("concept_id", ["CR07", "EX16", "EX29", "EX31"])
@@ -272,8 +297,16 @@ def test_the_already_authored_child_rulings_are_in_force_once_materialised(conce
     mapping, conflicts = materialise()
     assert not conflicts, conflicts
 
-    brief = list(csv.DictReader((ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv")
-                                .open(encoding="utf-8")))
-    phrase = next(r["your_phrasing"].strip() for r in brief
-                  if r["concept_id"] == concept_id and r["person"] == "third")
+    brief = list(
+        csv.DictReader(
+            (ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv").open(
+                encoding="utf-8"
+            )
+        )
+    )
+    phrase = next(
+        r["your_phrasing"].strip()
+        for r in brief
+        if r["concept_id"] == concept_id and r["person"] == "third"
+    )
     assert mapping[phrase] == V.CHILD_RELATIONS

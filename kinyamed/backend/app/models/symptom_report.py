@@ -27,8 +27,8 @@ class SymptomReport(TimestampedModel):
     language_detected: Mapped[str | None] = mapped_column(String(20), index=True)
     symptoms_extracted: Mapped[str | None] = mapped_column(Text)
 
-    patient: Mapped["Patient"] = relationship(back_populates="symptom_reports")
-    triage_result: Mapped["TriageResult | None"] = relationship(
+    patient: Mapped[Patient] = relationship(back_populates="symptom_reports")
+    triage_result: Mapped[TriageResult | None] = relationship(
         back_populates="symptom_report",
         uselist=False,
         cascade="all, delete-orphan",

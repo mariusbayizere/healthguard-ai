@@ -29,9 +29,15 @@ from pathlib import Path
 # Numbers that are structure or configuration rather than measurements, so
 # finding them written out in prose is not a provenance failure.
 ALLOWED_LITERALS = {
-    "1", "2", "3", "4", "5", "11",           # counts, list items, font size
-    "0.95", "2", "3",                        # thresholds named in the gate prose
-    "1.5", "10",                             # sweep ratios and exponents
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "11",  # counts, list items, font size
+    "0.95",  # the gate threshold, named in prose
+    "1.5",
+    "10",  # sweep ratios and exponents
 }
 
 
@@ -61,7 +67,9 @@ def collect(entry: Path) -> tuple[dict[Path, str], list[str]]:
         for name in re.findall(r"\\input\{([^}]+)\}", body):
             target = resolve(entry.parent, name)
             if not target.exists():
-                problems.append(f"{path.name}: \\input{{{name}}} -> {target} does not exist")
+                problems.append(
+                    f"{path.name}: \\input{{{name}}} -> {target} does not exist"
+                )
             else:
                 pending.append(target)
     return sources, problems
@@ -90,11 +98,14 @@ def main() -> int:
         closed = re.findall(r"\\end\{(\w+\*?)\}", body)
         for env in set(opened) | set(closed):
             if opened.count(env) != closed.count(env):
-                problems.append(f"{path.name}: {env} opened {opened.count(env)}x, "
-                                f"closed {closed.count(env)}x")
+                problems.append(
+                    f"{path.name}: {env} opened {opened.count(env)}x, "
+                    f"closed {closed.count(env)}x"
+                )
         if body.count("{") != body.count("}"):
-            problems.append(f"{path.name}: {body.count('{')} '{{' vs "
-                            f"{body.count('}')} '}}'")
+            problems.append(
+                f"{path.name}: {body.count('{')} '{{' vs {body.count('}')} '}}'"
+            )
 
     # Literal numbers in hand-written prose. Generated files are exempt: their
     # numbers are computed, which is the whole point of generating them.
@@ -112,7 +123,8 @@ def main() -> int:
             if literal not in ALLOWED_LITERALS:
                 problems.append(
                     f"{path.name}: literal number {literal!r} typed in prose — "
-                    "it should be a macro from results_macros.tex")
+                    "it should be a macro from results_macros.tex"
+                )
 
     print(f"checked {len(sources)} file(s) from {entry}")
     for path in sorted(sources, key=str):
@@ -123,8 +135,10 @@ def main() -> int:
         for problem in problems:
             print(f"  ! {problem}")
         return 1
-    print("\nno structural problems. THIS IS NOT A COMPILE — run a TeX engine "
-          "when one is available.")
+    print(
+        "\nno structural problems. THIS IS NOT A COMPILE — run a TeX engine "
+        "when one is available."
+    )
     return 0
 
 

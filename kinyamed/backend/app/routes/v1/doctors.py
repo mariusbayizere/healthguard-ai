@@ -51,7 +51,8 @@ def get_on_duty_doctors(
 ) -> list[DoctorResponse]:
     """List clinicians currently available to take patients."""
     return [
-        DoctorResponse.model_validate(doctor) for doctor in doctor_service.list_on_duty(db)
+        DoctorResponse.model_validate(doctor)
+        for doctor in doctor_service.list_on_duty(db)
     ]
 
 
@@ -68,7 +69,9 @@ def update_doctor(
     doctor_id: int, data: DoctorUpdate, _admin: AdminUser, db: Session = Depends(get_db)
 ) -> DoctorResponse:
     """Update the supplied fields only. Administrators only."""
-    return DoctorResponse.model_validate(doctor_service.update_doctor(db, doctor_id, data))
+    return DoctorResponse.model_validate(
+        doctor_service.update_doctor(db, doctor_id, data)
+    )
 
 
 @router.patch("/{doctor_id}/toggle-duty", response_model=DoctorResponse)

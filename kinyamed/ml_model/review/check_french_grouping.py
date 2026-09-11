@@ -28,7 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.split_dataset import _is_subsequence, _match_form, _words  # noqa: E402
+from dataset.split_dataset import _is_subsequence, _match_form, _words
 
 BRIEF = ROOT / "review" / "speaker_brief_french_v2.csv"
 
@@ -54,9 +54,11 @@ def main() -> int:
     # applies=no rows contribute no phrase to v2, so a collision with one is not
     # a collision. Including them reported EX32's own first person - stale v1 text
     # on a dropped row - as containing EX32's third.
-    candidates = {f"{r['concept_id']}/{r['person']}": r["suggested_french"].strip()
-                  for r in rows
-                  if r["suggested_french"].strip() and r["applies"] != "no"}
+    candidates = {
+        f"{r['concept_id']}/{r['person']}": r["suggested_french"].strip()
+        for r in rows
+        if r["suggested_french"].strip() and r["applies"] != "no"
+    }
     # The pool is the v2 English inventory, nothing else. v1 strings that survive
     # into v2 are here already, as the candidates of the rows carrying them; the
     # ones that do not survive cannot collide with anything, because v2 replaces
@@ -83,7 +85,8 @@ def main() -> int:
         fa, fb = _match_form(a), _match_form(b)
         wa, wb = _words(fa), _words(fb)
         joined = (fa != fb and (fa in fb or fb in fa)) or (
-            wa and wb and (_is_subsequence(wa, wb) or _is_subsequence(wb, wa)))
+            wa and wb and (_is_subsequence(wa, wb) or _is_subsequence(wb, wa))
+        )
         if not joined:
             continue
         if same_concept(ka, kb):
@@ -101,8 +104,10 @@ def main() -> int:
             unions.append((kb, b, ka, a))
 
     print(f"{len(pool)} French phrases in the v2 inventory so far")
-    print(f"{within} unions between a concept's own two persons — expected, "
-          f"and declared by PHRASE_CONCEPTS anyway")
+    print(
+        f"{within} unions between a concept's own two persons — expected, "
+        f"and declared by PHRASE_CONCEPTS anyway"
+    )
     print(f"{len(mirrored)} mirrored from the Kinyarwanda on purpose:")
     for ka, kb, why in mirrored:
         print(f"   {ka} / {kb} — {why}")
@@ -116,7 +121,9 @@ def main() -> int:
 
     # A short phrase is what makes a subsequence union likely, so watch the floor
     # rather than waiting for the union to appear.
-    shortest = sorted(((len(_words(_match_form(p))), k, p) for k, p in candidates.items()))[:5]
+    shortest = sorted(
+        ((len(_words(_match_form(p))), k, p) for k, p in candidates.items())
+    )[:5]
     print("shortest candidates — the ones most likely to fall inside another:")
     for n, key, phrase in shortest:
         print(f"   {n:2d} words  {key:14s} {phrase!r}")

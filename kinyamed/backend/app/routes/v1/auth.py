@@ -65,7 +65,9 @@ def _token_response(response: Response, session: IssuedSession) -> TokenResponse
     )
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+)
 def register(
     data: RegisterRequest,
     response: Response,
@@ -105,7 +107,9 @@ def refresh(
     response: Response,
     request: Request,
     db: Session = Depends(get_db),
-    refresh_token: Annotated[str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)] = None,
+    refresh_token: Annotated[
+        str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)
+    ] = None,
 ) -> TokenResponse:
     """Rotate the refresh cookie and issue a fresh access token.
 
@@ -122,7 +126,9 @@ def refresh(
 def logout(
     response: Response,
     db: Session = Depends(get_db),
-    refresh_token: Annotated[str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)] = None,
+    refresh_token: Annotated[
+        str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)
+    ] = None,
 ) -> Message:
     """End the current session and clear the refresh cookie.
 
@@ -150,7 +156,9 @@ def read_current_user(user: CurrentUser) -> UserResponse:
 
 
 @router.get("/sessions", response_model=list[SessionResponse])
-def list_sessions(user: AuthenticatedUser, db: Session = Depends(get_db)) -> list[SessionResponse]:
+def list_sessions(
+    user: AuthenticatedUser, db: Session = Depends(get_db)
+) -> list[SessionResponse]:
     """Active sessions for the current account."""
     return [
         SessionResponse.model_validate(session)

@@ -9,7 +9,7 @@ outcome: a message that was not actually sent is never logged as SENT.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Protocol
 
 import structlog
@@ -52,7 +52,9 @@ class LoggingSMSProvider:
     def send(self, *, to: str, message: str) -> SMSDeliveryResult:
         """Log the message and report SKIPPED — nothing was delivered."""
         logger.info("sms_stubbed", to=to, message_length=len(message))
-        return SMSDeliveryResult(status=SMSStatus.SKIPPED, error_detail="SMS delivery disabled")
+        return SMSDeliveryResult(
+            status=SMSStatus.SKIPPED, error_detail="SMS delivery disabled"
+        )
 
 
 class UnconfiguredSMSProvider:
@@ -80,7 +82,10 @@ def get_sms_provider() -> SMSProvider:
 
 
 def build_triage_sms(
-    name: str, urgency: str, queue_number: int, wait: int | None,
+    name: str,
+    urgency: str,
+    queue_number: int,
+    wait: int | None,
     language: str = "kinyarwanda",
 ) -> str:
     """Compose the patient's SMS from a SPEAKER-AUTHORED template, or return "".
@@ -101,11 +106,17 @@ def build_triage_sms(
 
     template = response_templates.resolve(language, urgency, channel="sms")
     if template.pending:
-        logger.info("sms_template_pending", language=language, urgency=urgency,
-                    reason=template.reason, action="no message will be sent")
+        logger.info(
+            "sms_template_pending",
+            language=language,
+            urgency=urgency,
+            reason=template.reason,
+            action="no message will be sent",
+        )
         return ""
     return template.text.format(
-        name=name, queue_number=queue_number,
+        name=name,
+        queue_number=queue_number,
         wait="" if wait is None else str(wait),
     )
 
@@ -130,7 +141,7 @@ def send_sms(
     provider = provider or get_sms_provider()
     try:
         result = provider.send(to=phone, message=message)
-    except Exception as exc:  # noqa: BLE001 - any provider failure is recorded, not raised
+    except Exception as exc:
         logger.exception(
             "sms_delivery_failed", patient_id=patient_id, error_type=type(exc).__name__
         )
@@ -142,7 +153,7 @@ def send_sms(
         status=result.status,
         provider_message_id=result.provider_message_id,
         error_detail=result.error_detail,
-        sent_at=datetime.now(timezone.utc) if result.status == SMSStatus.SENT else None,
+        sent_at=datetime.now(UTC) if result.status == SMSStatus.SENT else None,
     )
     logger.info("sms_recorded", patient_id=patient_id, status=result.status.value)
     return log
@@ -157,5 +168,5 @@ def send_sms_in_background(patient_id: int, phone: str, message: str) -> None:
     with SessionLocal() as db:
         try:
             send_sms(db, patient_id=patient_id, phone=phone, message=message)
-        except Exception:  # noqa: BLE001 - background work must not crash the worker
+        except Exception:
             logger.exception("background_sms_failed", patient_id=patient_id)

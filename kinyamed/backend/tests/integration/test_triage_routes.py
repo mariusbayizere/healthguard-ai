@@ -22,7 +22,10 @@ def test_critical_patient_overtakes_earlier_routine_patients(client, patient_fac
     assert critical["queue_position"] == 1, "a critical case must jump the queue"
 
     queue = client.get("/api/v1/queue").json()["items"]
-    assert [item["patient_name"] for item in queue] == ["Critical Arrival", "Routine Arrival"]
+    assert [item["patient_name"] for item in queue] == [
+        "Critical Arrival",
+        "Routine Arrival",
+    ]
     assert [item["queue_position"] for item in queue] == [1, 2]
 
 
@@ -54,7 +57,9 @@ def test_positions_close_up_when_a_patient_is_removed(client, patient_factory):
 
     remaining = client.get("/api/v1/queue").json()["items"]
     assert [item["patient_name"] for item in remaining] == ["Stays"]
-    assert remaining[0]["queue_position"] == 1, "positions must be recomputed, not stale"
+    assert remaining[0]["queue_position"] == 1, (
+        "positions must be recomputed, not stale"
+    )
 
 
 def test_queue_numbers_are_never_reused(client, patient_factory):

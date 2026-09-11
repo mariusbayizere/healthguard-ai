@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -20,7 +20,9 @@ class DoctorRepository(BaseRepository[Doctor]):
         """Return the clinician registered under this email, or None."""
         return db.scalars(select(Doctor).where(Doctor.email == email)).one_or_none()
 
-    def email_taken(self, db: Session, email: str, *, exclude_id: int | None = None) -> bool:
+    def email_taken(
+        self, db: Session, email: str, *, exclude_id: int | None = None
+    ) -> bool:
         """Whether another doctor already holds this email."""
         statement = select(Doctor.id).where(Doctor.email == email)
         if exclude_id is not None:
@@ -28,7 +30,12 @@ class DoctorRepository(BaseRepository[Doctor]):
         return db.scalar(statement) is not None
 
     def list_doctors(
-        self, db: Session, *, on_duty: bool | None = None, skip: int = 0, limit: int = 50
+        self,
+        db: Session,
+        *,
+        on_duty: bool | None = None,
+        skip: int = 0,
+        limit: int = 50,
     ) -> tuple[Sequence[Doctor], int]:
         """Return a page of clinicians and the total matching the same filter."""
         statement = select(Doctor)
@@ -43,14 +50,18 @@ class DoctorRepository(BaseRepository[Doctor]):
     def list_on_duty(self, db: Session) -> Sequence[Doctor]:
         """Return every clinician currently on duty, by name."""
         return db.scalars(
-            select(Doctor).where(Doctor.is_on_duty.is_(True)).order_by(Doctor.name.asc())
+            select(Doctor)
+            .where(Doctor.is_on_duty.is_(True))
+            .order_by(Doctor.name.asc())
         ).all()
 
     def count_on_duty(self, db: Session) -> int:
         """Count clinicians available to take patients; drives wait estimates."""
         return int(
             db.scalar(
-                select(func.count()).select_from(Doctor).where(Doctor.is_on_duty.is_(True))
+                select(func.count())
+                .select_from(Doctor)
+                .where(Doctor.is_on_duty.is_(True))
             )
             or 0
         )

@@ -22,15 +22,17 @@ import re
 from pathlib import Path
 
 THIRD_PERSON_OPENERS = {
-    "kinyarwanda": r'^(umwana|umugore|umugabo|mama|papa|mushiki|umuturanyi|umukecuru)\b',
-    "swahili": r'^(mtoto|mke|mume|mama|baba|dada|jirani|bibi)\b',
+    "kinyarwanda": r"^(umwana|umugore|umugabo|mama|papa|mushiki|umuturanyi|umukecuru)\b",
+    "swahili": r"^(mtoto|mke|mume|mama|baba|dada|jirani|bibi)\b",
 }
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("brief", type=Path)
-    ap.add_argument("--language", default="kinyarwanda", choices=list(THIRD_PERSON_OPENERS))
+    ap.add_argument(
+        "--language", default="kinyarwanda", choices=list(THIRD_PERSON_OPENERS)
+    )
     ap.add_argument("--form", default="utterance")
     ap.add_argument("--default-person", default="first")
     ap.add_argument("--dry-run", action="store_true")
@@ -53,7 +55,7 @@ def main() -> int:
         by_concept.setdefault(r["concept_id"], []).append(r)
 
     set_form = moved = 0
-    for cid, group in by_concept.items():
+    for _cid, group in by_concept.items():
         for r in group:
             phrase = (r["your_phrasing"] or "").strip()
             if not phrase:
@@ -68,7 +70,9 @@ def main() -> int:
                 if partner is not None and not (partner["your_phrasing"] or "").strip():
                     partner["your_phrasing"] = phrase
                     partner["form"] = r["form"]
-                    partner["notes"] = (r.get("notes") or "") + " [moved by bulk_declare — verify]"
+                    partner["notes"] = (
+                        r.get("notes") or ""
+                    ) + " [moved by bulk_declare — verify]"
                     r["your_phrasing"] = ""
                     r["form"] = ""
                     r["notes"] = ""
@@ -83,7 +87,9 @@ def main() -> int:
         print("\n  dry run: nothing written")
         return 0
     with args.brief.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=fields); w.writeheader(); w.writerows(rows)
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
     print(f"\n  wrote {args.brief}")
     return 0
 

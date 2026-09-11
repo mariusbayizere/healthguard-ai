@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any, Final, Literal
 
 import bcrypt
@@ -47,7 +47,7 @@ class TokenClaims:
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # ── Passwords ─────────────────────────────────────────────────────────────
@@ -55,8 +55,12 @@ def hash_password(password: str) -> str:
     """Return a bcrypt digest of `password`."""
     encoded = password.encode("utf-8")
     if len(encoded) > BCRYPT_MAX_BYTES:
-        raise ValueError(f"password must be at most {BCRYPT_MAX_BYTES} bytes when encoded")
-    return bcrypt.hashpw(encoded, bcrypt.gensalt(rounds=settings.BCRYPT_ROUNDS)).decode("utf-8")
+        raise ValueError(
+            f"password must be at most {BCRYPT_MAX_BYTES} bytes when encoded"
+        )
+    return bcrypt.hashpw(encoded, bcrypt.gensalt(rounds=settings.BCRYPT_ROUNDS)).decode(
+        "utf-8"
+    )
 
 
 def verify_password(password: str, hashed: str) -> bool:
@@ -159,6 +163,6 @@ def decode_token(token: str, *, expected_type: TokenType) -> TokenClaims:
         role=payload.get("role", ""),
         token_type=token_type,
         jti=payload["jti"],
-        expires_at=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
-        issued_at=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+        expires_at=datetime.fromtimestamp(payload["exp"], tz=UTC),
+        issued_at=datetime.fromtimestamp(payload["iat"], tz=UTC),
     )

@@ -12,11 +12,11 @@ import json
 from pathlib import Path
 
 import pytest
-
-from dataset.split_dataset import (_is_subsequence, _words,  # noqa: F401
-    
+from dataset.split_dataset import (
     _find_at_word_boundary,
+    _is_subsequence,
     _match_form,
+    _words,
     attribute_phrase,
     phrase_components,
     substring_violations,
@@ -28,8 +28,11 @@ def test_nested_phrases_share_a_group() -> None:
     """Nested phrases must be inseparable, or they can land on opposite sides."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     components = phrase_components()
     nested = [
         (inner, outer)
@@ -77,7 +80,9 @@ def test_phrase_attribution_prefers_the_longest_match() -> None:
 
 
 @pytest.mark.parametrize("strategy", ["phrase", "family"])
-def test_frozen_manifest_records_its_leakage_position(strategy: str, ml_root: Path) -> None:
+def test_frozen_manifest_records_its_leakage_position(
+    strategy: str, ml_root: Path
+) -> None:
     """Both manifests must state their leakage explicitly, whatever the value.
 
     The family split legitimately has phrase overlap by design; the point is
@@ -98,7 +103,9 @@ def test_frozen_manifest_records_its_leakage_position(strategy: str, ml_root: Pa
         "eval_rows_leaked_fraction",
     ):
         assert field in leakage, f"{strategy} manifest does not record {field}"
-    assert leakage["exact_text_overlap"] == 0, "identical rows on both sides of the split"
+    assert leakage["exact_text_overlap"] == 0, (
+        "identical rows on both sides of the split"
+    )
 
 
 def test_phrase_split_has_no_substring_leakage(ml_root: Path) -> None:
@@ -123,16 +130,28 @@ def test_held_out_phrases_are_absent_from_sample_training_text(
     # directory, so without this the test passes or fails depending on where
     # pytest happened to be invoked from.
     subprocess.run(
-        [sys.executable, "dataset/split_dataset.py", "--strategy", "phrase",
-         "--input", str(sample_csv), "--out-dir", str(tmp_path)],
-        cwd=ml_root, check=True, capture_output=True,
+        [
+            sys.executable,
+            "dataset/split_dataset.py",
+            "--strategy",
+            "phrase",
+            "--input",
+            str(sample_csv),
+            "--out-dir",
+            str(tmp_path),
+        ],
+        cwd=ml_root,
+        check=True,
+        capture_output=True,
     )
     report = json.loads((tmp_path / "split_phrase_holdout.json").read_text())
     held = set(report["holdout_groups"])
     components = phrase_components()
     held_phrases = {p for p, root in components.items() if root in held}
 
-    with (tmp_path / "train_phrase_holdout.csv").open(encoding="utf-8", newline="") as handle:
+    with (tmp_path / "train_phrase_holdout.csv").open(
+        encoding="utf-8", newline=""
+    ) as handle:
         for row in csv.DictReader(handle):
             for phrase in held_phrases:
                 assert phrase not in row["text"], (
@@ -145,7 +164,10 @@ def test_held_out_phrases_are_absent_from_sample_training_text(
 
 def _shared_prefix(left: str, right: str) -> int:
     count = 0
-    for a, b in zip(left, right):
+    # strict=False is the semantics: this measures the SHARED PREFIX of two
+    # strings of deliberately different lengths, so stopping at the shorter
+    # one is the definition, not a truncation bug.
+    for a, b in zip(left, right, strict=False):
         if a != b:
             break
         count += 1
@@ -156,15 +178,20 @@ def _shared_prefix(left: str, right: str) -> int:
     "inner,outer",
     [
         # terminal stop: the exact pair I asserted was unioned during a ruling
-        ("{REL} arababara cyane mu nda.",
-         "{REL} arababara cyane mu nda kandi ububabare ntibuhagarara."),
-        ("{REL} ahumeka bimugora cyane.",
-         "{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ubururu."),
+        (
+            "{REL} arababara cyane mu nda.",
+            "{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.",
+        ),
+        (
+            "{REL} ahumeka bimugora cyane.",
+            "{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ubururu.",
+        ),
         # capitalisation
-        ("guhumeka birangora cyane",
-         "Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza."),
-        ("inda irandya cyane",
-         "Inda irandya cyane kandi ububabare ntibuhagarara."),
+        (
+            "guhumeka birangora cyane",
+            "Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.",
+        ),
+        ("inda irandya cyane", "Inda irandya cyane kandi ububabare ntibuhagarara."),
     ],
 )
 def test_containment_sees_through_stops_and_capitals(inner: str, outer: str) -> None:
@@ -212,7 +239,9 @@ def test_a_long_shared_prefix_unions_even_without_containment() -> None:
             a, b = _match_form(left), _match_form(right)
             if a in b or b in a:
                 continue
-            if _is_subsequence(_words(a), _words(b)) or _is_subsequence(_words(b), _words(a)):
+            if _is_subsequence(_words(a), _words(b)) or _is_subsequence(
+                _words(b), _words(a)
+            ):
                 checked += 1
                 assert components[left] == components[right], (
                     f"{left!r} and {right!r} are word-subsequences of one another "
@@ -251,8 +280,11 @@ def test_v1_grouping_is_unchanged_by_both_rules() -> None:
     """v1's phrases are fragments: no terminal stops, no capitals, no long heads."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     from collections import Counter
 
     components = phrase_components()
@@ -269,12 +301,15 @@ def test_concept_union_is_empty_for_v1_and_leaves_it_untouched():
     """v1 has no concept ids and one phrase per concept, so nothing to join."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     from collections import Counter
 
-    from dataset import vocabulary as V
     from dataset import vocabulary_v1 as V1
+
     assert V1.PHRASE_CONCEPTS == {}
     components = phrase_components()
     assert len(components) == 184
@@ -291,10 +326,13 @@ def test_a_concepts_two_persons_join_one_group():
     """
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
-    from dataset import vocabulary as V
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     from dataset import split_dataset as S
+    from dataset import vocabulary as V
 
     first = "Iminwa yanjye yahindutse ubururu."
     third = "{REL} iminwa ye yahindutse ubururu."
@@ -323,8 +361,8 @@ def test_a_declaration_naming_an_absent_phrase_raises():
     That is the same failure shape as the empty CONCEPT_RELATIONS: a ruling
     recorded where no code path reads it, reopening the leak without an error.
     """
-    from dataset import vocabulary as V
     from dataset import split_dataset as S
+    from dataset import vocabulary as V
 
     real = dict(V.PHRASE_CONCEPTS)
     try:
@@ -341,8 +379,8 @@ def test_a_declaration_naming_an_absent_phrase_raises():
 
 def test_real_v1_phrases_union_when_declared_one_concept():
     """The mechanism itself, on phrases that ARE in the inventory."""
-    from dataset import vocabulary as V
     from dataset import split_dataset as S
+    from dataset import vocabulary as V
 
     inventory = sorted(phrase_components())
     a, b = inventory[0], inventory[-1]
@@ -365,7 +403,7 @@ def test_real_v1_phrases_union_when_declared_one_concept():
 
 
 def test_a_match_may_not_begin_inside_a_word():
-    """"Ndashaka" ends with "ashaka" — the collision that turned CI red.
+    """ "Ndashaka" ends with "ashaka" — the collision that turned CI red.
 
     The third-person phrase's post-{REL} segment was a substring of the
     first-person phrase, and being the longer index entry it captured the first
@@ -393,8 +431,11 @@ def test_every_authored_first_person_attributes_to_itself():
     """
     from dataset.split_dataset import attribute_phrase
 
-    brief = (Path(__file__).resolve().parent.parent
-             / "review" / "speaker_brief_kinyarwanda_v2.csv")
+    brief = (
+        Path(__file__).resolve().parent.parent
+        / "review"
+        / "speaker_brief_kinyarwanda_v2.csv"
+    )
     rows = list(csv.DictReader(brief.open(encoding="utf-8")))
     by_concept: dict[str, dict[str, str]] = {}
     for row in rows:
@@ -402,8 +443,9 @@ def test_every_authored_first_person_attributes_to_itself():
         if phrase and (row.get("applies") or "yes").lower() != "no":
             by_concept.setdefault(row["concept_id"], {})[row["person"]] = phrase
 
-    inventory = sorted({p for v in by_concept.values() for p in v.values()},
-                       key=len, reverse=True)
+    inventory = sorted(
+        {p for v in by_concept.values() for p in v.values()}, key=len, reverse=True
+    )
     index = {"kinyarwanda": inventory}
     family = "kinyarwanda->kinyarwanda:ROUTINE:preventive"
 
@@ -428,14 +470,16 @@ def test_subsequence_union_catches_reordering_and_insertion():
     containment nor a shared prefix sees it - EX14 third shares six leading
     characters with EX38 third and is not a substring of it.
     """
-    from dataset.split_dataset import _is_subsequence, _words, _match_form
+    from dataset.split_dataset import _is_subsequence, _match_form, _words
 
     inner = _words(_match_form("{REL} arababara cyane mu nda."))
-    outer = _words(_match_form(
-        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."))
+    outer = _words(
+        _match_form("{REL} aratwite, arababara cyane mu nda kandi arava amaraso.")
+    )
     assert _is_subsequence(inner, outer)
     assert _match_form("{REL} arababara cyane mu nda.") not in _match_form(
-        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso.")
+        "{REL} aratwite, arababara cyane mu nda kandi arava amaraso."
+    )
 
 
 def test_subsequence_is_ordered_not_a_set_subset():
@@ -448,11 +492,11 @@ def test_subsequence_is_ordered_not_a_set_subset():
     groups to 179, breaking every frozen digest. Requiring the order to hold
     refuses the pair.
     """
-    from dataset.split_dataset import _is_subsequence, _words, _match_form
+    from dataset.split_dataset import _is_subsequence, _match_form, _words
 
     severe = _words(_match_form("maumivu makali ya tumbo"))
     not_severe = _words(_match_form("maumivu kidogo ya tumbo yasiyo makali"))
-    assert set(severe) <= set(not_severe)          # a set test would union them
+    assert set(severe) <= set(not_severe)  # a set test would union them
     assert not _is_subsequence(severe, not_severe)  # ordering refuses
     assert not _is_subsequence(not_severe, severe)
 
@@ -465,15 +509,19 @@ def test_subsequence_catches_the_pair_the_prefix_rule_exists_for() -> None:
     sitting open inside the rule's own motivating example. The ordered
     subsequence catches both.
     """
-    from dataset.split_dataset import _is_subsequence, _words, _match_form
+    from dataset.split_dataset import _is_subsequence, _match_form, _words
 
     for a, b in (
-        ("ndi kuva amaraso menshi kandi ntahagarara",
-         "ndi kuva amaraso menshi mu mazuru kandi ntahagarara"),
-        ("{REL} ari kuva amaraso menshi kandi ntahagarara.",
-         "{REL} ari kuva amaraso menshi mu mazuru kandi ntahagarara."),
+        (
+            "ndi kuva amaraso menshi kandi ntahagarara",
+            "ndi kuva amaraso menshi mu mazuru kandi ntahagarara",
+        ),
+        (
+            "{REL} ari kuva amaraso menshi kandi ntahagarara.",
+            "{REL} ari kuva amaraso menshi mu mazuru kandi ntahagarara.",
+        ),
     ):
-        assert _match_form(a) not in _match_form(b)      # not containment
+        assert _match_form(a) not in _match_form(b)  # not containment
         assert _is_subsequence(_words(_match_form(a)), _words(_match_form(b)))
 
 
@@ -481,8 +529,11 @@ def test_v1_partition_is_unchanged_by_the_subsequence_rule() -> None:
     """180 groups, as before any of this. The freeze depends on it."""
     # v1 property: select the frozen v1 inventory explicitly. Before the v2
     # freeze this was implicit because there was only one vocabulary.
-    import dataset.split_dataset as SD, dataset.generate_large_dataset as G
-    SD.use_corpus_version(1); G.use_corpus_version(1)
+    import dataset.generate_large_dataset as G
+    import dataset.split_dataset as SD
+
+    SD.use_corpus_version(1)
+    G.use_corpus_version(1)
     from dataset.split_dataset import phrase_components
 
     assert len(set(phrase_components().values())) == 180

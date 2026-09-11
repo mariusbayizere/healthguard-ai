@@ -34,9 +34,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from dataset.vocabulary import (ADULT_RELATIONS, CHILD_RELATIONS,  # noqa: E402
-                                DOMAIN_RELATIONS, HOUSEHOLD_RELATIONS,
-                                NO_RELATIONS, RELATIONS, REL_PLACEHOLDER)
+from dataset.vocabulary import (
+    ADULT_RELATIONS,
+    CHILD_RELATIONS,
+    DOMAIN_RELATIONS,
+    HOUSEHOLD_RELATIONS,
+    NO_RELATIONS,
+    REL_PLACEHOLDER,
+    RELATIONS,
+)
 
 RULINGS = ROOT / "review" / "routine_relation_sets.csv"
 BRIEF = ROOT / "review" / "speaker_brief_kinyarwanda_v2.csv"
@@ -68,12 +74,15 @@ SENTINELS = {HELD, DO_NOT_GENERATE}
 
 def rulings(path: Path = RULINGS) -> dict[str, str]:
     """concept_id -> the raw ruling string, exactly as the speaker recorded it."""
-    return {r["concept_id"].strip(): r["relation_set"].strip()
-            for r in csv.DictReader(path.open(encoding="utf-8"))}
+    return {
+        r["concept_id"].strip(): r["relation_set"].strip()
+        for r in csv.DictReader(path.open(encoding="utf-8"))
+    }
 
 
-def resolve(concept_id: str, domain: str, ruled: dict[str, str] | None = None
-            ) -> tuple[str, ...] | None:
+def resolve(
+    concept_id: str, domain: str, ruled: dict[str, str] | None = None
+) -> tuple[str, ...] | None:
     """Relations this concept's third person may be about.
 
     Returns a tuple of relations, or None where no third person should be
@@ -99,8 +108,9 @@ def _brief_rows(path: Path = BRIEF) -> list[dict]:
     return list(csv.DictReader(path.open(encoding="utf-8")))
 
 
-def materialise(brief: Path = BRIEF, ruled: dict[str, str] | None = None
-                ) -> tuple[dict[str, tuple[str, ...]], list[str]]:
+def materialise(
+    brief: Path = BRIEF, ruled: dict[str, str] | None = None
+) -> tuple[dict[str, tuple[str, ...]], list[str]]:
     """Turn concept-keyed rulings into the phrase-keyed map the generator wants.
 
     Returns `(mapping, conflicts)`. **The caller must treat a non-empty
@@ -137,7 +147,7 @@ def materialise(brief: Path = BRIEF, ruled: dict[str, str] | None = None
             if authored:
                 conflicts.append(
                     f"{concept_id}: ruled {name!r}, which generates no third person, "
-                    f"but a third-person phrase is authored ({(row or {}).get('source','?')}): "
+                    f"but a third-person phrase is authored ({(row or {}).get('source', '?')}): "
                     f"{phrase!r}. Applying the ruling would discard it silently. "
                     "Rule the conflict before materialising."
                 )
@@ -156,7 +166,7 @@ def materialise(brief: Path = BRIEF, ruled: dict[str, str] | None = None
             # nothing, with no error. Do not let it through.
             conflicts.append(
                 f"{concept_id}: ruled NO_RELATIONS, so it generates no third person, "
-                f"but a third-person phrase is authored ({row.get('source','?')}): "
+                f"but a third-person phrase is authored ({row.get('source', '?')}): "
                 f"{phrase!r}. Mapping it would zero the phrase's output silently. "
                 "Either the ruling or the phrase is wrong — rule it before materialising."
             )
@@ -179,10 +189,14 @@ def materialise(brief: Path = BRIEF, ruled: dict[str, str] | None = None
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--materialise", action="store_true",
-                    help="Emit CONCEPT_RELATIONS for the v2 build.")
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--materialise",
+        action="store_true",
+        help="Emit CONCEPT_RELATIONS for the v2 build.",
+    )
     args = ap.parse_args()
 
     ruled = rulings()
@@ -210,8 +224,10 @@ def main() -> int:
         print()
 
     if conflicts:
-        print(f"{len(conflicts)} CONFLICT(S) — these block materialisation:\n",
-              file=sys.stderr)
+        print(
+            f"{len(conflicts)} CONFLICT(S) — these block materialisation:\n",
+            file=sys.stderr,
+        )
         for c in conflicts:
             print(f"  ! {c}\n", file=sys.stderr)
 
@@ -225,8 +241,10 @@ def main() -> int:
             print(f"        {rels!r},")
         print("}")
     else:
-        print(f"{len(mapping)} phrase(s) ready to materialise, "
-              f"{len(conflicts)} conflict(s) blocking.")
+        print(
+            f"{len(mapping)} phrase(s) ready to materialise, "
+            f"{len(conflicts)} conflict(s) blocking."
+        )
     return 1 if conflicts else 0
 
 

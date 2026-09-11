@@ -7,7 +7,8 @@ visible in the endpoint itself and in the generated OpenAPI document.
 
 from __future__ import annotations
 
-from typing import Annotated, Callable
+from collections.abc import Callable
+from typing import Annotated
 
 import structlog
 from fastapi import Depends, Request

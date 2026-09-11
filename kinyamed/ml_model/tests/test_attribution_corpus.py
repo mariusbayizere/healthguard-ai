@@ -28,7 +28,7 @@ BRIEF = Path("review/speaker_brief_kinyarwanda_v2.csv")
 def authored_phrases(ml_root: Path) -> list[tuple[str, str, str]]:
     """(phrase, urgency, domain) for every phrase the speaker has authored."""
     path = ml_root / BRIEF
-    if not path.exists():                                   # pragma: no cover
+    if not path.exists():  # pragma: no cover
         pytest.skip(f"{BRIEF} not present")
     out = []
     with path.open(encoding="utf-8") as fh:
@@ -51,6 +51,7 @@ def families_for(phrase: str, urgency: str, domain: str, form: str):
         V.SYMPTOMS["kinyarwanda"] = {urgency: {domain: (phrase,)}}
         V.PHRASE_FORMS[phrase] = form
         import dataset.generate_large_dataset as G
+
         saved_g = G.SYMPTOMS
         G.SYMPTOMS = V.SYMPTOMS
         try:
@@ -89,7 +90,9 @@ def test_every_authored_phrase_attributes_in_every_rendering(ml_root: Path) -> N
                     "A None here means these rows leave the phrase holdout silently."
                 )
                 renderings += 1
-    assert renderings > 10_000, f"only {renderings} renderings swept; the sweep has collapsed"
+    assert renderings > 10_000, (
+        f"only {renderings} renderings swept; the sweep has collapsed"
+    )
 
 
 def test_no_authored_phrase_is_attributed_to_another(ml_root: Path) -> None:

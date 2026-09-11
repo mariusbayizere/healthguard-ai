@@ -30,7 +30,9 @@ class QueueItemResponse(BaseModel):
     quoted_wait_at_intake: int | None = Field(
         description="Minutes quoted to the patient by SMS when they were registered."
     )
-    waiting_minutes: int = Field(description="Minutes elapsed since the patient joined the queue.")
+    waiting_minutes: int = Field(
+        description="Minutes elapsed since the patient joined the queue."
+    )
     doctor_id: int | None
     created_at: datetime
     started_at: datetime | None
@@ -38,7 +40,9 @@ class QueueItemResponse(BaseModel):
 
 
 class QueueStatusUpdate(BaseModel):
-    status: QueueStatus = Field(description="Target status; only legal transitions are accepted.")
+    status: QueueStatus = Field(
+        description="Target status; only legal transitions are accepted."
+    )
 
 
 class QueueDoctorAssignment(BaseModel):

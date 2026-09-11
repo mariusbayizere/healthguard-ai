@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dataset.vocabulary import DOMAINS, LANGUAGES, SYMPTOMS  # noqa: E402
+from dataset.vocabulary import DOMAINS, LANGUAGES, SYMPTOMS
 
 URGENCIES = ("CRITICAL", "URGENT", "ROUTINE")
 VALID_LANGUAGES = frozenset({*LANGUAGES, "mixed"})
@@ -34,14 +34,20 @@ MIN_AVG_LENGTH = 30
 MAX_DUPLICATE_RATE = 0.02
 MIN_EXAMPLES_PER_DOMAIN = 500
 
-CLASS_TARGETS = {"CRITICAL": (0.28, 0.38), "URGENT": (0.32, 0.42), "ROUTINE": (0.28, 0.38)}
+CLASS_TARGETS = {
+    "CRITICAL": (0.28, 0.38),
+    "URGENT": (0.32, 0.42),
+    "ROUTINE": (0.28, 0.38),
+}
 # A monolingual corpus is 100% its language. The 0.08-0.15 band described v1's
 # four languages plus a 48% mixed bucket, and would fail v2 by construction.
 # Kept as a per-language band rather than hardcoded so a future multilingual
 # v3 only has to change LANGUAGES.
-LANGUAGE_TARGETS = ({language: (0.99, 1.0) for language in LANGUAGES}
-                   if len(LANGUAGES) == 1 else
-                   {language: (0.08, 0.15) for language in LANGUAGES})
+LANGUAGE_TARGETS = (
+    {language: (0.99, 1.0) for language in LANGUAGES}
+    if len(LANGUAGES) == 1
+    else {language: (0.08, 0.15) for language in LANGUAGES}
+)
 
 # Byte sequences that appear when UTF-8 has been decoded as Latin-1 somewhere
 # in the pipeline. Kinyarwanda and French text is where this would surface.
@@ -213,9 +219,12 @@ def validate(path: Path) -> dict:
                 folded_seen.add(folded_hash)
 
             # ── Content core: which seed phrase this row carries ──────────
-            frame_language = family.split("->", 1)[0] if "->" in family else language
+            # Only the PHRASE language is needed here: the row's content core is
+            # the seed phrase, and the frame language does not select it.
             phrase_language = (
-                family.split("->", 1)[1].split(":", 1)[0] if "->" in family else language
+                family.split("->", 1)[1].split(":", 1)[0]
+                if "->" in family
+                else language
             )
             matched = None
             for phrase in phrase_index.get(phrase_language, ()):
@@ -293,17 +302,25 @@ def check_targets(report: dict) -> list[str]:
     for label, (low, high) in CLASS_TARGETS.items():
         share = report["labels"].get(label, 0) / total
         if not low <= share <= high:
-            problems.append(f"class {label} at {share:.1%}, target {low:.0%}-{high:.0%}")
+            problems.append(
+                f"class {label} at {share:.1%}, target {low:.0%}-{high:.0%}"
+            )
     for language, (low, high) in LANGUAGE_TARGETS.items():
         share = report["languages"].get(language, 0) / total
         if not low <= share <= high:
-            problems.append(f"language {language} at {share:.1%}, target {low:.0%}-{high:.0%}")
+            problems.append(
+                f"language {language} at {share:.1%}, target {low:.0%}-{high:.0%}"
+            )
     for domain in DOMAINS:
         count = report["domains"].get(domain, 0)
         if count < MIN_EXAMPLES_PER_DOMAIN:
-            problems.append(f"domain {domain} has {count}, minimum {MIN_EXAMPLES_PER_DOMAIN}")
+            problems.append(
+                f"domain {domain} has {count}, minimum {MIN_EXAMPLES_PER_DOMAIN}"
+            )
     if report["exact_duplicate_rate"] > MAX_DUPLICATE_RATE:
-        problems.append(f"exact duplicate rate {report['exact_duplicate_rate']:.2%} exceeds 2%")
+        problems.append(
+            f"exact duplicate rate {report['exact_duplicate_rate']:.2%} exceeds 2%"
+        )
     if report["normalised_duplicate_rate"] > MAX_DUPLICATE_RATE:
         problems.append(
             f"normalised duplicate rate {report['normalised_duplicate_rate']:.2%} exceeds 2%"
@@ -314,7 +331,13 @@ def check_targets(report: dict) -> list[str]:
         problems.append("file is not valid UTF-8")
     if report["encoding"]["has_bom"]:
         problems.append("file starts with a UTF-8 BOM")
-    for kind in ("mojibake", "control_characters", "empty", "invalid_label", "invalid_language"):
+    for kind in (
+        "mojibake",
+        "control_characters",
+        "empty",
+        "invalid_label",
+        "invalid_language",
+    ):
         if report["problem_counts"].get(kind):
             problems.append(f"{report['problem_counts'][kind]} rows with {kind}")
     return problems
@@ -322,8 +345,12 @@ def check_targets(report: dict) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=Path("dataset/raw/symptoms_large.csv"))
-    parser.add_argument("--report", type=Path, default=None, help="Where to write the JSON report.")
+    parser.add_argument(
+        "--input", type=Path, default=Path("dataset/raw/symptoms_large.csv")
+    )
+    parser.add_argument(
+        "--report", type=Path, default=None, help="Where to write the JSON report."
+    )
     parser.add_argument("--top-families", type=int, default=10)
     args = parser.parse_args()
 
@@ -335,8 +362,10 @@ def main() -> int:
     print(f"Dataset            : {report['input']}")
     print(f"Total examples     : {total:,}")
     print(f"Template families  : {report['family_count']}")
-    print(f"Distinct phrases   : {report['distinct_seed_phrases']} "
-          f"({len(report['overlapping_phrases'])} contained inside another phrase)")
+    print(
+        f"Distinct phrases   : {report['distinct_seed_phrases']} "
+        f"({len(report['overlapping_phrases'])} contained inside another phrase)"
+    )
     print(
         f"Length             : min {report['min_length']} / p05 {report['length_p05']} / "
         f"p50 {report['length_p50']} / p95 {report['length_p95']} / max {report['max_length']} "
@@ -354,7 +383,9 @@ def main() -> int:
         print(f"  {domain:<22} {count:>9,}  {count / total:6.2%}")
 
     print("\nDuplication:")
-    print(f"  exact            {report['exact_duplicates']:>9,}  {report['exact_duplicate_rate']:.4%}")
+    print(
+        f"  exact            {report['exact_duplicates']:>9,}  {report['exact_duplicate_rate']:.4%}"
+    )
     print(
         f"  normalised       {report['normalised_duplicates']:>9,}  "
         f"{report['normalised_duplicate_rate']:.4%}   (casefold + accent-fold + punctuation strip)"
@@ -373,7 +404,9 @@ def main() -> int:
 
     print("\nMalformed / truncated:")
     if report["problem_counts"]:
-        for kind, count in sorted(report["problem_counts"].items(), key=lambda kv: -kv[1]):
+        for kind, count in sorted(
+            report["problem_counts"].items(), key=lambda kv: -kv[1]
+        ):
             print(f"  {kind:<26} {count:>9,}")
             for sample in report["problem_samples"][kind][:2]:
                 print(f"      line {sample['line']}: {sample['text']}")
@@ -381,7 +414,9 @@ def main() -> int:
         print("  none")
 
     print(f"\nFamily sizes (largest {args.top_families}):")
-    for family, count in sorted(report["families"].items(), key=lambda kv: -kv[1])[: args.top_families]:
+    for family, count in sorted(report["families"].items(), key=lambda kv: -kv[1])[
+        : args.top_families
+    ]:
         print(f"  {family:<48} {count:>8,}")
     smallest = sorted(report["families"].items(), key=lambda kv: kv[1])[:3]
     print("Family sizes (smallest 3):")

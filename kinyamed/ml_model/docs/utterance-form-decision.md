@@ -58,9 +58,9 @@ under the old model it never really had them.
 Each phrase declares its own form rather than the corpus taking a global policy:
 
 ```python
-Phrase("ndakorora cyane",                    form="utterance", person="first")
-Phrase("umwana wanjye arakorora cyane",      form="utterance", person="third")
-Phrase("umuriro mwinshi wa dogere 39",       form="noun_phrase")
+Phrase("ndakorora cyane", form="utterance", person="first")
+Phrase("umwana wanjye arakorora cyane", form="utterance", person="third")
+Phrase("umuriro mwinshi wa dogere 39", form="noun_phrase")
 ```
 
 - The generator picks frames per phrase: utterances get opener + onset + context +

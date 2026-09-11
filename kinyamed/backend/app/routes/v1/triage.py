@@ -7,9 +7,13 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, assert_may_act_for_patient
-from app.schemas.triage import TriageResponse, TriageRequest
-from app.services import (patient_service, queue_service, response_templates,
-                          triage_service)
+from app.schemas.triage import TriageRequest, TriageResponse
+from app.services import (
+    patient_service,
+    queue_service,
+    response_templates,
+    triage_service,
+)
 from app.services.sms_service import send_sms_in_background
 
 router = APIRouter(prefix="/triage", tags=["Triage"])
@@ -61,6 +65,7 @@ def submit_triage(
         response_pending=template.pending,
         response_pending_reason=template.reason or None,
         language_detected=outcome.report.language_detected,
+        queue_id=outcome.queue_entry.id,
         queue_number=outcome.queue_entry.queue_number,
         queue_position=outcome.queue_position,
         estimated_wait=outcome.queue_entry.estimated_wait,
@@ -80,6 +85,12 @@ def get_triage(
     patient = result.symptom_report.patient
     assert_may_act_for_patient(user, patient.id)
     entry = result.queue_entry
+    # Resolve the template here too. Without this the read path always reports
+    # response_pending=True from the schema default, so a triage that HAD an
+    # authored response would look unauthored when fetched back.
+    template = response_templates.resolve(
+        result.symptom_report.language_detected or "", result.urgency_level.value
+    )
     return TriageResponse(
         triage_id=result.id,
         patient_id=patient.id,
@@ -88,7 +99,11 @@ def get_triage(
         possible_conditions=result.possible_conditions,
         confidence_score=result.confidence_score,
         ai_response_rw=result.ai_response_rw,
+        patient_response=template.text or None,
+        response_pending=template.pending,
+        response_pending_reason=template.reason or None,
         language_detected=result.symptom_report.language_detected,
+        queue_id=entry.id if entry else 0,
         queue_number=entry.queue_number if entry else 0,
         queue_position=queue_service.position_of(db, entry) if entry else 0,
         estimated_wait=entry.estimated_wait if entry else None,

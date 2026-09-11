@@ -17,7 +17,9 @@ if TYPE_CHECKING:
 class Patient(TimestampedModel):
     __tablename__ = "patients"
     __table_args__ = (
-        CheckConstraint("age IS NULL OR (age >= 0 AND age <= 130)", name="ck_patients_age_range"),
+        CheckConstraint(
+            "age IS NULL OR (age >= 0 AND age <= 130)", name="ck_patients_age_range"
+        ),
         CheckConstraint("length(btrim(name)) > 0", name="ck_patients_name_not_blank"),
         CheckConstraint("length(btrim(phone)) > 0", name="ck_patients_phone_not_blank"),
     )
@@ -31,12 +33,12 @@ class Patient(TimestampedModel):
     gender: Mapped[str | None] = mapped_column(String(10))
     location: Mapped[str | None] = mapped_column(String(100), index=True)
 
-    symptom_reports: Mapped[list["SymptomReport"]] = relationship(
+    symptom_reports: Mapped[list[SymptomReport]] = relationship(
         back_populates="patient",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    sms_logs: Mapped[list["SMSLog"]] = relationship(
+    sms_logs: Mapped[list[SMSLog]] = relationship(
         back_populates="patient",
         cascade="all, delete-orphan",
         passive_deletes=True,

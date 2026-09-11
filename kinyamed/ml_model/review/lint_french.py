@@ -30,8 +30,8 @@ ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
-import lint_phrases  # noqa: E402
-from build_french_brief import OUT, v1_vocabulary  # noqa: E402
+import lint_phrases
+from build_french_brief import OUT, v1_vocabulary
 
 FRENCH = "french"
 
@@ -58,7 +58,8 @@ def main() -> int:
         if not (row.get("form") or "").strip():
             problems.append(
                 "no form declared; the build defaults to noun_phrase and will "
-                "prefix a subject. Declare 'utterance' or 'noun_phrase'.")
+                "prefix a subject. Declare 'utterance' or 'noun_phrase'."
+            )
         if phrase.lower() in seen:
             problems.append(f"duplicate of {seen[phrase.lower()]}")
         seen.setdefault(phrase.lower(), key)
@@ -71,8 +72,10 @@ def main() -> int:
             for w in warns:
                 print(f"      warning {w}")
 
-    print(f"\n{checked} French candidates checked; {errors} with errors, "
-          f"{warnings} with warnings only.")
+    print(
+        f"\n{checked} French candidates checked; {errors} with errors, "
+        f"{warnings} with warnings only."
+    )
     print("Not checked here, and not checkable here: whether a francophone Rwandan")
     print("patient would say it. That is review/rwandan-french-questions.md.")
     return 1 if errors else 0

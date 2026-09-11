@@ -19,8 +19,12 @@ class SMSLogRepository(BaseRepository[SMSLog]):
             select(
                 func.count().filter(SMSLog.status == SMSStatus.SENT).label("sent"),
                 func.count().filter(SMSLog.status == SMSStatus.FAILED).label("failed"),
-                func.count().filter(SMSLog.status == SMSStatus.PENDING).label("pending"),
-                func.count().filter(SMSLog.status == SMSStatus.SKIPPED).label("skipped"),
+                func.count()
+                .filter(SMSLog.status == SMSStatus.PENDING)
+                .label("pending"),
+                func.count()
+                .filter(SMSLog.status == SMSStatus.SKIPPED)
+                .label("skipped"),
             ).select_from(SMSLog)
         ).one()
         return {
