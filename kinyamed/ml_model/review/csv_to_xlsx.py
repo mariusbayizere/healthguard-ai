@@ -37,15 +37,48 @@ RELATIONS = ROOT / "review" / "speaker_brief_swahili_v2_relations.csv"
 # Columns the author writes in. Tinted so that "where do I type" needs no
 # explanation, and listed here rather than inferred so a new column does not
 # silently join them.
-AUTHOR_COLUMNS = {"your_phrasing", "second_phrasing_optional", "regional_variant",
-                  "your_notes", "your_swahili"}
+AUTHOR_COLUMNS = {
+    "your_phrasing",
+    "second_phrasing_optional",
+    "regional_variant",
+    "your_notes",
+    "your_swahili",
+    # The clinician pack's answer columns. `write_sheet` and `verify` below are
+    # generic, so build_clinician_workbook.py reuses them rather than carrying a
+    # second copy of the styling and the read-back check.
+    "your_ruling",
+    "your_word",
+    "your_answer",
+}
 
 WIDTHS = {
-    "concept_id": 11, "domain": 19, "proposed_urgency": 11, "english_gloss": 34,
-    "person": 8, "person_note": 32, "applies": 8, "action": 24,
-    "relation_set": 22, "relation_set_members": 28, "keep_distinct_from": 32,
-    "hold": 7, "needs_clinician": 13, "brief_notes": 68,
-    "english": 20, "used_by": 30, "note": 60,
+    "concept_id": 11,
+    "domain": 19,
+    "proposed_urgency": 11,
+    "english_gloss": 34,
+    "person": 8,
+    "person_note": 32,
+    "applies": 8,
+    "action": 24,
+    "relation_set": 22,
+    "relation_set_members": 28,
+    "keep_distinct_from": 32,
+    "hold": 7,
+    "needs_clinician": 13,
+    "brief_notes": 68,
+    "english": 20,
+    "used_by": 30,
+    "note": 60,
+    # Clinician pack columns.
+    "urgency": 11,
+    "the_question": 90,
+    "the_word_that_is_missing": 70,
+    "your_ruling": 26,
+    "your_word": 26,
+    "your_answer": 30,
+    "item": 14,
+    "kind": 26,
+    "detail": 90,
 }
 DEFAULT_WIDTH = 30
 
@@ -63,7 +96,9 @@ def write_sheet(ws, path: Path, freeze: str) -> None:
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = HEADER_FILL
         cell.alignment = Alignment(vertical="center", wrap_text=True)
-        ws.column_dimensions[get_column_letter(i)].width = WIDTHS.get(name, DEFAULT_WIDTH)
+        ws.column_dimensions[get_column_letter(i)].width = WIDTHS.get(
+            name, DEFAULT_WIDTH
+        )
     ws.row_dimensions[1].height = 30
 
     for r, row in enumerate(rows, start=2):
@@ -94,44 +129,79 @@ def start_here(ws) -> None:
     lines = [
         ("Writing the Swahili phrases", True),
         ("", False),
-        ("Two tabs: 'brief' is the 128 concepts, 'relations' is the 12 relation "
-         "words that every third-person phrase needs.", False),
-        ("The full instructions are in swahili-authoring-brief.md, sent with this "
-         "file.", False),
+        (
+            "Two tabs: 'brief' is the 128 concepts, 'relations' is the 12 relation "
+            "words that every third-person phrase needs.",
+            False,
+        ),
+        (
+            "The full instructions are in swahili-authoring-brief.md, sent with this "
+            "file.",
+            False,
+        ),
         ("", False),
         ("WHERE TO TYPE", True),
-        ("The cream-coloured columns are yours. Everything else is ours - please "
-         "leave it as it is.", False),
-        ("Grey rows are ones you are asked to SKIP; the reason is in brief_notes.", False),
+        (
+            "The cream-coloured columns are yours. Everything else is ours - please "
+            "leave it as it is.",
+            False,
+        ),
+        (
+            "Grey rows are ones you are asked to SKIP; the reason is in brief_notes.",
+            False,
+        ),
         ("", False),
         ("WHAT WE ARE ASKING FOR", True),
-        ("For each row marked WRITE, put in your_phrasing the sentence a patient "
-         "would actually say in Kiswahili for the meaning in english_gloss.", False),
-        ("This is not a translation task. The gloss is a clinical description, "
-         "deliberately not written as a sentence, so there is nothing to "
-         "translate and nothing to edit.", False),
-        ("There is no Swahili anywhere in this workbook, on purpose. A draft to "
-         "correct pulls corrections towards the draft, and its mistakes survive. "
-         "You are the first person to write these.", False),
+        (
+            "For each row marked WRITE, put in your_phrasing the sentence a patient "
+            "would actually say in Kiswahili for the meaning in english_gloss.",
+            False,
+        ),
+        (
+            "This is not a translation task. The gloss is a clinical description, "
+            "deliberately not written as a sentence, so there is nothing to "
+            "translate and nothing to edit.",
+            False,
+        ),
+        (
+            "There is no Swahili anywhere in this workbook, on purpose. A draft to "
+            "correct pulls corrections towards the draft, and its mistakes survive. "
+            "You are the first person to write these.",
+            False,
+        ),
         ("", False),
         ("THE FIVE RULES", True),
-        ("1. Write a complete sentence in the patient's voice. Capital letter, "
-         "full stop.", False),
-        ("2. No time reference inside it - the generator adds one ('since "
-         "yesterday'). Unless the duration IS the concept, as in a cough lasting "
-         "more than two weeks.", False),
-        ("3. Do not end with an added clause - the generator adds one of those too.",
-         False),
-        ("4. Third-person rows: write {REL} where the relation word goes, those "
-         "five characters exactly. Make it the grammatical subject, and check the "
-         "sentence works for every relation in relation_set_members.", False),
+        (
+            "1. Write a complete sentence in the patient's voice. Capital letter, "
+            "full stop.",
+            False,
+        ),
+        (
+            "2. No time reference inside it - the generator adds one ('since "
+            "yesterday'). Unless the duration IS the concept, as in a cough lasting "
+            "more than two weeks.",
+            False,
+        ),
+        (
+            "3. Do not end with an added clause - the generator adds one of those too.",
+            False,
+        ),
+        (
+            "4. Third-person rows: write {REL} where the relation word goes, those "
+            "five characters exactly. Make it the grammatical subject, and check the "
+            "sentence works for every relation in relation_set_members.",
+            False,
+        ),
         ("5. Never mix first and third person inside one sentence.", False),
         ("", False),
         ("THREE QUESTIONS", True),
-        ("CR05 (wheeze), GI03 and GI05 (a word for stool), PA08 (a child's ear "
-         "discharging) are stuck in both other languages. The full question is in "
-         "brief_notes on those rows. 'There is no ordinary word for this' is a "
-         "real answer and a useful one.", False),
+        (
+            "CR05 (wheeze), GI03 and GI05 (a word for stool), PA08 (a child's ear "
+            "discharging) are stuck in both other languages. The full question is in "
+            "brief_notes on those rows. 'There is no ordinary word for this' is a "
+            "real answer and a useful one.",
+            False,
+        ),
     ]
     ws.column_dimensions["A"].width = 110
     for r, (text, bold) in enumerate(lines, start=1):
@@ -153,7 +223,9 @@ def verify(path: Path, sheets: list[tuple[str, Path]]) -> None:
         columns = list(rows[0])
         ws = book[sheet_name]
         if ws.max_row != len(rows) + 1:
-            raise SystemExit(f"{sheet_name}: {ws.max_row - 1} rows, CSV has {len(rows)}")
+            raise SystemExit(
+                f"{sheet_name}: {ws.max_row - 1} rows, CSV has {len(rows)}"
+            )
         for r, row in enumerate(rows, start=2):
             for c, name in enumerate(columns, start=1):
                 got = ws.cell(row=r, column=c).value
@@ -161,23 +233,29 @@ def verify(path: Path, sheets: list[tuple[str, Path]]) -> None:
                 if got != row[name]:
                     raise SystemExit(
                         f"{sheet_name} row {r} {name}: workbook has {got!r}, "
-                        f"CSV has {row[name]!r}")
+                        f"CSV has {row[name]!r}"
+                    )
     print(f"  verified {path.name}: every cell matches its CSV")
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--out", type=Path, default=Path.home() / "kinyamed-briefs")
-    ap.add_argument("--split", action="store_true",
-                    help="Two workbooks instead of one with both tabs.")
+    ap.add_argument(
+        "--split",
+        action="store_true",
+        help="Two workbooks instead of one with both tabs.",
+    )
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
     if args.split:
-        for stem, source, freeze in [("speaker_brief_swahili_v2", BRIEF, "B2"),
-                                     ("speaker_brief_swahili_v2_relations",
-                                      RELATIONS, "A2")]:
+        for stem, source, freeze in [
+            ("speaker_brief_swahili_v2", BRIEF, "B2"),
+            ("speaker_brief_swahili_v2_relations", RELATIONS, "A2"),
+        ]:
             book = Workbook()
             write_sheet(book.active, source, freeze)
             book.active.title = "brief" if source is BRIEF else "relations"

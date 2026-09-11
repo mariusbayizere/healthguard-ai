@@ -128,7 +128,23 @@ from v1, and **six new de-escalating fragments awaiting the speaker's Kinyarwand
 | OB12 | third | breastfeeding advice. Restricted to the four obstetric relations, but **`Mama` is flagged, not decided** — it implies the speaker's own mother recently delivered. |
 | PR02 | both | family planning. Unresolved pending Rwandan service-design confirmation on whether men present. **Out of generation entirely** — and now marked as such in the brief, not only here (see below). |
 
-### needs_clinician — 20 rows, in three kinds
+### needs_clinician — 29 rows, in three kinds
+
+**The heading said 20 until 2026-09-11 and the brief said 25.** Both were wrong
+and in different ways: 20 is the number of CONCEPTS, not rows, and it was typed
+here rather than counted. The three kinds below are also incomplete — they
+enumerate first-person rows and omit the third persons that move with them.
+Re-derive before quoting any of it; the command is at the end of this section.
+
+On 2026-09-11 four third-person rows — `IF01`, `IF03`, `IF04`, `IF06` third —
+gained the flag. They had been filed under `hold` alone while their first
+persons were flagged, so every clinician pack built from this column had shown
+one person of those concepts and dropped the other. `hold` stays `yes` on all
+four: nothing generates there until the first person is ruled.
+
+The pack itself is no longer hand-typed. `review/build_clinician_pack.py`
+emits `docs/protocols/d2-clinician-review-pack.md` with every count read off
+the brief, and `--check` fails if the two have drifted.
 
 Split by whether the row is authored, which is what decides if it can generate.
 An earlier version of this list put `CR04` in both groups and labelled the second
@@ -168,7 +184,11 @@ empty too, so there is nothing to hold:
   report. Clinical questions, so rule 11 raised them and stopped.
 
 5 authored + 6 drafted-and-held + 5 undrafted = 16, `NE06` counted in the last
-group. Re-derive rather than trusting the split:
+group — which is 13 short of the 29 the brief now carries, because the groups
+above name concepts where some carry both persons and because the four
+2026-09-11 reclassifications are not in them. The split is kept as written
+because it is still the right way to think about the rows; it is not a census.
+Re-derive rather than trusting it:
 
 ```
 python -c "import csv; r=[x for x in csv.DictReader(open('review/speaker_brief_kinyarwanda_v2.csv')) if x['needs_clinician'].strip()]; print(len(r), sum(1 for x in r if x['your_phrasing'].strip()))"
