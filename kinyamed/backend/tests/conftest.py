@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterator
+from typing import ClassVar
 
 import psycopg2
 import pytest
@@ -105,6 +106,52 @@ def db() -> Iterator[Session]:  # noqa: F821 - imported lazily below
             connection.execute(text("ALTER SEQUENCE queue_number_seq RESTART WITH 1"))
 
 
+class ScriptedClassifier:
+    """TEST DOUBLE. Returns a fixed urgency for each exact phrase in its script.
+
+    The service has no classifier except the trained model, and the test
+    process has no model, so without this every triage would be a 503. Queue,
+    analytics and authorisation tests need triages to exist; this lets them
+    create some.
+
+    The labels are FIXTURE ASSUMPTIONS chosen to exercise ordering, not clinical
+    judgements, and nothing under app/ can reach this class. A phrase missing
+    from the script is recorded and fails the test at teardown, so no test can
+    silently rely on a default label. The absent-model path is exercised
+    without this double, in tests/integration/test_fail_closed.py.
+    """
+
+    SCRIPT: ClassVar[dict[str, str]] = {
+        "mfite ububabare bw'igituza": "CRITICAL",
+        "kuva amaraso menshi": "CRITICAL",
+        "mu gituza harandya cyane kandi sinshobora guhumeka neza": "CRITICAL",
+        "mfite umuriro": "URGENT",
+        "mfite umuriro mwinshi": "URGENT",
+        "mfite umuriro mwinshi kandi ndakorora": "URGENT",
+        "ndumva nkeneye kubonana na muganga": "ROUTINE",
+        "ndashaka ko bapima amaraso": "ROUTINE",
+        "umutwe urandya cyane": "ROUTINE",
+    }
+
+    def __init__(self) -> None:
+        self.unscripted: list[str] = []
+
+    def classify(self, text: str):
+        from app.models.triage_result import UrgencyLevel
+        from app.services.triage_service import Classification
+
+        label = self.SCRIPT.get(text)
+        if label is None:
+            self.unscripted.append(text)
+            label = "ROUTINE"
+        return Classification(
+            urgency=UrgencyLevel(label),
+            possible_conditions="",
+            confidence=0.9,
+            advice_rw="",
+        )
+
+
 @pytest.fixture
 def make_client(db):
     """Build independent TestClients that share the test's database session.
@@ -112,12 +159,17 @@ def make_client(db):
     Each call returns a *separate* client. Role fixtures must not share one
     instance: they set an Authorization header on it, so a shared client would
     silently run every request as whichever role was resolved last.
+
+    Triage is served by `ScriptedClassifier` (see its docstring).
     """
     import main
     from app.core.database import get_db
+    from app.routes.v1.triage import get_triage_classifier
     from fastapi.testclient import TestClient
 
+    scripted = ScriptedClassifier()
     main.app.dependency_overrides[get_db] = lambda: db
+    main.app.dependency_overrides[get_triage_classifier] = lambda: scripted
     created: list[TestClient] = []
 
     def _build() -> TestClient:
@@ -132,6 +184,9 @@ def make_client(db):
         for test_client in created:
             test_client.__exit__(None, None, None)
         main.app.dependency_overrides.clear()
+    assert not scripted.unscripted, (
+        f"phrases missing from ScriptedClassifier.SCRIPT: {scripted.unscripted}"
+    )
 
 
 @pytest.fixture

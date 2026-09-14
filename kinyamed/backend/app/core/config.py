@@ -102,10 +102,14 @@ class Settings(BaseSettings):
 
     # C1. Path to a fine-tuned classifier directory. UNSET BY DEFAULT: torch and
     # transformers are deliberately absent from the API image (see
-    # requirements.txt), so the service runs the keyword baseline unless a
-    # deployment opts in by setting this and installing the ML extras.
+    # requirements.txt). Without a loaded model the triage endpoint FAILS
+    # CLOSED: it answers 503 and classifies nothing. There is no fallback.
     TRIAGE_MODEL_PATH: str = ""
     TRIAGE_MODEL_THREADS: int | None = None
+    # Retry-After on that 503. The model is loaded only at start-up, so a retry
+    # succeeds only after a restart; the header paces clients, the response
+    # body tells staff to triage manually meanwhile.
+    TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS: int = Field(default=60, ge=1, le=3600)
 
     # --- Triage / queue tuning -------------------------------------------
     # Average minutes a clinician spends per patient; drives wait estimates.

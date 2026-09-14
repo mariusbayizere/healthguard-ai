@@ -1,14 +1,9 @@
-"""Language detection and symptom classification."""
+"""Language detection."""
 
 from __future__ import annotations
 
 import pytest
-from app.models.triage_result import UrgencyLevel
-from app.services.triage_service import (
-    LANGUAGE_MARKERS,
-    detect_language,
-    get_classifier,
-)
+from app.services.triage_service import LANGUAGE_MARKERS, detect_language
 
 
 @pytest.mark.parametrize(
@@ -44,30 +39,3 @@ def test_markers_are_unique_to_one_language() -> None:
                 f"{term!r} in both {seen.get(term)!r} and {language!r}"
             )
             seen[term] = language
-
-
-@pytest.mark.parametrize(
-    ("text", "expected"),
-    [
-        ("mfite ububabare bw'igituza", UrgencyLevel.CRITICAL),
-        ("kuva amaraso menshi", UrgencyLevel.CRITICAL),
-        ("chest pain since this morning", UrgencyLevel.CRITICAL),
-        ("mfite umuriro mwinshi", UrgencyLevel.URGENT),
-        ("severe vomiting", UrgencyLevel.URGENT),
-        ("douleur thoracique depuis ce matin", UrgencyLevel.CRITICAL),
-        ("siwezi kupumua", UrgencyLevel.CRITICAL),
-        ("j'ai de la fievre", UrgencyLevel.URGENT),
-        ("nina homa sana", UrgencyLevel.URGENT),
-        ("ndumva nkeneye kubonana na muganga", UrgencyLevel.ROUTINE),
-    ],
-)
-def test_classification(text: str, expected: UrgencyLevel) -> None:
-    assert get_classifier().classify(text).urgency is expected
-
-
-def test_substring_matches_do_not_trigger_urgency() -> None:
-    """'painting' must not be read as 'pain'."""
-    assert (
-        get_classifier().classify("I am painting my house").urgency
-        is UrgencyLevel.ROUTINE
-    )

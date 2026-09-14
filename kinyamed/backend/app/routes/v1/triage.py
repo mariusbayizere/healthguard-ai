@@ -15,8 +15,18 @@ from app.services import (
     triage_service,
 )
 from app.services.sms_service import send_sms_in_background
+from app.services.triage_service import SymptomClassifier
 
 router = APIRouter(prefix="/triage", tags=["Triage"])
+
+
+def get_triage_classifier() -> SymptomClassifier | None:
+    """The loaded model, or None. `run_triage` fails closed on None.
+
+    A dependency so tests of queue mechanics can supply a scripted classifier;
+    the absent-model path is tested through this real implementation.
+    """
+    return triage_service.get_classifier()
 
 
 @router.post("", response_model=TriageResponse, status_code=status.HTTP_201_CREATED)
@@ -25,8 +35,13 @@ def submit_triage(
     background_tasks: BackgroundTasks,
     user: CurrentUser,
     db: Session = Depends(get_db),
+    classifier: SymptomClassifier | None = Depends(get_triage_classifier),
 ) -> TriageResponse:
     """Triage a symptom report and place the patient in the queue.
+
+    Returns 503 with Retry-After, and writes nothing, when the trained model
+    cannot classify. Authorisation and the patient lookup run first, so a
+    caller who may not submit learns nothing about model state.
 
     Staff may submit on behalf of any patient; a patient may submit only for
     themselves.
@@ -38,7 +53,7 @@ def submit_triage(
     assert_may_act_for_patient(user, data.patient_id)
     patient = patient_service.get_patient(db, data.patient_id)
     outcome = triage_service.run_triage(
-        db, patient=patient, symptoms_input=data.symptoms_input
+        db, patient=patient, symptoms_input=data.symptoms_input, classifier=classifier
     )
 
     # C1. Resolve the patient-facing sentence from the SPEAKER-AUTHORED

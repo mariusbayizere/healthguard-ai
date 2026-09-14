@@ -1,27 +1,28 @@
 """C1 — the fine-tuned classifier behind the `SymptomClassifier` seam.
 
-`triage_service.py` already declared this seam: the keyword baseline implements
-`SymptomClassifier`, and the fine-tuned model replaces it by implementing the
-same protocol and being returned from `get_classifier()`. This module is that
-implementation. The protocol is unchanged and no caller changes.
+This is the ONLY implementation of `SymptomClassifier` in the service. There
+is no fallback. `build_classifier()` returns a loaded model or `None`, and the
+triage endpoint turns `None` into a 503 that tells staff to triage manually.
+
+WHY THERE IS NO FALLBACK
+------------------------
+A keyword matcher used to be served whenever no model was configured. Measured
+on the frozen Kinyarwanda holdout it caught 5.7% of CRITICAL cases and sent
+94.3% of them to ROUTINE, with a confident "you can wait" message
+(reports/MODEL_AUDIT.md §6.2). A classifier that is wrong in the dangerous
+direction is worse than no classifier, because nobody triages a patient the
+system has already triaged. Absent model => no classification, everywhere.
 
 TORCH IS AN OPTIONAL DEPENDENCY, ON PURPOSE
 -------------------------------------------
-`backend/requirements.txt` says the ML dependencies "belong to
-kinyamed/ml_model and are intentionally not installed into the API image".
-That decision is respected rather than reversed: torch and transformers are
-imported lazily, and an API image without them keeps running on the keyword
-baseline. Adding ~2 GB to every API container to serve a 449 MB model is a
-deployment choice for the maintainer, not something to smuggle in via an import.
+`backend/requirements.txt` keeps torch and transformers out of the API image.
+They are imported lazily. Without them the service still starts and serves
+everything except triage, which fails closed.
 
-So this module has three outcomes and says which one it took, loudly:
+`build_classifier()` has two outcomes and says which one it took, loudly:
 
-  1. TRIAGE_MODEL_PATH unset            -> baseline, logged as a deliberate default
-  2. set but torch/model unavailable    -> baseline, logged as a WARNING with why
-  3. set and loadable                   -> model, logged with the path it loaded
-
-It never fails a request because the model is missing, and it never silently
-serves the baseline while configuration claims otherwise.
+  1. set and loadable                               -> the model
+  2. unset, missing, deps absent, or load failure   -> None, logged at ERROR
 
 WARM START IS NOT AN OPTIMISATION HERE
 --------------------------------------
@@ -50,7 +51,7 @@ import structlog
 
 from app.core.config import settings
 from app.models.triage_result import UrgencyLevel
-from app.services.triage_service import Classification, KeywordClassifier
+from app.services.triage_service import Classification
 
 logger = structlog.get_logger(__name__)
 
@@ -64,8 +65,8 @@ _URGENCY = {
     "ROUTINE": UrgencyLevel.ROUTINE,
 }
 
-# Reused verbatim from the baseline so a switch of classifier does not silently
-# change the advice text a patient receives.
+# Stored in `triage_results.ai_response_rw`. Machine-drafted, NOT
+# speaker-authored; the patient-facing sentence is `response_templates`.
 _ADVICE = {
     UrgencyLevel.CRITICAL: "Ikibazo cyawe ni CRITICAL. Jya kwa muganga ako kanya.",
     UrgencyLevel.URGENT: "Ikibazo cyawe ni URGENT. Jya kwa muganga vuba bishoboka.",
@@ -142,80 +143,40 @@ class ModelClassifier:
         )
 
 
-class BaselineInProductionError(RuntimeError):
-    """The service was about to serve triage from the keyword baseline."""
-
-
-def _refuse_baseline_in_production(reason: str) -> None:
-    """AUDIT 1.5. In production, the keyword fallback is not an acceptable state.
-
-    The baseline is a hand-written keyword matcher. It has never been evaluated
-    against the frozen holdout -- no macro F1, no CRITICAL recall, nothing --
-    and a deployment that forgets one environment variable would otherwise
-    serve triage decisions from it while logging cheerfully.
-
-    The deployment runbook already says "if the start-up log names the
-    baseline, stop". That was a human step in a checklist. This makes it an
-    assertion, because a checklist step is only performed by someone who reads
-    it.
-
-    Development and test keep the fallback: a laptop without torch must still
-    be able to run the API.
-    """
-    if getattr(settings, "ENVIRONMENT", "development") != "production":
-        return
-    raise BaselineInProductionError(
-        f"Refusing to start in production on the keyword baseline: {reason}. "
-        "The baseline has never been evaluated against the holdout and must "
-        "not serve triage. Set TRIAGE_MODEL_PATH to a validated model and "
-        "install the ML extras, or run with ENVIRONMENT != production."
+def _unavailable(reason: str, **context: object) -> tuple[None, str]:
+    """Log why triage will fail closed, and return the no-model outcome."""
+    logger.error(
+        "triage_model_unavailable",
+        reason=reason,
+        action="triage endpoint will return 503; triage patients manually",
+        **context,
     )
+    return None, reason
 
 
-def build_classifier() -> tuple[object, str]:
-    """Return (classifier, a one-line description of what was selected and why)."""
-    raw = getattr(settings, "TRIAGE_MODEL_PATH", "") or ""
+def build_classifier() -> tuple[ModelClassifier | None, str]:
+    """Return (the loaded model or None, one line saying what happened and why)."""
+    raw = settings.TRIAGE_MODEL_PATH
     if not raw:
-        _refuse_baseline_in_production("TRIAGE_MODEL_PATH is unset")
-        return KeywordClassifier(), (
-            "keyword baseline (TRIAGE_MODEL_PATH unset — this is the default, "
-            "not a failure)"
-        )
+        return _unavailable("TRIAGE_MODEL_PATH is unset")
 
     path = Path(raw).expanduser()
     if not path.exists():
-        logger.warning(
-            "triage_model_missing",
-            path=str(path),
-            action="falling back to the keyword baseline",
-        )
-        _refuse_baseline_in_production(f"no model at {path}")
-        return KeywordClassifier(), f"keyword baseline (no model at {path})"
+        return _unavailable(f"no model at {path}")
 
     try:
         classifier = ModelClassifier(
             path,
-            max_length=getattr(settings, "MODEL_MAX_LENGTH", 96),
-            threads=getattr(settings, "TRIAGE_MODEL_THREADS", None),
+            max_length=settings.MODEL_MAX_LENGTH,
+            threads=settings.TRIAGE_MODEL_THREADS,
         )
     except ImportError as error:
-        logger.warning(
-            "triage_model_deps_missing",
-            error=str(error),
-            action="falling back to the keyword baseline",
+        return _unavailable(
+            f"torch/transformers unavailable ({error})",
             hint="torch/transformers are deliberately not in the API image",
         )
-        _refuse_baseline_in_production(f"torch unavailable ({error})")
-        return KeywordClassifier(), f"keyword baseline (torch unavailable: {error})"
-    except Exception as error:  # noqa: BLE001 — a bad artefact must not take the service down
-        logger.error(
-            "triage_model_load_failed",
-            path=str(path),
-            error=str(error),
-            action="falling back to the keyword baseline",
-        )
-        _refuse_baseline_in_production(f"the model failed to load ({error})")
-        return KeywordClassifier(), f"keyword baseline (model failed to load: {error})"
+    except Exception as error:  # noqa: BLE001 — any load failure means no model, never a crash
+        return _unavailable(f"the model at {path} failed to load ({error})")
 
     warm_ms = classifier.warm_up()
     logger.info("triage_model_loaded", path=str(path), warm_up_ms=round(warm_ms, 1))

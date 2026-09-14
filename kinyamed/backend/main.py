@@ -38,18 +38,24 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         environment=settings.ENVIRONMENT,
     )
 
-    # C1. Select and WARM the classifier before the service reports ready.
-    # Measured on the reference hardware, the first inference in a process costs
-    # 1341 ms against a warm median of 66 ms. Loading lazily would charge that
-    # to the first patient through the door, so it is paid at start-up instead.
-    # A failure here must not stop the service: build_classifier() falls back to
-    # the keyword baseline and says so.
+    # C1. Load and WARM the model before the service reports ready. Measured on
+    # the reference hardware, the first inference in a process costs 1341 ms
+    # against a warm median of 66 ms, so it is paid at start-up, not by a patient.
+    # A missing model does not stop the service: the queue and records stay
+    # usable, and triage FAILS CLOSED with 503 until a model is loaded.
     from app.services import triage_service
 
-    triage_service.get_classifier()
-    logger.info(
-        "classifier_selected", classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION
-    )
+    if triage_service.get_classifier() is None:
+        logger.error(
+            "triage_disabled",
+            reason=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
+            effect="POST /triage returns 503; triage patients manually",
+        )
+    else:
+        logger.info(
+            "classifier_selected",
+            classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
+        )
     try:
         yield
     finally:

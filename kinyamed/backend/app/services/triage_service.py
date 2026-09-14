@@ -1,9 +1,10 @@
 """Symptom triage.
 
-The classifier sits behind a small interface: the current implementation is a
-multilingual keyword baseline, and the fine-tuned AfroXLMR model replaces it by
-implementing `SymptomClassifier` and being returned from `get_classifier()` —
-with no changes to any caller.
+The classifier sits behind a small interface, `SymptomClassifier`, and its only
+implementation is the fine-tuned model (`model_classifier.ModelClassifier`).
+`get_classifier()` returns that model or `None`; `run_triage()` refuses to
+classify, and writes nothing, when it gets `None` or when the model raises.
+There is no fallback classifier: when the model cannot answer, a person must.
 
 All queries are delegated to the repository layer; this module holds the rules
 and the transaction boundary.
@@ -20,7 +21,8 @@ from typing import Protocol
 import structlog
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import TriageResultNotFoundError
+from app.core.config import settings
+from app.core.exceptions import TriageModelUnavailableError, TriageResultNotFoundError
 from app.models.patient import Patient
 from app.models.queue import Queue
 from app.models.symptom_report import SymptomReport
@@ -85,99 +87,6 @@ def _term_pattern(terms: tuple[str, ...]) -> re.Pattern[str]:
     alternation = "|".join(re.escape(fold(term)) for term in terms)
     return re.compile(rf"(?<!\w)(?:{alternation})(?!\w)", re.IGNORECASE)
 
-
-# Red-flag terms across all four supported languages. Kinyarwanda comes first
-# because this service exists for Kinyarwanda speakers, and an English-only
-# keyword list silently triaged every Kinyarwanda report as ROUTINE.
-CRITICAL_TERMS: tuple[str, ...] = (
-    # Kinyarwanda
-    "guhumeka nabi",
-    "sinshobora guhumeka",
-    "kuva amaraso",
-    "amaraso menshi",
-    "ububabare bw'igituza",
-    "igituza kirababara",
-    "yataye ubwenge",
-    "yatakaje ubwenge",
-    "kugagara",
-    "umutima urahagarara",
-    # English
-    "chest pain",
-    "can't breathe",
-    "cannot breathe",
-    "breathing",
-    "breathless",
-    "unconscious",
-    "bleeding",
-    "haemorrhage",
-    "hemorrhage",
-    "stroke",
-    "seizure",
-    "convulsion",
-    "collapsed",
-    # French
-    "douleur thoracique",
-    "je ne peux pas respirer",
-    "difficulté à respirer",
-    "saignement",
-    "hémorragie",
-    "inconscient",
-    "convulsions",
-    "avc",
-    # Swahili
-    "maumivu ya kifua",
-    "siwezi kupumua",
-    "kutokwa damu",
-    "damu nyingi",
-    "kupoteza fahamu",
-    "kifafa",
-    "amezimia",
-)
-URGENT_TERMS: tuple[str, ...] = (
-    # Kinyarwanda
-    "umuriro",
-    "umuriro mwinshi",
-    "kuruka",
-    "impiswi",
-    "malariya",
-    "ububabare bukabije",
-    "gucika intege",
-    "kubabara cyane",
-    "indwara y'inzoka",
-    # English
-    "fever",
-    "vomiting",
-    "vomit",
-    "severe",
-    "infection",
-    "malaria",
-    "typhoid",
-    "diarrhoea",
-    "diarrhea",
-    "dehydrated",
-    "high temperature",
-    # French
-    "fièvre",
-    "vomissements",
-    "vomir",
-    "paludisme",
-    "typhoïde",
-    "infection",
-    "diarrhée",
-    "douleur intense",
-    "déshydraté",
-    # Swahili
-    "homa",
-    "kutapika",
-    "malaria",
-    "homa ya matumbo",
-    "kuhara",
-    "maambukizi",
-    "maumivu makali",
-)
-
-_CRITICAL_PATTERN = _term_pattern(CRITICAL_TERMS)
-_URGENT_PATTERN = _term_pattern(URGENT_TERMS)
 
 # Marker words used only to identify the language, never to classify urgency.
 LANGUAGE_MARKERS: dict[str, tuple[str, ...]] = {
@@ -314,53 +223,18 @@ def detect_language(text: str) -> str:
     return "mixed"
 
 
-class KeywordClassifier:
-    """Baseline classifier matching curated red-flag terms in four languages.
-
-    It is deliberately conservative: anything matching a critical term is
-    CRITICAL, because under-triage is the dangerous error in this system.
-    """
-
-    def classify(self, text: str) -> Classification:
-        """Return the triage decision for a symptom description."""
-        folded = fold(text)
-        if _CRITICAL_PATTERN.search(folded):
-            return Classification(
-                urgency=UrgencyLevel.CRITICAL,
-                possible_conditions="Possible cardiac, respiratory or haemorrhagic emergency",
-                confidence=0.91,
-                advice_rw="Ikibazo cyawe ni CRITICAL. Jya kwa muganga NONE NONE!",
-            )
-        if _URGENT_PATTERN.search(folded):
-            return Classification(
-                urgency=UrgencyLevel.URGENT,
-                possible_conditions="Possible malaria, typhoid or other infection",
-                confidence=0.78,
-                advice_rw="Ikibazo cyawe ni URGENT. Genda kwa muganga uyu munsi.",
-            )
-        return Classification(
-            urgency=UrgencyLevel.ROUTINE,
-            possible_conditions="Routine consultation needed",
-            confidence=0.65,
-            advice_rw="Ikibazo cyawe ni ROUTINE. Uzabona muganga vuba.",
-        )
-
-
-# What get_classifier() selected, for the startup log and /health. A service
-# that has silently fallen back to the baseline while its configuration names a
-# model is the failure mode worth surfacing, so the selection is recorded rather
-# than inferred from behaviour.
+# What get_classifier() selected, or why nothing was, for the startup log.
 ACTIVE_CLASSIFIER_DESCRIPTION: str = "not yet selected"
 
 
 @lru_cache(maxsize=1)
-def get_classifier() -> SymptomClassifier:
-    """Return the classifier in use.
+def get_classifier() -> SymptomClassifier | None:
+    """Return the loaded model, or None when there is no model to use.
 
-    Selection lives in `model_classifier.build_classifier()`, which falls back
-    to the keyword baseline whenever a model is configured but unavailable, and
-    logs why. Imported here rather than at module scope to keep this module
-    importable without the optional ML dependencies.
+    Selection lives in `model_classifier.build_classifier()`. `None` is not an
+    error here; it is the fail-closed state, and `run_triage()` turns it into a
+    503. Imported lazily so this module stays importable without the optional
+    ML dependencies.
     """
     global ACTIVE_CLASSIFIER_DESCRIPTION
     from app.services.model_classifier import build_classifier
@@ -370,14 +244,38 @@ def get_classifier() -> SymptomClassifier:
     return classifier
 
 
+def _fail_closed() -> TriageModelUnavailableError:
+    return TriageModelUnavailableError(settings.TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS)
+
+
+def _classify(classifier: SymptomClassifier | None, text: str) -> Classification:
+    """The model's classification, or a 503. Never any other classification."""
+    if classifier is None:
+        raise _fail_closed()
+    try:
+        return classifier.classify(text)
+    except Exception as error:  # any inference failure fails closed, re-raised as 503
+        # The error type only: an exception message may quote the patient's text.
+        logger.error(
+            "triage_inference_failed",
+            error_type=type(error).__name__,
+            action="returning 503; nothing written; triage manually",
+        )
+        raise _fail_closed() from error
+
+
 def run_triage(
     db: Session,
     *,
     patient: Patient,
     symptoms_input: str,
-    classifier: SymptomClassifier | None = None,
+    classifier: SymptomClassifier | None,
 ) -> TriageOutcome:
     """Triage a symptom report and place the patient in the queue.
+
+    FAILS CLOSED. Classification happens before any write. If `classifier` is
+    None or raises, `TriageModelUnavailableError` (503) propagates and nothing
+    is written: no report, no result, no queue entry.
 
     The report, its triage result and the queue entry are written in a single
     transaction, so a failure can never leave a symptom report with no triage or
@@ -387,7 +285,7 @@ def run_triage(
     `outcome.sms_message` after the commit, so a carrier outage cannot roll back
     a completed triage.
     """
-    classifier = classifier or get_classifier()
+    classification = _classify(classifier, symptoms_input)
     language = detect_language(symptoms_input)
     logger.info(
         "triage_started",
@@ -406,7 +304,6 @@ def run_triage(
         symptoms_extracted=symptoms_input,
     )
 
-    classification = classifier.classify(symptoms_input)
     result = triage_repository.create(
         db,
         commit=False,

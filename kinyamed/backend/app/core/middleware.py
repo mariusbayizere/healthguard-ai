@@ -128,5 +128,5 @@ def register_middleware(app: FastAPI) -> None:
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", REQUEST_ID_HEADER],
-        expose_headers=[REQUEST_ID_HEADER, "X-Response-Time-ms"],
+        expose_headers=[REQUEST_ID_HEADER, "X-Response-Time-ms", "Retry-After"],
     )

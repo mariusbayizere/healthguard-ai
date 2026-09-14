@@ -24,6 +24,8 @@ class HealthGuardBaseError(Exception):
 
     # HTTP status used when this error reaches the API boundary.
     status_code: int = status.HTTP_400_BAD_REQUEST
+    # Response headers the error requires, e.g. Retry-After on a 503.
+    headers: dict[str, str] | None = None
 
     def __init__(
         self, message: str, code: str, *, details: dict[str, Any] | None = None
@@ -102,14 +104,29 @@ class TriageResultNotFoundError(NotFoundError):
         self.code = "TRIAGE_NOT_FOUND"
 
 
-class MLModelNotLoadedError(HealthGuardBaseError):
+class TriageModelUnavailableError(HealthGuardBaseError):
+    """The trained model cannot classify this report, so nothing may.
+
+    Raised when no model is loaded and when a loaded model fails during
+    inference. Both are the same state for a patient: there is no automated
+    assessment, nothing has been written, and a person must triage them.
+    """
+
     status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
-    def __init__(self) -> None:
+    def __init__(self, retry_after_seconds: int) -> None:
         super().__init__(
-            "ML model is not loaded. Run the training pipeline first.",
-            code="MODEL_NOT_LOADED",
+            "Automated triage is unavailable. This report was not assessed and "
+            "was not added to the queue. Triage this patient manually now; do "
+            "not wait for the system.",
+            code="TRIAGE_MODEL_UNAVAILABLE",
+            details={
+                "manual_triage_required": True,
+                "report_saved": False,
+                "retry_after_seconds": retry_after_seconds,
+            },
         )
+        self.headers = {"Retry-After": str(retry_after_seconds)}
 
 
 class MLInferenceError(HealthGuardBaseError):
@@ -289,12 +306,17 @@ class RateLimitExceededError(HealthGuardBaseError):
 
 
 def error_response(
-    status_code: int, message: str, code: str, details: dict[str, Any]
+    status_code: int,
+    message: str,
+    code: str,
+    details: dict[str, Any],
+    headers: dict[str, str] | None = None,
 ) -> JSONResponse:
     """Render the single error envelope every client can rely on."""
     return JSONResponse(
         status_code=status_code,
         content={"error": {"code": code, "message": message, "details": details}},
+        headers=headers,
     )
 
 
@@ -312,7 +334,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             path=request.url.path,
             method=request.method,
         )
-        return error_response(exc.status_code, exc.message, exc.code, exc.details)
+        return error_response(
+            exc.status_code, exc.message, exc.code, exc.details, exc.headers
+        )
 
     @app.exception_handler(RequestValidationError)
     async def _handle_request_validation(
