@@ -354,13 +354,16 @@ def register_exception_handlers(app: FastAPI) -> None:
         request: Request, exc: IntegrityError
     ) -> JSONResponse:
         # A constraint violation reaching this point is a race we did not
-        # pre-check. Log the detail but never return it: the driver quotes the
-        # offending row, which may contain patient data.
+        # pre-check. Neither logged nor returned verbatim: the driver's message
+        # quotes the offending row, which holds patient names and phones that
+        # no pattern can reliably mask. The constraint name identifies the bug.
+        diag = getattr(getattr(exc, "orig", None), "diag", None)
         logger.warning(
             "integrity_error",
             path=request.url.path,
             method=request.method,
-            error=str(exc),
+            constraint=getattr(diag, "constraint_name", None),
+            error_type=type(getattr(exc, "orig", exc)).__name__,
         )
         return error_response(
             status.HTTP_409_CONFLICT,
