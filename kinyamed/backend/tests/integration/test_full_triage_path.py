@@ -52,6 +52,7 @@ def test_the_queue_orders_critical_before_routine(client, patient_factory):
     """
     routine = patient_factory(name="Routine First", phone="+250780000002")
     critical = patient_factory(name="Critical Second", phone="+250780000003")
+    flagged = patient_factory(name="Flagged Third", phone="+250780000009")
 
     _triage(client, routine["id"], "ndashaka ko bapima amaraso")
     _triage(
@@ -59,6 +60,9 @@ def test_the_queue_orders_critical_before_routine(client, patient_factory):
         critical["id"],
         "mu gituza harandya cyane kandi sinshobora guhumeka neza",
     )
+    # Scripted as ROUTINE at 0.598, below the review threshold: v2d's measured
+    # output for this phrase. It must not sink to the ROUTINE band.
+    _triage(client, flagged["id"], "sinshobora guhumeka")
 
     rows = client.get("/api/v1/queue").json()
     rows = rows if isinstance(rows, list) else rows.get("items", [])
@@ -73,6 +77,21 @@ def test_the_queue_orders_critical_before_routine(client, patient_factory):
     assert priorities == sorted(priorities), (
         f"queue is not urgency-ordered: {[r['urgency_level'] for r in rows]}"
     )
+
+    # Extended for the NEEDS REVIEW band: CRITICAL first, then the flagged case,
+    # and only then the confident ROUTINE case that arrived before both.
+    from app.models.queue_band import QueueBand
+
+    assert [r["patient_name"] for r in rows] == [
+        "Critical Second",
+        "Flagged Third",
+        "Routine First",
+    ]
+    assert [r["band"] for r in rows] == [
+        QueueBand.CRITICAL.name,
+        QueueBand.NEEDS_REVIEW.name,
+        QueueBand.ROUTINE.name,
+    ]
 
 
 def test_the_patient_message_is_the_receipt_and_nothing_else(client, patient_factory):

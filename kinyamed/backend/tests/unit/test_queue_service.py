@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import pytest
 from app.core.config import settings
+from app.models.queue_band import QueueBand
 from app.models.triage_result import UrgencyLevel
-from app.services.queue_service import _wait_for
+from app.services.queue_service import _wait_for_band as _wait_for
 
-CRITICAL = UrgencyLevel.CRITICAL.priority
-URGENT = UrgencyLevel.URGENT.priority
-ROUTINE = UrgencyLevel.ROUTINE.priority
+CRITICAL = QueueBand.CRITICAL
+URGENT = QueueBand.URGENT
+ROUTINE = QueueBand.ROUTINE
 
 
 def test_critical_never_waits():
@@ -34,11 +35,56 @@ def test_urgent_wait_is_capped():
     assert capped == settings.URGENT_MAX_WAIT_MINUTES
 
 
-@pytest.mark.parametrize("priority", [CRITICAL, URGENT, ROUTINE])
-def test_wait_is_never_negative(priority: int):
-    assert _wait_for(priority, ahead=0, capacity=1) >= 0
+@pytest.mark.parametrize("band", list(QueueBand))
+def test_wait_is_never_negative(band: QueueBand):
+    assert _wait_for(band, ahead=0, capacity=1) >= 0
 
 
 def test_urgency_priority_ordering_is_the_clinical_ordering():
     """Lower sorts earlier; a regression here silently reorders the queue."""
+    assert (
+        UrgencyLevel.CRITICAL.priority
+        < UrgencyLevel.URGENT.priority
+        < UrgencyLevel.ROUTINE.priority
+    )
     assert CRITICAL < URGENT < ROUTINE
+
+
+# ── Bands (item 2d) ────────────────────────────────────────────────────────────
+def test_the_four_bands_sort_in_clinical_review_order():
+    from app.models.queue_band import QueueBand
+
+    assert [b.name for b in sorted(QueueBand)] == [
+        "CRITICAL",
+        "NEEDS_REVIEW",
+        "URGENT",
+        "ROUTINE",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("urgency", "flagged", "band"),
+    [
+        (UrgencyLevel.CRITICAL, False, "CRITICAL"),
+        (UrgencyLevel.CRITICAL, True, "CRITICAL"),
+        (UrgencyLevel.URGENT, False, "URGENT"),
+        (UrgencyLevel.URGENT, True, "NEEDS_REVIEW"),
+        (UrgencyLevel.ROUTINE, False, "ROUTINE"),
+        (UrgencyLevel.ROUTINE, True, "NEEDS_REVIEW"),
+    ],
+)
+def test_band_for_every_combination(urgency, flagged, band):
+    from app.models.queue_band import band_for
+
+    assert band_for(urgency, requires_review=flagged).name == band
+
+
+def test_a_flagged_case_is_quoted_no_longer_than_an_urgent_one():
+    """NEEDS REVIEW is reviewed before URGENT, so its quoted wait is capped the same way."""
+    from app.models.queue_band import QueueBand
+    from app.services.queue_service import _wait_for_band
+
+    assert _wait_for_band(QueueBand.NEEDS_REVIEW, ahead=100, capacity=1) == (
+        settings.URGENT_MAX_WAIT_MINUTES
+    )
+    assert _wait_for_band(QueueBand.CRITICAL, ahead=100, capacity=1) == 0

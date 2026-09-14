@@ -45,6 +45,8 @@ def _to_response(item: QueueItem) -> QueueItemResponse:
         confidence_score=confidence,
         requires_human_review=review.requires_human_review,
         review_reason=review.reason,
+        band=item.band.name,
+        band_label=item.band.label,
         symptoms=report.raw_input if report else "",
         language_detected=report.language_detected if report else None,
         status=entry.status,

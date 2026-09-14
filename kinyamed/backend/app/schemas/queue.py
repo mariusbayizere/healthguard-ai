@@ -29,6 +29,10 @@ class QueueItemResponse(BaseModel):
     )
     requires_human_review: bool
     review_reason: str | None
+    band: str = Field(
+        description="Queue band: CRITICAL, NEEDS_REVIEW, URGENT or ROUTINE, in that order."
+    )
+    band_label: str = Field(description="What the band means, for the band's header.")
     symptoms: str
     language_detected: str | None
     status: QueueStatus

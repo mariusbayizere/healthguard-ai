@@ -31,8 +31,10 @@ from app.models.queue import (
     Queue,
     QueueStatus,
 )
-from app.models.triage_result import TriageResult, UrgencyLevel
+from app.models.queue_band import QueueBand, band_for
+from app.models.triage_result import TriageResult
 from app.repositories import doctor_repository, queue_repository
+from app.services.review import needs_review
 
 logger = structlog.get_logger(__name__)
 
@@ -44,6 +46,7 @@ class QueueItem:
     entry: Queue
     position: int
     estimated_wait: int
+    band: QueueBand
 
 
 def _now() -> datetime:
@@ -55,25 +58,31 @@ def _capacity(db: Session) -> int:
     return max(doctor_repository.count_on_duty(db), 1)
 
 
-def _wait_for(priority: int, ahead: int, capacity: int) -> int:
-    """Minutes a patient at `priority` waits behind `ahead` patients.
+def _threshold() -> float:
+    return settings.MODEL_CONFIDENCE_THRESHOLD
+
+
+def band_of(triage_result: TriageResult) -> QueueBand:
+    """The band a triage result sorts in, under the current review threshold."""
+    return band_for(
+        triage_result.urgency_level,
+        requires_review=needs_review(triage_result.confidence_score, _threshold()),
+    )
+
+
+def _wait_for_band(band: QueueBand, ahead: int, capacity: int) -> int:
+    """Minutes a patient in `band` waits behind `ahead` patients.
 
     The work is divided across clinicians on duty: two doctors clear a queue
-    twice as fast as one.
+    twice as fast as one. NEEDS REVIEW is seen before URGENT, so its quote is
+    capped the same way.
     """
-    if priority == UrgencyLevel.CRITICAL.priority:
+    if band is QueueBand.CRITICAL:
         return 0  # critical cases are seen immediately
     minutes = round(ahead / capacity) * settings.MINUTES_PER_PATIENT
-    if priority == UrgencyLevel.URGENT.priority:
+    if band in (QueueBand.NEEDS_REVIEW, QueueBand.URGENT):
         return min(minutes, settings.URGENT_MAX_WAIT_MINUTES)
     return minutes
-
-
-def estimate_wait(db: Session, *, priority: int, ahead: int | None = None) -> int:
-    """Estimate the minutes a patient at `priority` will wait."""
-    if ahead is None:
-        ahead = queue_repository.count_ahead_of_priority(db, priority)
-    return _wait_for(priority, ahead, _capacity(db))
 
 
 def get_live_queue(
@@ -84,22 +93,29 @@ def get_live_queue(
     Positions are absolute: paginating from offset 20 still reports position 21
     for the first row on that page.
     """
-    entries = queue_repository.list_active(db, skip=skip, limit=limit)
+    entries = queue_repository.list_active(
+        db, threshold=_threshold(), skip=skip, limit=limit
+    )
     capacity = _capacity(db)
-    items = [
-        QueueItem(
-            entry=entry,
-            position=skip + index + 1,
-            estimated_wait=_wait_for(entry.priority, skip + index, capacity),
+    items = []
+    for index, entry in enumerate(entries):
+        band = band_of(entry.triage_result)
+        items.append(
+            QueueItem(
+                entry=entry,
+                position=skip + index + 1,
+                estimated_wait=_wait_for_band(band, skip + index, capacity),
+                band=band,
+            )
         )
-        for index, entry in enumerate(entries)
-    ]
     return items, queue_repository.count_active(db)
 
 
 def get_active_entries_for_patient(db: Session, patient_id: int) -> list[Queue]:
     """Active queue entries belonging to one patient."""
-    return list(queue_repository.active_for_patient(db, patient_id))
+    return list(
+        queue_repository.active_for_patient(db, patient_id, threshold=_threshold())
+    )
 
 
 def get_entry(db: Session, queue_id: int) -> Queue:
@@ -114,40 +130,44 @@ def position_of(db: Session, entry: Queue) -> int:
     """The 1-based position of an active entry; 0 once it has left the queue."""
     if entry.status not in ACTIVE_STATUSES:
         return 0
-    return queue_repository.count_ahead_of_entry(db, entry) + 1
+    return (
+        queue_repository.count_ahead_of_entry(
+            db, entry, band_of(entry.triage_result), threshold=_threshold()
+        )
+        + 1
+    )
 
 
 def describe(db: Session, entry: Queue) -> QueueItem:
     """Build the position/wait view of a single entry."""
     position = position_of(db, entry)
-    wait = (
-        _wait_for(entry.priority, max(position - 1, 0), _capacity(db))
-        if position
-        else 0
-    )
-    return QueueItem(entry=entry, position=position, estimated_wait=wait)
+    band = band_of(entry.triage_result)
+    wait = _wait_for_band(band, max(position - 1, 0), _capacity(db)) if position else 0
+    return QueueItem(entry=entry, position=position, estimated_wait=wait, band=band)
 
 
 def enqueue(db: Session, triage_result: TriageResult, *, commit: bool = False) -> Queue:
-    """Place a triage result into the queue at its clinical priority.
+    """Place a triage result into the queue at its clinical priority and band.
 
     Does not commit by default: triage composes this with two other writes into
     a single transaction.
     """
     priority = triage_result.urgency_level.priority
-    ahead = queue_repository.count_ahead_of_priority(db, priority)
+    band = band_of(triage_result)
+    ahead = queue_repository.count_ahead_of_band(db, band, threshold=_threshold())
     entry = queue_repository.create(
         db,
         commit=commit,
         triage_result_id=triage_result.id,
         priority=priority,
         status=QueueStatus.WAITING,
-        estimated_wait=_wait_for(priority, ahead, _capacity(db)),
+        estimated_wait=_wait_for_band(band, ahead, _capacity(db)),
     )
     logger.info(
         "queue_entry_created",
         queue_number=entry.queue_number,
         priority=priority,
+        band=band.name,
         patients_ahead=ahead,
         estimated_wait=entry.estimated_wait,
     )

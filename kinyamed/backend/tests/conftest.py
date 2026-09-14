@@ -121,7 +121,7 @@ class ScriptedClassifier:
     without this double, in tests/integration/test_fail_closed.py.
     """
 
-    SCRIPT: ClassVar[dict[str, str]] = {
+    SCRIPT: ClassVar[dict[str, str | tuple[str, float]]] = {
         "mfite ububabare bw'igituza": "CRITICAL",
         "kuva amaraso menshi": "CRITICAL",
         "mu gituza harandya cyane kandi sinshobora guhumeka neza": "CRITICAL",
@@ -131,6 +131,9 @@ class ScriptedClassifier:
         "ndumva nkeneye kubonana na muganga": "ROUTINE",
         "ndashaka ko bapima amaraso": "ROUTINE",
         "umutwe urandya cyane": "ROUTINE",
+        # (label, confidence): v2d's measured output for "I can't breathe"
+        # (reports/MODEL_AUDIT.md §3.2), used to exercise the NEEDS REVIEW band.
+        "sinshobora guhumeka": ("ROUTINE", 0.598),
     }
 
     def __init__(self) -> None:
@@ -140,11 +143,12 @@ class ScriptedClassifier:
         from app.models.triage_result import UrgencyLevel
         from app.services.triage_service import Classification
 
-        label = self.SCRIPT.get(text)
-        if label is None:
+        scripted = self.SCRIPT.get(text)
+        if scripted is None:
             self.unscripted.append(text)
-            label = "ROUTINE"
-        return Classification(urgency=UrgencyLevel(label), confidence=0.9)
+            scripted = "ROUTINE"
+        label, confidence = scripted if isinstance(scripted, tuple) else (scripted, 0.9)
+        return Classification(urgency=UrgencyLevel(label), confidence=confidence)
 
 
 @pytest.fixture

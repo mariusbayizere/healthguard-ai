@@ -1,7 +1,9 @@
 """Queue data access.
 
-The live-queue ordering rule lives here in one place: acuity first, arrival
-second, id as a deterministic tie-break.
+The live-queue ordering rule lives here in one place: band first (CRITICAL,
+NEEDS REVIEW, URGENT, ROUTINE; see app/models/queue_band.py), arrival second, id
+as a deterministic tie-break. The band depends on the review threshold, so every
+ordered or counted read takes it as an argument.
 """
 
 from __future__ import annotations
@@ -11,13 +13,19 @@ from datetime import datetime
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.sql.elements import UnaryExpression
 
 from app.models.queue import ACTIVE_STATUSES, Queue, QueueStatus
+from app.models.queue_band import QueueBand, band_sql
 from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult
 from app.repositories.base import BaseRepository
 
-_QUEUE_ORDER = (Queue.priority.asc(), Queue.created_at.asc(), Queue.id.asc())
+
+def _queue_order(
+    threshold: float,
+) -> tuple[UnaryExpression[int], UnaryExpression[datetime], UnaryExpression[int]]:
+    return (band_sql(threshold).asc(), Queue.created_at.asc(), Queue.id.asc())
 
 
 class QueueRepository(BaseRepository[Queue]):
@@ -49,19 +57,22 @@ class QueueRepository(BaseRepository[Queue]):
         )
 
     def list_active(
-        self, db: Session, *, skip: int = 0, limit: int | None = None
+        self, db: Session, *, threshold: float, skip: int = 0, limit: int | None = None
     ) -> Sequence[Queue]:
         """Active entries in clinical order."""
         statement = (
             self._with_patient_chain(select(Queue))
+            .join(TriageResult, Queue.triage_result_id == TriageResult.id)
             .where(Queue.status.in_(ACTIVE_STATUSES))
-            .order_by(*_QUEUE_ORDER)
+            .order_by(*_queue_order(threshold))
         )
         if limit is not None:
             statement = statement.offset(skip).limit(limit)
         return db.scalars(statement).unique().all()
 
-    def active_for_patient(self, db: Session, patient_id: int) -> Sequence[Queue]:
+    def active_for_patient(
+        self, db: Session, patient_id: int, *, threshold: float
+    ) -> Sequence[Queue]:
         """Active queue entries belonging to one patient, in clinical order."""
         return (
             db.scalars(
@@ -72,7 +83,7 @@ class QueueRepository(BaseRepository[Queue]):
                     SymptomReport.patient_id == patient_id,
                     Queue.status.in_(ACTIVE_STATUSES),
                 )
-                .order_by(*_QUEUE_ORDER)
+                .order_by(*_queue_order(threshold))
             )
             .unique()
             .all()
@@ -89,29 +100,39 @@ class QueueRepository(BaseRepository[Queue]):
             or 0
         )
 
-    def count_ahead_of_priority(self, db: Session, priority: int) -> int:
-        """Active patients a newly arriving patient at `priority` waits behind."""
+    def count_ahead_of_band(
+        self, db: Session, band: QueueBand, *, threshold: float
+    ) -> int:
+        """Active patients a newly arriving patient in `band` waits behind."""
         return int(
             db.scalar(
                 select(func.count())
                 .select_from(Queue)
-                .where(Queue.status.in_(ACTIVE_STATUSES), Queue.priority <= priority)
+                .join(TriageResult, Queue.triage_result_id == TriageResult.id)
+                .where(
+                    Queue.status.in_(ACTIVE_STATUSES),
+                    band_sql(threshold) <= int(band),
+                )
             )
             or 0
         )
 
-    def count_ahead_of_entry(self, db: Session, entry: Queue) -> int:
-        """Active patients ordered strictly before `entry`."""
+    def count_ahead_of_entry(
+        self, db: Session, entry: Queue, band: QueueBand, *, threshold: float
+    ) -> int:
+        """Active patients ordered strictly before `entry`, which is in `band`."""
+        others_band = band_sql(threshold)
         return int(
             db.scalar(
                 select(func.count())
                 .select_from(Queue)
+                .join(TriageResult, Queue.triage_result_id == TriageResult.id)
                 .where(
                     Queue.status.in_(ACTIVE_STATUSES),
                     Queue.id != entry.id,
-                    (Queue.priority < entry.priority)
+                    (others_band < int(band))
                     | (
-                        (Queue.priority == entry.priority)
+                        (others_band == int(band))
                         & (Queue.created_at < entry.created_at)
                     ),
                 )

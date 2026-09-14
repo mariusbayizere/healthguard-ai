@@ -30,8 +30,11 @@ from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import symptom_report_repository, triage_repository
 from app.services import queue_service
 from app.services.patient_message import patient_receipt
+from app.services.review import ReviewStatus, review_status
 
 logger = structlog.get_logger(__name__)
+
+__all__ = ["ReviewStatus", "review_status"]  # re-exported for existing callers
 
 SUPPORTED_LANGUAGES = frozenset(
     {"kinyarwanda", "english", "french", "swahili", "mixed", "unknown"}
@@ -44,37 +47,6 @@ class Classification:
 
     urgency: UrgencyLevel
     confidence: float
-
-
-@dataclass(frozen=True)
-class ReviewStatus:
-    """Whether a clinician must review this triage before relying on it."""
-
-    requires_human_review: bool
-    reason: str | None
-
-
-def review_status(confidence: float | None) -> ReviewStatus:
-    """Compare a stored confidence with the configured review threshold.
-
-    Evaluated on read against the CURRENT threshold, so a threshold change takes
-    effect for every entry at once. The flag as it stood at decision time is
-    not persisted yet (that needs the deferred triage_results migration).
-
-    The score is an uncalibrated softmax maximum (ECE 0.18), which the reason
-    says, so nobody reads a high score as a guarantee.
-    """
-    threshold = settings.MODEL_CONFIDENCE_THRESHOLD
-    if confidence is None:
-        return ReviewStatus(True, "No model confidence was recorded for this triage.")
-    if confidence < threshold:
-        return ReviewStatus(
-            True,
-            f"Model confidence {confidence:.2f} is below the review threshold "
-            f"{threshold:.2f}. The score is uncalibrated; a clinician must review "
-            "this urgency before relying on it.",
-        )
-    return ReviewStatus(False, None)
 
 
 @dataclass(frozen=True)
