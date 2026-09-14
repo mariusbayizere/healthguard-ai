@@ -1,0 +1,17 @@
+{
+  "status": 503,
+  "headers": {
+    "Retry-After": "60"
+  },
+  "body": {
+    "error": {
+      "code": "TRIAGE_MODEL_UNAVAILABLE",
+      "message": "Automated triage is unavailable. This report was not assessed and was not added to the queue. Triage this patient manually now; do not wait for the system.",
+      "details": {
+        "manual_triage_required": true,
+        "report_saved": false,
+        "retry_after_seconds": 60
+      }
+    }
+  }
+}

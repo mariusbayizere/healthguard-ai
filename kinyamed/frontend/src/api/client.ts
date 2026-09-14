@@ -20,13 +20,34 @@ export class ApiError extends Error {
     readonly status: number,
     message: string,
     readonly detail?: unknown,
+    /** The API's machine-readable `error.code`, e.g. TRIAGE_MODEL_UNAVAILABLE. */
+    readonly code?: string,
   ) {
     super(message);
     this.name = "ApiError";
   }
 }
 
+/** The API's own error envelope: `{"error": {"code", "message", "details"}}`.
+ *
+ * Every domain error the backend raises uses it. This client used to read only
+ * FastAPI's bare `detail`, so every such error -- including the 503 telling a
+ * nurse to triage manually -- rendered as "Request failed (503)."
+ */
+function envelope(body: unknown): { code?: string; message?: string } {
+  if (!body || typeof body !== "object" || !("error" in body)) return {};
+  const error = (body as { error: unknown }).error;
+  if (!error || typeof error !== "object") return {};
+  const { code, message } = error as { code?: unknown; message?: unknown };
+  return {
+    ...(typeof code === "string" ? { code } : {}),
+    ...(typeof message === "string" && message ? { message } : {}),
+  };
+}
+
 function describe(status: number, body: unknown): string {
+  const fromEnvelope = envelope(body).message;
+  if (fromEnvelope) return fromEnvelope;
   if (body && typeof body === "object" && "detail" in body) {
     const d = (body as { detail: unknown }).detail;
     if (typeof d === "string") return d;
@@ -74,7 +95,12 @@ export async function request<T>(
     response.status === 204 ? null : await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new ApiError(response.status, describe(response.status, body), body);
+    throw new ApiError(
+      response.status,
+      describe(response.status, body),
+      body,
+      envelope(body).code,
+    );
   }
   return body as T;
 }
