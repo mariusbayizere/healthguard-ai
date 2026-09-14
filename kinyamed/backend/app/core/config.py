@@ -8,6 +8,7 @@ handle for ordinary application code.
 
 from __future__ import annotations
 
+import ipaddress
 import logging
 from functools import lru_cache
 from typing import Literal
@@ -81,6 +82,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60, ge=1)
     # Paths exempt from rate limiting (probes must never be throttled).
     RATE_LIMIT_EXEMPT_PATHS: str = "/health,/health/ready,/ready,/"
+    # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is
+    # believed. EMPTY BY DEFAULT: with no proxy configured the header is ignored
+    # and the limiter keys on the TCP peer, because any client can write it.
+    TRUSTED_PROXIES: str = ""
 
     # --- Application -----------------------------------------------------
     APP_NAME: str = "KinyaMed"
@@ -129,6 +134,20 @@ class Settings(BaseSettings):
         if level not in logging.getLevelNamesMapping():
             raise ValueError(f"LOG_LEVEL must be a valid logging level, got {value!r}")
         return level
+
+    @field_validator("TRUSTED_PROXIES")
+    @classmethod
+    def _validate_trusted_proxies(cls, value: str) -> str:
+        for entry in (part.strip() for part in value.split(",")):
+            if not entry:
+                continue
+            try:
+                ipaddress.ip_network(entry, strict=False)
+            except ValueError as error:
+                raise ValueError(
+                    f"TRUSTED_PROXIES entry {entry!r} is not an IP address or CIDR"
+                ) from error
+        return value
 
     @model_validator(mode="after")
     def _enforce_production_hardening(self) -> Settings:
@@ -179,6 +198,17 @@ class Settings(BaseSettings):
             path.strip()
             for path in self.RATE_LIMIT_EXEMPT_PATHS.split(",")
             if path.strip()
+        )
+
+    @property
+    def trusted_proxy_networks(
+        self,
+    ) -> tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...]:
+        """TRUSTED_PROXIES parsed; validated at start-up, so this cannot raise."""
+        return tuple(
+            ipaddress.ip_network(entry.strip(), strict=False)
+            for entry in self.TRUSTED_PROXIES.split(",")
+            if entry.strip()
         )
 
     @property

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import time
 import uuid
 from collections import defaultdict, deque
@@ -58,6 +59,35 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         return response
 
 
+def _is_trusted_proxy(address: str) -> bool:
+    try:
+        ip = ipaddress.ip_address(address)
+    except ValueError:
+        return False
+    return any(ip in network for network in settings.trusted_proxy_networks)
+
+
+def client_ip(request: Request) -> str:
+    """The address a request should be attributed to.
+
+    X-Forwarded-For is written by whoever sends the request, so it is believed
+    only when the TCP peer is a configured trusted proxy. A proxy APPENDS the
+    address it received the connection from, so the client is the right-most
+    entry that is not itself a trusted proxy; anything to its left was supplied
+    by the client and is ignored. With no trusted proxy configured, the header
+    is ignored entirely.
+    """
+    peer = request.client.host if request.client else "unknown"
+    forwarded = request.headers.get("X-Forwarded-For")
+    if not forwarded or not _is_trusted_proxy(peer):
+        return peer
+    hops = [hop.strip() for hop in forwarded.split(",") if hop.strip()]
+    for hop in reversed(hops):
+        if not _is_trusted_proxy(hop):
+            return hop
+    return hops[0] if hops else peer
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Fixed-capacity sliding-window rate limiter, keyed by client IP.
 
@@ -74,12 +104,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._lock = Lock()
 
     def _client_key(self, request: Request) -> str:
-        # X-Forwarded-For is only trustworthy behind a proxy that sets it; the
-        # first entry is the original client when it is present.
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-        return request.client.host if request.client else "unknown"
+        return client_ip(request)
 
     def _is_allowed(self, key: str) -> bool:
         window = settings.RATE_LIMIT_WINDOW_SECONDS
