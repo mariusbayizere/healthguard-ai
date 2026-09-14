@@ -39,6 +39,9 @@ class TriageResponse(BaseModel):
     urgency_level: UrgencyLevel
     possible_conditions: str | None
     confidence_score: float | None
+    # Below MODEL_CONFIDENCE_THRESHOLD a clinician must review the urgency.
+    requires_human_review: bool
+    review_reason: str | None
     ai_response_rw: str | None
     # C1. The patient-facing sentence, and an explicit statement of whether one
     # exists. `response_pending=True` means no speaker has authored a template

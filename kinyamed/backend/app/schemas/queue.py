@@ -21,6 +21,11 @@ class QueueItemResponse(BaseModel):
     patient_name: str
     patient_phone: str
     urgency_level: UrgencyLevel
+    confidence_score: float | None = Field(
+        description="Uncalibrated softmax maximum. Not a probability."
+    )
+    requires_human_review: bool
+    review_reason: str | None
     symptoms: str
     language_detected: str | None
     status: QueueStatus

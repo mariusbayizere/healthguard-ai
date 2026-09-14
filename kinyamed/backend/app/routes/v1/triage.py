@@ -64,6 +64,8 @@ def submit_triage(
         outcome.report.language_detected or "", outcome.result.urgency_level.value
     )
 
+    review = triage_service.review_status(outcome.result.confidence_score)
+
     background_tasks.add_task(
         send_sms_in_background, patient.id, patient.phone, outcome.sms_message
     )
@@ -75,6 +77,8 @@ def submit_triage(
         urgency_level=outcome.result.urgency_level,
         possible_conditions=outcome.result.possible_conditions,
         confidence_score=outcome.result.confidence_score,
+        requires_human_review=review.requires_human_review,
+        review_reason=review.reason,
         ai_response_rw=outcome.result.ai_response_rw,
         patient_response=template.text or None,
         response_pending=template.pending,
@@ -100,6 +104,7 @@ def get_triage(
     patient = result.symptom_report.patient
     assert_may_act_for_patient(user, patient.id)
     entry = result.queue_entry
+    review = triage_service.review_status(result.confidence_score)
     # Resolve the template here too. Without this the read path always reports
     # response_pending=True from the schema default, so a triage that HAD an
     # authored response would look unauthored when fetched back.
@@ -113,6 +118,8 @@ def get_triage(
         urgency_level=result.urgency_level,
         possible_conditions=result.possible_conditions,
         confidence_score=result.confidence_score,
+        requires_human_review=review.requires_human_review,
+        review_reason=review.reason,
         ai_response_rw=result.ai_response_rw,
         patient_response=template.text or None,
         response_pending=template.pending,

@@ -16,7 +16,7 @@ from app.schemas.queue import (
     QueueItemResponse,
     QueueStatusUpdate,
 )
-from app.services import queue_service
+from app.services import queue_service, triage_service
 from app.services.queue_service import QueueItem
 
 router = APIRouter(prefix="/queue", tags=["Queue"])
@@ -32,6 +32,8 @@ def _to_response(item: QueueItem) -> QueueItemResponse:
     entry = item.entry
     report = entry.triage_result.symptom_report if entry.triage_result else None
     patient = report.patient if report else None
+    confidence = entry.triage_result.confidence_score if entry.triage_result else None
+    review = triage_service.review_status(confidence)
     return QueueItemResponse(
         id=entry.id,
         queue_number=entry.queue_number,
@@ -40,6 +42,9 @@ def _to_response(item: QueueItem) -> QueueItemResponse:
         patient_name=patient.name if patient else "Unknown",
         patient_phone=patient.phone if patient else "Unknown",
         urgency_level=entry.triage_result.urgency_level,
+        confidence_score=confidence,
+        requires_human_review=review.requires_human_review,
+        review_reason=review.reason,
         symptoms=report.raw_input if report else "",
         language_detected=report.language_detected if report else None,
         status=entry.status,
