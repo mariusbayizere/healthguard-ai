@@ -61,3 +61,40 @@ def test_every_level_reaches_the_frontend(name: str) -> None:
     and wrong in the dangerous direction if the missing one is CRITICAL.
     """
     assert f"  {name}: " in OUT.read_text(encoding="utf-8")
+
+
+# ── Queue bands (item 2d) ────────────────────────────────────────────────────
+# The board groups rows into bands, and the header text a clinician reads is the
+# backend's label. Both cross the language boundary, so both are generated.
+
+
+def test_the_band_file_matches_queue_band() -> None:
+    from scripts.gen_frontend_constants import BAND_OUT, render_bands
+
+    assert BAND_OUT.exists(), "queueBand.gen.ts is missing; run the generator"
+    assert BAND_OUT.read_text(encoding="utf-8") == render_bands(), (
+        f"{BAND_OUT.name} has drifted from QueueBand. Regenerate it:\n"
+        "  cd kinyamed/backend && python scripts/gen_frontend_constants.py"
+    )
+
+
+def test_the_band_order_puts_needs_review_second() -> None:
+    """Direction, not agreement: asserted against the enum itself."""
+    from app.models.queue_band import QueueBand
+
+    ordered = sorted(QueueBand, key=int)
+    assert [band.name for band in ordered] == [
+        "CRITICAL",
+        "NEEDS_REVIEW",
+        "URGENT",
+        "ROUTINE",
+    ]
+
+
+def test_the_review_label_reaches_the_frontend_verbatim() -> None:
+    from scripts.gen_frontend_constants import BAND_OUT
+
+    assert (
+        '  NEEDS_REVIEW: "Model could not classify — review these first",'
+        in BAND_OUT.read_text(encoding="utf-8")
+    )

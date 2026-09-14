@@ -40,6 +40,9 @@ const ROWS: QueueEntry[] = [
   { id: 2, queue_number: 9, urgency_level: "URGENT", status: "IN_PROGRESS",
     patient_id: 2, patient_name: "Nshimiyimana Eric", doctor_name: "Dr Mukamana",
     estimated_wait: 25 },
+  { id: 3, queue_number: 13, urgency_level: "ROUTINE", status: "WAITING",
+    patient_id: 3, patient_name: "Mugisha Jean", doctor_name: null,
+    estimated_wait: 0, band: "NEEDS_REVIEW", requires_human_review: true } as QueueEntry,
 ];
 
 const RECEIPT =

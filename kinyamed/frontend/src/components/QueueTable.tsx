@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { groupByBand } from "@/api/queueBand";
 import type { QueueEntry } from "@/api/types";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { QueueAnnouncer } from "./QueueAnnouncer";
@@ -31,6 +32,11 @@ import { Empty, Skeleton } from "./ui";
  * 768px its min-content width exceeded the viewport -- measured at scrollWidth
  * 781 against clientWidth 768, with the Assign dropdown cut off at the right
  * edge. That board stays in cards until 1024px.
+ *
+ * BANDS ARE DECIDED HERE (item 2d), once, for both layouts: CRITICAL, then the
+ * cases the model could not classify, then URGENT, then ROUTINE. `rows` may
+ * arrive in any order -- `useQueue` sorts by urgency alone -- so the grouping
+ * never trusts it.
  */
 const BREAKPOINT = {
   md: "(min-width: 768px)",
@@ -71,9 +77,9 @@ export function QueueTable({
           patients, check the connection indicator above.
         </Empty>
       ) : dense ? (
-        <QueueDenseTable rows={rows} renderActions={renderActions} />
+        <QueueDenseTable groups={groupByBand(rows)} renderActions={renderActions} />
       ) : (
-        <QueueCards rows={rows} renderActions={renderActions} />
+        <QueueCards groups={groupByBand(rows)} renderActions={renderActions} />
       )}
     </>
   );

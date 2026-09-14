@@ -28,11 +28,13 @@ point the enum changes, rather than at the point a patient is sorted wrongly.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parent.parent
 OUT = BACKEND.parent / "frontend" / "src" / "api" / "urgency.gen.ts"
+BAND_OUT = BACKEND.parent / "frontend" / "src" / "api" / "queueBand.gen.ts"
 
 HEADER = """\
 /* GENERATED FILE — DO NOT EDIT BY HAND.
@@ -94,6 +96,43 @@ def render() -> str:
     return "\n".join(lines)
 
 
+BAND_HEADER = """\
+/* GENERATED FILE — DO NOT EDIT BY HAND.
+ *
+ * Written by backend/scripts/gen_frontend_constants.py from
+ * `app.models.queue_band.QueueBand`, which defines the order the queue is
+ * sorted in (item 2d) and the header a clinician reads above each band.
+ *
+ * `tests/unit/test_frontend_constants.py` fails if this drifts from the enum.
+ */
+"""
+
+
+def render_bands() -> str:
+    """Return the TypeScript for the queue bands, in sort order, with labels."""
+    sys.path.insert(0, str(BACKEND))
+    from app.models.queue_band import QueueBand
+
+    ordered = sorted(QueueBand, key=int)
+    lines = [BAND_HEADER.rstrip("\n"), ""]
+    lines.append("/** Queue bands, in the order the server sorts them. */")
+    lines.append("export const QUEUE_BAND = [")
+    lines += [f'  "{band.name}",' for band in ordered]
+    lines.append("] as const;")
+    lines.append("")
+    lines.append("export type QueueBand = (typeof QUEUE_BAND)[number];")
+    lines.append("")
+    lines.append("/** The header text above each band. */")
+    lines.append("export const BAND_LABEL: Record<QueueBand, string> = {")
+    lines += [
+        f"  {band.name}: {json.dumps(band.label, ensure_ascii=False)},"
+        for band in ordered
+    ]
+    lines.append("};")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -103,22 +142,27 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    rendered = render()
+    outputs = ((OUT, render()), (BAND_OUT, render_bands()))
     if args.check:
-        current = OUT.read_text(encoding="utf-8") if OUT.exists() else ""
-        if current != rendered:
+        stale = [
+            out.name
+            for out, rendered in outputs
+            if (out.read_text(encoding="utf-8") if out.exists() else "") != rendered
+        ]
+        if stale:
             print(
-                f"{OUT.name} is stale. Regenerate it:\n"
+                f"{', '.join(stale)} stale. Regenerate:\n"
                 "  cd kinyamed/backend && python scripts/gen_frontend_constants.py",
                 file=sys.stderr,
             )
             return 1
-        print(f"{OUT.name} matches the enum.")
+        print("generated frontend constants match the enums.")
         return 0
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(rendered, encoding="utf-8")
-    print(f"wrote {OUT}")
+    for out, rendered in outputs:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered, encoding="utf-8")
+        print(f"wrote {out}")
     return 0
 
 
