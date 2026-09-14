@@ -109,7 +109,9 @@ class ReadinessResponse(BaseModel):
 
     status: str
     database: str
-    ml_model: str
+    # True only when the trained model is loaded. False means POST /triage
+    # fails closed with 503 and patients must be triaged manually.
+    model: bool
 
 
 class ServiceInfoResponse(BaseModel):

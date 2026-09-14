@@ -80,7 +80,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_REQUESTS: int = Field(default=120, ge=1)
     RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60, ge=1)
     # Paths exempt from rate limiting (probes must never be throttled).
-    RATE_LIMIT_EXEMPT_PATHS: str = "/health,/ready,/"
+    RATE_LIMIT_EXEMPT_PATHS: str = "/health,/health/ready,/ready,/"
 
     # --- Application -----------------------------------------------------
     APP_NAME: str = "KinyaMed"

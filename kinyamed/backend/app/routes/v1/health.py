@@ -30,13 +30,11 @@ def _database_ok() -> bool:
         return False
 
 
-def _model_status() -> str:
-    """Report ML model readiness without importing torch when it is absent."""
-    try:
-        from app.ml.model_loader import ModelLoader
-    except ImportError:
-        return "not_installed"
-    return "loaded" if ModelLoader().is_ready else "not_loaded"
+def _model_loaded() -> bool:
+    """Whether the trained model is loaded. Never loads it, never raises."""
+    from app.services import triage_service
+
+    return triage_service.get_classifier() is not None
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -50,11 +48,17 @@ def health() -> HealthResponse:
     )
 
 
-@router.get("/ready", response_model=ReadinessResponse)
+@router.get("/health/ready", response_model=ReadinessResponse)
+@router.get("/ready", response_model=ReadinessResponse, include_in_schema=False)
 def ready(response: Response) -> ReadinessResponse:
-    """Readiness: every dependency needed to serve a request is available."""
+    """Readiness, and whether automated triage is available.
+
+    `status` gates on the database only. A missing model does NOT make the
+    service unready: the queue and records still work, and the dashboards
+    need the API reachable to show staff that triage is offline. `model`
+    reports it instead. `/ready` is kept as an alias for existing probes.
+    """
     database = "ok" if _database_ok() else "unreachable"
-    model = _model_status()
     is_ready = database == "ok"
 
     if not is_ready:
@@ -62,5 +66,5 @@ def ready(response: Response) -> ReadinessResponse:
     return ReadinessResponse(
         status="ready" if is_ready else "not_ready",
         database=database,
-        ml_model=model,
+        model=_model_loaded(),
     )

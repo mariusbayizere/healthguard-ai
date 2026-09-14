@@ -42,3 +42,4 @@ def test_probes_are_never_rate_limited(rate_limited):
         rate_limited.get("/api/v1/patients")
     assert rate_limited.get("/health").status_code == 200
     assert rate_limited.get("/ready").status_code == 200
+    assert rate_limited.get("/health/ready").status_code == 200

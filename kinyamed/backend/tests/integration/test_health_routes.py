@@ -15,7 +15,30 @@ def test_ready_reports_dependency_state(client):
     body = client.get("/ready").json()
     assert body["status"] == "ready"
     assert body["database"] == "ok"
-    assert body["ml_model"] in {"loaded", "not_loaded", "not_installed"}
+    assert isinstance(body["model"], bool)
+
+
+def test_health_ready_reports_model_false_without_a_model(client):
+    """The test process has no model, so readiness must say so, as a boolean."""
+    response = client.get("/health/ready")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["model"] is False
+    assert body["database"] == "ok"
+    # No model is NOT "not ready": the queue and records still work, and the
+    # dashboards need the API up to show the triage-offline banner.
+    assert body["status"] == "ready"
+
+
+def test_health_ready_reports_model_true_when_a_model_is_loaded(client, monkeypatch):
+    from app.services import triage_service
+
+    monkeypatch.setattr(triage_service, "get_classifier", lambda: object())
+    assert client.get("/health/ready").json()["model"] is True
+
+
+def test_ready_and_health_ready_agree(client):
+    assert client.get("/ready").json() == client.get("/health/ready").json()
 
 
 def test_root_reports_service_metadata(client):
