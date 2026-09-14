@@ -35,7 +35,7 @@ def test_symptom_description_reaches_a_queue_position(client, patient_factory):
         "queue_position",
         "language_detected",
         "patient_response",
-        "response_pending",
+        "requires_human_review",
     ):
         assert field in body, f"{field} missing; the intake view renders it"
 
@@ -75,32 +75,20 @@ def test_the_queue_orders_critical_before_routine(client, patient_factory):
     )
 
 
-def test_a_patient_response_is_never_invented(client, patient_factory):
-    """Either speaker-authored text, or an explicit pending state. Never both,
-    never neither, and never a placeholder.
+def test_the_patient_message_is_the_receipt_and_nothing_else(client, patient_factory):
+    """No template, no placeholder, no urgency: the receipt with its escalation line.
 
-    This is the invariant the whole response-template design rests on, and it
-    is the one a future refactor is most likely to break by adding a
-    "sensible default".
+    The full set of guarantees is in test_patient_message.py; this is the seam
+    check on the path the intake view actually renders.
     """
+    from app.services.patient_message import ESCALATION_LINE
+
     patient = patient_factory(name="Nkurunziza Jean", phone="+250780000004")
     body = _triage(client, patient["id"], "mfite umuriro")
 
-    if body["response_pending"]:
-        assert not body.get("patient_response"), (
-            "a pending response must be empty; anything else is a placeholder "
-            "being served as if a speaker had written it"
-        )
-        assert body.get("response_pending_reason"), (
-            "a pending response must say why, or staff cannot act on it"
-        )
-    else:
-        assert body["patient_response"].strip(), (
-            "not pending, but no text — the endpoint would render blank advice"
-        )
-        assert "{" not in body["patient_response"], (
-            "an unfilled template slot reached the patient-facing field"
-        )
+    assert body["patient_response"].startswith("Your report has been received.")
+    assert body["patient_response"].endswith(ESCALATION_LINE)
+    assert "{" not in body["patient_response"], "an unfilled slot reached the patient"
 
 
 def test_triage_is_retrievable_after_creation(client, patient_factory):

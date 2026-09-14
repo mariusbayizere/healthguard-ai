@@ -29,7 +29,7 @@ from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import symptom_report_repository, triage_repository
 from app.services import queue_service
-from app.services.sms_service import build_triage_sms
+from app.services.patient_message import patient_receipt
 
 logger = structlog.get_logger(__name__)
 
@@ -43,9 +43,7 @@ class Classification:
     """What the classifier concluded about a symptom description."""
 
     urgency: UrgencyLevel
-    possible_conditions: str
     confidence: float
-    advice_rw: str
 
 
 @dataclass(frozen=True)
@@ -340,9 +338,11 @@ def run_triage(
         commit=False,
         symptom_report_id=report.id,
         urgency_level=classification.urgency,
-        possible_conditions=classification.possible_conditions,
+        # Retired columns: no condition is ever named, and no machine-drafted
+        # advice is stored. Written as NULL until a migration drops them.
+        possible_conditions=None,
         confidence_score=classification.confidence,
-        ai_response_rw=classification.advice_rw,
+        ai_response_rw=None,
     )
 
     queue_entry = queue_service.enqueue(db, result, commit=False)
@@ -365,11 +365,9 @@ def run_triage(
         result=result,
         queue_entry=queue_entry,
         queue_position=position,
-        sms_message=build_triage_sms(
-            patient.name,
-            classification.urgency.value,
-            queue_entry.queue_number,
-            queue_entry.estimated_wait,
+        # The SMS says exactly what the app says: the urgency-independent receipt.
+        sms_message=patient_receipt(
+            queue_number=queue_entry.queue_number, queue_position=position
         ),
     )
 

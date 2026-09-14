@@ -65,14 +65,6 @@ _URGENCY = {
     "ROUTINE": UrgencyLevel.ROUTINE,
 }
 
-# Stored in `triage_results.ai_response_rw`. Machine-drafted, NOT
-# speaker-authored; the patient-facing sentence is `response_templates`.
-_ADVICE = {
-    UrgencyLevel.CRITICAL: "Ikibazo cyawe ni CRITICAL. Jya kwa muganga ako kanya.",
-    UrgencyLevel.URGENT: "Ikibazo cyawe ni URGENT. Jya kwa muganga vuba bishoboka.",
-    UrgencyLevel.ROUTINE: "Ikibazo cyawe ni ROUTINE. Uzabona muganga vuba.",
-}
-
 
 class ModelClassifier:
     """Fine-tuned sequence classifier implementing `SymptomClassifier`."""
@@ -132,15 +124,9 @@ class ModelClassifier:
             confidence = float(probs[index])
         label = self._labels[index]
         urgency = _URGENCY[label]
-        return Classification(
-            urgency=urgency,
-            # The model predicts urgency only. It was never trained to name a
-            # condition, and inventing one here would put a diagnosis in front
-            # of a patient that nothing produced.
-            possible_conditions="",
-            confidence=confidence,
-            advice_rw=_ADVICE[urgency],
-        )
+        # Urgency and confidence only: the model names no condition and writes
+        # no advice. What a patient reads is `patient_message.patient_receipt`.
+        return Classification(urgency=urgency, confidence=confidence)
 
 
 def _unavailable(reason: str, **context: object) -> tuple[None, str]:

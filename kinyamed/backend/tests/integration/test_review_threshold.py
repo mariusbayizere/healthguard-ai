@@ -21,10 +21,7 @@ def classify_with_confidence(client):
         class _Fixed:
             def classify(self, text: str) -> Classification:
                 return Classification(
-                    urgency=UrgencyLevel.URGENT,
-                    possible_conditions="",
-                    confidence=confidence,
-                    advice_rw="",
+                    urgency=UrgencyLevel.URGENT, confidence=confidence
                 )
 
         main.app.dependency_overrides[get_triage_classifier] = lambda: _Fixed()
@@ -96,3 +93,15 @@ def test_the_read_path_agrees(client, patient_factory, classify_with_confidence)
     created = _triage(client, patient_factory)
     fetched = client.get(f"/api/v1/triage/{created['triage_id']}").json()
     assert fetched["requires_human_review"] is True
+
+
+def test_the_review_flag_does_not_change_the_patient_message(
+    client, patient_factory, classify_with_confidence
+):
+    import re
+
+    classify_with_confidence(0.3)
+    low = _triage(client, patient_factory)["patient_response"]
+    classify_with_confidence(0.99)
+    high = _triage(client, patient_factory)["patient_response"]
+    assert re.sub(r"\d+", "#", low) == re.sub(r"\d+", "#", high)

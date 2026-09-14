@@ -144,12 +144,7 @@ class ScriptedClassifier:
         if label is None:
             self.unscripted.append(text)
             label = "ROUTINE"
-        return Classification(
-            urgency=UrgencyLevel(label),
-            possible_conditions="",
-            confidence=0.9,
-            advice_rw="",
-        )
+        return Classification(urgency=UrgencyLevel(label), confidence=0.9)
 
 
 @pytest.fixture

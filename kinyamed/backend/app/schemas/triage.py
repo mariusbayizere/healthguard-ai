@@ -32,26 +32,34 @@ class TriageRequest(BaseModel):
         return stripped
 
 
+CLINICIAN_HINT_NOTICE = (
+    "Urgency and confidence are a prioritisation hint for clinicians reviewing "
+    "the queue. They are not advice for the patient."
+)
+
+
 class TriageResponse(BaseModel):
     triage_id: int
     patient_id: int
     patient_name: str
-    urgency_level: UrgencyLevel
-    possible_conditions: str | None
-    confidence_score: float | None
-    # Below MODEL_CONFIDENCE_THRESHOLD a clinician must review the urgency.
-    requires_human_review: bool
+    # ── For clinicians only ────────────────────────────────────────────────
+    urgency_level: UrgencyLevel = Field(
+        description="Model prioritisation hint for clinicians. Never shown to patients."
+    )
+    confidence_score: float | None = Field(
+        description="Uncalibrated softmax maximum (ECE 0.18). Not a probability."
+    )
+    requires_human_review: bool = Field(
+        description="True when confidence is below MODEL_CONFIDENCE_THRESHOLD."
+    )
     review_reason: str | None
-    ai_response_rw: str | None
-    # C1. The patient-facing sentence, and an explicit statement of whether one
-    # exists. `response_pending=True` means no speaker has authored a template
-    # for this language and urgency yet; `patient_response` is then empty and
-    # MUST NOT be shown to a patient. It is not filled with a machine draft,
-    # because a sentence telling someone to go to hospital now is the text this
-    # project does not machine-draft. See services/response_templates.py.
-    patient_response: str | None = None
-    response_pending: bool = True
-    response_pending_reason: str | None = None
+    clinician_hint_notice: str = CLINICIAN_HINT_NOTICE
+    # ── For the patient ────────────────────────────────────────────────────
+    # The same receipt for every urgency: report received, queue place, and a
+    # generic escalation line. See services/patient_message.py for why the
+    # model's urgency is never turned into advice for the patient.
+    patient_response: str
+    patient_message_language: str
     language_detected: str | None
     # The queue entry's own primary key, distinct from queue_number (which is
     # the human-facing ticket). Returned so a client can address

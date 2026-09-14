@@ -20,7 +20,9 @@ class QueueItemResponse(BaseModel):
     patient_id: int
     patient_name: str
     patient_phone: str
-    urgency_level: UrgencyLevel
+    urgency_level: UrgencyLevel = Field(
+        description="Model prioritisation hint for clinicians. Never shown to patients."
+    )
     confidence_score: float | None = Field(
         description="Uncalibrated softmax maximum. Not a probability."
     )

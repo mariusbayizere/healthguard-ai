@@ -8,12 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, assert_may_act_for_patient
 from app.schemas.triage import TriageRequest, TriageResponse
-from app.services import (
-    patient_service,
-    queue_service,
-    response_templates,
-    triage_service,
-)
+from app.services import patient_service, queue_service, triage_service
+from app.services.patient_message import PATIENT_MESSAGE_LANGUAGE, patient_receipt
 from app.services.sms_service import send_sms_in_background
 from app.services.triage_service import SymptomClassifier
 
@@ -56,14 +52,6 @@ def submit_triage(
         db, patient=patient, symptoms_input=data.symptoms_input, classifier=classifier
     )
 
-    # C1. Resolve the patient-facing sentence from the SPEAKER-AUTHORED
-    # templates. Unfilled today in every language, so this returns a PENDING
-    # state that the response carries explicitly rather than a placeholder that
-    # would read as real.
-    template = response_templates.resolve(
-        outcome.report.language_detected or "", outcome.result.urgency_level.value
-    )
-
     review = triage_service.review_status(outcome.result.confidence_score)
 
     background_tasks.add_task(
@@ -75,14 +63,11 @@ def submit_triage(
         patient_id=patient.id,
         patient_name=patient.name,
         urgency_level=outcome.result.urgency_level,
-        possible_conditions=outcome.result.possible_conditions,
         confidence_score=outcome.result.confidence_score,
         requires_human_review=review.requires_human_review,
         review_reason=review.reason,
-        ai_response_rw=outcome.result.ai_response_rw,
-        patient_response=template.text or None,
-        response_pending=template.pending,
-        response_pending_reason=template.reason or None,
+        patient_response=outcome.sms_message,
+        patient_message_language=PATIENT_MESSAGE_LANGUAGE,
         language_detected=outcome.report.language_detected,
         queue_id=outcome.queue_entry.id,
         queue_number=outcome.queue_entry.queue_number,
@@ -104,30 +89,24 @@ def get_triage(
     patient = result.symptom_report.patient
     assert_may_act_for_patient(user, patient.id)
     entry = result.queue_entry
+    position = queue_service.position_of(db, entry) if entry else 0
     review = triage_service.review_status(result.confidence_score)
-    # Resolve the template here too. Without this the read path always reports
-    # response_pending=True from the schema default, so a triage that HAD an
-    # authored response would look unauthored when fetched back.
-    template = response_templates.resolve(
-        result.symptom_report.language_detected or "", result.urgency_level.value
-    )
     return TriageResponse(
         triage_id=result.id,
         patient_id=patient.id,
         patient_name=patient.name,
         urgency_level=result.urgency_level,
-        possible_conditions=result.possible_conditions,
         confidence_score=result.confidence_score,
         requires_human_review=review.requires_human_review,
         review_reason=review.reason,
-        ai_response_rw=result.ai_response_rw,
-        patient_response=template.text or None,
-        response_pending=template.pending,
-        response_pending_reason=template.reason or None,
+        patient_response=patient_receipt(
+            queue_number=entry.queue_number if entry else 0, queue_position=position
+        ),
+        patient_message_language=PATIENT_MESSAGE_LANGUAGE,
         language_detected=result.symptom_report.language_detected,
         queue_id=entry.id if entry else 0,
         queue_number=entry.queue_number if entry else 0,
-        queue_position=queue_service.position_of(db, entry) if entry else 0,
+        queue_position=position,
         estimated_wait=entry.estimated_wait if entry else None,
         created_at=result.created_at,
     )
