@@ -14,10 +14,10 @@ import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { keys } from "@/api/hooks";
-import type { QueueEntry, TriageResult } from "@/api/types";
+import type { QueueEntry } from "@/api/types";
 import { Layout } from "@/components/Layout";
 import { QueueTable } from "@/components/QueueTable";
-import { PendingResponse } from "@/components/PendingResponse";
+import { PatientMessage } from "@/components/PatientMessage";
 import { Queue } from "@/routes/Queue";
 import { Doctor } from "@/routes/Doctor";
 import { Login } from "@/routes/Login";
@@ -43,28 +43,6 @@ const ROWS: QueueEntry[] = [
     patient_id: 5, patient_name: "Ingabire Marie-Chantal Nyiraminani", doctor_name: null,
     estimated_wait: 95 },
 ];
-
-// Fully typed, NOT cast. A cast here would let the harness render a shape the
-// API cannot produce, which is the one thing a design harness must not do.
-const RESULT: TriageResult = {
-  triage_id: 1,
-  patient_id: 1,
-  patient_name: "Uwimana Claudine",
-  urgency_level: "CRITICAL",
-  possible_conditions: null,
-  confidence_score: 0.8123,
-  ai_response_rw: null,
-  patient_response:
-    "Muraho. Ubu ni ubuvuzi bwihutirwa cyane. Nimusange muganga ako kanya.",
-  response_pending: false,
-  response_pending_reason: null,
-  language_detected: "rw",
-  queue_id: 1,
-  queue_number: 12,
-  queue_position: 1,
-  estimated_wait: 0,
-  created_at: "2026-09-11T08:00:00Z",
-};
 
 const qc = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchInterval: false, staleTime: Infinity } },
@@ -125,15 +103,14 @@ createRoot(document.getElementById("root")!).render(
                 No connection. The board below may be out of date.
               </Alert>
               <Alert kind="ok">Saved.</Alert>
-              <Card title="Patient message — present">
-                <PendingResponse result={RESULT} />
-              </Card>
-              <Card title="Patient message — absent">
-                <PendingResponse result={{ ...RESULT, patient_response: null, response_pending: true,
-                  response_pending_reason: "No speaker-authored response exists for Swahili." }} />
+              <Card title="Patient message — receipt">
+                <PatientMessage
+                  text="Your report has been received. Your queue number is 12 and you are number 1 in the queue. If you feel worse or this is an emergency, go to the health centre immediately."
+                  language="english"
+                />
               </Card>
               <Card title="Patient message — malformed">
-                <PendingResponse result={{ ...RESULT, patient_response: "Muraho {name}" }} />
+                <PatientMessage text="Your queue number is {queue_number}." language="english" />
               </Card>
               <Card title="Skeleton"><Skeleton /></Card>
               <Card title="Empty primitive"><Empty title="Nothing here">Secondary line.</Empty></Card>

@@ -27,11 +27,11 @@ import { axe } from "vitest-axe";
 import type { AxeResults } from "axe-core";
 
 import { QueueTable } from "@/components/QueueTable";
-import { PendingResponse } from "@/components/PendingResponse";
+import { PatientMessage } from "@/components/PatientMessage";
 import { UrgencyBadge } from "@/components/UrgencyBadge";
 import { Alert, Button, Card, Empty, Field, Skeleton, inputClass } from "@/components/ui";
 import { setViewportMatches } from "@/test/setup";
-import type { QueueEntry, TriageResult } from "@/api/types";
+import type { QueueEntry } from "@/api/types";
 
 const ROWS: QueueEntry[] = [
   { id: 1, queue_number: 12, urgency_level: "CRITICAL", status: "WAITING",
@@ -42,15 +42,9 @@ const ROWS: QueueEntry[] = [
     estimated_wait: 25 },
 ];
 
-const RESULT: TriageResult = {
-  triage_id: 1, patient_id: 1, patient_name: "Uwimana Claudine",
-  urgency_level: "CRITICAL", possible_conditions: null, confidence_score: 0.81,
-  ai_response_rw: null,
-  patient_response: "Muraho. Ubu ni ubuvuzi bwihutirwa cyane.",
-  response_pending: false, response_pending_reason: null,
-  language_detected: "rw", queue_id: 1, queue_number: 12, queue_position: 1,
-  estimated_wait: 0, created_at: "2026-09-11T08:00:00Z",
-};
+const RECEIPT =
+  "Your report has been received. Your queue number is 12 and you are number 1 in the queue. " +
+  "If you feel worse or this is an emergency, go to the health centre immediately.";
 
 /** Fail on violations, and say which rule and which element. */
 async function expectNoViolations(ui: React.ReactElement): Promise<void> {
@@ -121,15 +115,11 @@ describe("accessibility", () => {
     );
   });
 
-  it("all three patient-message states", async () => {
+  it("both patient-message states", async () => {
     await expectNoViolations(
       <div>
-        <PendingResponse result={RESULT} />
-        <PendingResponse
-          result={{ ...RESULT, patient_response: null, response_pending: true,
-                    response_pending_reason: "No speaker-authored response." }}
-        />
-        <PendingResponse result={{ ...RESULT, patient_response: "Muraho {name}" }} />
+        <PatientMessage text={RECEIPT} language="english" />
+        <PatientMessage text="Your queue number is {queue_number}." language="english" />
       </div>,
     );
   });
