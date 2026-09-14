@@ -5,7 +5,9 @@ from __future__ import annotations
 import pytest
 
 
-def test_create_returns_201_and_normalises_phone(client):
+def test_create_returns_201_and_normalises_phone(client, db):
+    from app.models.patient import Patient
+
     response = client.post(
         "/api/v1/patients",
         json={"name": "  Uwimana  ", "phone": "0788 123 456", "gender": "FEMALE"},
@@ -13,7 +15,9 @@ def test_create_returns_201_and_normalises_phone(client):
     assert response.status_code == 201
     body = response.json()
     assert body["name"] == "Uwimana"
-    assert body["phone"] == "+250788123456"
+    # Stored in E.164; returned masked (L11: masked everywhere but the column).
+    assert db.get(Patient, body["id"]).phone == "+250788123456"
+    assert body["phone"] == "+**********56"
     assert body["gender"] == "female"
     assert body["created_at"]
 

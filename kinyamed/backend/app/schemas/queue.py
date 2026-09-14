@@ -7,6 +7,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
+from app.core.pii import MaskedPhone
 from app.models.queue import QueueStatus
 from app.models.triage_result import UrgencyLevel
 
@@ -19,7 +20,7 @@ class QueueItemResponse(BaseModel):
     )
     patient_id: int
     patient_name: str
-    patient_phone: str
+    patient_phone: MaskedPhone
     urgency_level: UrgencyLevel = Field(
         description="Model prioritisation hint for clinicians. Never shown to patients."
     )

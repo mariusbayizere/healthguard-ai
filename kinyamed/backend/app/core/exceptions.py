@@ -268,10 +268,12 @@ class InsufficientRoleError(HealthGuardBaseError):
 
 class EmailAlreadyRegisteredError(ConflictError):
     def __init__(self, email: str) -> None:
+        # The address is not echoed back (L11). `email` stays in the signature
+        # so callers are unchanged.
+        del email
         super().__init__(
-            message=f"An account already exists for {email}",
+            message="An account already exists for this email address",
             code="EMAIL_ALREADY_REGISTERED",
-            email=email,
         )
 
 
@@ -342,11 +344,18 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def _handle_request_validation(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
+        # Location, message and type only. `input` echoes what was submitted,
+        # which for a mistyped phone number is the phone number (L11).
         return error_response(
             status.HTTP_422_UNPROCESSABLE_CONTENT,
             "Request validation failed",
             "REQUEST_VALIDATION_ERROR",
-            {"errors": [{k: str(v) for k, v in err.items()} for err in exc.errors()]},
+            {
+                "errors": [
+                    {k: str(err[k]) for k in ("loc", "msg", "type") if k in err}
+                    for err in exc.errors()
+                ]
+            },
         )
 
     @app.exception_handler(IntegrityError)

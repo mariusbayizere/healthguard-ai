@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.core.pii import MaskedPhone
 from app.schemas.common import ORMModel
 
 # Rwandan mobile numbers are 9 digits beginning 7[2389]; accept the local
@@ -91,7 +92,7 @@ class PatientUpdate(BaseModel):
 class PatientResponse(ORMModel):
     id: int
     name: str
-    phone: str
+    phone: MaskedPhone
     age: int | None
     gender: str | None
     location: str | None
