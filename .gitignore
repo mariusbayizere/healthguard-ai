@@ -50,6 +50,10 @@ Thumbs.db
 # Node
 node_modules/
 
+# Playwright output
+test-results/
+playwright-report/
+
 # Generated datasets — regenerate with `make dataset` (seed 42).
 # Every CSV under raw/ and processed/ is derived, so none is committed; what
 # IS committed is the manifest that pins their SHA-256 digests, which is the

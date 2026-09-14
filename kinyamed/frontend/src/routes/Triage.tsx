@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react";
+import { ApiError } from "@/api/client";
 import { usePatients, useSubmitTriage } from "@/api/hooks";
 import { PendingResponse } from "@/components/PendingResponse";
+import { TriageOfflineAlert } from "@/components/TriageOfflineAlert";
 import { UrgencyBadge } from "@/components/UrgencyBadge";
 import { Alert, Button, Card, Field, inputClass } from "@/components/ui";
 
@@ -9,19 +11,35 @@ export function Triage() {
   const submit = useSubmitTriage();
   const [patientId, setPatientId] = useState("");
   const [symptoms, setSymptoms] = useState("");
+  // The fail-closed instruction outlives the mutation state on purpose: a retry
+  // resets `submit.error`, and the instruction must not vanish while it runs.
+  // Only a successful assessment clears it.
+  const [offlineMessage, setOfflineMessage] = useState<string | null>(null);
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
-    submit.mutate({ patient_id: Number(patientId), symptoms_input: symptoms });
+    submit.mutate(
+      { patient_id: Number(patientId), symptoms_input: symptoms },
+      {
+        onSuccess: () => setOfflineMessage(null),
+        onError: (error) => {
+          if (error instanceof ApiError && error.code === "TRIAGE_MODEL_UNAVAILABLE") {
+            setOfflineMessage(error.message);
+          }
+        },
+      },
+    );
   }
 
   const result = submit.data;
+  const offline = offlineMessage !== null;
 
   return (
     <div className="space-y-6">
+      {offline && <TriageOfflineAlert message={offlineMessage} />}
       <Card title="New assessment">
         <form onSubmit={onSubmit} className="space-y-5">
-          {submit.isError && <Alert>{(submit.error as Error).message}</Alert>}
+          {submit.isError && !offline && <Alert>{(submit.error as Error).message}</Alert>}
 
           <Field label="Patient">
             <select
@@ -63,7 +81,7 @@ export function Triage() {
         </form>
       </Card>
 
-      {result && (
+      {result && !offline && (
         <Card title="Result">
           <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-10">
             <div>
