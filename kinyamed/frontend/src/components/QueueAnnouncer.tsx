@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { bandOf } from "@/api/queueBand";
+import { QUEUE_BAND } from "@/api/queueBand.gen";
 import type { QueueEntry } from "@/api/types";
-import { URGENCY } from "@/api/types";
 
 /** Tells a screen-reader user that the board changed.
  *
@@ -17,16 +18,23 @@ import { URGENCY } from "@/api/types";
  * minute reading an unchanged board is worse than silence: it is the state in
  * which people switch the announcements off, and then the one that mattered is
  * gone too. It speaks only when the COMPOSITION changes -- a different number
- * of patients, or a different count at some urgency.
+ * of patients, or a different count in some queue band.
  *
  * A new CRITICAL leads the sentence. If two things changed, the one that
  * decides who is seen next is the one heard first.
+ *
+ * BANDS, NOT GUESSES (item 2d). Counts are by queue band, the same grouping the
+ * board draws, via the same `bandOf` (including its fail-safe for a row with no
+ * band). Counting by predicted urgency spoke a case the model could not
+ * classify as "routine" -- the pre-2d board, read aloud. A new review case is
+ * announced second, after a new critical one.
  */
 function summarise(rows: QueueEntry[]): Record<string, number> {
   const counts: Record<string, number> = {};
-  for (const level of URGENCY) counts[level] = 0;
+  for (const band of QUEUE_BAND) counts[band] = 0;
   for (const row of rows) {
-    counts[row.urgency_level] = (counts[row.urgency_level] ?? 0) + 1;
+    const band = bandOf(row);
+    counts[band] = (counts[band] ?? 0) + 1;
   }
   return counts;
 }
@@ -50,11 +58,23 @@ function sentence(
     );
   }
 
+  const reviewNow = counts["NEEDS_REVIEW"] ?? 0;
+  const reviewBefore = previous?.["NEEDS_REVIEW"] ?? 0;
+  if (reviewNow > reviewBefore) {
+    const arrived = reviewNow - reviewBefore;
+    parts.push(
+      arrived === 1
+        ? "New case the model could not classify. Review it first."
+        : `${arrived} new cases the model could not classify. Review them first.`,
+    );
+  }
+
   parts.push(
     total === 0
       ? "Queue updated. Nobody is waiting."
       : `Queue updated. ${total} waiting:` +
           ` ${counts["CRITICAL"] ?? 0} critical,` +
+          ` ${counts["NEEDS_REVIEW"] ?? 0} needing review,` +
           ` ${counts["URGENT"] ?? 0} urgent,` +
           ` ${counts["ROUTINE"] ?? 0} routine.`,
   );
@@ -75,8 +95,8 @@ export function QueueAnnouncer({ rows }: { rows: QueueEntry[] }) {
       return;
     }
 
-    const changed = URGENCY.some(
-      (level) => counts[level] !== previous.current?.[level],
+    const changed = QUEUE_BAND.some(
+      (band) => counts[band] !== previous.current?.[band],
     );
     if (!changed) return;
 

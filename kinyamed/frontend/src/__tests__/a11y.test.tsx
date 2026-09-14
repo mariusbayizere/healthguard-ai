@@ -21,7 +21,7 @@
  * WCAG ratios from the palette itself. That test is what caught `ink-500` on
  * white at 3.94:1.
  */
-import { render } from "@testing-library/react";
+import { render, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { axe } from "vitest-axe";
 import type { AxeResults } from "axe-core";
@@ -36,10 +36,10 @@ import type { QueueEntry } from "@/api/types";
 const ROWS: QueueEntry[] = [
   { id: 1, queue_number: 12, urgency_level: "CRITICAL", status: "WAITING",
     patient_id: 1, patient_name: "Uwimana Claudine", doctor_name: null,
-    estimated_wait: 0 },
+    estimated_wait: 0, band: "CRITICAL", requires_human_review: false } as QueueEntry,
   { id: 2, queue_number: 9, urgency_level: "URGENT", status: "IN_PROGRESS",
     patient_id: 2, patient_name: "Nshimiyimana Eric", doctor_name: "Dr Mukamana",
-    estimated_wait: 25 },
+    estimated_wait: 25, band: "URGENT", requires_human_review: false } as QueueEntry,
   { id: 3, queue_number: 13, urgency_level: "ROUTINE", status: "WAITING",
     patient_id: 3, patient_name: "Mugisha Jean", doctor_name: null,
     estimated_wait: 0, band: "NEEDS_REVIEW", requires_human_review: true } as QueueEntry,
@@ -96,6 +96,21 @@ describe("accessibility", () => {
         )}
       />,
     );
+  });
+
+  it("announces a new review case by its band, and the board stays violation-free", async () => {
+    // Item 2d made the band visible; the live region must say the same thing.
+    const before = ROWS.filter((r) => r.id !== 3);
+    const { container, rerender } = render(<QueueTable rows={before} />);
+    rerender(<QueueTable rows={ROWS} />);
+    const live = within(container).getByRole("status");
+    expect(live.textContent).toMatch(/^New case the model could not classify\. Review it first\./);
+    expect(live).toHaveTextContent("1 needing review");
+    expect(live.textContent).not.toMatch(/\b1 routine/);
+    const results = (await axe(container, {
+      rules: { "color-contrast": { enabled: false } },
+    })) as unknown as AxeResults;
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 
   it("loading state", async () => {
