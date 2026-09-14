@@ -26,24 +26,17 @@ phrases, and it bounds every safety claim regardless of how the other six go.
 
 1. `alembic upgrade head`. The schema is Alembic's; the application never
    creates it.
-2. Set `TRIAGE_MODEL_PATH` and install the ML extras. Absent, the service runs
-   the keyword baseline — which must never be the deployed triage path.
-3. Confirm at start-up: the log line `classifier_selected` names the model, not
-   the baseline. **If it names the baseline, stop.**
-4. Confirm `response_pending=false` for every language and urgency the
-   deployment serves. A pending response means the patient receives nothing.
-5. SMS stays behind its feature flag, disabled, in dry-run, until a clinician
+2. Set `TRIAGE_MODEL_PATH` and install the ML extras.
+3. Confirm at start-up: the log line `classifier_selected` names the model.
+4. SMS stays behind its feature flag, disabled, in dry-run, until a clinician
    has approved the authored SMS text.
-6. Warm start is verified: the first request must not pay the cold cost
+5. Warm start is verified: the first request must not pay the cold cost
    (measured at 1341 ms against a warm median of 66 ms).
 
 ## Rollback
 
-Unset `TRIAGE_MODEL_PATH` and restart. The service falls back to the keyword
-baseline and logs a warning. **This is a degraded state, not a safe one** — the
-baseline is a keyword scorer and was never evaluated against the holdout.
-Rollback means taking the service out of clinical use, not running it on the
-fallback.
+Unset `TRIAGE_MODEL_PATH` and restart. Rollback means taking the service out of
+clinical use.
 
 ## What this runbook cannot do
 

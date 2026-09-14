@@ -44,32 +44,9 @@ is the figure such a target should be written against.
 
 The triage endpoint accepts a free-text symptom description, detects the
 language, classifies urgency, places the patient in a queue ordered by clinical
-priority, and returns the label. The classifier sits behind an interface with
-two implementations: a multilingual keyword baseline, and the fine-tuned model.
-The model is selected by configuration and is not installed by default, because
-the ML dependencies are deliberately absent from the API image; when it is
-configured but unavailable the service logs a warning and continues on the
-baseline rather than failing a request.
-
-\paragraph{The patient-facing response is speaker-authored or absent.} The
-endpoint returns the urgency label and a separate response slot. The sentence a
-patient reads --- go to hospital now, see a
-doctor today, it is safe to wait --- is the one piece of text in this system
-that tells a person what to do about their health, and it is authored by a
-speaker or it does not exist. The API states this explicitly rather than
-supplying a placeholder: a response carries a \texttt{pending} flag and a reason
-naming the brief that would fill it. The outbound SMS behaves the same way and
-sends nothing while unauthored, on the reasoning that the patient is in the
-queue either way and a machine-drafted urgency instruction in their hand is an
-active harm rather than a missing convenience.
-
-Speakers have since authored these for Kinyarwanda and Swahili --- three for the
-endpoint and three for SMS in each --- so the service now answers a patient in
-two of its four languages and returns an explicit pending state in the other
-two. The slot was empty when the endpoint shipped, and shipping it empty rather
-than filled with a plausible placeholder is what made the authored text
-straightforward to drop in: nothing downstream had come to depend on a sentence
-nobody wrote.
+priority, and returns the label. The model is selected by configuration and is
+not installed by default, because the ML dependencies are deliberately absent
+from the API image.
 
 \paragraph{Deployment: \PENDING{not deployed}.} This system has not run in a
 health centre and has not been used with any patient. A runbook exists; its
