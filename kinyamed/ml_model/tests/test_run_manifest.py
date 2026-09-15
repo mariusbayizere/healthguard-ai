@@ -202,3 +202,13 @@ def test_untracked_code_is_dirty_but_untracked_documents_are_not(repo):
     record = _started(repo).finish(outputs={}, results={}).record
     assert record["code"]["dirty"] is True
     assert "helper.py" in record["code"]["dirty_paths"]
+
+
+def test_an_input_read_later_in_the_run_is_added_with_its_hash(repo):
+    """The pipeline reads the training corpus only after the eval sets pass."""
+    run = _started(repo, inputs={})
+    run.add_input("train", repo / "data" / "train.csv")
+    record = run.finish(outputs={}, results={}).record
+    assert record["inputs"]["train"]["path"] == "data/train.csv"
+    with pytest.raises(RuntimeError):
+        run.add_input("late", repo / "config.json")

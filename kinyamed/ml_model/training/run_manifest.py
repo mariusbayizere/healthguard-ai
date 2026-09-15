@@ -186,6 +186,11 @@ class RunManifest:
         }
         return cls(repo=repo, record=record)
 
+    def add_input(self, name: str, path: Path) -> None:
+        if self.record["status"] != "running":
+            raise RuntimeError(f"this run is already {self.record['status']}")
+        self.record["inputs"][name] = _file_entry(path, self.repo)
+
     def _close(self, status: str) -> None:
         if self.record["status"] != "running":
             raise RuntimeError(f"this run is already {self.record['status']}")
