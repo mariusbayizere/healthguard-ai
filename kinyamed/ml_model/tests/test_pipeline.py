@@ -472,6 +472,8 @@ def test_the_real_trainer_uses_the_cost_sensitive_loss_and_is_seed_deterministic
 
 
 def test_the_committed_default_config_is_the_code_default():
-    committed = json.loads((ML_ROOT / "training/configs/pipeline_default.json").read_text())
+    committed = json.loads(
+        (ML_ROOT / "training/configs/pipeline_default.json").read_text()
+    )
     assert committed == pl.DEFAULT_CONFIG
     assert pl.validate_config(committed) == []
