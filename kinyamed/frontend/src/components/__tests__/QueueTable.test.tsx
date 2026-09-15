@@ -17,17 +17,17 @@ const rows: QueueEntry[] = [
 const REVIEW_LABEL = "Model could not classify — review these first";
 
 /** The live case: "sinshobora guhumeka", ROUTINE at 0.598, flagged. Given in the
- *  urgency order hooks.ts sorts by, which puts it last. */
+ *  server's order, which puts it first (item 2d). */
 const banded: QueueEntry[] = [
+  { id: 12, queue_number: 22, urgency_level: "ROUTINE", status: "WAITING",
+    patient_name: "Cannot Breathe", doctor_name: null, estimated_wait: 0,
+    band: "NEEDS_REVIEW", queue_position: 1, requires_human_review: true },
   { id: 11, queue_number: 21, urgency_level: "URGENT", status: "WAITING",
     patient_name: "Urgent Sure", doctor_name: null, estimated_wait: 5,
     band: "URGENT", queue_position: 2, requires_human_review: false },
   { id: 10, queue_number: 20, urgency_level: "ROUTINE", status: "WAITING",
     patient_name: "Routine Sure", doctor_name: null, estimated_wait: 10,
     band: "ROUTINE", queue_position: 3, requires_human_review: false },
-  { id: 12, queue_number: 22, urgency_level: "ROUTINE", status: "WAITING",
-    patient_name: "Cannot Breathe", doctor_name: null, estimated_wait: 0,
-    band: "NEEDS_REVIEW", queue_position: 1, requires_human_review: true },
 ] as unknown as QueueEntry[];
 
 function before(a: HTMLElement, b: HTMLElement): boolean {
@@ -85,7 +85,7 @@ describe("QueueTable", () => {
     expect(screen.queryByText(/nobody is waiting/i)).not.toBeInTheDocument();
   });
 
-  it("renders every row it is given, most urgent band first", () => {
+  it("renders every row it is given, in the order the API gave", () => {
     setViewportMatches(true);
     render(<QueueTable rows={rows} />);
     // Patient rows only; each band also opens with a header row.
@@ -127,7 +127,7 @@ describe("QueueTable live region", () => {
 
 describe("QueueTable bands (item 2d)", () => {
   it.each([false, true])(
-    "puts the flagged case in its own NEEDS REVIEW band above URGENT and ROUTINE (dense=%s)",
+    "shows the flagged case, first in the API order, under its own NEEDS REVIEW header (dense=%s)",
     (dense) => {
       setViewportMatches(dense);
       render(<QueueTable rows={banded} />);
@@ -174,15 +174,44 @@ describe("QueueTable bands (item 2d)", () => {
     expect(screen.queryByText(REVIEW_LABEL)).not.toBeInTheDocument();
   });
 
-  it("places a row with no band in the review band, not in ROUTINE", () => {
-    // The optimistic insert after a submission carries no band until the next
-    // poll. Unknown is treated as unclassified, which is where it is seen soonest.
-    const optimistic = { id: 30, queue_number: 30, urgency_level: "ROUTINE",
-      status: "WAITING", patient_name: "Just Submitted", doctor_name: null,
+  it("labels a row with no band as needing review, where the API placed it", () => {
+    // Unknown band is shown as unclassified (fail safe), but the row is not moved:
+    // position is the server's decision.
+    const bare = { id: 30, queue_number: 30, urgency_level: "ROUTINE",
+      status: "WAITING", patient_name: "No Band", doctor_name: null,
       estimated_wait: null } as QueueEntry;
-    render(<QueueTable rows={[...rows, optimistic]} />);
+    render(<QueueTable rows={[rows[0]!, bare, rows[1]!]} />);
     const header = screen.getByText(REVIEW_LABEL);
-    expect(before(header, screen.getByText("Just Submitted"))).toBe(true);
-    expect(before(screen.getByText("Just Submitted"), screen.getByText("Routine Case"))).toBe(true);
+    expect(before(screen.getByText("Critical Case"), header)).toBe(true);
+    expect(before(header, screen.getByText("No Band"))).toBe(true);
+    expect(before(screen.getByText("No Band"), screen.getByText("Routine Case"))).toBe(true);
   });
+
+  it.each([false, true])(
+    "property: the rendered patient order is exactly the API order (dense=%s)",
+    (dense) => {
+      setViewportMatches(dense);
+      let seed = 20260915;
+      const next = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
+      const urgencies = ["CRITICAL", "URGENT", "ROUTINE"] as const;
+      const bands = ["CRITICAL", "NEEDS_REVIEW", "URGENT", "ROUTINE", undefined];
+      for (let sequence = 0; sequence < 40; sequence++) {
+        const n = 1 + Math.floor(next() * 10);
+        const api = Array.from({ length: n }, (_, i) => {
+          const band = bands[Math.floor(next() * bands.length)];
+          return {
+            id: i + 1, queue_number: 200 + i, urgency_level: urgencies[Math.floor(next() * 3)]!,
+            status: "WAITING", patient_name: `Order Probe ${i + 1}`, doctor_name: null,
+            estimated_wait: 0, ...(band === undefined ? {} : { band }), queue_position: i + 1,
+          } as QueueEntry;
+        }).sort(() => next() - 0.5);
+        const { container, unmount } = render(<QueueTable rows={api} />);
+        const rendered = [...container.querySelectorAll("li, tbody tr")]
+          .map((el) => el.textContent?.match(/Order Probe \d+/)?.[0])
+          .filter(Boolean);
+        expect(rendered, `sequence ${sequence}`).toEqual(api.map((r) => r.patient_name));
+        unmount();
+      }
+    },
+  );
 });

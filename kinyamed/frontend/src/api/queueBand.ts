@@ -8,12 +8,17 @@ import type { QueueEntry } from "./types";
  * work (the same arrangement as `triageResponse.ts`). Fold them into
  * `QueueEntry` when that file is committed.
  *
- * `hooks.ts` sorts the queue by urgency alone, which is the ordering item 2d
- * replaces, so grouping and within-band order are decided here, from the
- * server's band and position, and not from the order rows arrive in.
+ * ORDER IS THE SERVER'S. The API returns the queue already ordered by band and
+ * arrival (item 2d); nothing on the client sorts it. Grouping here only draws a
+ * header wherever the band changes along that order. If the server ever
+ * returned bands out of order, the board would show a repeated header rather
+ * than silently rearranging patients -- the bug stays visible, and there is
+ * still one source of truth for who is seen next.
  */
 
 export interface BandGroup {
+  /** Unique per segment: a band can appear twice if the API order says so. */
+  key: string;
   band: QueueBand;
   label: string;
   rows: QueueEntry[];
@@ -42,18 +47,17 @@ export function bandOf(row: QueueEntry): QueueBand {
   return isBand(band) ? band : "NEEDS_REVIEW";
 }
 
-function position(row: QueueEntry): number {
-  const value = field(row, "queue_position");
-  return typeof value === "number" && value > 0 ? value : Number.POSITIVE_INFINITY;
-}
-
-/** Rows grouped by band, in band order, each in the server's order. Empty bands are omitted. */
+/** Consecutive runs of one band, in exactly the order given. Empty bands never appear. */
 export function groupByBand(rows: QueueEntry[]): BandGroup[] {
-  return QUEUE_BAND.map((band) => ({
-    band,
-    label: BAND_LABEL[band],
-    rows: rows
-      .filter((row) => bandOf(row) === band)
-      .sort((a, b) => position(a) - position(b) || a.queue_number - b.queue_number),
-  })).filter((group) => group.rows.length > 0);
+  const groups: BandGroup[] = [];
+  for (const row of rows) {
+    const band = bandOf(row);
+    const last = groups[groups.length - 1];
+    if (last && last.band === band) {
+      last.rows.push(row);
+    } else {
+      groups.push({ key: `${band}-${groups.length}`, band, label: BAND_LABEL[band], rows: [row] });
+    }
+  }
+  return groups;
 }

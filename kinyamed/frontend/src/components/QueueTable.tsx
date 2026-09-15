@@ -33,10 +33,10 @@ import { Empty, Skeleton } from "./ui";
  * 781 against clientWidth 768, with the Assign dropdown cut off at the right
  * edge. That board stays in cards until 1024px.
  *
- * BANDS ARE DECIDED HERE (item 2d), once, for both layouts: CRITICAL, then the
- * cases the model could not classify, then URGENT, then ROUTINE. `rows` may
- * arrive in any order -- `useQueue` sorts by urgency alone -- so the grouping
- * never trusts it.
+ * ORDER IS THE API'S (item 2d). The server sorts CRITICAL, then cases the model
+ * could not classify, then URGENT, then ROUTINE. Rows are rendered in exactly
+ * the order given; band headers are drawn where the band changes. No client
+ * code re-sorts the queue.
  */
 const BREAKPOINT = {
   md: "(min-width: 768px)",

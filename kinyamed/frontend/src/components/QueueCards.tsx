@@ -41,9 +41,9 @@ export function QueueCards({
 }) {
   return (
     <div className="space-y-6">
-      {groups.map(({ band, label, rows }) => (
-        <div key={band} role="group" aria-labelledby={`band-${band}`} data-band={band}>
-          <h3 id={`band-${band}`} className={BAND_HEADER[band]}>
+      {groups.map(({ key, band, label, rows }) => (
+        <div key={key} role="group" aria-labelledby={`band-${key}`} data-band={band}>
+          <h3 id={`band-${key}`} className={BAND_HEADER[band]}>
             {label} <span className="tnum">({rows.length})</span>
           </h3>
           <ul className="mt-3 space-y-3">

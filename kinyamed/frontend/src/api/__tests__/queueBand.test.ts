@@ -46,14 +46,13 @@ describe("bandOf", () => {
   });
 });
 
-describe("groupByBand", () => {
-  it("groups in band order, skips empty bands, and keeps server order within a band", () => {
-    // Given in the urgency order hooks.ts sorts by, which is the wrong order.
+describe("groupByBand renders the API order, and never reorders it", () => {
+  it("segments rows by band in the order the API returned them", () => {
     const rows = [
       row(4, "CRITICAL", { band: "CRITICAL", queue_position: 1 }),
-      row(1, "URGENT", { band: "URGENT", queue_position: 4 }),
-      row(3, "URGENT", { band: "NEEDS_REVIEW", queue_position: 3 }),
       row(2, "ROUTINE", { band: "NEEDS_REVIEW", queue_position: 2 }),
+      row(3, "URGENT", { band: "NEEDS_REVIEW", queue_position: 3 }),
+      row(1, "URGENT", { band: "URGENT", queue_position: 4 }),
       row(5, "ROUTINE", { band: "ROUTINE", queue_position: 5 }),
     ];
     const groups = groupByBand(rows);
@@ -62,46 +61,42 @@ describe("groupByBand", () => {
     expect(groups[1]!.label).toBe(BAND_LABEL.NEEDS_REVIEW);
   });
 
-  it("falls back to queue number within a band when positions are absent", () => {
+  it("does not sort within a band, even when positions disagree with the order", () => {
+    // The server is authoritative. If its order and its positions ever
+    // disagreed, the board shows the order and the bug is the server's.
     const groups = groupByBand([
-      row(9, "ROUTINE", { band: "ROUTINE" }),
-      row(7, "ROUTINE", { band: "ROUTINE" }),
+      row(9, "ROUTINE", { band: "ROUTINE", queue_position: 2 }),
+      row(7, "ROUTINE", { band: "ROUTINE", queue_position: 1 }),
     ]);
-    expect(groups).toHaveLength(1);
-    expect(groups[0]!.rows.map((r) => r.id)).toEqual([7, 9]);
+    expect(groups[0]!.rows.map((r) => r.id)).toEqual([9, 7]);
   });
 
-  it("property: no flagged case ever lands below an unflagged non-CRITICAL case", () => {
-    // Seeded LCG so a failure reproduces.
-    let seed = 20260914;
+  it("starts a new segment when a band reappears, instead of merging rows out of order", () => {
+    const groups = groupByBand([
+      row(1, "ROUTINE", { band: "NEEDS_REVIEW" }),
+      row(2, "ROUTINE", { band: "ROUTINE" }),
+      row(3, "URGENT", { band: "NEEDS_REVIEW" }),
+    ]);
+    expect(groups.map((g) => g.band)).toEqual(["NEEDS_REVIEW", "ROUTINE", "NEEDS_REVIEW"]);
+    expect(new Set(groups.map((g) => g.key)).size).toBe(3);
+  });
+
+  it("property: flattening the segments gives back exactly the API order", () => {
+    let seed = 20260915;
     const next = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
     const urgencies = ["CRITICAL", "URGENT", "ROUTINE"] as const;
-    for (let sequence = 0; sequence < 200; sequence++) {
-      const n = 1 + Math.floor(next() * 12);
-      const rows: Row[] = [];
-      for (let i = 0; i < n; i++) {
-        const urgency = urgencies[Math.floor(next() * 3)]!;
-        const flagged = next() < 0.4;
-        // Some rows arrive with neither field, as the optimistic insert does.
-        const unknown = next() < 0.1;
-        const band = urgency === "CRITICAL" ? "CRITICAL" : flagged ? "NEEDS_REVIEW" : urgency;
-        rows.push(row(i + 1, urgency, unknown ? {} : { requires_human_review: flagged, band }));
-      }
-      rows.sort(() => next() - 0.5);
-      const flat = groupByBand(rows).flatMap((g) => g.rows) as Row[];
-      expect(flat).toHaveLength(n);
-      flat.forEach((upper, i) => {
-        for (const lower of flat.slice(i + 1)) {
-          const context = `sequence ${sequence}: #${upper.id} above #${lower.id}`;
-          // Flagged: the server said review is required. Unflagged: it said not.
-          // A row with no flag is neither, and is placed by the fail-safe.
-          const flagged = lower.requires_human_review === true;
-          const unflagged = upper.requires_human_review === false;
-          expect(flagged && unflagged && upper.urgency_level !== "CRITICAL", context).toBe(false);
-          expect(lower.urgency_level === "CRITICAL" && upper.urgency_level !== "CRITICAL", context)
-            .toBe(false);
-        }
-      });
+    const bands = ["CRITICAL", "NEEDS_REVIEW", "URGENT", "ROUTINE", undefined, "UNKNOWN"];
+    for (let sequence = 0; sequence < 300; sequence++) {
+      const n = Math.floor(next() * 15);
+      const rows: Row[] = Array.from({ length: n }, (_, i) => {
+        const band = bands[Math.floor(next() * bands.length)];
+        return row(i + 1, urgencies[Math.floor(next() * 3)]!, band === undefined ? {} : { band });
+      }).sort(() => next() - 0.5);
+      const groups = groupByBand(rows);
+      expect(groups.flatMap((g) => g.rows.map((r) => r.id)), `sequence ${sequence}`)
+        .toEqual(rows.map((r) => r.id));
+      groups.forEach((g) => g.rows.forEach((r) => expect(bandOf(r)).toBe(g.band)));
+      groups.slice(1).forEach((g, i) => expect(g.band).not.toBe(groups[i]!.band));
     }
   });
 });

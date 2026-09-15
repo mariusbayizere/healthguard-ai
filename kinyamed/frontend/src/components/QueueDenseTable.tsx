@@ -50,8 +50,8 @@ export function QueueDenseTable({
           )}
         </tr>
       </thead>
-      {groups.map(({ band, label, rows }) => (
-        <tbody key={band} data-band={band}>
+      {groups.map(({ key, band, label, rows }) => (
+        <tbody key={key} data-band={band}>
           <tr>
             <th scope="rowgroup" colSpan={columns} className="px-0 pb-2 pt-5 text-left">
               <span className={`block ${BAND_HEADER[band]}`}>

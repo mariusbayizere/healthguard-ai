@@ -11,7 +11,6 @@ import {
   toList,
   type Doctor, type LoginResponse, type Patient,
   type QueueEntry, type QueueStatus, type TriageResult, type Urgency,
-  URGENCY_RANK,
 } from "./types";
 
 export const keys = {
@@ -28,17 +27,11 @@ const QUEUE_POLL_MS = 5_000;
 export function useQueue() {
   return useQuery({
     queryKey: keys.queue,
-    queryFn: async () => {
-      const rows = toList<QueueEntry>(await request<unknown>("/queue"));
-      // Sorted here, once, rather than in each view. The API returns clinical
-      // priority already; this makes the guarantee explicit and survives an
-      // API that stops honouring it.
-      return [...rows].sort(
-        (a, b) =>
-          (URGENCY_RANK[a.urgency_level] ?? 9) - (URGENCY_RANK[b.urgency_level] ?? 9) ||
-          a.queue_number - b.queue_number,
-      );
-    },
+    // Returned in the API's order and NOT re-sorted. The server orders the
+    // queue by band and arrival (item 2d). A client re-sort by urgency was a
+    // second source of truth for who is seen next, and it put a case the model
+    // could not classify below every URGENT patient.
+    queryFn: async () => toList<QueueEntry>(await request<unknown>("/queue")),
     refetchInterval: QUEUE_POLL_MS,
     refetchOnWindowFocus: true,
     enabled: auth.isAuthenticated(),
@@ -78,7 +71,13 @@ export function useSubmitTriage() {
     // inserted row would render working buttons that PATCH /queue/undefined.
     onSuccess: (result) => {
       qc.setQueryData<QueueEntry[]>(keys.queue, (current) => {
-        const row: QueueEntry = {
+        // Band and position are the SERVER's: `band` and `queue_position` come
+        // back on the triage response, so the client never re-derives the band
+        // rule or sorts. Read at runtime because `TriageResult` in types.ts
+        // predates them.
+        const fields = result as unknown as Record<string, unknown>;
+        const position = typeof fields["queue_position"] === "number" ? fields["queue_position"] : Infinity;
+        const row = {
           id: result.queue_id,
           queue_number: result.queue_number,
           urgency_level: result.urgency_level,
@@ -87,14 +86,13 @@ export function useSubmitTriage() {
           patient_name: result.patient_name,
           doctor_name: null,
           estimated_wait: result.estimated_wait,
-        };
-        // Re-sorted on insert so the new row lands at its clinical position
-        // rather than at the end. Same comparator as the fetch path.
-        return [...(current ?? []), row].sort(
-          (a, b) =>
-            (URGENCY_RANK[a.urgency_level] ?? 9) - (URGENCY_RANK[b.urgency_level] ?? 9) ||
-            a.queue_number - b.queue_number,
-        );
+          band: fields["band"],
+          queue_position: fields["queue_position"],
+          requires_human_review: fields["requires_human_review"],
+        } as QueueEntry;
+        const rows = [...(current ?? [])];
+        rows.splice(Math.min(Math.max(position - 1, 0), rows.length), 0, row);
+        return rows;
       });
       // The optimistic row is complete but the SERVER's wait estimates for
       // every other row have shifted. Revalidate in the background; the board
