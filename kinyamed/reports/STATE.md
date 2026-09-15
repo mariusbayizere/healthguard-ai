@@ -1,10 +1,8 @@
 # STATE
 
-**Updated** 2026-09-15 · **Phase** Remediation · **Status** Items through 2d and the 2d accessibility fix
-committed (not pushed). **2026-09-15: taxonomy scope defect written up (`TAXONOMY_SCOPE.md`, decision E6/E7
-needed, deferred); corpus person measured (TAXONOMY_SCOPE §8); `docs/clinical/` not yet present, so no H3–H5
-item is cleared.** `CORPUS_REBUILD.md` specified. The four engineering items (client re-sort, Playwright in CI,
-mypy backlog, I18N plan) are **waiting on your confirmation that `hooks.ts` is committed**.
+**Updated** 2026-09-15 · **Phase** Remediation · **Branch** `audit-p0-p1-and-frontend` (clean; your in-flight
+work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4 in progress. **Item 1 done**
+(`af643d0`, `6e81dd8`). **ETAT reading task BLOCKED: `docs/clinical/` exists but is empty.**
 
 ## Order agreed
 
@@ -513,6 +511,56 @@ pilot exists.
 
 **A26 added to SRS CORRECTIONS:** the concept total takes **five** values across the repo (68, 80, **126**, 127,
 128), not four, with every `file:line`. The brief itself has 128 concept ids.
+
+## 2026-09-15 — ETAT reading task: BLOCKED, the manual is not in the repository
+
+You reported the WHO ETAT Participant Manual placed in `docs/clinical/`.
+- **As of this session, `kinyamed/docs/clinical/` exists (created 06:55) and is empty.**
+- No branch tracks a file under `docs/clinical/`.
+- A search for ETAT-named or recently modified PDF/EPUB/DOCX files on this machine found only unrelated
+  personal documents in `~/Downloads`. I did not open them.
+
+The TAXONOMY_SCOPE §2 table therefore stays blank, nothing is stated from memory, and the modality question
+(examination signs vs a verbal or written description) stays open. **Please place the file itself, e.g.
+`kinyamed/docs/clinical/<name>.pdf`, and tell me.** The engineering items below do not depend on it, so they
+proceeded.
+
+## Item 1 — the client sorts nothing; the server's order is authoritative (`af643d0`, `6e81dd8`)
+
+**Two client-side orderings, not one.**
+- `useQueue` re-sorted the API response by urgency.
+- `groupByBand` (my own item 2d code) then re-sorted inside each band by `queue_position` / `queue_number`.
+- Both are removed.
+
+**What changed.**
+- `useQueue` returns rows exactly as the API sends them.
+- The board draws a band header wherever the band changes along that order. If the server ever returned bands
+  out of order, the board would show a repeated header rather than silently rearranging patients.
+- The optimistic insert after a submission is spliced in at the server's `queue_position`, with the server's
+  `band`.
+- That needed one backend addition: `band` and `band_label` on `POST /triage` and `GET /triage/{id}`, from the
+  same `band_of` that orders the queue. The client never re-derives the band rule.
+
+**Tests, written first** (red: 1 backend, 8 frontend).
+- Backend: the triage response band equals the queue list band for NEEDS_REVIEW, URGENT and a low-confidence
+  CRITICAL.
+- Frontend:
+  - property tests that `useQueue` returns (25 sequences) and the board renders, in cards and table (40
+    sequences each), **exactly the API order**;
+  - `groupByBand` flattened equals its input (300 sequences, including missing and unknown bands);
+  - no sort within a band;
+  - a reappearing band starts a new segment;
+  - the optimistic row lands at the server's position, and past-the-end appends.
+- The old tests that encoded client re-ordering (fixture given in urgency order, expected re-grouped) were
+  rewritten to give the API's order.
+- Mutations: restoring the urgency sort in `useQueue` fails 2 tests; restoring the within-band sort fails 4.
+
+**Green:** backend **242 passed**; ruff clean; mypy **15** (this clean branch; the old 18 counted your
+uncommitted files); Vitest **132 passed**; `tsc -b` clean; Playwright 2 passed.
+
+**Seen on your WIP branch, not touched:** its `ci.yml` change adds a PostgreSQL service to the backend job and
+notes the job "never ran" without one. On this branch the backend CI job still has no database. Your fix
+resolves that when merged; item 2 will not duplicate it, to avoid a conflict.
 
 ## Next — single action
 
