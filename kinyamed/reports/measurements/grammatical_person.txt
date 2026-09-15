@@ -1,0 +1,112 @@
+== 1. Whole corpus (330,000 rows): whose condition ==
+  A. self-report (speaker's own condition)                       53,571 / 330,000 (16.2%)
+  B1. about a child: relation is a child                         33,352 / 330,000 (10.1%)
+  B2. about a child: speaker's own request for their child       4,600 / 330,000 (1.4%)
+  B3. about a child: an adult relative's request, relayed        32,179 / 330,000 (9.8%)
+  C. about an adult or unspecified relative                      205,361 / 330,000 (62.2%)
+  D. third person, nobody named                                  493 / 330,000 (0.1%)
+  E. no person marked                                            444 / 330,000 (0.1%)
+  -> self-report 53,571 / 330,000 (16.2%); about someone else 275,985 / 330,000 (83.6%); about a child 70,131 / 330,000 (21.3%)
+
+== 2. Seed phrases (165 distinct) ==
+  no {REL}: no person marked                             1 / 165 (0.6%)
+  no {REL}: self-report                                 82 / 165 (49.7%)
+  no {REL}: speaker's request for their child            4 / 165 (2.4%)
+  no {REL}: third person, nobody named                   1 / 165 (0.6%)
+  {REL}, patient is a child (relayed request)            4 / 165 (2.4%)
+  {REL}, rendered with adult relations only             14 / 165 (8.5%)
+  {REL}, rendered with child and adult relations        50 / 165 (30.3%)
+  {REL}, rendered with child relations only              9 / 165 (5.5%)
+
+== 3. n=9 reporting set (v2d test set) ==
+  rows 17,942; distinct phrases 9
+  A. self-report (speaker's own condition)                       3,016 / 17,942 (16.8%)
+  B1. about a child: relation is a child                         1,931 / 17,942 (10.8%)
+  C. about an adult or unspecified relative                      12,995 / 17,942 (72.4%)
+    self-report            Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.
+    self-report            Mfite umuvuduko w'amaraso wazamutse cyane.
+    self-report            Ndashaka ko bapima amaraso.
+    self-report            mfite umuriro wa dogere 39
+    self-report            mu gituza harandya cyane kandi sinshobora guhumeka neza
+    third-person report    {REL} afite umuriro wa dogere 39.
+    third-person report    {REL} afite umuvuduko w'amaraso wazamutse cyane.
+    third-person report    {REL} arababara cyane mu gituza kandi ntashobora guhumeka neza.
+    third-person report    {REL} arimo kuva imyuna mu mazuru kandi ntahagarara.
+
+== 4. Domains ==
+  preventive           76,100 / 330,000 (23.1%)
+      A. self-report (speaker's own condition)                   10,655 / 76,100 (14.0%)
+      B1. about a child: relation is a child                     5,009 / 76,100 (6.6%)
+      B2. about a child: speaker's own request for their child   3,469 / 76,100 (4.6%)
+      B3. about a child: an adult relative's request, relayed    24,140 / 76,100 (31.7%)
+      C. about an adult or unspecified relative                  32,827 / 76,100 (43.1%)
+  cardiac_respiratory  49,049 / 330,000 (14.9%)
+      A. self-report (speaker's own condition)                   6,229 / 49,049 (12.7%)
+      B1. about a child: relation is a child                     6,433 / 49,049 (13.1%)
+      C. about an adult or unspecified relative                  36,387 / 49,049 (74.2%)
+  gastrointestinal     43,811 / 330,000 (13.3%)
+      A. self-report (speaker's own condition)                   6,760 / 43,811 (15.4%)
+      B1. about a child: relation is a child                     5,672 / 43,811 (12.9%)
+      C. about an adult or unspecified relative                  31,379 / 43,811 (71.6%)
+  haemorrhage_trauma   40,747 / 330,000 (12.3%)
+      A. self-report (speaker's own condition)                   5,816 / 40,747 (14.3%)
+      B1. about a child: relation is a child                     5,408 / 40,747 (13.3%)
+      C. about an adult or unspecified relative                  29,523 / 40,747 (72.5%)
+  obstetric            32,600 / 330,000 (9.9%)
+      A. self-report (speaker's own condition)                   6,985 / 32,600 (21.4%)
+      C. about an adult or unspecified relative                  25,171 / 32,600 (77.2%)
+      E. no person marked                                        444 / 32,600 (1.4%)
+  chronic_care         32,487 / 330,000 (9.8%)
+      A. self-report (speaker's own condition)                   8,663 / 32,487 (26.7%)
+      B1. about a child: relation is a child                     2,595 / 32,487 (8.0%)
+      C. about an adult or unspecified relative                  21,229 / 32,487 (65.3%)
+  infectious_fever     28,832 / 330,000 (8.7%)
+      A. self-report (speaker's own condition)                   5,300 / 28,832 (18.4%)
+      B1. about a child: relation is a child                     4,980 / 28,832 (17.3%)
+      C. about an adult or unspecified relative                  18,552 / 28,832 (64.3%)
+  neurological         14,933 / 330,000 (4.5%)
+      A. self-report (speaker's own condition)                   2,724 / 14,933 (18.2%)
+      B1. about a child: relation is a child                     1,423 / 14,933 (9.5%)
+      C. about an adult or unspecified relative                  10,293 / 14,933 (68.9%)
+      D. third person, nobody named                              493 / 14,933 (3.3%)
+  paediatric           11,441 / 330,000 (3.5%)
+      A. self-report (speaker's own condition)                   439 / 11,441 (3.8%)
+      B1. about a child: relation is a child                     1,832 / 11,441 (16.0%)
+      B2. about a child: speaker's own request for their child   1,131 / 11,441 (9.9%)
+      B3. about a child: an adult relative's request, relayed    8,039 / 11,441 (70.3%)
+
+== 5. Frame contradictions (opener/context implies a child, clause does not) ==
+  context 'Abandi bana na bo bafite iki kibazo' (other children have this too) on a row not about a child: 25,670 / 330,000 (7.8%)
+  opener 'Nzanye umwana wanjye' (I have brought my child) on a row not about a child: 21,651 / 330,000 (6.6%)
+
+== 6. Automatic concord classifier vs reference subject person (578 distinct clauses) ==
+  -- v1 clause
+  reference \ automatic                self-report  third-person r           mixed  no person mark
+  self-report                               48,563               0           5,008               0
+  third-person report                            0         215,331          56,054               0
+  carer request for a child                  4,600               0               0               0
+  no person marked                               0             444               0               0
+  row error 18.90% (61,506 of 325,400 rows, carer requests excluded); wrong on 130 distinct clauses
+  -- v2 clause
+  reference \ automatic                self-report  third-person r           mixed  no person mark
+  self-report                               49,007               0           4,564               0
+  third-person report                            0         248,209          23,176               0
+  carer request for a child                  4,600               0               0               0
+  no person marked                               0             444               0               0
+  row error 8.66% (28,184 of 325,400 rows, carer requests excluded); wrong on 60 distinct clauses
+  -- v2 whole row
+  reference \ automatic                self-report  third-person r           mixed  no person mark
+  self-report                               41,738               0          11,833               0
+  third-person report                        6,487          49,961         213,223           1,714
+  carer request for a child                  3,895               0             705               0
+  no person marked                              32             108             304               0
+  row error 71.82% (233,701 of 325,400 rows, carer requests excluded)
+
+== 7. Uncertain hand readings (need a Kinyarwanda speaker) ==
+  - Mfite gahunda yo gukingiza umwana.  [whose vaccination: the child's (carer) or unstated]
+  - Ndashaka kugirwa inama uko nakonsa umwana.  [read as self (1sg 'nakonsa', breastfeeding advice for the mother); the child is also a subject of care]
+  - Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.  ['ntabasha' read as 1sg subordinate negative (n-ta-); could be read as 3sg]
+  - ndi kuva amaraso menshi kandi ntahagarara  ['ntahagarara' (it/he does not stop) has no 1sg reading; person carried by 'ndi']
+  - Amazuru yanjye arimo ariva imyuna myinshi kandi ntahagarara.  [as above; person carried by possessive 'yanjye']
+  - Mfite umuhaha.  [1sg, but in the paediatric domain; whose condition is not stated]
+  - Amazi yamenetse ariko igihe cyo kubyara ntikiragera.  [no person marked; implicitly the speaker]
