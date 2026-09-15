@@ -42,13 +42,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--requests", type=int, default=300)
-    parser.add_argument("--max-length", type=int, default=96)
+    parser.add_argument("--max-length", type=int, default=None)
     parser.add_argument("--threads", type=int, default=2)
     args = parser.parse_args(argv)
 
     sys.path.insert(0, str(ROOT))
     import torch
-    from app.services.model_classifier import ModelClassifier
+    from app.services.model_classifier import ModelClassifier, resolve_max_length
+
+    args.max_length = resolve_max_length(args.model, args.max_length)
 
     with CORPUS.open(encoding="utf-8", newline="") as handle:
         texts = [row["text"] for row in csv.DictReader(handle)]

@@ -103,7 +103,9 @@ class Settings(BaseSettings):
 
     # --- ML model --------------------------------------------------------
     MODEL_NAME: str = "Davlan/afro-xlmr-mini"
-    MODEL_MAX_LENGTH: int = Field(default=512, ge=16, le=4096)
+    # Unset: serve at the length the model records it was trained at
+    # (<model dir>/kinyamed_training.json). Set to anything else: start-up refuses.
+    MODEL_MAX_LENGTH: int | None = Field(default=None, ge=16, le=4096)
     MODEL_CONFIDENCE_THRESHOLD: float = Field(default=0.75, ge=0.0, le=1.0)
 
     # C1. Path to a fine-tuned classifier directory. UNSET BY DEFAULT: torch and

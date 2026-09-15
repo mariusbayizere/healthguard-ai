@@ -68,6 +68,51 @@ _URGENCY = {
 }
 
 
+TRAINING_METADATA = "kinyamed_training.json"
+
+
+class ModelConfigurationError(RuntimeError):
+    """The model cannot be served as configured. Stops start-up; never becomes None."""
+
+
+def read_training_max_length(model_path: Path) -> int:
+    """The max_length the model was fine-tuned at, as its directory records it."""
+    import json
+
+    metadata = model_path / TRAINING_METADATA
+    try:
+        recorded = json.loads(metadata.read_text()).get("max_length")
+    except (OSError, ValueError, AttributeError) as error:
+        raise ModelConfigurationError(
+            f"{model_path} does not record its training max_length in {TRAINING_METADATA} "
+            f"({type(error).__name__}). Record it from the training run: "
+            "python scripts/record_training_length.py --model <dir> --run-record <run json>"
+        ) from error
+    if isinstance(recorded, bool) or not isinstance(recorded, int) or recorded <= 0:
+        raise ModelConfigurationError(
+            f"{model_path}/{TRAINING_METADATA} does not record a valid training max_length "
+            f"(found {recorded!r})"
+        )
+    return recorded
+
+
+def resolve_max_length(model_path: Path, configured: int | None) -> int:
+    """The length to serve at: the training length, and never anything else.
+
+    Serving at a different length classifies inputs the model never saw in
+    fine-tuning (v2d: trained at 96, served at 512). Unset configuration takes the
+    recorded length; a configured length that differs is refused.
+    """
+    trained = read_training_max_length(model_path)
+    if configured is not None and configured != trained:
+        raise ModelConfigurationError(
+            f"MODEL_MAX_LENGTH={configured} but the model at {model_path} was trained at "
+            f"max_length={trained}. Refusing to start: remove MODEL_MAX_LENGTH or set it "
+            f"to {trained}."
+        )
+    return trained
+
+
 class InferenceTimeoutError(RuntimeError):
     """No result within the timeout. Triage fails closed (503); nothing is written."""
 
@@ -312,10 +357,15 @@ def build_classifier() -> tuple[ModelClassifier | None, str]:
     if not path.exists():
         return _unavailable(f"no model at {path}")
 
+    # A length mismatch, or a model that cannot say what length it was trained at,
+    # is a configuration error. It raises through start-up rather than becoming a
+    # quiet 503 that nobody investigates.
+    max_length = resolve_max_length(path, settings.MODEL_MAX_LENGTH)
+
     try:
         classifier = ModelClassifier(
             path,
-            max_length=settings.MODEL_MAX_LENGTH,
+            max_length=max_length,
             threads=settings.TRIAGE_MODEL_THREADS,
         )
     except ImportError as error:
@@ -327,5 +377,10 @@ def build_classifier() -> tuple[ModelClassifier | None, str]:
         return _unavailable(f"the model at {path} failed to load ({error})")
 
     warm_ms = classifier.warm_up()
-    logger.info("triage_model_loaded", path=str(path), warm_up_ms=round(warm_ms, 1))
+    logger.info(
+        "triage_model_loaded",
+        path=str(path),
+        max_length=max_length,
+        warm_up_ms=round(warm_ms, 1),
+    )
     return classifier, f"fine-tuned model from {path} (warm-up {warm_ms:.0f} ms)"

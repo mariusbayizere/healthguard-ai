@@ -188,7 +188,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument(
-        "--max-length", type=int, default=96, help="the model's training length"
+        "--max-length",
+        type=int,
+        default=None,
+        help="defaults to the length the model directory records it was trained at",
     )
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--batch-sizes", type=int, nargs="+", default=[1, 16])
@@ -200,7 +203,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     sys.path.insert(0, str(ROOT))
-    from app.services.model_classifier import BatchedInference, ModelClassifier
+    from app.services.model_classifier import (
+        BatchedInference,
+        ModelClassifier,
+        resolve_max_length,
+    )
+
+    args.max_length = resolve_max_length(args.model, args.max_length)
 
     args.out.mkdir(parents=True, exist_ok=True)
     texts = _texts(args.texts, args.seed)

@@ -40,8 +40,11 @@ def test_missing_model_directory_yields_no_classifier(
 
 
 def test_an_unloadable_artefact_yields_no_classifier(monkeypatch, tmp_path) -> None:
-    """A directory that exists but holds no model must not become any classifier."""
+    """A directory that records its training length but holds no weights must not
+    become any classifier."""
+    (tmp_path / mc.TRAINING_METADATA).write_text('{"max_length": 96}')
     monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
+    monkeypatch.setattr(mc.settings, "MODEL_MAX_LENGTH", None, raising=False)
 
     classifier, reason = mc.build_classifier()
 
@@ -50,7 +53,9 @@ def test_an_unloadable_artefact_yields_no_classifier(monkeypatch, tmp_path) -> N
 
 
 def test_missing_ml_dependencies_yield_no_classifier(monkeypatch, tmp_path) -> None:
+    (tmp_path / mc.TRAINING_METADATA).write_text('{"max_length": 96}')
     monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
+    monkeypatch.setattr(mc.settings, "MODEL_MAX_LENGTH", None, raising=False)
 
     def _no_torch(*_args, **_kwargs):
         raise ImportError("No module named 'torch'")
