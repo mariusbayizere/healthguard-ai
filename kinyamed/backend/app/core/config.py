@@ -116,6 +116,12 @@ class Settings(BaseSettings):
     # succeeds only after a restart; the header paces clients, the response
     # body tells staff to triage manually meanwhile.
     TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS: int = Field(default=60, ge=1, le=3600)
+    # Micro-batching (replaces a single inference lock). Requests arriving within
+    # the wait window share one forward pass. A request with no result by the
+    # timeout fails closed (503).
+    TRIAGE_BATCH_MAX_SIZE: int = Field(default=16, ge=1, le=256)
+    TRIAGE_BATCH_MAX_WAIT_MS: float = Field(default=5.0, ge=0.0, le=1000.0)
+    TRIAGE_INFERENCE_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0.0, le=600.0)
 
     # --- Red-flag rules layer (CLAUDE.md L2) --------------------------------
     # The §10.6 lexicon. It ships EMPTY (header only), so the layer is a no-op

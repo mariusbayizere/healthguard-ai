@@ -43,8 +43,10 @@ not report it to a patient as a likelihood.
 
 from __future__ import annotations
 
+import queue
 import threading
 import time
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 import structlog
@@ -66,8 +68,157 @@ _URGENCY = {
 }
 
 
+class InferenceTimeoutError(RuntimeError):
+    """No result within the timeout. Triage fails closed (503); nothing is written."""
+
+
+BatchForward = Callable[[list[str]], Sequence[Sequence[float]]]
+
+
+class _Request:
+    """One caller's request. Its result is written here and nowhere else."""
+
+    __slots__ = ("abandoned", "done", "error", "result", "text")
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+        self.done = threading.Event()
+        self.result: Sequence[float] | None = None
+        self.error: BaseException | None = None
+        self.abandoned = False
+
+
+class BatchedInference:
+    """Micro-batched inference: one worker thread owns the model.
+
+    Replaces a single lock that serialised every forward pass, so the Nth
+    concurrent caller waited for N-1 whole inferences. Callers still call
+    `infer()` synchronously. The worker takes the first waiting request, gathers
+    more for at most `max_wait_ms` (up to `max_batch_size`), and runs them as one
+    forward pass.
+
+    NO REQUEST CAN RECEIVE ANOTHER REQUEST'S RESULT:
+      * each caller owns its `_Request`; results are written to the request objects
+        of the batch that produced them, by position, and only after checking the
+        forward returned exactly one result per input;
+      * a caller that times out marks its request abandoned. A late result lands on
+        that object, which nobody reads, and never on a later request.
+
+    FAILS CLOSED: a forward that raises, or returns the wrong number of results,
+    fails every caller in that batch. A caller with no result by `timeout_s` gets
+    `InferenceTimeoutError`. `triage_service._classify` turns both into a 503
+    before anything is written.
+    """
+
+    def __init__(
+        self,
+        forward: BatchForward,
+        *,
+        max_batch_size: int,
+        max_wait_ms: float,
+        timeout_s: float,
+    ) -> None:
+        if max_batch_size < 1 or max_wait_ms < 0 or timeout_s <= 0:
+            raise ValueError("max_batch_size >= 1, max_wait_ms >= 0, timeout_s > 0")
+        self._forward = forward
+        self.max_batch_size = max_batch_size
+        self.max_wait_s = max_wait_ms / 1000.0
+        self.timeout_s = timeout_s
+        self._queue: queue.Queue[_Request | None] = queue.Queue()
+        self._closed = False
+        self._state_lock = threading.Lock()
+        self._worker = threading.Thread(
+            target=self._run, name="triage-inference", daemon=True
+        )
+        self._worker.start()
+
+    def infer(self, text: str) -> Sequence[float]:
+        request = _Request(text)
+        with self._state_lock:
+            if self._closed:
+                raise RuntimeError("inference engine is closed")
+            self._queue.put(request)
+        if not request.done.wait(self.timeout_s):
+            request.abandoned = True
+            raise InferenceTimeoutError(
+                f"no inference result within {self.timeout_s:g} s"
+            )
+        if request.error is not None:
+            raise request.error
+        if request.result is None:  # pragma: no cover - guarded by the worker
+            raise RuntimeError("inference finished without a result")
+        return request.result
+
+    def close(self) -> None:
+        with self._state_lock:
+            if self._closed:
+                return
+            self._closed = True
+            self._queue.put(None)
+        self._worker.join(timeout=5)
+
+    def _gather(self, first: _Request) -> tuple[list[_Request], bool]:
+        """The first request plus whatever arrives within the wait window."""
+        batch = [first]
+        stop = False
+        deadline = time.monotonic() + self.max_wait_s
+        while len(batch) < self.max_batch_size:
+            remaining = deadline - time.monotonic()
+            try:
+                item = (
+                    self._queue.get(timeout=remaining)
+                    if remaining > 0
+                    else self._queue.get_nowait()
+                )
+            except queue.Empty:
+                break
+            if item is None:
+                stop = True
+                break
+            batch.append(item)
+        return batch, stop
+
+    def _run(self) -> None:
+        stop = False
+        while not stop:
+            first = self._queue.get()
+            if first is None:
+                break
+            batch, stop = self._gather(first)
+            live = [r for r in batch if not r.abandoned]
+            if live:
+                try:
+                    results = list(self._forward([r.text for r in live]))
+                    if len(results) != len(live):
+                        raise RuntimeError(
+                            f"forward returned {len(results)} results, expected {len(live)}"
+                        )
+                    for request, result in zip(live, results, strict=True):
+                        request.result = result
+                except Exception as error:  # noqa: BLE001 — every caller in the batch fails closed
+                    for request in live:
+                        request.error = error
+            for request in batch:
+                request.done.set()
+
+
 class ModelClassifier:
     """Fine-tuned sequence classifier implementing `SymptomClassifier`."""
+
+    _engine: BatchedInference
+    _labels: tuple[str, ...]
+    model_path: Path | None
+
+    @classmethod
+    def with_engine(
+        cls, engine: BatchedInference, labels: tuple[str, ...] = LABEL_ORDER
+    ) -> ModelClassifier:
+        """A classifier over an existing engine. Used by tests with a fake forward."""
+        classifier = cls.__new__(cls)
+        classifier._engine = engine
+        classifier._labels = labels
+        classifier.model_path = None
+        return classifier
 
     def __init__(self, model_path: Path, max_length: int, threads: int | None = None):
         import torch
@@ -85,7 +236,6 @@ class ModelClassifier:
         )
         self._model.eval()
         self._max_length = max_length
-        self._lock = threading.Lock()
 
         # The label order must come from the artefact, not from a constant here.
         # A model whose id2label disagrees with LABEL_ORDER would map CRITICAL to
@@ -99,6 +249,28 @@ class ModelClassifier:
             )
         self._labels = resolved or LABEL_ORDER
         self.model_path = model_path
+        self._engine = BatchedInference(
+            self._forward_batch,
+            max_batch_size=settings.TRIAGE_BATCH_MAX_SIZE,
+            max_wait_ms=settings.TRIAGE_BATCH_MAX_WAIT_MS,
+            timeout_s=settings.TRIAGE_INFERENCE_TIMEOUT_SECONDS,
+        )
+
+    def _forward_batch(self, texts: list[str]) -> list[list[float]]:
+        """One padded forward pass. Called only from the engine's worker thread, so
+        the tokenizer and model are never used concurrently."""
+        torch = self._torch
+        with torch.no_grad():
+            encoded = self._tokenizer(
+                texts,
+                return_tensors="pt",
+                truncation=True,
+                padding=True,
+                max_length=self._max_length,
+            )
+            logits = self._model(**encoded).logits
+            probs: list[list[float]] = torch.softmax(logits, dim=-1).tolist()
+        return probs
 
     def warm_up(self) -> float:
         """Run one inference so a patient does not pay the cold start.
@@ -110,23 +282,13 @@ class ModelClassifier:
         return (time.perf_counter() - start) * 1000.0
 
     def classify(self, text: str) -> Classification:
-        torch = self._torch
-        # A single lock around inference. torch is not guaranteed thread-safe
-        # for concurrent forward passes on one module instance, and correctness
-        # outranks throughput on a two-core box serving one clinic.
-        with self._lock, torch.no_grad():
-            encoded = self._tokenizer(
-                text, return_tensors="pt", truncation=True, max_length=self._max_length
-            )
-            logits = self._model(**encoded).logits
-            probs = torch.softmax(logits, dim=-1)[0]
-            index = int(probs.argmax())
-            confidence = float(probs[index])
+        probs = self._engine.infer(text)
+        index = max(range(len(probs)), key=lambda k: probs[k])
         label = self._labels[index]
         urgency = _URGENCY[label]
         # Urgency and confidence only: the model names no condition and writes
         # no advice. What a patient reads is `patient_message.patient_receipt`.
-        return Classification(urgency=urgency, confidence=confidence)
+        return Classification(urgency=urgency, confidence=float(probs[index]))
 
 
 def _unavailable(reason: str, **context: object) -> tuple[None, str]:
