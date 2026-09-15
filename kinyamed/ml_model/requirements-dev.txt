@@ -3,3 +3,6 @@
 # cleanly when it is absent.
 -r requirements.txt
 pytest==9.1.1
+# Reads SentencePiece-only tokenizers (e.g. castorini/afriberta_large) for
+# training/tokenizer_study.py; transformers 5.8.1 cannot convert them without it.
+sentencepiece==0.2.2

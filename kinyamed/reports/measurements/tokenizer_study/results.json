@@ -3162,7 +3162,530 @@
     "status": "MEASURED"
   },
   "castorini/afriberta_large": {
+    "status": "MEASURED",
     "revision": "231d92411ab8a99add67eda412ee948c74a4b179",
-    "status": "NOT MEASURED (tokenizer failed to load: `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.)"
+    "vocabulary_sha256": "8e01dec018d96b49df96b10b5c4cbcbc8c2bf86a51284ca020626c5c79080f2a",
+    "vocabulary_size": 70005,
+    "tokenizer_class": "XLMRobertaTokenizer",
+    "sources": {
+      "v2 corpus rows [kinyarwanda]": {
+        "status": "generated from 165 phrases, partly speaker-authored (DATASET_AUDIT §6)",
+        "texts": 330000,
+        "clusters": 165,
+        "summary": {
+          "p50_length": {
+            "point": 33.0,
+            "low": 33.0,
+            "high": 34.0
+          },
+          "p95_length": {
+            "point": 45.0,
+            "low": 43.0,
+            "high": 46.0
+          },
+          "p99_length": {
+            "point": 50.0,
+            "low": 48.0,
+            "high": 52.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.6607222353531954,
+            "low": 1.6404264776472486,
+            "high": 1.6827361423376828
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.570538234608311,
+            "low": 0.559291585462668,
+            "high": 0.5815891310151374
+          },
+          "max_length_observed": {
+            "point": 65.0,
+            "low": 65.0,
+            "high": 65.0
+          }
+        }
+      },
+      "v2 phrase drafts [english]": {
+        "status": "machine-drafted, not reviewed by a speaker",
+        "texts": 207,
+        "clusters": 207,
+        "summary": {
+          "p50_length": {
+            "point": 17.0,
+            "low": 16.0,
+            "high": 18.0
+          },
+          "p95_length": {
+            "point": 25.0,
+            "low": 23.0,
+            "high": 26.0
+          },
+          "p99_length": {
+            "point": 26.0,
+            "low": 26.0,
+            "high": 28.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.6312205343111577,
+            "low": 1.584697519040298,
+            "high": 1.674993819196032
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.6715557883708748,
+            "low": 0.6533049980468325,
+            "high": 0.689587844488189
+          },
+          "max_length_observed": {
+            "point": 28.0,
+            "low": 28.0,
+            "high": 28.0
+          }
+        }
+      },
+      "v2 phrase drafts [french]": {
+        "status": "machine-drafted, not reviewed by a speaker",
+        "texts": 205,
+        "clusters": 205,
+        "summary": {
+          "p50_length": {
+            "point": 25.0,
+            "low": 24.0,
+            "high": 26.0
+          },
+          "p95_length": {
+            "point": 37.0,
+            "low": 35.0,
+            "high": 39.0
+          },
+          "p99_length": {
+            "point": 41.0,
+            "low": 38.0,
+            "high": 45.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 2.4084367245657567,
+            "low": 2.3597646052268066,
+            "high": 2.456478636359858
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.29081885856079404,
+            "low": 0.27391163886247727,
+            "high": 0.30845030654253586
+          },
+          "max_length_observed": {
+            "point": 45.0,
+            "low": 45.0,
+            "high": 45.0
+          }
+        }
+      },
+      "v1 generated rows [english]": {
+        "status": "machine-drafted v1 corpus (seed 42, 100,000 rows); clustered by family",
+        "texts": 13005,
+        "clusters": 16,
+        "summary": {
+          "p50_length": {
+            "point": 28.0,
+            "low": 27.0,
+            "high": 29.0
+          },
+          "p95_length": {
+            "point": 36.0,
+            "low": 34.0,
+            "high": 37.0
+          },
+          "p99_length": {
+            "point": 39.0,
+            "low": 37.0,
+            "high": 40.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.3824737228061599,
+            "low": 1.3382762601379863,
+            "high": 1.4329424794648684
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.7337529536380673,
+            "low": 0.7099103862373329,
+            "high": 0.757035462235629
+          },
+          "max_length_observed": {
+            "point": 44.0,
+            "low": 44.0,
+            "high": 44.0
+          }
+        }
+      },
+      "v1 generated rows [french]": {
+        "status": "machine-drafted v1 corpus (seed 42, 100,000 rows); clustered by family",
+        "texts": 12997,
+        "clusters": 16,
+        "summary": {
+          "p50_length": {
+            "point": 51.0,
+            "low": 49.0,
+            "high": 52.0
+          },
+          "p95_length": {
+            "point": 64.0,
+            "low": 61.0,
+            "high": 66.0
+          },
+          "p99_length": {
+            "point": 69.0,
+            "low": 66.0,
+            "high": 71.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 2.3965404287109937,
+            "low": 2.3680767622169316,
+            "high": 2.428580428334397
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.2612570158803134,
+            "low": 0.24676126736588613,
+            "high": 0.27312765762544927
+          },
+          "max_length_observed": {
+            "point": 79.0,
+            "low": 79.0,
+            "high": 79.0
+          }
+        }
+      },
+      "v1 generated rows [kinyarwanda]": {
+        "status": "machine-drafted v1 corpus (seed 42, 100,000 rows); clustered by family",
+        "texts": 13013,
+        "clusters": 16,
+        "summary": {
+          "p50_length": {
+            "point": 29.0,
+            "low": 28.0,
+            "high": 30.0
+          },
+          "p95_length": {
+            "point": 36.0,
+            "low": 35.0,
+            "high": 38.0
+          },
+          "p99_length": {
+            "point": 39.0,
+            "low": 37.0,
+            "high": 41.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.6906849712379755,
+            "low": 1.640417306559861,
+            "high": 1.740414364272218
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.5719292309179678,
+            "low": 0.5475856732966145,
+            "high": 0.5969001338467079
+          },
+          "max_length_observed": {
+            "point": 46.0,
+            "low": 46.0,
+            "high": 46.0
+          }
+        }
+      },
+      "v1 generated rows [mixed]": {
+        "status": "machine-drafted v1 corpus (seed 42, 100,000 rows); clustered by family",
+        "texts": 47988,
+        "clusters": 96,
+        "summary": {
+          "p50_length": {
+            "point": 30.0,
+            "low": 28.0,
+            "high": 31.0
+          },
+          "p95_length": {
+            "point": 48.0,
+            "low": 45.0,
+            "high": 50.0
+          },
+          "p99_length": {
+            "point": 55.0,
+            "low": 53.0,
+            "high": 56.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.6685646614112946,
+            "low": 1.595415250126389,
+            "high": 1.7462610401228698
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.5933299041831644,
+            "low": 0.5588789208842501,
+            "high": 0.6271172266163282
+          },
+          "max_length_observed": {
+            "point": 69.0,
+            "low": 69.0,
+            "high": 69.0
+          }
+        }
+      },
+      "v1 generated rows [swahili]": {
+        "status": "machine-drafted v1 corpus (seed 42, 100,000 rows); clustered by family",
+        "texts": 12997,
+        "clusters": 16,
+        "summary": {
+          "p50_length": {
+            "point": 23.0,
+            "low": 22.0,
+            "high": 23.0
+          },
+          "p95_length": {
+            "point": 28.0,
+            "low": 27.0,
+            "high": 29.0
+          },
+          "p99_length": {
+            "point": 31.0,
+            "low": 28.975,
+            "high": 32.0
+          },
+          "truncated_128": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_192": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "truncated_256": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "fertility": {
+            "point": 1.364918638710574,
+            "low": 1.3255254642204635,
+            "high": 1.405626514648051
+          },
+          "unknown_rate": {
+            "point": 0.0,
+            "low": 0.0,
+            "high": 0.0
+          },
+          "single_token_word_rate": {
+            "point": 0.7280149492682374,
+            "low": 0.7029047050633871,
+            "high": 0.7530220018333523
+          },
+          "max_length_observed": {
+            "point": 34.0,
+            "low": 34.0,
+            "high": 34.0
+          }
+        }
+      }
+    },
+    "kinyarwanda_segmentation": {
+      "kandi": "▁kandi",
+      "cyane": "▁cyane",
+      "afite": "▁afite",
+      "mfite": "▁m | fite",
+      "ku": "▁ku",
+      "umuriro": "▁umuriro",
+      "ndashaka": "▁n | dashaka",
+      "mu": "▁mu",
+      "amaraso": "▁amaraso",
+      "neza": "▁neza",
+      "yo": "▁yo",
+      "ariko": "▁ariko",
+      "kwisuzumisha": "▁kwi | su | zu | misha",
+      "kubyara": "▁ku | byara",
+      "guhumeka": "▁guhu | me | ka",
+      "ashaka": "▁ashaka",
+      "igikomere": "▁igi | komere",
+      "no": "▁no",
+      "iyo": "▁iyo",
+      "ko": "▁ko",
+      "nta": "▁nta",
+      "ndatwite": "▁nda | twi | te",
+      "muganga": "▁muganga",
+      "aratwite": "▁ara | twi | te",
+      "kwa": "▁kwa",
+      "ububabare": "▁ububabare",
+      "we": "▁we",
+      "umutwe": "▁umutwe",
+      "cyo": "▁cyo",
+      "umwana": "▁umwana",
+      "inama": "▁inama",
+      "impiswi": "▁im | pi | swi",
+      "ntashobora": "▁nta | shobora",
+      "gituza": "▁gi | tu | za",
+      "nda": "▁nda",
+      "menshi": "▁menshi",
+      "arababara": "▁ara | ba | bara",
+      "bapima": "▁ba | pima",
+      "maze": "▁maze",
+      "w'amaraso": "▁w | ' | amaraso",
+      "nyuma": "▁nyuma",
+      "sinshobora": "▁sin | shobora",
+      "kuva": "▁kuva",
+      "ari": "▁ari",
+      "kurya": "▁kurya",
+      "kujya": "▁kujya",
+      "umuvuduko": "▁umu | vu | du | ko",
+      "sida": "▁sida",
+      "ye": "▁ye",
+      "numva": "▁n | umva",
+      "kirimo": "▁kiri | mo",
+      "mwinshi": "▁mwinshi",
+      "amaze": "▁amaze",
+      "hari": "▁hari",
+      "buryo": "▁buryo",
+      "ntahagarara": "▁nta | hagarara",
+      "mubiri": "▁mubiri",
+      "wose": "▁wose",
+      "wanjye": "▁wanjye",
+      "bibiri": "▁bibiri"
+    }
   }
 }

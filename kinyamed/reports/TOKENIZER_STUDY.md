@@ -2,6 +2,14 @@
 
 **Date:** 2026-09-15. No model weights loaded, no labels used, nothing trained.
 
+> **These distributions describe synthetic text, not patient speech.**
+> - Kinyarwanda: slot-filled from 165 phrases.
+> - English and French: machine-drafted, never reviewed by a speaker.
+> - Swahili: no speaker-written symptom text exists; the figures come from machine-drafted v1 text only.
+>
+> **`max_length` must be re-measured on the natively authored pilot items before it is frozen.** Nothing here
+> establishes how long real Kinyarwanda, Swahili, English or French patient input is.
+
 **Reproduce** (from `kinyamed/ml_model`):
 ```bash
 python dataset/generate_large_dataset.py --corpus-version 1 --target 100000 --output dataset/raw/tokenizer_study_v1.csv
@@ -19,7 +27,7 @@ python training/tokenizer_study.py --out ../reports/measurements/tokenizer_study
 
 ## 1. Method
 
-**Checkpoints: 7 with verified licences, each pinned to a revision.**
+**Checkpoints: 7 with verified licences, each pinned to a revision. All 7 measured.**
 - AfroXLMR mini, base and large; AfriBERTa large; XLM-R base and large; LaBSE.
 - Serengeti, AfriBERTa small and base, and every Kinyarwanda fine-tune found have **no licence**. They are
   UNVERIFIED and were not used (§10.1).
@@ -48,32 +56,48 @@ Every figure is **point [95% cluster-bootstrap interval]**.
 
 **Five of the seven checkpoints share one vocabulary.** AfroXLMR mini, base and large, and XLM-R base and large,
 all have SHA-256 `06d9b09d696c…` (250,002 tokens), so they tokenize identically. AfroXLMR's African-language
-adaptation did not change the vocabulary. LaBSE has its own (`eebb064aa792…`, 501,153 tokens).
+adaptation did not change the vocabulary.
+
+The other two each have their own:
+- **AfriBERTa-large:** `8e01dec018d9…`, 70,005 tokens.
+- **LaBSE:** `eebb064aa792…`, 501,153 tokens.
+
+Three distinct vocabularies were measured in all.
 
 | Text | Vocabulary | p95 tokens | p99 tokens | Max | > 128 | > 192 | > 256 | Unknown | Tokens per word | One-token words |
 |---|---|---|---|---|---|---|---|---|---|---|
 | **v2 rows [kinyarwanda]** | XLM-R family | 66 [65, 68] | 74 [72, 76] | 94 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 2.52 [2.50, 2.55] | 19.4% [18.5%, 20.2%] |
+|  | AfriBERTa-large | 45 [43, 46] | 50 [48, 52] | 65 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.66 [1.64, 1.68] | 57.1% [55.9%, 58.2%] |
 |  | LaBSE | 43 [42, 44] | 47 [46, 49] | 62 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.62 [1.60, 1.64] | 60.6% [59.6%, 61.5%] |
 | v1 rows [kinyarwanda] | XLM-R family | 54 [53, 56] | 59 [57, 61] | 68 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 2.55 [2.51, 2.60] | 17.1% [15.9%, 18.6%] |
+|  | AfriBERTa-large | 36 [35, 38] | 39 [37, 41] | 46 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.69 [1.64, 1.74] | 57.2% [54.8%, 59.7%] |
 |  | LaBSE | 35 [34, 37] | 39 [37, 40] | 43 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.63 [1.58, 1.67] | 62.0% [59.4%, 64.5%] |
 | v1 rows [swahili] | XLM-R family | 34 [33, 35] | 37 [35, 39] | 42 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.68 [1.65, 1.72] | 53.9% [52.2%, 55.6%] |
+|  | AfriBERTa-large | 28 [27, 29] | 31 [29, 32] | 34 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.36 [1.33, 1.41] | 72.8% [70.3%, 75.3%] |
 |  | LaBSE | 27 [26, 27] | 29 [28, 29] | 32 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.32 [1.30, 1.35] | 73.3% [71.5%, 75.1%] |
 | v2 drafts [english] | XLM-R family | 21 [20, 22] | 23 [22, 24] | 24 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.43 [1.40, 1.46] | 71.1% [69.4%, 72.6%] |
+|  | AfriBERTa-large | 25 [23, 26] | 26 [26, 28] | 28 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.63 [1.58, 1.67] | 67.2% [65.3%, 69.0%] |
 |  | LaBSE | 20 [19, 21] | 22 [20, 22] | 22 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.33 [1.30, 1.36] | 80.5% [79.1%, 81.8%] |
 | v1 rows [english] | XLM-R family | 32 [31, 33] | 34 [33, 35] | 38 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.27 [1.25, 1.29] | 76.7% [75.0%, 78.3%] |
+|  | AfriBERTa-large | 36 [34, 37] | 39 [37, 40] | 44 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.38 [1.34, 1.43] | 73.4% [71.0%, 75.7%] |
 |  | LaBSE | 30 [29, 30] | 32 [31, 32] | 35 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.18 [1.16, 1.19] | 83.7% [82.6%, 84.7%] |
 | v2 drafts [french] | XLM-R family | 26 [24, 27] | 27 [26, 30] | 30 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.57 [1.55, 1.60] | 65.2% [63.7%, 66.7%] |
+|  | AfriBERTa-large | 37 [35, 39] | 41 [38, 45] | 45 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 2.41 [2.36, 2.46] | 29.1% [27.4%, 30.8%] |
 |  | LaBSE | 25 [24, 25] | 27 [25, 30] | 30 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.54 [1.51, 1.57] | 68.9% [67.4%, 70.4%] |
 | v1 rows [french] | XLM-R family | 42 [40, 43] | 45 [43, 46] | 50 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.52 [1.49, 1.54] | 69.3% [67.9%, 70.5%] |
+|  | AfriBERTa-large | 64 [61, 66] | 69 [66, 71] | 79 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 2.40 [2.37, 2.43] | 26.1% [24.7%, 27.3%] |
 |  | LaBSE | 40 [39, 41] | 43 [42, 44] | 49 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.45 [1.43, 1.47] | 73.9% [72.4%, 75.2%] |
 | v1 rows [mixed] | XLM-R family | 47 [45, 48] | 52 [50, 53] | 60 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.77 [1.70, 1.83] | 53.9% [51.2%, 56.7%] |
+|  | AfriBERTa-large | 48 [45, 50] | 55 [53, 56] | 69 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.67 [1.60, 1.75] | 59.3% [55.9%, 62.7%] |
 |  | LaBSE | 35 [34, 36] | 39 [38, 40] | 49 | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.0% [0.0%, 0.0%] | 0.00% [0.00%, 0.00%] | 1.39 [1.36, 1.42] | 73.7% [72.5%, 75.0%] |
 
-Generated from `results.json` (XLM-R family rows are those of `Davlan/afro-xlmr-mini`; the other four identical-vocabulary checkpoints give the same figures, see `tables.md`). The "Max" column is the observed maximum over every text, a count rather than an estimate.
+Generated from `results.json`. The XLM-R family rows are those of `Davlan/afro-xlmr-mini`; the other four identical-vocabulary checkpoints give the same figures (`tables.md`). The "Max" column is the observed maximum over every text, a count rather than an estimate.
 
-**AfriBERTa-large: NOT MEASURED.** It ships only a SentencePiece model. `sentencepiece` is not installed or
-pinned, and transformers 5.8.1 then falls back to a `tiktoken` converter, which is also absent. Proposal: pin
-`sentencepiece` in `ml_model/requirements-dev.txt`, then re-run this one checkpoint.
+**AfriBERTa-large: measured 2026-09-15.**
+- Its first run failed: the model ships only a SentencePiece model, and `sentencepiece` was missing, so
+  transformers 5.8.1 fell back to an absent `tiktoken` converter.
+- `sentencepiece==0.2.2` is now pinned in `ml_model/requirements-dev.txt`, and the checkpoint was re-run alone:
+  112 s, peak RSS 840 MB.
 
 ## 3. Findings
 
@@ -84,21 +108,31 @@ pinned, and transformers 5.8.1 then falls back to a `tiktoken` converter, which 
    - **This does not clear real input.** The text is slot-filled from 165 phrases; natively authored patient
      speech is expected to be longer and vaguer (EVAL_SET_SPEC §10). The check must be repeated on the pilot's
      natively authored items.
-2. **Kinyarwanda costs far more tokens under the XLM-R vocabulary** than any other language measured:
+2. **Kinyarwanda costs far more tokens under the XLM-R vocabulary** than under either alternative, and more than
+   any other language measured:
    - 2.52 tokens per word, against 1.27–1.57 for English and French and 1.68 for Swahili;
    - 19.4% of Kinyarwanda words are kept whole, against 71–77% for English.
 
-   LaBSE's vocabulary uses **36% fewer tokens per Kinyarwanda word** (1.62 against 2.52) and keeps 60.6% of words
-   whole. That shortens inputs, which matters for CPU latency (5b). It is **not** evidence of better
-   representation.
+   Both alternatives use about a third fewer tokens per Kinyarwanda word, and keep most words whole. Figures on
+   the v2 rows, with intervals in §2:
+
+   | Vocabulary | Tokens per Kinyarwanda word | Kinyarwanda words kept whole | Tokens per French word |
+   |---|---|---|---|
+   | XLM-R family | 2.52 [2.50, 2.55] | 19.4% [18.5%, 20.2%] | 1.52 [1.49, 1.54] (v1) |
+   | **AfriBERTa-large** | 1.66 [1.64, 1.68] | 57.1% [55.9%, 58.2%] | **2.40 [2.37, 2.43]** (v1) |
+   | **LaBSE** | 1.62 [1.60, 1.64] | 60.6% [59.6%, 61.5%] | 1.45 [1.43, 1.47] (v1) |
+
+   - AfriBERTa-large's **French** fertility (2.40) is the highest of any language and vocabulary measured, so
+     French is its weak point.
+   - Shorter inputs matter for CPU latency (5b). They are **not** evidence of better representation.
 3. **An unknown-token rate of 0.00% everywhere is uninformative.** Both vocabularies fall back to smaller pieces
    rather than emit `<unk>`, so poor coverage shows up as fertility, not as unknown tokens.
 4. **Whether Kinyarwanda morphemes survive tokenization is NOT YET MEASURED.** It needs a validated morphological
    segmentation, which this repository does not have and I will not invent (L16, §10.2).
    - `kinyarwanda_segmentation_sheet.csv` lists the 60 words that occur in the most v2 phrases, as each
      checkpoint splits them, with a blank `coherent_per_native_linguist` column.
-   - Examples, not judged: `ndashaka` → XLM-R `▁ | ndas | haka`, LaBSE `ndashaka`; `amaraso` → XLM-R
-     `▁amar | as | o`, LaBSE `amaraso`.
+   - Examples, not judged: `ndashaka` → XLM-R `▁ | ndas | haka`, AfriBERTa `▁n | dashaka`, LaBSE `ndashaka`;
+     `amaraso` → XLM-R `▁amar | as | o`, AfriBERTa `▁amaraso`, LaBSE `amaraso`.
    - **To be judged by a native Kinyarwanda linguist** (T1: Digital Umuganda or a native linguist, §10.2).
 5. **Defect found while checking serving: train/serve length mismatch.**
    - v2d was fine-tuned at `max_length` 96 (run record `args.max_length`).
@@ -126,16 +160,19 @@ evaluation set exists:**
 
 | Encoder | Why on the list | Open question |
 |---|---|---|
-| **AfroXLMR-mini** | incumbent; the smallest of the five identical-vocabulary checkpoints, so the cheapest on CPU; MIT | its model card lists **no languages**, so Kinyarwanda coverage is unstated; highest Kinyarwanda fertility |
+| **AfroXLMR-mini** | incumbent; the smallest of the five identical-vocabulary checkpoints, so the cheapest on CPU; MIT | its model card lists **no languages**, so Kinyarwanda coverage is unstated; highest Kinyarwanda fertility (2.52) |
 | **AfroXLMR-base** | same tokenization as mini; the card lists Kinyarwanda; MIT | CPU latency and memory at 50 concurrent (5b) |
-| **LaBSE** | the only measured vocabulary that splits Kinyarwanda substantially less (1.62 against 2.52 tokens per word); the card lists Kinyarwanda; Apache-2.0 | it is a sentence-embedding model, so fitness as a fine-tuned classifier is unmeasured; model size and latency (5b) |
+| **AfriBERTa-large** | its own African-language vocabulary splits Kinyarwanda far less (1.66 against 2.52 tokens per word); the card lists Kinyarwanda and Swahili; MIT; 70k vocabulary, so a smaller embedding matrix | **French fertility 2.40**, the worst measured, is a risk for Francophone patients; latency and memory (5b) |
+| **LaBSE** | the lowest Kinyarwanda fertility measured (1.62) and balanced across languages; the card lists Kinyarwanda; Apache-2.0 | it is a sentence-embedding model, so fitness as a fine-tuned classifier is unmeasured; 501k vocabulary, so a large embedding matrix for CPU memory (5b) |
 
 **Not shortlisted:**
 - **XLM-R base and large:** tokenization identical to AfroXLMR, and neither card lists Kinyarwanda. If an
   XLM-R-vocabulary model is used, AfroXLMR at the same size is preferred on stated coverage alone.
 - **AfroXLMR-large:** deferred to 5b; its vocabulary gives no advantage over base.
-- **AfriBERTa-large:** its own African-language vocabulary makes it the most relevant unmeasured candidate.
-  **Not decided until it is measured.**
+
+**The shortlist is four for now, not three.** Tokenization cannot separate AfriBERTa-large from LaBSE, and it
+cannot separate the AfroXLMR sizes from each other. 5b (latency and memory on the target CPU, once named) and a
+label-dependent evaluation on the real evaluation set decide it. Neither is a tokenizer question.
 
 ## 5. What this study cannot establish
 
