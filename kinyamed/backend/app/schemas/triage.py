@@ -70,6 +70,11 @@ class TriageResponse(BaseModel):
     queue_position: int = Field(
         description="1-based place in the live queue at the time of triage."
     )
+    band: str = Field(
+        description="Queue band of the entry, from the server's single band rule: "
+        "CRITICAL, NEEDS_REVIEW, URGENT or ROUTINE. Clients never re-derive it."
+    )
+    band_label: str
     estimated_wait: int | None = Field(
         description="Minutes, as quoted to the patient by SMS."
     )

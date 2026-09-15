@@ -201,3 +201,20 @@ def test_property_no_flagged_case_is_ever_below_an_unflagged_non_critical_case(
 
         db.execute(update(Queue).values(status=QueueStatus.CANCELLED))
         db.commit()
+
+
+# ── The triage response carries the server's band (item: no client-side ordering) ──
+def test_the_triage_response_carries_the_same_band_as_the_queue(client, submit):
+    """A client inserting the new row must not re-derive the band rule itself."""
+    responses = {
+        "Flagged Routine": submit("Flagged Routine", "ROUTINE", LOW),
+        "Confident Urgent": submit("Confident Urgent", "URGENT", CONFIDENT),
+        "Unsure Critical": submit("Unsure Critical", "CRITICAL", 0.4),
+    }
+    listed = {r["patient_name"]: r for r in _queue(client)}
+    for name, response in responses.items():
+        assert response["band"] == listed[name]["band"], name
+        assert response["band_label"] == listed[name]["band_label"], name
+        fetched = client.get(f"/api/v1/triage/{response['triage_id']}").json()
+        assert fetched["band"] == listed[name]["band"], name
+        assert fetched["queue_position"] == listed[name]["queue_position"], name

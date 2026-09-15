@@ -53,6 +53,7 @@ def submit_triage(
     )
 
     review = triage_service.review_status(outcome.result.confidence_score)
+    band = queue_service.band_of(outcome.result)
 
     background_tasks.add_task(
         send_sms_in_background, patient.id, patient.phone, outcome.sms_message
@@ -72,6 +73,8 @@ def submit_triage(
         queue_id=outcome.queue_entry.id,
         queue_number=outcome.queue_entry.queue_number,
         queue_position=outcome.queue_position,
+        band=band.name,
+        band_label=band.label,
         estimated_wait=outcome.queue_entry.estimated_wait,
         created_at=outcome.result.created_at,
     )
@@ -91,6 +94,7 @@ def get_triage(
     entry = result.queue_entry
     position = queue_service.position_of(db, entry) if entry else 0
     review = triage_service.review_status(result.confidence_score)
+    band = queue_service.band_of(result)
     return TriageResponse(
         triage_id=result.id,
         patient_id=patient.id,
@@ -107,6 +111,8 @@ def get_triage(
         queue_id=entry.id if entry else 0,
         queue_number=entry.queue_number if entry else 0,
         queue_position=position,
+        band=band.name,
+        band_label=band.label,
         estimated_wait=entry.estimated_wait if entry else None,
         created_at=result.created_at,
     )
