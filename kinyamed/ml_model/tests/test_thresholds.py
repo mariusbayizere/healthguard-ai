@@ -125,6 +125,11 @@ def test_the_precision_given_up_for_safety_is_reported_not_hidden():
     tuned = th.tune(probs, labels, languages, COSTS)
     assert tuned.critical_precision < spec.requirement("4").threshold
     assert any("gate 4" in w for w in tuned.warnings)
+    assert not any(
+        ch.isdigit()
+        for w in tuned.warnings
+        for ch in w.replace("gate 4", "").replace("gate 8", "")
+    ), "L6: a warning printed without an interval must not carry a number"
 
 
 def test_every_result_says_it_is_not_a_gate_measurement():

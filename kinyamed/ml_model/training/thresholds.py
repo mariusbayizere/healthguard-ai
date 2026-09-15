@@ -239,13 +239,15 @@ def tune(
     warnings = []
     if not precision >= CRITICAL_PRECISION_TARGET:
         warnings.append(
-            f"meeting the safety constraints leaves CRITICAL precision at {precision:.3f}, "
-            f"below gate 4's {CRITICAL_PRECISION_TARGET}: gate 4 will fail on the test split"
+            "meeting the safety constraints puts CRITICAL precision below gate 4's "
+            "threshold on the calibration split (a point estimate, no interval): "
+            "expect gate 4 to fail on the test split"
         )
     if not urgent_recall >= URGENT_RECALL_TARGET:
         warnings.append(
-            f"URGENT recall at these thresholds is {urgent_recall:.3f}, below gate 8's "
-            f"{URGENT_RECALL_TARGET}: gate 8 will fail on the test split"
+            "URGENT recall at these thresholds is below gate 8's threshold on the "
+            "calibration split (a point estimate, no interval): expect gate 8 to fail "
+            "on the test split"
         )
     return Thresholds(
         critical=t_critical,
