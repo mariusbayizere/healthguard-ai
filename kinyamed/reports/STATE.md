@@ -1041,15 +1041,49 @@ The five approved commits landed: `fed9c3d`, `9c59824`, `cebad2f`, `8787314`, `0
 - CORPUS_REBUILD §1 and TAXONOMY_SCOPE §8 quote the provenance split (180,272 / 99,136 / 81,136), which
   `grammatical_person.py` does not print.
 
+## B — item 5a tokenizer study done (`reports/TOKENIZER_STUDY.md`)
+
+Tokenizers only: no weights, labels or training. Each checkpoint ran alone, 121–146 s each, peak RSS ≤ 1,155 MB,
+available memory never below 2,441 MB. A connection drop interrupted the report before it was written; nothing
+was partial, and the findings were re-verified from `results.json` before writing.
+
+- **Sources (§10.1, `docs/SOURCES.md`):**
+  - 7 checkpoints with verified licences, each at a pinned revision.
+  - Serengeti, AfriBERTa small and base, and every Kinyarwanda fine-tune found have no licence: UNVERIFIED, not
+    used.
+- **Five of the seven share one vocabulary.** AfroXLMR mini, base and large, and XLM-R base and large, tokenize
+  identically (`06d9b09d696c…`). LaBSE differs.
+- **Truncation — not a defect on current text.** AfroXLMR-mini at 128 truncates 0.0% [0.0%, 0.0%] of the 330,000
+  Kinyarwanda rows. The maximum is 94 tokens, and nothing exceeds 128 under any tokenizer or source. **It must be
+  re-measured on natively authored pilot items**: the corpus is slot-filled from 165 phrases.
+- **Kinyarwanda fertility** under the XLM-R vocabulary is 2.52 [2.50, 2.55] tokens per word, against 1.62 [1.60,
+  1.64] for LaBSE.
+- **Morpheme coherence: NOT YET MEASURED.** A 60-word segmentation sheet waits for a native linguist.
+- **AfriBERTa-large: NOT MEASURED.** `sentencepiece` is not installed or pinned. Proposal: pin it in
+  `requirements-dev.txt`.
+- **Recommended `max_length` 128** (headroom over 94), re-checked on pilot items. **Shortlist:** AfroXLMR-mini,
+  AfroXLMR-base, LaBSE; AfriBERTa-large undecided until measured. Final choice after 5b and a label-dependent
+  evaluation.
+- **New defect, not fixed: train/serve length mismatch.**
+  - v2d was fine-tuned at `max_length` 96; the backend serves with `MODEL_MAX_LENGTH` default 512
+    (`backend/app/core/config.py:105`).
+  - No current text exceeds 94 tokens, so no measured number is affected.
+  - Proposed fix, test first: the model directory records its training `max_length`, and the backend refuses to
+    start if its setting differs.
+- **Conflict:** MODEL_AUDIT §2.1's "max 88 tokens" came from the uncommitted Phase 0 script. The reproducible
+  figure is 94.
+- Tests: `tests/test_tokenizer_study.py` **10 passed**, red first. Ruff clean.
+
 ## Next — single action
 
-**B: item 5a tokenizer study, one checkpoint at a time.** It loads tokenizers only, no model weights or training.
-Waiting on you in parallel:
+**C: item 2, the empty red-flag layer. First the migration SQL** for `rules_layer_triggered`, `rules_layer_reason`
+and `model_urgency_raw` on `triage_results`, for your approval before any code (L14).
+Waiting on you:
 - the README diff;
 - E8b;
-- whether to add committed scripts, or "not reproducible" notes, for the L6 figures in CURRENT_CAPABILITY,
-  MODEL_AUDIT, CORPUS_REBUILD §1 and TAXONOMY_SCOPE §8;
-- the branch-protection rule on `main`.
+- pinning `sentencepiece`;
+- the L6 figures in the other reports;
+- branch protection.
 
 ## Blocked on you (unchanged)
 
