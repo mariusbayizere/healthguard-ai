@@ -1,8 +1,11 @@
 name: CI
 
+# Every branch and every pull request. Until 2026-09-15 push was limited to main,
+# so a pushed branch ran nothing and the backend, frontend, e2e and lint jobs had
+# never run on GitHub. No branch or path filter: a filter is how a branch goes
+# unchecked. Guarded by kinyamed/frontend/src/__tests__/ci-triggers.test.ts.
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
