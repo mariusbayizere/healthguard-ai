@@ -50,6 +50,16 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("label")
     p.add_argument("adjudicator")
     p.add_argument("reason")
+    p = sub.add_parser("withdraw", help="coordinator: an annotator recognised an item")
+    p.add_argument("item_id")
+    p.add_argument("annotator")
+    p.add_argument("reason")
+    p = sub.add_parser(
+        "request-adjudication", help="an annotator saved a label they did not intend"
+    )
+    p.add_argument("item_id")
+    p.add_argument("annotator")
+    p.add_argument("reason")
     p = sub.add_parser("build-gold")
     p.add_argument("--out", type=Path, required=True)
     p = sub.add_parser("export-labels")
@@ -73,6 +83,15 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{annotator}: {done} of {total}")
         elif args.command == "kappa":
             print(render(kappa_report(store.label_pairs())))
+            withdrawn = store.withdrawn_items()
+            if withdrawn:
+                print(f"withdrawn, excluded from kappa: {len(withdrawn)} item(s)")
+        elif args.command == "withdraw":
+            store.withdraw(args.item_id, args.annotator, args.reason)
+            print(f"{args.item_id} withdrawn")
+        elif args.command == "request-adjudication":
+            store.request_adjudication(args.item_id, args.annotator, args.reason)
+            print(f"{args.item_id} sent to adjudication")
         elif args.command == "disagreements":
             rows = store.disagreements()
             with args.out.open("w", encoding="utf-8", newline="") as handle:
@@ -84,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
                     "label_1",
                     "annotator_2",
                     "label_2",
+                    "adjudication_requested_by",
                 ]
                 writer = csv.DictWriter(
                     handle, [*fields, "adjudicated_label", "adjudicator_id", "reason"]

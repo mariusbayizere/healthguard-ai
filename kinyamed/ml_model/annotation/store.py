@@ -13,7 +13,15 @@ sent anywhere. The design follows `docs/protocols/d7-eval-set-annotation-protoco
                  rejected at import, and the rejection names the item, not the text.
   * ADJUDICATED  a disagreement, or any UNCLASSIFIABLE label, is resolved by a
                  third person, recorded with a reason code; the gold set cannot be
-                 built while one is unresolved.
+                 built while one is unresolved. An annotator who saved the wrong
+                 label on an agreed item can send it to adjudication; the first
+                 label still stands for kappa.
+  * TWO LABELS   an item takes exactly two independent labels; a third is refused.
+  * WITHDRAWN    an item an annotator recognises (e.g. wrote) is withdrawn with a
+                 reason: its labels are kept as a record, it leaves kappa and the
+                 gold set, and the count is written into the gold manifest.
+  * SCENARIOS    every item carries a scenario_id; the test split holds one item
+                 per scenario, and no scenario is in both splits (EVAL_SET_SPEC §8).
 """
 
 from __future__ import annotations
@@ -37,6 +45,8 @@ UNCLASSIFIABLE_REASONS = (
     "cannot_read_language",
     "other",
 )
+WITHDRAWAL_REASONS = ("annotator_recognised_item", "other")
+ADJUDICATION_REQUEST_REASONS = ("saved_wrong_label", "other")
 ADJUDICATION_REASONS = (
     "annotator_a_correct",
     "annotator_b_correct",
@@ -68,6 +78,19 @@ CREATE TABLE IF NOT EXISTS annotations (
     label TEXT NOT NULL CHECK (label IN ('CRITICAL', 'URGENT', 'ROUTINE', 'UNCLASSIFIABLE')),
     confidence INTEGER NOT NULL CHECK (confidence BETWEEN 1 AND 3),
     unclassifiable_reason TEXT,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (item_id, annotator_id)
+);
+CREATE TABLE IF NOT EXISTS withdrawals (
+    item_id TEXT PRIMARY KEY REFERENCES items (item_id),
+    annotator_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS adjudication_requests (
+    item_id TEXT NOT NULL REFERENCES items (item_id),
+    annotator_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
     created_at TEXT NOT NULL,
     PRIMARY KEY (item_id, annotator_id)
 );
@@ -142,12 +165,15 @@ class Store:
                 )
             if row["split"].strip() not in SPLITS:
                 problems.append(f"{item_id}: split must be one of {SPLITS}")
+            if not (row.get("scenario_id") or "").strip():
+                problems.append(f"{item_id}: no scenario_id (every item carries one)")
             if not row["text"].strip():
                 problems.append(f"{item_id}: empty text")
             elif contains_pii(row["text"]):
                 problems.append(
                     f"{item_id}: text contains a phone- or email-shaped string"
                 )
+        problems += self._scenario_and_id_problems(rows)
         if problems:
             raise AnnotationError(
                 "import refused, nothing written:\n  " + "\n  ".join(problems)
@@ -160,14 +186,54 @@ class Store:
                         row["item_id"].strip(),
                         row["text"].strip(),
                         row["language"].strip(),
-                        (row.get("scenario_id") or "").strip()
-                        or row["item_id"].strip(),
+                        row["scenario_id"].strip(),
                         row["split"].strip(),
                         (row.get("domain") or "").strip() or None,
                         (row.get("presentation_type") or "").strip() or None,
                     ),
                 )
         return len(rows)
+
+    def _scenario_and_id_problems(self, rows: list[dict[str, str]]) -> list[str]:
+        """Duplicate ids, and the scenario rules of EVAL_SET_SPEC §8, across the file
+        and everything already imported."""
+        problems: list[str] = []
+        existing_ids = {r[0] for r in self.db.execute("SELECT item_id FROM items")}
+        splits: dict[str, set[str]] = {}
+        test_items: dict[str, list[str]] = {}
+        for scenario, split, item in self.db.execute(
+            "SELECT scenario_id, split, item_id FROM items"
+        ):
+            splits.setdefault(scenario, set()).add(split)
+            if split == "test":
+                test_items.setdefault(scenario, []).append(item)
+        seen: set[str] = set()
+        for row in rows:
+            item_id = row["item_id"].strip()
+            if item_id in existing_ids:
+                problems.append(f"{item_id}: already imported")
+            if item_id in seen:
+                problems.append(f"{item_id}: appears twice in this file")
+            seen.add(item_id)
+            scenario = (row.get("scenario_id") or "").strip()
+            if not scenario:
+                continue
+            split = row["split"].strip()
+            splits.setdefault(scenario, set()).add(split)
+            if split == "test":
+                test_items.setdefault(scenario, []).append(item_id)
+        for scenario, items in sorted(test_items.items()):
+            if len(items) > 1:
+                problems.append(
+                    f"scenario {scenario}: {len(items)} test items ({', '.join(items)}); "
+                    "one test item per scenario, paraphrases go to calibration"
+                )
+        for scenario, used in sorted(splits.items()):
+            if {"test", "calibration"} <= used:
+                problems.append(
+                    f"scenario {scenario}: in both the test and calibration splits"
+                )
+        return problems
 
     def item_count(self) -> int:
         return int(self.db.execute("SELECT COUNT(*) FROM items").fetchone()[0])
@@ -182,7 +248,10 @@ class Store:
         validate_annotator(annotator_id)
         rows = self.db.execute(
             "SELECT item_id, text, language, scenario_id, split FROM items WHERE item_id NOT IN "
-            "(SELECT item_id FROM annotations WHERE annotator_id = ?)",
+            "(SELECT item_id FROM annotations WHERE annotator_id = ?) "
+            "AND item_id NOT IN (SELECT item_id FROM withdrawals) "
+            "AND item_id NOT IN (SELECT item_id FROM annotations GROUP BY item_id "
+            "HAVING COUNT(*) >= 2)",
             (annotator_id,),
         ).fetchall()
         if not rows:
@@ -219,6 +288,16 @@ class Store:
             is None
         ):
             raise AnnotationError(f"unknown item {item_id!r}")
+        if self._withdrawn(item_id):
+            raise AnnotationError(f"{item_id} is withdrawn and takes no further labels")
+        others = self.db.execute(
+            "SELECT COUNT(*) FROM annotations WHERE item_id = ? AND annotator_id != ?",
+            (item_id, annotator_id),
+        ).fetchone()[0]
+        if others >= 2:
+            raise AnnotationError(
+                f"{item_id} already has two independent labels; a third is not recorded"
+            )
         try:
             with self.db:
                 self.db.execute(
@@ -245,12 +324,85 @@ class Store:
         ).fetchone()[0]
         return int(done), self.item_count()
 
+    def _withdrawn(self, item_id: str) -> bool:
+        return (
+            self.db.execute(
+                "SELECT 1 FROM withdrawals WHERE item_id = ?", (item_id,)
+            ).fetchone()
+            is not None
+        )
+
+    def _require_item(self, item_id: str) -> None:
+        if (
+            self.db.execute(
+                "SELECT 1 FROM items WHERE item_id = ?", (item_id,)
+            ).fetchone()
+            is None
+        ):
+            raise AnnotationError(f"unknown item {item_id!r}")
+
+    def withdraw(self, item_id: str, annotator_id: str, reason: str) -> None:
+        """Coordinator: an annotator recognised this item (D7 protocol §4)."""
+        validate_annotator(annotator_id)
+        if reason not in WITHDRAWAL_REASONS:
+            raise AnnotationError(f"reason must be one of {WITHDRAWAL_REASONS}")
+        self._require_item(item_id)
+        try:
+            with self.db:
+                self.db.execute(
+                    "INSERT INTO withdrawals VALUES (?, ?, ?, ?)",
+                    (item_id, annotator_id, reason, _now()),
+                )
+        except sqlite3.IntegrityError as error:
+            raise AnnotationError(f"{item_id} is already withdrawn") from error
+
+    def withdrawn_items(self) -> list[str]:
+        return [
+            r[0]
+            for r in self.db.execute("SELECT item_id FROM withdrawals ORDER BY item_id")
+        ]
+
+    def request_adjudication(
+        self, item_id: str, annotator_id: str, reason: str
+    ) -> None:
+        """An annotator saved a label they did not intend (D7 protocol §4). The first
+        label stands for kappa; the item must be adjudicated before the gold set."""
+        validate_annotator(annotator_id)
+        if reason not in ADJUDICATION_REQUEST_REASONS:
+            raise AnnotationError(
+                f"reason must be one of {ADJUDICATION_REQUEST_REASONS}"
+            )
+        self._require_item(item_id)
+        labelled = self.db.execute(
+            "SELECT 1 FROM annotations WHERE item_id = ? AND annotator_id = ?",
+            (item_id, annotator_id),
+        ).fetchone()
+        if labelled is None:
+            raise AnnotationError(
+                f"{annotator_id} has not labelled {item_id}; only its annotators can "
+                "send it to adjudication"
+            )
+        with self.db:
+            self.db.execute(
+                "INSERT OR IGNORE INTO adjudication_requests VALUES (?, ?, ?, ?)",
+                (item_id, annotator_id, reason, _now()),
+            )
+
+    def _requested_by(self, item_id: str) -> str | None:
+        row = self.db.execute(
+            "SELECT group_concat(annotator_id, ' ') FROM adjudication_requests "
+            "WHERE item_id = ?",
+            (item_id,),
+        ).fetchone()
+        return row[0] if row and row[0] else None
+
     # ── Only once every item has two independent labels ──────────────────────
     def _pairs(self) -> list[tuple[str, str, str, str, str, str]]:
         """(item_id, language, annotator 1, label 1, annotator 2, label 2), refusing if incomplete."""
         counts = self.db.execute(
             "SELECT i.item_id, COUNT(a.annotator_id) FROM items i "
-            "LEFT JOIN annotations a USING (item_id) GROUP BY i.item_id"
+            "LEFT JOIN annotations a USING (item_id) "
+            "WHERE i.item_id NOT IN (SELECT item_id FROM withdrawals) GROUP BY i.item_id"
         ).fetchall()
         incomplete = [item for item, n in counts if n != 2]
         if incomplete:
@@ -261,7 +413,9 @@ class Store:
             )
         rows = self.db.execute(
             "SELECT i.item_id, i.language, a.annotator_id, a.label FROM items i "
-            "JOIN annotations a USING (item_id) ORDER BY i.item_id, a.annotator_id"
+            "JOIN annotations a USING (item_id) "
+            "WHERE i.item_id NOT IN (SELECT item_id FROM withdrawals) "
+            "ORDER BY i.item_id, a.annotator_id"
         ).fetchall()
         pairs = []
         for k in range(0, len(rows), 2):
@@ -276,9 +430,10 @@ class Store:
     def disagreements(self) -> list[dict[str, str]]:
         out = []
         for item, lang, a1, l1, a2, l2 in self._pairs():
-            if (l1 != l2 or "UNCLASSIFIABLE" in (l1, l2)) and not self._adjudicated(
-                item
-            ):
+            requested = self._requested_by(item)
+            if (
+                l1 != l2 or "UNCLASSIFIABLE" in (l1, l2) or requested
+            ) and not self._adjudicated(item):
                 text = self.db.execute(
                     "SELECT text FROM items WHERE item_id = ?", (item,)
                 ).fetchone()[0]
@@ -291,6 +446,7 @@ class Store:
                         "label_1": l1,
                         "annotator_2": a2,
                         "label_2": l2,
+                        "adjudication_requested_by": requested or "",
                     }
                 )
         return out
@@ -318,8 +474,14 @@ class Store:
             raise AnnotationError(
                 "an item is adjudicated by a third person, not one of its annotators"
             )
-        if pair[3] == pair[5] and "UNCLASSIFIABLE" not in (pair[3], pair[5]):
-            raise AnnotationError(f"{item_id} is not in disagreement")
+        if (
+            pair[3] == pair[5]
+            and "UNCLASSIFIABLE" not in (pair[3], pair[5])
+            and not self._requested_by(item_id)
+        ):
+            raise AnnotationError(
+                f"{item_id} is not in disagreement and no annotator sent it to adjudication"
+            )
         with self.db:
             self.db.execute(
                 "INSERT INTO adjudications VALUES (?, ?, ?, ?, ?)",
@@ -334,7 +496,13 @@ class Store:
                 f"{len(unresolved)} disagreement(s) are not adjudicated"
             )
         out_dir.mkdir(parents=True, exist_ok=True)
-        manifest: dict = {"built_at": _now(), "files": {}, "counts": {}}
+        withdrawn = self.withdrawn_items()
+        manifest: dict = {
+            "built_at": _now(),
+            "files": {},
+            "counts": {},
+            "withdrawn": {"count": len(withdrawn), "items": withdrawn},
+        }
         adjudicated = dict(
             self.db.execute("SELECT item_id, label FROM adjudications").fetchall()
         )
@@ -378,7 +546,10 @@ class Store:
         self._pairs()  # refuses before completion
         rows = self.db.execute(
             "SELECT a.item_id, i.language, a.annotator_id, a.label, a.confidence, "
-            "a.unclassifiable_reason, a.created_at FROM annotations a JOIN items i USING (item_id) "
+            "a.unclassifiable_reason, a.created_at, "
+            "CASE WHEN w.item_id IS NULL THEN 'no' ELSE 'yes' END "
+            "FROM annotations a JOIN items i USING (item_id) "
+            "LEFT JOIN withdrawals w ON w.item_id = a.item_id "
             "ORDER BY a.item_id, a.annotator_id"
         ).fetchall()
         with path.open("w", encoding="utf-8", newline="") as handle:
@@ -392,6 +563,7 @@ class Store:
                     "confidence",
                     "unclassifiable_reason",
                     "created_at",
+                    "withdrawn",
                 ]
             )
             writer.writerows(rows)

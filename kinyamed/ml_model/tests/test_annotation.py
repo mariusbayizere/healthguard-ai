@@ -33,6 +33,7 @@ def _store(tmp_path: Path, n: int = 4, language: str = "kinyarwanda") -> Store:
             "item_id": f"i{k}",
             "text": f"synthetic item {k}",
             "language": language,
+            "scenario_id": f"s{k}",
             "split": "test",
         }
         for k in range(n)
@@ -253,6 +254,7 @@ def test_the_form_escapes_item_text_rejects_foreign_posts_and_records_labels(tmp
             "item_id": "x1",
             "text": "<script>alert(1)</script> umuriro",
             "language": "kinyarwanda",
+            "scenario_id": "sx1",
             "split": "test",
         }
     ]
@@ -318,3 +320,177 @@ def test_the_pii_pattern_matches_the_backends():
     )
     assert match, "could not find the backend's phone pattern"
     assert store._PHONE.pattern == match.group(1)
+
+
+# ── Scenario rules at import (EVAL_SET_SPEC §8, D7 protocol §2.3) ─────────────
+def _row(item_id: str, scenario: str | None, split: str = "test") -> dict:
+    row = {
+        "item_id": item_id,
+        "text": f"synthetic {item_id}",
+        "language": "kinyarwanda",
+        "split": split,
+    }
+    if scenario is not None:
+        row["scenario_id"] = scenario
+    return row
+
+
+def test_import_refuses_items_without_a_scenario_id(tmp_path):
+    store = Store(tmp_path / "ann.sqlite3")
+    rows = [_row("a", "s1"), _row("b", "")]
+    with pytest.raises(AnnotationError, match="scenario_id"):
+        store.import_items(_items_csv(tmp_path / "items.csv", rows), LANGUAGES)
+    assert store.item_count() == 0
+
+
+def test_import_refuses_two_test_items_from_one_scenario(tmp_path):
+    store = Store(tmp_path / "ann.sqlite3")
+    rows = [_row("a", "s1"), _row("b", "s1"), _row("c", "s1", "calibration")]
+    with pytest.raises(AnnotationError, match="one test item per scenario"):
+        store.import_items(_items_csv(tmp_path / "items.csv", rows), LANGUAGES)
+
+
+def test_import_refuses_a_scenario_already_used_in_the_other_split(tmp_path):
+    store = Store(tmp_path / "ann.sqlite3")
+    store.import_items(_items_csv(tmp_path / "one.csv", [_row("a", "s1")]), LANGUAGES)
+    with pytest.raises(AnnotationError, match="both the test and calibration"):
+        store.import_items(
+            _items_csv(tmp_path / "two.csv", [_row("b", "s1", "calibration")]),
+            LANGUAGES,
+        )
+    assert store.item_count() == 1
+
+
+def test_import_refuses_a_duplicate_item_id_cleanly(tmp_path):
+    store = Store(tmp_path / "ann.sqlite3")
+    store.import_items(_items_csv(tmp_path / "one.csv", [_row("a", "s1")]), LANGUAGES)
+    with pytest.raises(AnnotationError, match="already imported"):
+        store.import_items(
+            _items_csv(tmp_path / "two.csv", [_row("a", "s2")]), LANGUAGES
+        )
+
+
+# ── Exactly two independent labels ────────────────────────────────────────────
+def test_a_third_annotator_is_refused(tmp_path):
+    store = _store(tmp_path, n=1)
+    store.record("A1", "i0", "URGENT", 2)
+    store.record("B1", "i0", "URGENT", 2)
+    with pytest.raises(AnnotationError, match="already has two independent labels"):
+        store.record("C1", "i0", "CRITICAL", 3)
+    assert store.next_item("C1") is None
+
+
+# ── The two tool gaps named in D7 protocol §4 ─────────────────────────────────
+def test_a_withdrawn_item_leaves_kappa_and_the_gold_set_and_is_counted(tmp_path):
+    """An annotator recognises an item (e.g. they wrote it). The label is kept as a
+    record, but the item is excluded from agreement and gold, and the exclusion is
+    reported, never silent."""
+    store = _store(tmp_path, n=3)
+    store.record("A1", "i0", "URGENT", 3)
+    store.withdraw("i0", "A1", "annotator_recognised_item")
+    assert store.next_item("B1").item_id != "i0"
+    with pytest.raises(AnnotationError, match="withdrawn"):
+        store.record("B1", "i0", "URGENT", 3)
+    for k in (1, 2):
+        store.record("A1", f"i{k}", "URGENT", 3)
+        store.record("B1", f"i{k}", "URGENT", 3)
+    assert [p[0] for p in store._pairs()] == ["i1", "i2"]
+    manifest = store.build_gold(tmp_path / "gold")
+    assert manifest["withdrawn"] == {"count": 1, "items": ["i0"]}
+    gold = (tmp_path / "gold" / "gold_test.csv").read_text()
+    assert "i0," not in gold
+    exported = tmp_path / "labels.csv"
+    store.export_labels(exported)
+    with exported.open(encoding="utf-8", newline="") as handle:
+        kept = [r for r in csv.DictReader(handle) if r["item_id"] == "i0"]
+    assert [(r["annotator_id"], r["label"], r["withdrawn"]) for r in kept] == [
+        ("A1", "URGENT", "yes")
+    ]
+
+
+def test_a_withdrawal_needs_a_known_reason_and_item(tmp_path):
+    store = _store(tmp_path, n=1)
+    with pytest.raises(AnnotationError, match="reason"):
+        store.withdraw("i0", "A1", "because")
+    with pytest.raises(AnnotationError, match="unknown item"):
+        store.withdraw("nope", "A1", "annotator_recognised_item")
+
+
+def test_an_agreed_item_can_be_sent_to_adjudication_and_first_labels_stand(tmp_path):
+    """An annotator saved the wrong label on an item both chose the same way. The
+    first label still counts for kappa; the item must be adjudicated before gold."""
+    store = _store(tmp_path, n=2)
+    _complete(store, ["URGENT", "ROUTINE"], ["URGENT", "ROUTINE"])
+    assert store.disagreements() == []
+    with pytest.raises(AnnotationError, match="labelled"):
+        store.request_adjudication("i0", "C1", "saved_wrong_label")
+    store.request_adjudication("i0", "A1", "saved_wrong_label")
+    flagged = store.disagreements()
+    assert [d["item_id"] for d in flagged] == ["i0"]
+    assert flagged[0]["adjudication_requested_by"] == "A1"
+    assert store.label_pairs() == [("kinyarwanda", "URGENT", "URGENT")] * 1 + [
+        ("kinyarwanda", "ROUTINE", "ROUTINE")
+    ]
+    with pytest.raises(AnnotationError, match="not adjudicated"):
+        store.build_gold(tmp_path / "gold")
+    store.adjudicate("i0", "CRITICAL", "C1", "neither_correct")
+    store.build_gold(tmp_path / "gold")
+    assert (
+        "i0,synthetic item 0,kinyarwanda,CRITICAL"
+        in (tmp_path / "gold" / "gold_test.csv").read_text()
+    )
+
+
+# ── Synthetic annotators, end to end through the command line ─────────────────
+def test_synthetic_annotators_give_per_language_kappa_through_the_cli(tmp_path, capsys):
+    """Two seeded synthetic annotators label 250 Kinyarwanda and 120 Swahili items.
+    The CLI's kappa equals a direct computation on the stored labels, and Swahili,
+    below the per-language minimum, is refused rather than reported."""
+    import random
+
+    from annotation.__main__ import main as cli
+
+    rng = random.Random(11)
+    labels = ("CRITICAL", "URGENT", "ROUTINE")
+    rows = []
+    for lang, n in (("kinyarwanda", 250), ("swahili", 120)):
+        rows += [
+            {
+                "item_id": f"{lang[:2]}{k}",
+                "text": f"synthetic {lang} item {k}",
+                "language": lang,
+                "scenario_id": f"{lang[:2]}-s{k}",
+                "split": "test",
+            }
+            for k in range(n)
+        ]
+    db = tmp_path / "ann.sqlite3"
+    assert (
+        cli(
+            ["--db", str(db), "import-items", str(_items_csv(tmp_path / "i.csv", rows))]
+        )
+        == 0
+    )
+    store = Store(db)
+    truth = {r["item_id"]: rng.choice(labels) for r in rows}
+    for annotator, accuracy in (("A1", 0.92), ("B1", 0.88)):
+        while (item := store.next_item(annotator)) is not None:
+            label = (
+                truth[item.item_id] if rng.random() < accuracy else rng.choice(labels)
+            )
+            store.record(annotator, item.item_id, label, rng.choice((1, 2, 3)))
+    capsys.readouterr()
+    assert cli(["--db", str(db), "kappa"]) == 0
+    out = capsys.readouterr().out
+    kinyarwanda = [
+        (a, b) for lang, a, b in store.label_pairs() if lang == "kinyarwanda"
+    ]
+    expected = cohen_kappa([a for a, _ in kinyarwanda], [b for _, b in kinyarwanda])
+    line = next(
+        line for line in out.splitlines() if line.lstrip().startswith("kinyarwanda")
+    )
+    assert f"{expected:.3f}" in line, (expected, line)
+    swahili = next(
+        line for line in out.splitlines() if line.lstrip().startswith("swahili")
+    )
+    assert "INSUFFICIENT DATA (n=120, need 200)" in swahili

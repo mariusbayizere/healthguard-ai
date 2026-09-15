@@ -47,6 +47,9 @@ coordinator on paper or in a separate file that never enters the repository.
 5. **Intended urgency is recorded apart from the item.** It goes in a separate file the coordinator holds. The
    annotation tool refuses any items file that contains a label column, so annotators never see it.
 6. **What an item file looks like:** `item_id, text, language, split, scenario_id, domain, presentation_type`.
+   The import refuses, writing nothing, if any item lacks a `scenario_id`, if two test items share a scenario, if a
+   scenario appears in both the test and calibration splits (spec §8), or if an `item_id` was already imported.
+   An item takes exactly two labels; a third is refused.
 
 ## 3. The labels — BLOCKED
 
@@ -111,8 +114,8 @@ be items in the evaluation set. Needed, per pure language, before the pilot:
 | The text is "Muraho" and nothing else | UNCLASSIFIABLE, `not_a_symptom_description`, confidence 3 |
 | The text is in a language you do not read well | UNCLASSIFIABLE, `cannot_read_language`, confidence 3. It goes to adjudication like any UNCLASSIFIABLE label; if this happens often, the coordinator has assigned the wrong language to you. |
 | You can decide between two labels only with difficulty | pick the label you believe more likely, confidence 1 |
-| You pressed Save on the wrong label | do not try to change it: the tool has no correction path, by design. Tell the coordinator the item id. The first label stands for κ. **Tool gap:** the tool cannot yet send an item both annotators agreed on to adjudication, so the coordinator logs these ids and the lead clinician decides before the gold set is built. |
-| You recognise an item (e.g. you wrote it) | stop and tell the coordinator. **Tool gap:** there is no command to withdraw a label yet; until one exists the coordinator logs the item id and it is excluded from κ and the gold set by hand, with the exclusion reported. |
+| You pressed Save on the wrong label | do not try to change it: the tool has no correction path, by design. Tell the coordinator the item id. The first label stands for κ. The coordinator runs `python -m annotation --db ann.sqlite3 request-adjudication ITEM_ID A1 saved_wrong_label`, which sends the item to adjudication even if both annotators agreed; the gold set cannot be built until it is adjudicated. |
+| You recognise an item (e.g. you wrote it) | stop and tell the coordinator, who runs `python -m annotation --db ann.sqlite3 withdraw ITEM_ID A1 annotator_recognised_item`. Your label is kept as a record, the item takes no further labels, and it is excluded from κ and the gold set. The gold manifest records how many items were withdrawn and which. |
 
 ## 5. Labelling
 
