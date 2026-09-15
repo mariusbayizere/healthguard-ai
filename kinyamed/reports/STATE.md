@@ -721,13 +721,288 @@ red-flag layer were not built; E6 was not decided.
 - new: `reports/CONSTRUCT.md`, `reports/measurements/triage_wording_inventory.{py,txt}`;
 - untracked: `docs/clinical/participant_manual.pdf` (© WHO, all rights reserved; not committed).
 
+## 2026-09-15 (later) — public README corrected; CI trigger and runs #71/#72 checked; stopped
+
+No clinical decision. Nothing renamed. `main` not touched. An earlier message's placeholder "[their answer]" was
+disregarded; **no clinician has answered H6a.**
+
+### README.md (repository root) — rewritten on this branch, uncommitted
+
+- Every figure cites its report: CURRENT_CAPABILITY, MODEL_AUDIT §3–§6, DATASET_AUDIT §5.1/§6/§8,
+  CORPUS_REBUILD §1, TAXONOMY_SCOPE §2–§2b, and this file. Claims with no report behind them were cut: the 1M-row
+  corpus description, "41 tests", crash-safety anecdotes, the repository layout and the second "planned" module.
+  All 7 report links were checked to resolve.
+- It states: not deployed and must not be used with patients; "AI-powered medical triage" withdrawn, with no
+  clinical basis in `docs/clinical/` (§2b); the corpus is 165 phrases, 54.6% person-transforms, no `validated_by`,
+  not publishable; the model fails its gates on a 9-sentence test set.
+- **Judgement call: the CI badge was removed, not re-captioned.** It was *accurate* for `main` (the latest run on
+  `main`, #75, passed). But it covered only the four dataset/training jobs, and a green icon beside a medical
+  system's title reads as more than that. CI status is described in prose instead.
+- **Correction to the brief:** the badge did not say "passing" while main was red. Runs #71 and #72 failed, then
+  #73, #74 and #75 on `main` all passed.
+- **The public page is unchanged until this reaches `main`.** GitHub shows the default branch's README. Merging
+  is yours; I did not touch `main`.
+- **The README relies on a stale line elsewhere:** `CURRENT_CAPABILITY.md:46` still says `mypy --strict` is
+  "currently failing". It passed with 0 errors at `994bbdf`. Listed, not edited.
+
+### CI — `.github/workflows/ci.yml`
+
+- **The push trigger is restricted to `main`:** `on: push: branches: [main]`, plus `pull_request` (any branch)
+  and `workflow_dispatch`. Pushing `audit-p0-p1-and-frontend` without a pull request therefore triggers nothing.
+  The newest run is #75, 2026-09-09, `main`.
+- **`main`'s workflow has 4 jobs:** reproducibility, full 1M-row digest, training tests, hygiene. The `backend`,
+  `frontend`, `e2e` and `lint` jobs exist only on this branch and **have never run on GitHub**.
+- **Runs #71 (`ed02093`, 2026-09-07) and #72 (`6a7ef86`, 2026-09-08), push to `main`, both failed** in the same two
+  steps. The 1M-row digest job and the hygiene job passed. The two steps both run
+  `cd kinyamed/ml_model && python -m pytest -q -rs`:
+  - "Reproducibility and dataset tests" → step "Dataset test suite (training tests skip without torch)";
+  - "Training checkpoint tests" → step "Full test suite".
+  - The public API shows only "Process completed with exit code 1". Job logs need authentication (HTTP 403), so
+    **the failing test names were not seen.**
+  - The project's own record, from the commit message of `3ccb014`: "Commit 6a7ef86 was pushed after running the
+    backend suite and the LaTeX checker but NOT `make test-clean` … It left HEAD red: 4 failed, 112 passed. This
+    commit fixes those failures." Not independently verified.
+- **On `main` the failures were fixed.** #73 (`3ccb014`), #74 and #75 passed all four jobs. `ci.yml` is identical
+  between `6a7ef86` and `3ccb014`, so no step was disabled to get green.
+- **At this branch's HEAD** (33 commits ahead of `main`, 90 files changed under `ml_model/` and `.github/`), the same
+  command was run locally with torch 2.12.0+cpu: **181 passed, 3 skipped, 0 failed**, exit 0, 1,028 s. The skips
+  are `test_eval_spec.py:67` (needs `KINYAMED_SLOW=1`) and `test_paper_numbers.py:62`, `:74`.
+  - **Not run locally:** that command *without* torch, as the reproducibility job does; `make verify`;
+    `make check-attribution`; `make verify-full`; and the backend/frontend/e2e/lint jobs on a GitHub runner.
+    Local green is not CI green.
+
+### Proposed CI change — APPLIED 2026-09-15 (development week, item 1; see below)
+
+```yaml
+on:
+  push:              # every branch (was: branches: [main])
+  pull_request:      # every pull request, any base branch
+  workflow_dispatch:
+```
+
+- **Test first:** add a guard to `frontend/src/__tests__/ci-e2e.test.ts` that fails while `push:` carries a
+  `branches:` filter or `pull_request:` is missing. It fails now; it passes after the one-line change.
+  The existing guard does not check triggers.
+- **Cost, stated so you can decide:**
+  - every push to any branch runs all 8 jobs, including the 1M-row regeneration (20-min limit) and training
+    tests (25-min limit);
+  - a branch with an open PR runs twice, once for the push ref and once for the PR merge ref, because the
+    concurrency group is per ref.
+  - Path filters or `branches-ignore` could trim this later. Not proposed now, because a filter is how this
+    branch went unchecked.
+
+## Development week — item 1: CI runs on every branch and pull request (uncommitted)
+
+**What changed**
+- `.github/workflows/ci.yml`: `on: push:` no longer carries `branches: [main]`. `pull_request` and
+  `workflow_dispatch` are unchanged. A comment names the guard test.
+- **Test first:** `frontend/src/__tests__/ci-triggers.test.ts`, 7 tests.
+  - No branch, tag or path filter on `push` or `pull_request`.
+  - `workflow_dispatch` present.
+  - No job pinned to `main` through `github.ref`.
+  - No `continue-on-error: true`.
+  - All 8 gate jobs present.
+- **Red first:** 1 failed (the `branches: [main]` filter), 6 passed.
+- **Green:** 7/7, and 14/14 together with `ci-e2e.test.ts`.
+- **Mutation:** adding `branches: [main]` under `pull_request` fails 1 test. The workflow was restored
+  byte-identical (checksum compared).
+- The workflow parses as YAML: `on = {push: None, pull_request: None, workflow_dispatch: None}`, 8 jobs.
+
+**Pre-push checks, run one at a time, of what the first run on GitHub will execute**
+
+| Check | Result |
+|---|---|
+| Vitest, full | **146 passed** (14 files); was 139, +7 new |
+| `tsc -b` | clean |
+| `npm run build` | built; JS 72.35 kB gzip |
+| `make verify` | 6/6 PASS, 5.5 s |
+| ML suite, with torch (earlier this session) | 181 passed, 3 skipped |
+| Backend suite (earlier this session; no backend change since) | 250 passed |
+| `ruff check .` / `ruff format --check .` at the repo root | **Would have failed the `lint` job.** Fixed; see below |
+
+**Lint defect found and fixed, separate concern.** Both offenders were my own measurement scripts:
+- `reports/measurements/grammatical_person.py:33` had an unused `# noqa: E402` (RUF100), and the file needed
+  formatting.
+- `reports/measurements/triage_wording_inventory.py` needed formatting.
+- Fixed with `ruff check --fix --select RUF100` and `ruff format`. **The Python AST of both files is identical
+  before and after** (hash of `ast.dump` compared), so behaviour is unchanged.
+- Now: "All checks passed!" and "237 files already formatted".
+
+**Runs #71 and #72** (unchanged from the entry above):
+- Both failed in the two ML `pytest` steps. Test names are not visible without authenticated logs.
+- The repo's own record says 4 tests failed; fixed on `main` by `3ccb014`.
+- At this HEAD, locally with torch: 181 passed, 0 failed.
+- Not run locally: the no-torch variant, `make check-attribution` as a standalone step, `make verify-full`, and
+  anything on a GitHub runner.
+
+**"Our gates have never gated" — what this fixes and what it does not**
+- **Fixed:** the workflow now *runs* on every push and pull request.
+- **Not fixed; needs you, not code:** a red run does not *block* anything until `main` has a branch-protection
+  rule that requires these status checks before merge. That is a GitHub repository setting. It cannot be made in
+  `ci.yml`, and I have no authenticated GitHub access here.
+- **Still missing from CI:** `mypy --strict`. CLAUDE.md §16 makes it a commit gate, and the backend passes it (0
+  errors), but no job runs it. Proposed as a follow-up: one step in the `backend` job, with a guard test. Not done.
+- **Warning seen in runs #71/#72:** Node.js 20 is deprecated for `actions/checkout@v4` and `actions/setup-python@v5`
+  (forced onto Node 24). Not a failure today. Recorded only.
+- **Not verified:** that the 4 never-run jobs pass on a GitHub runner. The first push will show it.
+
+**Uncommitted on `audit-p0-p1-and-frontend`.** Proposed as separate commits:
+1. `ci: run on every branch and pull request`: `ci.yml` and `ci-triggers.test.ts`
+2. `style: ruff format two report measurement scripts`
+3. `docs: README states only what the reports measure`: `README.md`
+4. `docs(state): …`: this file
+
+**Items 3 and 4 already exist, for planning.**
+- `87a746e` built `training/evaluate.py` as the 15-metric gate that refuses on too little data, with
+  `tests/test_gate_evaluate.py`.
+- `7de4061` built the local double-blind annotation tool (`ml_model/annotation/`), Cohen's κ, and the gold-set
+  builder, with `tests/test_annotation.py`.
+- When those items come up, I will audit them against the new asks (reliability diagram, per-language cells,
+  per-row confidence and timestamp) and build only the gaps.
+
+## Development week — A: items 3 and 4 audited; gaps built; eval-set collapse recorded (uncommitted)
+
+Test-first throughout. Each change ran only its own test file; the full ML suite runs once at the end, result
+below. **No model trained. The one inference run was stopped at your instruction before it produced any
+predictions.**
+
+### Item 3 — `training/evaluate.py`: what already existed, and the defects found
+
+**Already built** (`87a746e`):
+- 15 gates with exact and scenario-cluster bootstrap intervals;
+- CRITICAL recall per pure language;
+- ECE, language identification and a reliability SVG;
+- INSUFFICIENT DATA below the EVAL_SET_SPEC minimum;
+- a non-zero exit unless every gate is MET.
+
+**The bootstrap resamples clusters, not rows.** It draws scenario multiplicities from a multinomial
+(`evaluate.py:537–541`), and a test proves clustered errors widen the interval. There was no row-bootstrap
+defect in the gate.
+
+**Defects found and fixed**
+
+| # | Defect | Red first | Fix |
+|---|---|---|---|
+| 1 | **The minimum-n check counted rows.** 2,000 rows from 4 CRITICAL sentences printed CRITICAL recall **MET, [0.998, 1.000]**: the gate would have permitted a model on four sentences. A gold file without `scenario_id` was accepted, making every row its own scenario. | 2 failed | *n* counts distinct source sentences (`scenario_id`) per population. The refusal prints both counts: `INSUFFICIENT DATA (17,942 rows from 9 distinct source sentences; need 780 distinct)`. A missing `scenario_id` is REFUSED. A report header warns when a test split has more than one item per scenario (EVAL_SET_SPEC §8). |
+| 2 | **`evaluate.py --model` (no `--gold`), `--writeup` and `--manifest` were forwarded to `holdout_eval.py`**, which prints metrics on the 9-sentence holdout with no refusal and applies the superseded 0.95 three-condition gate. | 4 failed | Refused with exit 2 and a pointer. `holdout_eval.py` must be run by name, and it prints "NOT A DEPLOYMENT GATE". The paper's instruction comments and the legacy docstrings now name `holdout_eval.py`. Generated `.tex` provenance headers were left as written. |
+| 3 | **Pooled gates had no per-language rows** (CLAUDE.md §16: all 15 metrics per language). | 3 failed | Gates 2, 3, 4, 6, 7 and 8 are gated per pure language, with the pooled gate's own threshold and minimum. Gates 5 and 9–12 were already per language. |
+| 4 | **The red-flag suite (§16 hard gate) had no row**, so it was silently absent. | 4 failed | A `X-REDFLAG` row. NOT MEASURED without `--red-flag-report` or with 0 cases; MET only if every case passes; NOT MET otherwise; a malformed report is REFUSED. |
+| 5 | **Gate 14 printed MET from `latency_v2d.json`** (warm p95 103 ms): percentiles with no interval, on an unnamed laptop. Gate 15 likewise. | 7 failed | Latency needs ≥ 1,000 per-request `samples_ms`. p50 and p95 are printed with bootstrap intervals, and MET needs both upper bounds under threshold. **Neither 14 nor 15 can be MET without `--target-hardware` matching the machine (H15).** Memory is labelled a single measurement, as the spec defines gate 15. |
+| 6 | **Inference ran before any check that the gold set could support a result.** | 3 failed | `--check-gold` counts every population from the gold file alone, with no model. `--model` refuses before loading the model when no cell is measurable. |
+
+**Specification conflict created by fix 3, for your decision (proposed E8).**
+- EVAL_SET_SPEC §6 allocates 400 CRITICAL per pure language. Per-language gate 7 (CRITICAL→ROUTINE) needs 720.
+- A perfect model on the designed 4,900-item test set is therefore **blocked**. Test:
+  `test_the_designed_allocation_cannot_clear_per_language_critical_to_routine`.
+- The options are yours: (a) enlarge the per-language CRITICAL allocation to ≥ 800 (the test set grows from
+  4,900 to about 6,500); (b) gate 7 pooled only, with per-language rows reported but not gated. That would
+  loosen §16, so it needs your explicit ruling.
+- Not decided. The code is conservative: blocked.
+
+**The permitted-model test now uses an allocation big enough per language** (800 / 600 / 600 per pure language).
+It proves the gate can still permit.
+
+### Item 4 — annotation tool: what already existed, and the gaps built
+
+**Already built** (`7de4061`):
+- binds to 127.0.0.1 only;
+- PII rejected at import;
+- opaque annotator codes; first label final;
+- per-row annotator ID, label, confidence and UTC timestamp;
+- a different order per annotator; nothing about agreement shown before both finish;
+- adjudication by a third person;
+- per-language κ with a bootstrap lower bound, refused below 200 items;
+- the gold builder with digests.
+
+**Gaps built** (8 tests red first)
+- **Import rules:**
+  - every item needs a `scenario_id`;
+  - one test item per scenario;
+  - no scenario in both splits (EVAL_SET_SPEC §8);
+  - a duplicate `item_id` is refused cleanly (it was a raw `sqlite3.IntegrityError`).
+- **A third label on an item is refused.** It used to be stored, then permanently block agreement with a
+  misleading message.
+- **The two tool gaps the D7 protocol itself named:**
+  - `withdraw` keeps the label as a record, blocks further labels, excludes the item from κ and gold, and records
+    count and ids in the gold manifest and the label export;
+  - `request-adjudication` sends an agreed item to adjudication; the first labels still stand for κ.
+  - D7 protocol §2 and §4 are updated. No "tool gap" remains.
+- **Synthetic annotators end to end through the CLI:** two seeded annotators label 250 Kinyarwanda and 120
+  Swahili items. The CLI's κ equals a direct computation, and Swahili is refused (n=120, need 200). **This test
+  passed on first run, so it is characterisation coverage of existing behaviour, not red-first.**
+
+### The evaluation set has the same template collapse as the training corpus
+
+Recorded in DATASET_AUDIT §10.
+- **17,942 rows from 9 distinct source sentences** (about 1,994 rows each): 4 CRITICAL (8,962 rows), 4 URGENT
+  (7,793), **1 ROUTINE (1,187)**.
+- `evaluate.py --gold dataset/processed/gate_n9_gold.csv --check-gold`: **0 of 45 cells measurable**, 38
+  INSUFFICIENT DATA, 5 NOT KNOWN. Exit 2. Output: `reports/measurements/gate_n9_check_gold.txt`.
+- `--model` on the same file refuses before loading the model.
+- **The corrected interval for the recorded v2d run is: none.**
+  - The gate prints no interval, because 9 distinct sentences are below every minimum. That refusal is the
+    honest replacement for a number.
+  - The v2d run record and the paper tables never carried an interval: `train_holdout.py` and `holdout_eval.py`
+    compute none.
+- **L6 finding:** MODEL_AUDIT §4.2's phrase-cluster intervals (CRITICAL recall 0.08–1.00, accuracy 0.40–0.91,
+  URGENT recall 0.16–0.85) were produced by `ml_audit.py`. §9 records it as uncommitted; it is not on disk. They
+  cannot be re-run.
+  - They are quoted in `CURRENT_CAPABILITY.md` and in the held `README.md`.
+  - Not edited. Proposed: mark them "not reproducible from the repository (MODEL_AUDIT §9)", or replace them with
+  the gate's refusal.
+- **Side finding:** `holdout_eval.py --manifest` reported the local v1 train split has drifted from
+  `eval_manifest_phrase_v1.json`, and refused. v1 is superseded; not investigated.
+
+### FR-04-07: the path to 1,000,000 rows — CORPUS_REBUILD §5
+
+The target stands; no gate lowered. Arithmetic: `reports/measurements/corpus_1m_arithmetic.py` (output `.txt`).
+Rates are CLINICIAN_BRIEF's **assumptions** (2–3 min to write a seed, 30–45 s to validate one).
+- **What binds:** G1 (≤ 50 rows per seed) needs ≥ 20,000 native seeds. G2 needs ≥ 3,000 per language, so ≥ 30,000
+  across 10 combinations, and ≥ 30 per non-empty cell. The cell count is BLANK (H4, E6) and is the largest cost
+  driver.
+- **Reachable:** if cells per combination are ≤ about 160 and native frames allow about 17–42 variants per seed
+  without breaching the near-duplicate standard. That is 30,000–48,600 seeds from 40–100 authors, **about
+  1,250–3,040 author-hours**.
+- **Not reachable at realistic cost:** if §9.1's 80+ domains are crossed with reporter and age group (720–1,440
+  cells: **9,000–27,000 author-hours**), or if the near-duplicate standard forces ≤ 5 variants per seed (8,300 or
+  more).
+- **Below about 1,875 author-hours:** the 10-combination balance cannot be met at all. The largest defensible
+  corpus is then per covered combination (for example Kinyarwanda alone: 150,000 rows from 3,000 seeds), meeting
+  G1–G8 there and explicitly **not** FR-04-07 or §9.1 balance.
+
+### Verification
+
+- Targeted suites: `test_gate_evaluate.py` + `test_annotation.py` **73 passed**.
+- `ruff check` / `ruff format --check` at the repo root: clean.
+- **Full ML suite, alone: 211 passed, 3 skipped, 0 failed**, exit 0, 1,264 s; lowest free memory 2,041 MB. Was
+  181 passed at the start of the session; +30 new tests.
+- **One more defect, found while checking the README: `scripts/gate_on_current_holdout.py` ran inference before
+  the gate could refuse.**
+  - It called `predict_with_model` directly.
+  - Test first (`tests/test_gate_script.py`, red: "inference ran on a gold set the gate cannot measure").
+  - It now runs `--check-gold` first and exits 2 without loading the model.
+  - Run on the real corpus: exit 2, peak RSS 486 MB (no model), no predictions file. The gold file SHA-256 prefix
+    `636b7727e428` is identical to the first build.
+
 ## Next — single action
 
-**Take H6a and H6 to the lead clinician, with `TAXONOMY_SCOPE.md` §2–§2b and `reports/CONSTRUCT.md`.**
-- The first question is whether a validated report-based urgency instrument exists and is used in Rwanda.
-- If one does, it becomes the anchor, and CONSTRUCT.md is likely superseded.
-- If none does, the lead clinician decides whether to adopt CONSTRUCT.md.
-- Rewording (A27), E6 and the D7 §3 label definitions wait on that answer.
+**Your ruling on E8** (per-language gate 7 against the 400-per-language CRITICAL allocation). Then **B: item 5a
+tokenizer study**. It is label-independent and runs no training, only tokenizers.
+
+Also waiting on you:
+- the held README diff: it quotes MODEL_AUDIT intervals that cannot be re-run;
+- approval to commit A as five commits. Fixes 1–6 all touch `evaluate.py` and its test file, and interactive
+  hunk staging is not available here, so the gate lands as one commit whose message lists the six defects:
+  1. `fix(eval)!: gate counts distinct source sentences; refuses legacy route, missing hardware and red-flag
+     evidence` — `training/evaluate.py`, `training/holdout_eval.py`, paper instruction comments,
+     `tests/test_gate_evaluate.py`;
+  2. `fix(annotation): scenario rules at import, two labels only, withdraw and request-adjudication` —
+     `annotation/`, `tests/test_annotation.py`, D7 protocol;
+  3. `feat(eval): script to rebuild the current holdout as a gold file` — `scripts/gate_on_current_holdout.py`;
+  4. `docs: eval-set collapse (DATASET_AUDIT §10), path to 1M (CORPUS_REBUILD §5)` — the reports and
+     measurements;
+  5. `docs(state)` — this file.
+- a branch-protection rule on `main`.
 
 ## Blocked on you (unchanged)
 
