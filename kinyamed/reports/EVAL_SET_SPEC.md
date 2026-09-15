@@ -149,50 +149,50 @@ reaches the gate.
 **Proposal (decision E4).** §9.2 says "ECE ≤ 0.05 on the validation split".
 - A validation split large enough for that (≥ 2,000) would nearly double clinician effort.
 - Instead: fit the single temperature parameter on a **calibration split of 1,500 items**, used for nothing
-  else, and measure ECE on the **test set (6,500 items)** with the rule in §2.
+  else, and measure ECE on the **test set (9,116 items)** with the rule in §2.
 - `evaluate.py` does that, draws the reliability diagram (SVG), and refuses both below 2,000 items.
 
 ## 6. Target size and allocation
 
 | Split | Per pure language (C / U / R) | Per mixed pair (C / U / R) | Total |
 |---|---|---|---|
-| **Test** | 1,400 (**800** / 300 / 300) | 150 (60 / 45 / 45) | **6,500** (5,600 pure + 900 mixed) |
+| **Test** | 2,054 (**800** / **627** / **627**) | 150 (60 / 45 / 45) | **9,116** (8,216 pure + 900 mixed) |
 | **Calibration** | 300 (100 / 100 / 100) | 50 (20 / 15 / 15) | **1,500** |
-| **All** | | | **8,000 items, each labelled twice → 16,000 labels + adjudications** |
+| **All** | | | **10,616 items, each labelled twice → 21,232 labels + adjudications** |
 
-**E8, ruled 2026-09-15: at least 800 CRITICAL per pure language** (was 400; the set was 4,900 test / 6,400 in all).
+### The full cost, in one place
+
+Printed by `python training/eval_spec.py --report`. It uses CLINICIAN_BRIEF's rates, which are **assumptions,
+not measurements**: 2–3 min to write an item, 30–45 s per label × 2 annotators, 1 min per disagreement at
+15–25%. The pilot replaces them.
+
+| | Test items | Whole set (test + calibration) | Clinician-hours (assumed rates) |
+|---|---|---|---|
+| Original design (400 / 300 / 300) | 4,900 | 6,400 | 336–507 |
+| + **E8** (+400 CRITICAL × 4 pure languages) | +1,600 | | +84–127 |
+| + **E8b** (+327 URGENT and +327 ROUTINE × 4) | +2,616 | | +137–207 |
+| **Now** | **9,116** | **10,616** | **557–840** |
+| Kinyarwanda first (E5) | 2,054 | 2,354 | 124–186 |
+
+**E8, ruled 2026-09-15: ≥ 800 CRITICAL per pure language.**
 - CRITICAL → ROUTINE is **gated per pure language, never pooled only**. Pooled gating would let adequate
   Kinyarwanda performance hide a language that sends emergencies to ROUTINE.
-- Gate 7's minimum is 720 gold CRITICAL per language; 800 leaves about 9% for items adjudicated UNCLASSIFIABLE
-  or excluded.
-- With 400 per language, `evaluate.py` could not measure any per-language gate 7 row on the designed set, so a
-  perfect model was blocked. Test: `test_the_designed_allocation_clears_per_language_critical_to_routine`.
+- Gate 7 needs 720 gold CRITICAL per language; 800 leaves about 9% for exclusions.
 
-**What E8 costs.** Printed by `python training/eval_spec.py --report`, on CLINICIAN_BRIEF's rates, which are
-**assumptions, not measurements**: 2–3 min to write, 30–45 s per label × 2 annotators, 1 min per disagreement
-at 15–25%.
+**E8b, ruled 2026-09-15: 627 URGENT and 627 ROUTINE per pure language.**
+- Per-language URGENT recall (gate 8) and weighted/macro F1 (smallest class, gates 2 and 3) need 570.
+- 627 = ⌈570 / 0.91⌉, the same margin.
 
-| | Items | Clinician-hours (assumed rates) |
-|---|---|---|
-| Added by E8 (+400 CRITICAL × 4 pure languages) | **+1,600** test items (+3,200 labels) | **84–127** |
-| Whole set after E8 | 8,000 (6,500 test + 1,500 calibration) | 420–633 |
-| Kinyarwanda first (E5) after E8 | 1,700 (1,400 test + 300 calibration), was 1,300 | 89–135 |
-
-**Still open — E8b (not decided).**
-- Per-language URGENT recall (gate 8) and weighted/macro F1 (gates 2 and 3, smallest class) need 570 per pure
-  language; the allocation has 300 URGENT and 300 ROUTINE.
-- `check_allocation_meets_requirements()` names these 8 shortfalls rather than passing a set the gate would
-  refuse (test: `test_the_open_per_language_urgent_and_routine_shortfall_is_named`).
-- Ruling E8b (627 URGENT and 627 ROUTINE per pure language) adds **+2,616 test items (test set 9,116) and
-  137–207 clinician-hours**, on the same assumed rates.
+**With both, every per-language gate row is measurable on the designed set.** The allocation check passes, and
+`test_every_per_language_row_is_measurable_on_the_designed_allocation` checks it.
 
 `check_allocation_meets_requirements()` checks every minimum fixed before inference, including the per-language
 rows (it is tested). Gate 4's denominator depends on the model, so it is checked at evaluation time.
 
-**Class balance within the test set** is a design choice for power, not a prevalence estimate: 57% CRITICAL
-per pure language after E8. **No metric here estimates real-world performance at clinic prevalence** (§10).
+**Class balance within the test set** is a design choice for power, not a prevalence estimate: 39% CRITICAL
+per pure language after E8 and E8b (800 of 2,054). **No metric here estimates real-world performance at clinic prevalence** (§10).
 
-**Phasing (recommended, decision E5).** Kinyarwanda first: 1,400 test + 300 calibration = 1,700 items. That is
+**Phasing (recommended, decision E5).** Kinyarwanda first: 2,054 test + 300 calibration = 2,354 items. That is
 the deployment language, and it alone unblocks gates 5 (KW), 9, and the KW row of every pooled metric. Other
 languages follow as speakers are found (D4).
 
@@ -257,7 +257,7 @@ Effective n for 400 items grouped m to a scenario with intra-scenario correlatio
 - **Precision** (large-sample approximation; the tool itself uses the bootstrap): with observed agreement 0.90
   and chance agreement 0.34, the 95% half-width is ±0.089 at n=100, ±0.063 at n=200, ±0.040 at n=500 and
   ±0.028 at n=1,000. **At n=200 an observed κ of about 0.87 is needed to clear 0.80 (0.87 − 0.063 ≈ 0.81).**
-- **Plan:** all 8,000 items are double-labelled, so every pure language has 1,700 κ items.
+- **Plan:** all 10,616 items are double-labelled, so every pure language has 2,354 κ items.
 
 ## 10. What this set cannot establish
 
@@ -289,7 +289,7 @@ Effective n for 400 items grouped m to a scenario with intra-scenario correlatio
 - **E4:** ECE measured on the test set, with temperature fitted on a separate calibration split (§5).
 - **E5:** Kinyarwanda first (§6).
 - **E8 (ruled 2026-09-15):** ≥ 800 CRITICAL per pure language; CRITICAL → ROUTINE gated per language (§6).
-- **E8b (open):** URGENT and ROUTINE to 627 per pure language, so per-language gates 2, 3 and 8 can be measured (§6).
+- **E8b (ruled 2026-09-15):** 627 URGENT and 627 ROUTINE per pure language, so per-language gates 2, 3 and 8 can be measured (§6).
 
 ## 13. Reproduce
 

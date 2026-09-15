@@ -395,18 +395,16 @@ def test_every_pooled_gate_is_also_gated_per_pure_language(tmp_path, capsys):
             assert f"{name} [{lang}]" in out, f"no row for {name} [{lang}]"
 
 
-def test_the_designed_allocation_clears_per_language_critical_to_routine(
+def test_every_per_language_row_is_measurable_on_the_designed_allocation(
     tmp_path, capsys
 ):
-    """E8: 800 CRITICAL per pure language clears gate 7's 720 in each language. The
-    per-language URGENT rows are still short (E8b, open), so deployment stays blocked."""
-    code, out = _run(tmp_path, _full_allocation(), capsys=capsys)
-    assert "INSUFFICIENT" not in _line(out, "CRITICAL -> ROUTINE rate [kinyarwanda]")
-    assert "INSUFFICIENT DATA (n=300, need 570)" in _line(
-        out, "URGENT recall [kinyarwanda]"
-    )
-    assert "Deployment BLOCKED" in out
-    assert code == 1
+    """E8 and E8b: on the designed test set no per-language gate row is refused for
+    too little data, so a model is judged on its results, not on the set's size."""
+    _, out = _run(tmp_path, _full_allocation(), capsys=capsys)
+    for name in PER_LANGUAGE_GATES:
+        for lang in spec.PURE_LANGUAGES:
+            line = _line(out, f"{name} [{lang}]")
+            assert "INSUFFICIENT" not in line, line
 
 
 def test_a_per_language_failure_blocks_deployment(tmp_path, capsys):

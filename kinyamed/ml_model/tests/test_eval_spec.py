@@ -71,16 +71,17 @@ def test_the_allocation_check_covers_per_language_critical_to_routine(
         assert f"{lang} CRITICAL: 400 < 720 (gate 7, per language)" in failures
 
 
-def test_the_open_per_language_urgent_and_routine_shortfall_is_named() -> None:
-    """E8b, not decided: 300 URGENT and 300 ROUTINE per pure language are below the
-    570 that per-language URGENT recall and weighted/macro F1 need. The check says
-    so rather than passing a set the gate would refuse."""
-    failures = set(spec.check_allocation_meets_requirements())
-    expected = set()
+def test_e8b_each_pure_language_has_627_urgent_and_routine_items() -> None:
+    """E8b, ruled 2026-09-15: per-language URGENT recall (gate 8) and weighted/macro F1
+    (smallest class, gates 2 and 3) need 570 each; 627 leaves ~9% for exclusions."""
+    by_lang = {a.language: a for a in spec.TEST_ALLOCATION}
     for lang in spec.PURE_LANGUAGES:
-        expected.add(f"{lang} URGENT: 300 < 570 (gate 8, per language)")
-        expected.add(f"{lang} smallest class: 300 < 570 (gates 2 and 3, per language)")
-    assert failures == expected
+        assert by_lang[lang].urgent >= 627, lang
+        assert by_lang[lang].routine >= 627, lang
+
+
+def test_the_allocation_now_meets_every_minimum_fixed_in_advance() -> None:
+    assert spec.check_allocation_meets_requirements() == []
 
 
 def test_every_gate_metric_of_section_9_2_has_a_requirement() -> None:

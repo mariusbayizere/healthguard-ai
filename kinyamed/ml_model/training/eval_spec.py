@@ -467,12 +467,13 @@ class Allocation:
 # Per pure language: 800 CRITICAL (E8, ruled 2026-09-15). CRITICAL -> ROUTINE is
 # gated per pure language, never pooled only, and its minimum is 720; 800 leaves
 # ~9% for items adjudicated UNCLASSIFIABLE or excluded. It also clears gate 5's 365.
-# URGENT and ROUTINE stay 300 pending E8b: per-language URGENT recall and F1 need
-# 570, and check_allocation_meets_requirements names that shortfall.
+# URGENT and ROUTINE: 627 (E8b, ruled 2026-09-15). Per-language URGENT recall (gate 8)
+# and weighted/macro F1 (smallest class, gates 2 and 3) need 570; 627 = ceil(570 / 0.91)
+# leaves the same ~9% margin.
 # Per mixed pair: 150 clears the per-pair floor of 100 with the same margin, and
 # 6 x 150 = 900 clears the pooled 710.
 TEST_ALLOCATION: tuple[Allocation, ...] = tuple(
-    Allocation(lang, 800, 300, 300) for lang in PURE_LANGUAGES
+    Allocation(lang, 800, 627, 627) for lang in PURE_LANGUAGES
 ) + tuple(Allocation(lang, 60, 45, 45) for lang in MIXED_LANGUAGES)
 
 # Fits ONE temperature parameter and nothing else; never scored. 300 per pure
@@ -643,18 +644,27 @@ def _report() -> str:
     lines.append(f"Allocation check: {failures if failures else 'PASS'}")
     lines.append("")
     total = t["items"] + c["items"]
-    previous_test = 4 * 1000 + 6 * 150  # before E8: 400 / 300 / 300 per pure language
-    added = t["items"] - previous_test
+    original_test = 4 * 1000 + 6 * 150  # 400 / 300 / 300 per pure language
+    after_e8_test = 4 * 1400 + 6 * 150  # 800 / 300 / 300 (E8)
     lo, hi = clinician_hours(total)
-    alo, ahi = clinician_hours(added)
     lines.append(
         f"Items: test {t['items']:,} + calibration {c['items']:,} = {total:,}, "
         f"labelled twice = {2 * total:,} labels"
     )
+    for label, items in (
+        ("E8 (+400 CRITICAL x 4)", after_e8_test - original_test),
+        ("E8b (+327 URGENT, +327 ROUTINE x 4)", t["items"] - after_e8_test),
+        ("E8 + E8b together", t["items"] - original_test),
+    ):
+        alo, ahi = clinician_hours(items)
+        lines.append(
+            f"{label}: +{items:,} test items, {alo:,.0f}-{ahi:,.0f} clinician-hours"
+        )
+    olo, ohi = clinician_hours(original_test + c["items"])
     lines.append(
-        f"E8 added {added:,} test items (was {previous_test:,}); clinician-hours for the "
-        f"added items {alo:,.0f}-{ahi:,.0f}; whole set {lo:,.0f}-{hi:,.0f} "
-        "(CLINICIAN_BRIEF assumed rates, not measured)"
+        f"Whole set: {total:,} items, {lo:,.0f}-{hi:,.0f} clinician-hours "
+        f"(was {original_test + c['items']:,} items, {olo:,.0f}-{ohi:,.0f}); "
+        "CLINICIAN_BRIEF assumed rates, not measured"
     )
     kw = next(a for a in TEST_ALLOCATION if a.language == "kinyarwanda")
     kw_cal = next(a for a in CALIBRATION_ALLOCATION if a.language == "kinyarwanda")
@@ -662,16 +672,6 @@ def _report() -> str:
     lines.append(
         f"Kinyarwanda first (E5): {kw.total:,} test + {kw_cal.total:,} calibration = "
         f"{kw.total + kw_cal.total:,} items, {klo:,.0f}-{khi:,.0f} clinician-hours"
-    )
-    e8b_per_lang = 2 * (
-        math.ceil(requirement("8").minimum_n / (1 - UNCLASSIFIABLE_MARGIN)) - 300
-    )
-    e8b_items = e8b_per_lang * len(PURE_LANGUAGES)
-    blo, bhi = clinician_hours(e8b_items)
-    lines.append(
-        f"If E8b is ruled (URGENT and ROUTINE to {300 + e8b_per_lang // 2} per pure language): "
-        f"+{e8b_items:,} test items -> test {t['items'] + e8b_items:,}, "
-        f"+{blo:,.0f}-{bhi:,.0f} clinician-hours"
     )
     return "\n".join(lines)
 
