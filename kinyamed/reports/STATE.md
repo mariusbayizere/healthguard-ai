@@ -1228,17 +1228,70 @@ CRITICAL queue entries would be a new unvalidated claim, not a safety net.
   rows).
 - No code change.
 
+## 5c — training pipeline, ready to run; refuses below the evaluation-set minimum (2026-09-15)
+
+**No model was trained.** Every test uses synthetic data or a tiny randomly initialised model. Nothing below is a
+measurement of any KinyaMed model.
+
+| Commit | Component |
+|---|---|
+| `3d84c8b`, `fbaf42b` | Cost-sensitive loss `training/cost_loss.py`: CE + w·E_p[cost]. CRITICAL→ROUTINE must be strictly the largest cost, or the matrix is refused. The default matrix (10 / 1 / 1) is **UNSOURCED (H6)**. Synthetic test: CRITICAL→ROUTINE errors cut at least fourfold across 3 seeds. |
+| `877f3a0` | Temperature scaling `training/calibration.py`: golden-section on log T, fitted on the calibration split only. ECE is identical to the gate's binning (parity test). The ECE interval resamples scenarios; the test uses repeated-sentence clusters, the n=9 shape. The reliability diagram is the gate's own. `calibration_split_shortfalls` checks the calibration allocation in distinct scenarios. |
+| `9d34977`, `8ebd9ed` | Thresholds `training/thresholds.py`, tuned to CRITICAL safety. Rule: CRITICAL if p_C ≥ t_c, else URGENT if p_C + p_U ≥ t_u, else ROUTINE. Gate 5 (recall, each pure language) and gate 7 (CRITICAL→ROUTINE, pooled) are hard constraints, read from `eval_spec`. The objective is expected cost; accuracy appears nowhere, and a test shows the tuned pair is less accurate than the accuracy-maximising one. A precision or URGENT recall given up for safety is a warning naming gate 4 or 8, **with no number** (L6). |
+| `9d34977` | **Gate change:** `evaluate.py` scored the argmax, so tuned thresholds would never have been the scored decision. Predictions may now carry `predicted_label`, and all classification metrics score it. ECE stays on the argmax. With no column, behaviour is unchanged; gate tests 91 passed. |
+| `0bd3795`, `d88f936` | Run manifest `training/run_manifest.py`. It records seed, config, sha256 and size of every input and output, the commit and a dirty flag (tracked changes plus untracked `.py`; untracked PDFs don't count), Python and package versions, CPU/RAM, and UTC times. No username or hostname; repo-relative paths. Refused and failed runs are recorded; any unreproducible reason is listed. `verify()` re-hashes inputs and outputs. |
+| `4b5fe24` | Pipeline `training/pipeline.py` + `training/configs/pipeline_default.json` (the v2d run's hyperparameters). Order: (1) test split, where every pre-inference gate cell must be SUFFICIENT (all but gate 4), and calibration split, which must meet its allocation, **else REFUSE before the corpus is read**; (2) leakage across train, calibration and test: exact normalised text, scenario_id, near-duplicate at word-3-gram Jaccard ≥ 0.85, **else REFUSE**; (3) train with the cost-sensitive loss (seed-deterministic, tested on a tiny BERT); (4) temperature and (5) thresholds on calibration only (a test shows perturbing test logits changes neither); (6) write `kinyamed_training.json` (max_length, temperature, thresholds, cost matrix), test predictions with `predicted_label` that load in the gate, `thresholds.json`, the reliability SVG, and the manifest. It prints no metric; it names `training/evaluate.py` as the next step. |
+| `ef0c315` | `gate_on_current_holdout.py --check-only`: builds the n=9 gold set and prints the counts with no weights. |
+| `2e05521` | `make reproduce` → `ml_model/reproduce.py`, 8 steps, each checking an exit code or diffing a committed output: sample verify, `eval_spec --verify`, 1M arithmetic, `verify --scope full`, the frozen phrase-v2 split (built in a temp dir, digest-checked, then moved; the tracked split JSON is never rewritten), grammatical person, the gate's n=9 check (**exit 2**), the pipeline's n=9 refusal (**exit 2**, `reports/measurements/pipeline_n9_refusal.txt`). Printed as not covered, each with its reason: the tokenizer study (network), latency/memory (weights H16, target CPU H15), the wording inventory (a working-tree snapshot), any quality metric (no eval set). |
+
+**Refusal on the n=9 set, demonstrated with the committed pipeline and the real trainer class** (`pipeline_n9_refusal.txt`,
+byte-identical over two runs):
+- Exit 2. "17,942 rows from 9 distinct source sentences".
+- 40 test-split cells INSUFFICIENT DATA; the calibration split is absent.
+- "leakage check: NOT RUN (refused before the training corpus was read)"; "Nothing was trained."
+- Peak RSS 250 MB; no model loaded. The manifest records status `refused`, with no `train` input.
+
+**Tests** (each file run alone):
+- `test_cost_loss` 12, `test_calibration` 11, `test_thresholds` 16, `test_run_manifest` 17, `test_pipeline` 19,
+  `test_gate_script` 3, `test_reproduce` 9.
+- Gate-dependent files 91 passed, 2 skipped (the existing `test_paper_numbers` placeholders).
+- Ruff clean. **The full ML suite was NOT re-run** (see below).
+
+**Faults in my own work found and fixed during 5c:**
+- The first clustered-ECE test clustered independent rows, which proves nothing; it now uses repeated-sentence
+  clusters.
+- The first near-duplicate fixture was J = 0.846, below 0.85; it now asserts its own Jaccard, and a just-below case
+  is tested.
+- Threshold warnings printed interval-less point estimates (`8ebd9ed`).
+- A passing pipeline run printed the gate's count table; it now prints it only on refusal.
+
+**NOT VERIFIED: `make reproduce` from a clean clone.**
+- Two attempts in `git clone` of `2e05521` were **killed by the system for low memory**: once in step 2, once in
+  step 1, which had passed the first time.
+- Measured alone, step 2 peaks at 15 MB (80 s). The kills track the machine's free memory: Chrome held about 2.5 GB,
+  and 4.4 GB was available.
+- Retries stopped. The last two steps' outputs were produced and diffed in the working tree, not in a clean clone.
+- **Needs:** browsers closed, then `make reproduce` from a fresh clone, run alone. `verify --scope full` needs
+  about 1 GB of scratch space.
+
+**Open, found in 5c (engineering, not blocked on anyone):** the backend reads only `max_length` from
+`kinyamed_training.json`. It would ignore a pipeline-trained model's temperature and thresholds, and serve argmax
+of uncalibrated probabilities, which is not the decision the gate scored. Before serving any pipeline-trained model,
+the service must either apply both or **refuse to start** (as for `max_length`). Latent today: no such model can
+exist until the eval set does.
+
 ## Next — single action
 
-**5c: the training pipeline, ready to run and refusing to run below the evaluation-set minimum.** It covers the
-cost-sensitive loss, temperature calibration with ECE and a reliability diagram, safety-tuned thresholds, a full run
-manifest, `make reproduce`, and a demonstration of the refusal on the n=9 set. No model is trained for accuracy.
+**Verify `make reproduce` from a clean clone, with nothing else running, then run the ML suite alone.** Needs the
+browsers closed. After that: the backend applies or refuses a model's temperature and thresholds (the open item
+above).
 
 Waiting on you:
 - H15 (target CPU and an arrival-rate NFR, informed by A29);
 - H21;
 - branch protection;
-- removing `MODEL_MAX_LENGTH` from your local `.env` before serving v2d.
+- clinical ratification of the cost matrix and of the gate 5/7 targets (H6, A30);
+- removing `MODEL_MAX_LENGTH` from your local `.env` before serving v2d (you said you are doing this).
 
 ## Blocked on you (unchanged)
 
