@@ -48,3 +48,35 @@ def test_an_unmeasurable_gold_set_stops_before_the_model_is_loaded(
     monkeypatch.setattr(gate, "predict_with_model", model_must_not_load)
     assert script.main(["--model", str(tmp_path / "model")]) == 2
     assert "No gate cell can be measured" in capsys.readouterr().out
+
+
+def test_check_only_builds_the_gold_set_and_never_needs_a_model(
+    tmp_path, monkeypatch, capsys
+):
+    """make reproduce: rebuild the n=9 gold file and print the gate's counts, with no
+    weights on the machine."""
+    script = _load()
+    gold = tmp_path / "gold.csv"
+    gold.write_text(
+        "item_id,text,language,gold_label,scenario_id,split\n"
+        "r0,synthetic,kinyarwanda,CRITICAL,s0,test\n"
+    )
+    built = []
+    monkeypatch.setattr(script, "GOLD", gold)
+    monkeypatch.setattr(script, "build_gold", lambda: built.append(1) or (1, 1))
+    from training import evaluate as gate
+
+    monkeypatch.setattr(
+        gate, "predict_with_model", lambda *a, **k: pytest.fail("model loaded")
+    )
+    assert script.main(["--check-only"]) == 2
+    captured = capsys.readouterr()
+    assert built == [1]
+    assert captured.out.startswith("Gold set: 1 rows from 1 distinct")
+    assert "gold: 1 rows" in captured.err
+
+
+def test_without_check_only_a_model_is_required(tmp_path, monkeypatch):
+    script = _load()
+    with pytest.raises(SystemExit):
+        script.main([])
