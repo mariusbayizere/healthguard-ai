@@ -136,6 +136,32 @@ jobs:
     # this remote: every local gate was run except the one that was skipped.
     name: Backend suite
     runs-on: ubuntu-latest
+    # The suite runs against a real PostgreSQL: tests/conftest.py creates and
+    # migrates `kinyamed_test` through the `postgres` maintenance database, and
+    # refuses to load without DATABASE_URL. A developer machine has a local server
+    # and a git-ignored backend/.env; a runner has neither, so run #77 exited 4 at
+    # conftest import. Guarded by frontend/src/__tests__/ci-backend-db.test.ts.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      # A throwaway database on the runner. None of these is a secret: they exist
+      # only for the lifetime of the job, and SMS is off.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      SECRET_KEY: ci-only-test-signing-key-not-used-anywhere-else
+      SMS_API_KEY: ci-only-placeholder
+      SMS_ENABLED: "false"
     defaults:
       run:
         working-directory: kinyamed/backend
