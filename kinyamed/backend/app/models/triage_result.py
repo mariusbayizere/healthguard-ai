@@ -5,7 +5,16 @@ from __future__ import annotations
 import enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Float, ForeignKey, Integer, Text
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    text,
+)
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -46,6 +55,22 @@ class TriageResult(TimestampedModel):
             "confidence_score IS NULL OR (confidence_score >= 0 AND confidence_score <= 1)",
             name="ck_triage_results_confidence_range",
         ),
+        # Red-flag layer (CLAUDE.md L2), migration a7c3e9f1d2b4. Escalate-only is a
+        # database property: PostgreSQL orders the enum CRITICAL < URGENT < ROUTINE,
+        # so no writer can store an urgency lower than the model's.
+        CheckConstraint(
+            "rules_layer_triggered = (rules_layer_reason IS NOT NULL)",
+            name="ck_triage_results_rules_reason_iff_triggered",
+        ),
+        CheckConstraint(
+            "model_urgency_raw IS NULL OR urgency_level <= model_urgency_raw",
+            name="ck_triage_results_rules_escalate_only",
+        ),
+        CheckConstraint(
+            "rules_layer_triggered OR model_urgency_raw IS NULL "
+            "OR urgency_level = model_urgency_raw",
+            name="ck_triage_results_untriggered_keeps_model_urgency",
+        ),
     )
 
     symptom_report_id: Mapped[int] = mapped_column(
@@ -63,6 +88,19 @@ class TriageResult(TimestampedModel):
     possible_conditions: Mapped[str | None] = mapped_column(Text)
     confidence_score: Mapped[float | None] = mapped_column(Float)
     ai_response_rw: Mapped[str | None] = mapped_column(Text)
+    # Whether the red-flag layer escalated this triage, and on which lexicon
+    # concept_id(s). Never patient text (L11).
+    rules_layer_triggered: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=text("false")
+    )
+    rules_layer_reason: Mapped[str | None] = mapped_column(String(200))
+    # The model's own prediction before the rules layer. NULL on rows written
+    # before the layer existed, whose origin cannot be attributed.
+    model_urgency_raw: Mapped[UrgencyLevel | None] = mapped_column(
+        SAEnum(
+            UrgencyLevel, name="urgencylevel", validate_strings=True, create_type=False
+        )
+    )
 
     symptom_report: Mapped[SymptomReport] = relationship(back_populates="triage_result")
     queue_entry: Mapped[Queue | None] = relationship(
