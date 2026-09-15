@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from typing import Any, cast
 
-from sqlalchemy import select, update
+from sqlalchemy import CursorResult, Table, select, update
 from sqlalchemy.orm import Session
 
 from app.models.user import RefreshToken, User
@@ -79,10 +80,16 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         self, db: Session, user_id: int, *, commit: bool = True
     ) -> int:
         """Revoke every live session for a user. Returns how many were ended."""
-        result = db.execute(
-            update(RefreshToken)
-            .where(RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None))
-            .values(revoked_at=datetime.now(UTC))
+        # Type-checker casts only; see analytics_repo.delete_by_date.
+        result = cast(
+            CursorResult[Any],
+            db.execute(
+                update(RefreshToken)
+                .where(
+                    RefreshToken.user_id == user_id, RefreshToken.revoked_at.is_(None)
+                )
+                .values(revoked_at=datetime.now(UTC))
+            ),
         )
         if commit:
             db.commit()
@@ -90,10 +97,13 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
 
     def delete_expired(self, db: Session, *, commit: bool = True) -> int:
         """Purge tokens that expired long enough ago to be useless as an audit trail."""
-        result = db.execute(
-            RefreshToken.__table__.delete().where(
-                RefreshToken.expires_at < datetime.now(UTC)
-            )
+        result = cast(
+            CursorResult[Any],
+            db.execute(
+                cast(Table, RefreshToken.__table__)
+                .delete()
+                .where(RefreshToken.expires_at < datetime.now(UTC))
+            ),
         )
         if commit:
             db.commit()

@@ -56,7 +56,7 @@ class BaseRepository(Generic[ModelType]):
         """Count all records."""
         return int(db.scalar(select(func.count()).select_from(self.model)) or 0)
 
-    def _count_for(self, db: Session, statement: Select) -> int:
+    def _count_for(self, db: Session, statement: Select[Any]) -> int:
         """Count the rows a filtered SELECT would return.
 
         Counts over the statement as a subquery rather than rewriting its

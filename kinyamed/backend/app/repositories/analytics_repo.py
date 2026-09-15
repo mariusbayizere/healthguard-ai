@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import date
-from typing import Any
+from typing import Any, cast
 
-from sqlalchemy import select
+from sqlalchemy import CursorResult, Table, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -55,8 +55,16 @@ class AnalyticsRepository(BaseRepository[Analytics]):
         self, db: Session, snapshot_date: date, *, commit: bool = True
     ) -> int:
         """Delete one day's snapshot. Returns the number of rows removed."""
-        result = db.execute(
-            Analytics.__table__.delete().where(Analytics.snapshot_date == snapshot_date)
+        # Casts are for the type checker only: `__table__` is typed FromClause
+        # and `execute` returns Result, but at runtime they are a Table and a
+        # CursorResult. The statement and its rowcount are unchanged.
+        result = cast(
+            CursorResult[Any],
+            db.execute(
+                cast(Table, Analytics.__table__)
+                .delete()
+                .where(Analytics.snapshot_date == snapshot_date)
+            ),
         )
         if commit:
             db.commit()
@@ -64,7 +72,9 @@ class AnalyticsRepository(BaseRepository[Analytics]):
 
     def delete_all(self, db: Session, *, commit: bool = True) -> int:
         """Delete every snapshot. Returns the number of rows removed."""
-        result = db.execute(Analytics.__table__.delete())
+        result = cast(
+            CursorResult[Any], db.execute(cast(Table, Analytics.__table__).delete())
+        )
         if commit:
             db.commit()
         return result.rowcount or 0

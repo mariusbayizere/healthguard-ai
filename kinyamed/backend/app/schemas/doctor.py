@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any, cast
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -46,7 +46,14 @@ class DoctorUpdate(BaseModel):
     specialty: Annotated[str | None, Field(default=None, max_length=100)] = None
     is_on_duty: bool | None = None
 
-    _strip_text = field_validator("name", "specialty")(DoctorBase._strip_text.__func__)
+    # TYPE SUPPRESSION, not a fix (mypy backlog, 2026-09-15): reusing the base
+    # classmethod's function via `__func__` is invisible to mypy, so the cast
+    # only tells the checker what runtime already does. The real fix is a shared
+    # module-level validator used by both models; that touches validation and
+    # is listed as remaining in reports/STATE.md.
+    _strip_text = field_validator("name", "specialty")(
+        cast(Any, DoctorBase._strip_text).__func__
+    )
 
     @field_validator("email")
     @classmethod

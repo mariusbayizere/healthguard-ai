@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any
 
 import structlog
 from sqlalchemy.orm import Session
@@ -189,7 +190,7 @@ def change_status(
             allowed=sorted(status.value for status in allowed),
         )
 
-    fields: dict = {"status": new_status}
+    fields: dict[str, Any] = {"status": new_status}
     if new_status == QueueStatus.IN_PROGRESS and entry.started_at is None:
         fields["started_at"] = _now()
     if new_status in (QueueStatus.DONE, QueueStatus.CANCELLED):

@@ -42,7 +42,7 @@ def configure_logging(environment: str | None = None) -> None:
     environment = environment or settings.ENVIRONMENT
     level = logging.getLevelNamesMapping()[settings.LOG_LEVEL]
 
-    shared_processors: list = [
+    shared_processors: list[structlog.typing.Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),

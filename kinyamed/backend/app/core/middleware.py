@@ -12,6 +12,7 @@ import structlog
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.types import ASGIApp
 
 from app.core.config import settings
 from app.core.exceptions import RateLimitExceededError, error_response
@@ -98,7 +99,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     constant.
     """
 
-    def __init__(self, app: FastAPI) -> None:
+    def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
         self._hits: dict[str, deque[float]] = defaultdict(deque)
         self._lock = Lock()

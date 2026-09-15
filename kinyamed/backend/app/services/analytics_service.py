@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import UTC, date, datetime, time
+from typing import Any
 
 import structlog
 from sqlalchemy.orm import Session
@@ -59,7 +60,7 @@ def build_summary(db: Session) -> dict[str, int]:
     }
 
 
-def build_urgency_breakdown(db: Session) -> dict:
+def build_urgency_breakdown(db: Session) -> dict[str, Any]:
     """Share of cases at each acuity. No data yields zeroes, not an error."""
     counts = triage_repository.urgency_counts(db)
     total = counts["total"]
@@ -80,7 +81,7 @@ def build_urgency_breakdown(db: Session) -> dict:
     }
 
 
-def build_queue_performance(db: Session) -> dict:
+def build_queue_performance(db: Session) -> dict[str, Any]:
     """Queue throughput, comparing the wait we quote with the wait we deliver."""
     stats = queue_repository.performance(db, since=_start_of_today_utc())
     return {
