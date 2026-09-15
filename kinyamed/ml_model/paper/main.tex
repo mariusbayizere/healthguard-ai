@@ -5,7 +5,7 @@
 % breaks the provenance chain at the first copy-paste, and nothing downstream
 % can tell that it happened.
 %
-%   emitter        training/evaluate.py --writeup <model dirs> --verify-against <run json>
+%   emitter        training/holdout_eval.py --writeup <model dirs> --verify-against <run json>
 %                    |  runs ONE inference pass over the frozen reporting set
 %                    v
 %   generated/     results_macros.tex  results_table.tex  sweep_table.tex
@@ -51,7 +51,7 @@
       PROVENANCE ERROR: macro #1 is not defined%
     }{}{%
       This macro must come from generated/results_macros.tex, which is written
-      by: python training/evaluate.py --writeup <model dirs> --verify-against
+      by: python training/holdout_eval.py --writeup <model dirs> --verify-against
       <run json>. Re-run the emitter. Do NOT define it by hand -- a number
       typed here is a number nothing computed.%
     }%
@@ -104,7 +104,7 @@
 \begin{center}
 \fbox{\parbox{0.9\textwidth}{\small\raggedright
 \textbf{Generated document.} Every figure below is a macro or a table written
-by \texttt{training/evaluate.py -{}-writeup} from one inference pass over the
+by \texttt{training/holdout\_eval.py -{}-writeup} from one inference pass over the
 frozen holdout, and each table carries the fingerprint of the weights, the
 evaluation data and the commit that produced it. No number in this document was
 typed by hand. If one disagrees with a run record, the run record is right.

@@ -38,8 +38,9 @@ INPUTS
 --model         run the model instead (needs torch and transformers)
 
 The previous evaluate.py (frozen-manifest holdout evaluation and the paper tables)
-now lives in `training/holdout_eval.py`. `--writeup` and `--manifest` still reach
-it through this entry point, and its names are re-exported for existing importers.
+lives in `training/holdout_eval.py` and must be run by that name: this entry point
+refuses `--writeup`, `--manifest` and `--model` without `--gold`, because that report
+applies no minimum-n refusal. Its names are re-exported for existing importers.
 """
 
 from __future__ import annotations
@@ -115,7 +116,7 @@ def load_items(
 ) -> tuple[list[Item], dict]:
     """Join gold and predictions, validating both. Returns (items, exclusions)."""
     rows = _read_csv(gold_path)
-    required = {"item_id", "language", "gold_label"}
+    required = {"item_id", "language", "gold_label", "scenario_id"}
     if not rows or not required <= rows[0].keys():
         raise InputError(f"{gold_path} needs columns {sorted(required)}")
     items: list[Item] = []
@@ -136,6 +137,12 @@ def load_items(
         if label not in CLASSES:
             raise InputError(
                 f"item {item_id}: gold_label {label!r} is not one of {CLASSES}"
+            )
+        scenario = (row.get("scenario_id") or "").strip()
+        if not scenario:
+            raise InputError(
+                f"item {item_id}: no scenario_id. Every item carries one (D7 protocol "
+                "§2.3); without it each row would count as an independent scenario"
             )
         language = row["language"].strip()
         if language not in spec.LANGUAGES:
@@ -165,7 +172,7 @@ def load_items(
                 item_id=item_id,
                 language=language,
                 gold=CLASSES.index(label),
-                scenario=(row.get("scenario_id") or "").strip() or item_id,
+                scenario=scenario,
                 probs=probs,
                 detected_language=detected,
             )
@@ -253,6 +260,9 @@ class MetricSpec:
     threshold: float | None
     direction: str | None
     extra_floor: object = None  # returns a failure string or None
+    # Distinct scenarios in the population, from per-scenario arrays. Defaults to
+    # scenarios contributing at least one item to `counts`' n.
+    scenarios: object = None
 
 
 def _metric_specs() -> list[MetricSpec]:
@@ -283,7 +293,7 @@ def _metric_specs() -> list[MetricSpec]:
         lambda cm, e, lid: (int(pooled(cm).trace()), int(pooled(cm).sum())),
     )
 
-    def f1_metric(gate, name, fn, min_population):
+    def f1_metric(gate, name, fn, min_population, classes=(C, U, R)):
         r = req(gate)
         out.append(
             MetricSpec(
@@ -294,6 +304,9 @@ def _metric_specs() -> list[MetricSpec]:
                 r.minimum_n,
                 r.threshold,
                 r.direction,
+                scenarios=lambda clusters, classes=classes: min(
+                    _scenarios_with_gold(clusters, cls) for cls in classes
+                ),
             )
         )
 
@@ -326,6 +339,7 @@ def _metric_specs() -> list[MetricSpec]:
         "CRITICAL F1",
         lambda cm: _f1(cm, C),
         lambda cm: int(pooled(cm)[C, :].sum()),
+        classes=(C,),
     )
     prop(
         "7",
@@ -372,6 +386,54 @@ def _metric_specs() -> list[MetricSpec]:
         ),
         extra_floor=pair_floor,
     )
+    # CLAUDE.md §16: every metric, per language. Gates 5 and 9-12 are already per
+    # language; these are the pooled gates again for each pure language, with the
+    # pooled gate's own threshold and minimum n. Mixed pairs are covered by gate 13
+    # and its per-pair floor.
+    for lang in spec.PURE_LANGUAGES:
+        k = spec.LANGUAGES.index(lang)
+
+        def lang_f1(gate, name, fn, classes, k=k, lang=lang):
+            r = req(gate)
+            out.append(
+                MetricSpec(
+                    gate,
+                    f"{name} [{lang}]",
+                    lambda cm, e, lid, k=k, classes=classes: (
+                        None,
+                        int(min(cm[k, cls, :].sum() for cls in classes)),
+                    ),
+                    lambda arrays, fn=fn, k=k: fn(arrays[0][k]),
+                    r.minimum_n,
+                    r.threshold,
+                    r.direction,
+                    scenarios=lambda clusters, k=k, classes=classes: min(
+                        _scenarios_with_gold(clusters, cls, [k]) for cls in classes
+                    ),
+                )
+            )
+
+        lang_f1("2", "weighted F1", weighted_f1, (C, U, R))
+        lang_f1(
+            "3", "macro F1", lambda cm: sum(_f1(cm, c) for c in range(3)) / 3, (C, U, R)
+        )
+        prop(
+            "4",
+            f"CRITICAL precision [{lang}]",
+            lambda cm, e, lid, k=k: (int(cm[k, C, C]), int(cm[k, :, C].sum())),
+        )
+        lang_f1("6", "CRITICAL F1", lambda cm: _f1(cm, C), (C,))
+        prop(
+            "7",
+            f"CRITICAL -> ROUTINE rate [{lang}]",
+            lambda cm, e, lid, k=k: (int(cm[k, C, R]), int(cm[k, C, :].sum())),
+        )
+        prop(
+            "8",
+            f"URGENT recall [{lang}]",
+            lambda cm, e, lid, k=k: (int(cm[k, U, U]), int(cm[k, U, :].sum())),
+        )
+
     r = req("X-ECE")
     out.append(
         MetricSpec(
@@ -401,6 +463,26 @@ def _metric_specs() -> list[MetricSpec]:
         ),
     )
     return out
+
+
+def _scenarios_with_gold(clusters, cls: int, languages=None) -> int:
+    """Scenarios with at least one gold item of `cls` (in `languages`, default all)."""
+    confusion = clusters[0]
+    if languages is not None:
+        confusion = confusion[:, languages]
+    return int((confusion[..., cls, :].sum(axis=(1, 2)) > 0).sum())
+
+
+def _population_scenarios(metric: MetricSpec, clusters) -> int:
+    """Distinct scenarios in a metric's population: the unit its minimum was powered for."""
+    if metric.scenarios is not None:
+        return int(metric.scenarios(clusters))
+    confusion, ece_bins, lid = clusters
+    return sum(
+        1
+        for k in range(confusion.shape[0])
+        if metric.counts(confusion[k], ece_bins[k], lid[k])[1] > 0
+    )
 
 
 def _ratio(x: int, n: int) -> float:
@@ -438,8 +520,27 @@ def _verdict(lower: float, upper: float, threshold: float, direction: str) -> st
     return VERDICT_NOT_MET if lower >= threshold else VERDICT_UNDEMONSTRATED
 
 
-def insufficient(n: int, need: int) -> str:
+def insufficient(n: int, need: int, rows: int | None = None) -> str:
+    """The refusal. When rows repeat source sentences, both counts are printed: the
+    minimum is on distinct source sentences (scenario_id), not rows."""
+    if rows is not None and rows > n:
+        return (
+            f"INSUFFICIENT DATA ({rows:,} rows from {n:,} distinct source "
+            f"{'sentence' if n == 1 else 'sentences'}; "
+            f"need {need:,} distinct)"
+        )
     return f"INSUFFICIENT DATA (n={n}, need {need})"
+
+
+def _population(m: MetricSpec, point_arrays, clusters, one_item_per_scenario: bool):
+    """(x, rows in the population, distinct source sentences in the population)."""
+    x, n_items = m.counts(*point_arrays)
+    n = (
+        n_items
+        if one_item_per_scenario
+        else min(n_items, _population_scenarios(m, clusters))
+    )
+    return x, n_items, n
 
 
 def evaluate(
@@ -462,9 +563,14 @@ def evaluate(
     boot_ece = np.einsum("bc,cij->bij", weights, ece_bins)
     boot_lid = np.einsum("bc,clj->blj", weights, lid)
 
+    clusters = (confusion, ece_bins, lid)
+    # One item per scenario (the spec's test split): scenarios and items coincide.
+    one_item_per_scenario = confusion.sum(axis=(1, 2, 3)).max(initial=0) <= 1
     rows: list[Row] = []
     for m in _metric_specs():
-        x, n = m.counts(*point_arrays)
+        # The minimum is on independent scenarios, not rows: 2,000 rows built from
+        # four sentences are four observations (EVAL_SET_SPEC §8).
+        x, n_items, n = _population(m, point_arrays, clusters, one_item_per_scenario)
         th = _threshold_text(m.threshold, m.direction)
         if m.gate.startswith("X-LID") and not has_lid:
             rows.append(
@@ -480,9 +586,20 @@ def evaluate(
             continue
         if n < m.minimum_n:
             rows.append(
-                Row(m.gate, m.name, n, m.minimum_n, th, insufficient(n, m.minimum_n))
+                Row(
+                    m.gate,
+                    m.name,
+                    n,
+                    m.minimum_n,
+                    th,
+                    insufficient(n, m.minimum_n, n_items),
+                )
             )
             continue
+        if n < n_items:
+            rows_note = f"{n_items} items in {n} scenarios"
+        else:
+            rows_note = None
         floor = m.extra_floor(point_arrays) if m.extra_floor else None
         if floor:
             rows.append(
@@ -513,75 +630,227 @@ def evaluate(
                 point,
                 exact,
                 boot,
+                rows_note,
             )
         )
     return rows
 
 
-def measurement_rows(latency: Path | None, memory: Path | None) -> list[Row]:
+def _percentile_ci(
+    samples, q: float, bootstrap: int = DEFAULT_BOOTSTRAP, seed: int = 20260915
+) -> tuple[float, float, float]:
+    """Nearest-rank percentile and its 95% bootstrap interval, resampling requests."""
+    import numpy as np
+
+    data = np.asarray(samples, dtype=float)
+    rng = np.random.default_rng(seed)
+    resampled = rng.choice(data, size=(bootstrap, data.size), replace=True)
+    estimates = np.percentile(resampled, q, axis=1, method="inverted_cdf")
+    point = float(np.percentile(data, q, method="inverted_cdf"))
+    return (
+        point,
+        float(np.percentile(estimates, 2.5)),
+        float(np.percentile(estimates, 97.5)),
+    )
+
+
+def _hardware_problem(record: dict, target: dict | None) -> str | None:
+    """Why a hardware measurement cannot decide its gate, or None if it can."""
+    if target is None:
+        return "no target hardware named, STATE.md H15"
+    measured = str(record.get("machine", {}).get("cpu", "")).strip()
+    wanted = str(target.get("cpu", "")).strip()
+    if not wanted:
+        return "target hardware file names no cpu, STATE.md H15"
+    if measured != wanted:
+        return (
+            f"measured on {measured or 'an unrecorded machine'!r}, target is {wanted!r}"
+        )
+    return None
+
+
+PREDICTED_POPULATION_GATE = "4"
+SUFFICIENT = "SUFFICIENT"
+
+
+def gold_only_items(gold_path: Path) -> tuple[list[Item], dict]:
+    """The gold set with each item 'predicted' as its own label, only to count
+    populations. No metric may be computed from these items."""
+    placeholder: dict[str, dict[str, str]] = {}
+    for row in _read_csv(gold_path):
+        label = (row.get("gold_label") or "").strip()
+        if label in CLASSES:
+            probs = ["0", "0", "0"]
+            probs[CLASSES.index(label)] = "1"
+            placeholder[row["item_id"].strip()] = {
+                "p_critical": probs[0],
+                "p_urgent": probs[1],
+                "p_routine": probs[2],
+                "detected_language": row.get("language", ""),
+            }
+    return load_items(gold_path, placeholder)
+
+
+def check_gold_rows(items: list[Item]) -> list[Row]:
+    """Whether each gate cell CAN be measured on this gold set, before any inference.
+
+    Counts only. CRITICAL precision's population is the model's own CRITICAL
+    predictions, so it is reported as unknown rather than guessed.
+    """
+    import numpy as np
+
+    confusion, ece_bins, lid = _cluster_arrays(items)
+    point_arrays = (confusion.sum(axis=0), ece_bins.sum(axis=0), lid.sum(axis=0))
+    clusters = (confusion, ece_bins, lid)
+    one_item_per_scenario = bool(np.all(confusion.sum(axis=(1, 2, 3)) <= 1))
+    rows: list[Row] = []
+    for m in _metric_specs():
+        th = _threshold_text(m.threshold, m.direction)
+        if m.gate == PREDICTED_POPULATION_GATE:
+            rows.append(
+                Row(
+                    m.gate,
+                    m.name,
+                    0,
+                    m.minimum_n,
+                    th,
+                    "NOT KNOWN (population is the model's CRITICAL predictions; "
+                    "known only after inference)",
+                )
+            )
+            continue
+        _, n_items, n = _population(m, point_arrays, clusters, one_item_per_scenario)
+        if n < m.minimum_n:
+            verdict = insufficient(n, m.minimum_n, n_items)
+        else:
+            floor = m.extra_floor(point_arrays) if m.extra_floor else None
+            verdict = (
+                f"INSUFFICIENT DATA ({floor})"
+                if floor
+                else f"{SUFFICIENT} ({n:,} distinct; need {m.minimum_n:,})"
+            )
+        rows.append(Row(m.gate, m.name, n, m.minimum_n, th, verdict))
+    return rows
+
+
+def render_check(rows: list[Row], items: list[Item]) -> str:
+    distinct = len({i.scenario for i in items})
+    lines = [
+        f"Gold set: {len(items):,} rows from {distinct:,} distinct source sentences "
+        "(scenario_id). Counts only; nothing is measured.",
+        "",
+        f"{'Gate':<12} {'Metric':<40} {'Threshold':<16} Can it be measured?",
+    ]
+    lines += [
+        f"{r.gate:<12} {r.metric:<40} {r.threshold:<16} {r.verdict}" for r in rows
+    ]
+    measurable = sum(r.verdict.startswith(SUFFICIENT) for r in rows)
+    lines.append("")
+    lines.append(
+        f"{measurable} of {len(rows)} gate cells can be measured."
+        if measurable
+        else "No gate cell can be measured on this gold set. Inference would produce "
+        "only refusals."
+    )
+    return "\n".join(lines)
+
+
+def measurement_rows(
+    latency: Path | None, memory: Path | None, target_hardware: Path | None = None
+) -> list[Row]:
+    """Gates 14 and 15. Neither is MET off the named target machine (FR-04-05, D5).
+
+    Latency needs per-request samples: p50 and p95 are printed with bootstrap
+    intervals, and MET needs both upper bounds under their thresholds. Memory is one
+    measurement at 50 concurrent (EVAL_SET_SPEC gate 15), labelled as such.
+    """
     rows = []
     req14, req15 = spec.requirement("14"), spec.requirement("15")
+    target = json.loads(target_hardware.read_text()) if target_hardware else None
+    th14 = f"< {LATENCY_P50_MS:g} / < {LATENCY_P95_MS:g}"
+    name14 = "inference latency p50 / p95 (ms)"
     if latency is None:
         rows.append(
             Row(
                 "14",
-                "inference latency p50 / p95 (ms)",
+                name14,
                 0,
                 req14.minimum_n,
-                f"< {LATENCY_P50_MS:g} / < {LATENCY_P95_MS:g}",
+                th14,
                 "NOT MEASURED (no --latency file)",
             )
         )
     else:
         record = json.loads(latency.read_text())
-        n = int(record.get("rows", 0))
-        warm = record.get("warm_ms", {})
-        p50, p95 = warm.get("median", warm.get("p50")), warm.get("p95")
-        th = f"< {LATENCY_P50_MS:g} / < {LATENCY_P95_MS:g}"
-        if n < req14.minimum_n:
+        samples = record.get("samples_ms")
+        if not samples:
             rows.append(
                 Row(
                     "14",
-                    "inference latency p50 / p95 (ms)",
-                    n,
+                    name14,
+                    0,
                     req14.minimum_n,
-                    th,
-                    insufficient(n, req14.minimum_n),
+                    th14,
+                    "NOT MEASURED (latency file has no per-request samples_ms; a "
+                    "percentile without its interval is not reported)",
                 )
             )
-        elif p50 is None or p95 is None:
+        elif len(samples) < req14.minimum_n:
             rows.append(
                 Row(
                     "14",
-                    "inference latency p50 / p95 (ms)",
-                    n,
+                    name14,
+                    len(samples),
                     req14.minimum_n,
-                    th,
-                    "NOT MEASURED (latency file lacks p50/p95)",
+                    th14,
+                    insufficient(len(samples), req14.minimum_n),
                 )
             )
         else:
-            ok = p50 < LATENCY_P50_MS and p95 < LATENCY_P95_MS
+            p50 = _percentile_ci(samples, 50)
+            p95 = _percentile_ci(samples, 95)
+            note = (
+                f"p50 {p50[0]:.1f} ms [{p50[1]:.1f}, {p50[2]:.1f}]; "
+                f"p95 {p95[0]:.1f} ms [{p95[1]:.1f}, {p95[2]:.1f}]; "
+                f"machine {record.get('machine', {}).get('cpu', 'unrecorded')}"
+            )
+            verdicts = (
+                _verdict(p50[1], p50[2], LATENCY_P50_MS, "below"),
+                _verdict(p95[1], p95[2], LATENCY_P95_MS, "below"),
+            )
+            if VERDICT_NOT_MET in verdicts:
+                verdict = VERDICT_NOT_MET
+            elif all(v == VERDICT_MET for v in verdicts):
+                verdict = VERDICT_MET
+            else:
+                verdict = VERDICT_UNDEMONSTRATED
+            problem = _hardware_problem(record, target)
+            if problem and verdict == VERDICT_MET:
+                verdict = f"{VERDICT_UNDEMONSTRATED} ({problem})"
+            elif problem:
+                verdict = f"{verdict} ({problem})"
             rows.append(
                 Row(
                     "14",
-                    "inference latency p50 / p95 (ms)",
-                    n,
+                    name14,
+                    len(samples),
                     req14.minimum_n,
-                    th,
-                    VERDICT_MET if ok else VERDICT_NOT_MET,
-                    None,
-                    note=f"p50 {p50:g} ms, p95 {p95:g} ms; machine {record.get('machine', {}).get('cpu', 'unrecorded')}",
+                    th14,
+                    verdict,
+                    note=note,
                 )
             )
+
+    th15 = f"< {MEMORY_LIMIT_MB:g}"
+    name15 = "memory at 50 concurrent (MB)"
     if memory is None:
         rows.append(
             Row(
                 "15",
-                "memory at 50 concurrent (MB)",
+                name15,
                 0,
                 req15.minimum_n,
-                f"< {MEMORY_LIMIT_MB:g}",
+                th15,
                 "NOT MEASURED (no --memory file)",
             )
         )
@@ -592,26 +861,88 @@ def measurement_rows(latency: Path | None, memory: Path | None) -> list[Row]:
             rows.append(
                 Row(
                     "15",
-                    "memory at 50 concurrent (MB)",
+                    name15,
                     0,
                     req15.minimum_n,
-                    f"< {MEMORY_LIMIT_MB:g}",
+                    th15,
                     "NOT MEASURED (memory file needs peak_rss_mb at concurrency 50)",
                 )
             )
         else:
+            verdict = VERDICT_MET if peak < MEMORY_LIMIT_MB else VERDICT_NOT_MET
+            problem = _hardware_problem(record, target)
+            if problem and verdict == VERDICT_MET:
+                verdict = f"{VERDICT_UNDEMONSTRATED} ({problem})"
+            elif problem:
+                verdict = f"{verdict} ({problem})"
             rows.append(
                 Row(
                     "15",
-                    "memory at 50 concurrent (MB)",
+                    name15,
                     1,
                     req15.minimum_n,
-                    f"< {MEMORY_LIMIT_MB:g}",
-                    VERDICT_MET if peak < MEMORY_LIMIT_MB else VERDICT_NOT_MET,
-                    float(peak),
+                    th15,
+                    verdict,
+                    note=f"peak RSS {float(peak):.0f} MB, one measurement at 50 concurrent "
+                    "(a measurement, not a sample: no interval applies)",
                 )
             )
     return rows
+
+
+RED_FLAG_GATE = "X-REDFLAG"
+RED_FLAG_METRIC = "red-flag safety suite"
+
+
+def red_flag_row(report: Path | None) -> Row:
+    """CLAUDE.md L2 and §16: the escalate-only red-flag suite must pass every case.
+
+    A fixed regression suite, not a sample, so it has a count and no interval.
+    Whether the suite's cases are clinically adequate is not something this row can
+    judge; that needs validated terms (STATE.md H10).
+    """
+    threshold = "100% of cases"
+    if report is None:
+        return Row(
+            RED_FLAG_GATE,
+            RED_FLAG_METRIC,
+            0,
+            1,
+            threshold,
+            "NOT MEASURED (no --red-flag-report)",
+        )
+    try:
+        record = json.loads(report.read_text())
+        cases, passed = int(record["cases"]), int(record["passed"])
+        digest = str(record["suite_sha256"])
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise InputError(
+            f"{report}: unreadable red-flag report ({error}); needs suite_sha256, cases, passed"
+        ) from error
+    if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+        raise InputError(f"{report}: suite_sha256 must be a 64-character hex digest")
+    if not 0 <= passed <= cases:
+        raise InputError(
+            f"{report}: passed={passed} is not between 0 and cases={cases}"
+        )
+    if cases == 0:
+        return Row(
+            RED_FLAG_GATE,
+            RED_FLAG_METRIC,
+            0,
+            1,
+            threshold,
+            "NOT MEASURED (the suite has no cases; no validated terms, STATE.md H10)",
+        )
+    return Row(
+        RED_FLAG_GATE,
+        RED_FLAG_METRIC,
+        cases,
+        1,
+        threshold,
+        VERDICT_MET if passed == cases else VERDICT_NOT_MET,
+        note=f"{passed} of {cases} cases passed; suite {digest[:12]}",
+    )
 
 
 # ── Reports ───────────────────────────────────────────────────────────────────
@@ -619,9 +950,16 @@ def _fmt(v: float | None) -> str:
     return "—" if v is None else f"{v:.4f}"
 
 
-def render_text(rows: list[Row], excluded: dict, scored: int) -> str:
-    lines = [
-        f"Scored items: {scored}  (excluded: {excluded})",
+def render_text(
+    rows: list[Row], excluded: dict, scored: int, scenarios: int | None = None
+) -> str:
+    lines = [f"Scored items: {scored}  (excluded: {excluded})"]
+    if scenarios is not None and scenarios < scored:
+        lines.append(
+            f"WARNING: {scored} items in {scenarios} scenarios. EVAL_SET_SPEC §8 allows one "
+            "test item per scenario; every n below counts scenarios, not items."
+        )
+    lines += [
         "",
         f"{'Gate':<12} {'Metric':<40} {'Threshold':<16} {'Point':>7}  {'95% CI exact':<17} {'95% CI bootstrap':<17} Verdict",
     ]
@@ -744,6 +1082,25 @@ class Report:
 
 
 def run_gate(args: argparse.Namespace) -> int:
+    if args.check_gold or args.model is not None:
+        try:
+            gold_items, _ = gold_only_items(args.gold)
+        except InputError as error:
+            print(f"REFUSED: {error}", file=sys.stderr)
+            return 2
+        check = check_gold_rows(gold_items)
+        measurable = any(r.verdict.startswith(SUFFICIENT) for r in check)
+        if args.check_gold:
+            print(render_check(check, gold_items))
+            return 0 if measurable else 2
+        if not measurable:
+            print(render_check(check, gold_items))
+            print(
+                "REFUSED before inference: no gate cell can be measured on this gold "
+                "set, so the model was not loaded. Run --check-gold to see the counts.",
+                file=sys.stderr,
+            )
+            return 2
     if args.predictions is None and args.model is None:
         raise SystemExit("give --predictions or --model")
     try:
@@ -755,14 +1112,17 @@ def run_gate(args: argparse.Namespace) -> int:
             )
         )
         items, excluded = load_items(args.gold, predictions)
+        red_flags = red_flag_row(args.red_flag_report)
     except InputError as error:
         print(f"REFUSED: {error}", file=sys.stderr)
         return 2
-    rows = evaluate(items, bootstrap=args.bootstrap, seed=args.seed) + measurement_rows(
-        args.latency, args.memory
+    rows = (
+        evaluate(items, bootstrap=args.bootstrap, seed=args.seed)
+        + measurement_rows(args.latency, args.memory, args.target_hardware)
+        + [red_flags]
     )
     rows.sort(key=lambda r: (int(r.gate) if r.gate.isdigit() else 100, r.gate))
-    text = render_text(rows, excluded, len(items))
+    text = render_text(rows, excluded, len(items), len({i.scenario for i in items}))
     print(text)
     if args.out:
         args.out.mkdir(parents=True, exist_ok=True)
@@ -795,20 +1155,42 @@ def main(argv: list[str] | None = None) -> int:
     if any(flag in argv for flag in ("--writeup", "--manifest")) or (
         "--model" in argv and "--gold" not in argv
     ):
-        from training import holdout_eval
-
-        sys.argv = [sys.argv[0], *argv]
-        return holdout_eval.main()
+        # These used to be forwarded to holdout_eval, which prints metrics on the
+        # nine-sentence holdout with no minimum-n refusal. The gate never does.
+        print(
+            "REFUSED: training/evaluate.py is the deployment gate and needs --gold.\n"
+            "--writeup, --manifest and --model without --gold belong to the historical "
+            "holdout report, which is not a deployment gate. Run it explicitly:\n"
+            "    python training/holdout_eval.py " + " ".join(argv),
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
 
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--gold", type=Path, required=True)
+    parser.add_argument(
+        "--check-gold",
+        action="store_true",
+        help="count every gate population from the gold file alone, print which cells "
+        "can be measured, and exit (0 if any can, 2 if none); runs no model",
+    )
     parser.add_argument("--predictions", type=Path)
     parser.add_argument("--model", type=Path)
     parser.add_argument("--latency", type=Path, help="JSON from training/latency.py")
     parser.add_argument(
         "--memory", type=Path, help='JSON {"peak_rss_mb": float, "concurrency": 50}'
+    )
+    parser.add_argument(
+        "--target-hardware",
+        type=Path,
+        help='JSON {"cpu": "..."} naming the deployment machine (STATE.md H15)',
+    )
+    parser.add_argument(
+        "--red-flag-report",
+        type=Path,
+        help="JSON from the red-flag suite runner: suite_sha256, cases, passed",
     )
     parser.add_argument("--bootstrap", type=int, default=DEFAULT_BOOTSTRAP)
     parser.add_argument("--seed", type=int, default=20260914)

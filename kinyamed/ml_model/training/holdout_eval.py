@@ -14,12 +14,13 @@ dataset/processed/test.csv — a random split with no leakage control — which 
 not a defensible basis for any published claim.
 
 Usage:
-    python training/evaluate.py --model saved_model_holdout
-    python training/evaluate.py --manifest dataset/processed/eval_manifest_family_v1.json
+    python training/holdout_eval.py --model saved_model_holdout
+    python training/holdout_eval.py --manifest dataset/processed/eval_manifest_family_v1.json
 
-MOVED 2026-09-14 from training/evaluate.py, unchanged. evaluate.py is now the
-15-metric deployment gate and dispatches --writeup and --manifest here, so the
-commands above still work.
+MOVED 2026-09-14 from training/evaluate.py. evaluate.py is now the 15-metric
+deployment gate and, since 2026-09-15, refuses --writeup, --manifest and --model
+without --gold rather than forwarding them here. Run this file by name. It is not
+a deployment gate: it applies no minimum-n refusal (see NOT_A_GATE).
 """
 
 from __future__ import annotations
@@ -223,7 +224,7 @@ def write_macros(
     """Define every number the prose quotes, so none can be typed by hand."""
     with atomic_write(path, "w", encoding="utf-8") as handle:
         handle.write("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
-        handle.write("% Written by training/evaluate.py from a verified run.\n")
+        handle.write("% Written by training/holdout_eval.py from a verified run.\n")
         handle.write(
             "% Editing this file to change a reported number is fabrication;\n"
         )
@@ -245,7 +246,7 @@ def write_table(
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         w("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
-        w("% Written by training/evaluate.py from a verified run.\n%\n")
+        w("% Written by training/holdout_eval.py from a verified run.\n%\n")
         for key, val in provenance.items():
             w(f"% {key}: {val}\n")
         w("\n\\begin{table}[t]\n\\centering\n")
@@ -847,8 +848,22 @@ def writeup(args) -> int:
     return 0
 
 
+NOT_A_GATE = (
+    "NOT A DEPLOYMENT GATE. This is the historical holdout report behind the paper "
+    "tables. It scores the frozen phrase holdout (9 distinct reporting sentences in "
+    "v2), applies no EVAL_SET_SPEC minimum-n refusal, and its 3-condition gate "
+    "(CRITICAL recall >= 0.95) is superseded. Deployment verdicts come only from "
+    "training/evaluate.py --gold."
+)
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    return main_argv(sys.argv[1:])
+
+
+def main_argv(argv: list[str]) -> int:
+    print(NOT_A_GATE, file=sys.stderr)
+    parser = argparse.ArgumentParser(description=f"{NOT_A_GATE}\n\n{__doc__}")
     parser.add_argument(
         "--manifest",
         type=Path,
@@ -897,7 +912,7 @@ def main() -> int:
     parser.add_argument(
         "--limit", type=int, default=None, help="Cap eval rows (debugging)."
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.writeup:
         return writeup(args)
