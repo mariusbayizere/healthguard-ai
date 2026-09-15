@@ -30,7 +30,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, ".")
-from dataset import vocabulary as V  # noqa: E402
+from dataset import vocabulary as V
 
 FILES = {
     "train": Path("dataset/processed/train_phrase_holdout.csv"),
@@ -45,7 +45,12 @@ REPORTING_GROUPS = {  # training/run_records/last_run_v2d_freeze8_lr1e-5.json ev
 }
 
 # ── Reference labels for the 88 phrases without {REL} (hand reading, not a speaker) ─
-SELF, OTHER, CARER, UNMARKED = "self-report", "third-person report", "carer request for a child", "no person marked"
+SELF, OTHER, CARER, UNMARKED = (
+    "self-report",
+    "third-person report",
+    "carer request for a child",
+    "no person marked",
+)
 PHRASE_PERSON_EXCEPTIONS = {
     # 3sg possessive "we" (his/her body); no relation named
     "Uruhande rumwe rw'umubiri we ntirukora.": OTHER,
@@ -99,24 +104,83 @@ def patient(phrase: str, rel: str | None) -> str:
             return P_CHILD_RELAYED
         return P_CHILD_REL if rel in V.CHILD_RELATIONS else P_ADULT
     ref = reference(phrase)
-    return {SELF: P_SELF, CARER: P_CHILD_CARER, OTHER: P_OTHER, UNMARKED: P_UNMARKED}[ref]
+    return {SELF: P_SELF, CARER: P_CHILD_CARER, OTHER: P_OTHER, UNMARKED: P_UNMARKED}[
+        ref
+    ]
 
 
 # ── Automatic concord classifier ────────────────────────────────────────────────
 HUMAN_NOUNS = {  # class 1/1a human nouns and kin terms as subjects
-    "umwana", "umuhungu", "umukobwa", "umwuzukuru", "umugore", "umugabo", "mama",
-    "papa", "mushiki", "umuturanyi", "umukecuru", "umuntu",
+    "umwana",
+    "umuhungu",
+    "umukobwa",
+    "umwuzukuru",
+    "umugore",
+    "umugabo",
+    "mama",
+    "papa",
+    "mushiki",
+    "umuturanyi",
+    "umukecuru",
+    "umuntu",
 }
 NOT_VERBS = {  # frequent n-/m-/a-/y- initial words that are not person-marked verbs
-    "mu", "mwinshi", "menshi", "myinshi", "nabi", "nka", "nk", "neza", "none", "nyuma", "nta",
-    "ntabwo", "ni", "na", "no", "nijoro", "muganga", "mumbabarire", "maraso", "mubiri", "mutwe",
-    "amaraso", "amazi", "amazuru", "amashyira", "abandi", "ariko", "aho", "yo", "ya", "ye",
-    "yanjye", "mwaka", "mbere", "malariya", "mazi", "mama", "ntibuhagarara", "ntirukora",
-    "ntikiragera", "mirire", "nzoka", "mazuru", "mfasha", "nyabuneka", "muraho",
+    "mu",
+    "mwinshi",
+    "menshi",
+    "myinshi",
+    "nabi",
+    "nka",
+    "nk",
+    "neza",
+    "none",
+    "nyuma",
+    "nta",
+    "ntabwo",
+    "ni",
+    "na",
+    "no",
+    "nijoro",
+    "muganga",
+    "mumbabarire",
+    "maraso",
+    "mubiri",
+    "mutwe",
+    "amaraso",
+    "amazi",
+    "amazuru",
+    "amashyira",
+    "abandi",
+    "ariko",
+    "aho",
+    "yo",
+    "ya",
+    "ye",
+    "yanjye",
+    "mwaka",
+    "mbere",
+    "malariya",
+    "mazi",
+    "mama",
+    "ntibuhagarara",
+    "ntirukora",
+    "ntikiragera",
+    "mirire",
+    "nzoka",
+    "mazuru",
+    "mfasha",
+    "nyabuneka",
+    "muraho",
 }
-FIRST_SUBJECT = re.compile(r"^(sin[a-z]|nd[a-z]|ng[a-z]|nk[a-z]|nj[a-z]|ns[a-z]|nz[a-z]|nt[a-z]|mb[a-z]|mf[a-z]|mp[a-z]|mv[a-z]|maze|na[a-z]{2}|nu[a-z]|ni[a-z]{2})")
-FIRST_OBJECT = re.compile(r"^[a-z]{1,3}ra(n|m)[a-z]{2}")  # bi-ra-n-gora, u-ra-n-rya, ha-ra-n-rya
-THIRD_SUBJECT = re.compile(r"^(a(?!ma|ba|ri(?:ko)?$)[a-z]{2}|ya[a-z]{2}|nta[a-z]{2}|ada[a-z]+|yu[a-z]+)")
+FIRST_SUBJECT = re.compile(
+    r"^(sin[a-z]|nd[a-z]|ng[a-z]|nk[a-z]|nj[a-z]|ns[a-z]|nz[a-z]|nt[a-z]|mb[a-z]|mf[a-z]|mp[a-z]|mv[a-z]|maze|na[a-z]{2}|nu[a-z]|ni[a-z]{2})"
+)
+FIRST_OBJECT = re.compile(
+    r"^[a-z]{1,3}ra(n|m)[a-z]{2}"
+)  # bi-ra-n-gora, u-ra-n-rya, ha-ra-n-rya
+THIRD_SUBJECT = re.compile(
+    r"^(a(?!ma|ba|ri(?:ko)?$)[a-z]{2}|ya[a-z]{2}|nta[a-z]{2}|ada[a-z]+|yu[a-z]+)"
+)
 FIRST_POSS = re.compile(r"^[a-z]{1,3}anjye$")
 THIRD_POSS = {"we", "ye", "rwe", "cye", "kwe", "bwe", "rye", "zayo"}
 
@@ -127,7 +191,13 @@ def classify_v1(text: str) -> str:
     first = third = False
     for i, tok in enumerate(tokens):
         prev = tokens[i - 1] if i else ""
-        if tok in HUMAN_NOUNS and prev not in {"by", "y", "gukingiza", "kugaburira", "w"}:
+        if tok in HUMAN_NOUNS and prev not in {
+            "by",
+            "y",
+            "gukingiza",
+            "kugaburira",
+            "w",
+        }:
             third = True
             continue
         if FIRST_POSS.match(tok):
@@ -148,9 +218,15 @@ def classify_v1(text: str) -> str:
     return SELF if first else OTHER if third else UNMARKED
 
 
-NOUN_LIKE = re.compile(r"^(umu|umw|aba|imi|ama|iki|igi|ibi|uru|ubu|uku|aka|utu|in[a-z]|im[a-z]|isu|umu)")
-FIRST_SUBJECT_V2 = re.compile(r"^(sin[a-z]|nd[a-z]|ng[a-z]|nk[a-z]|nj[a-z]|ns[a-z]|nz[a-z]|mb[a-z]|mf[a-z]|mp[a-z]|mv[a-z]|maze|na[a-z]{2}|nu[a-z])")
-THIRD_SUBJECT_V2 = re.compile(r"^(a(?!ma|ba|riko$)[a-z]{1,}|ya[a-z]{2}|nta[a-z]{2}|ada[a-z]+|yu[a-z]+)")
+NOUN_LIKE = re.compile(
+    r"^(umu|umw|aba|imi|ama|iki|igi|ibi|uru|ubu|uku|aka|utu|in[a-z]|im[a-z]|isu|umu)"
+)
+FIRST_SUBJECT_V2 = re.compile(
+    r"^(sin[a-z]|nd[a-z]|ng[a-z]|nk[a-z]|nj[a-z]|ns[a-z]|nz[a-z]|mb[a-z]|mf[a-z]|mp[a-z]|mv[a-z]|maze|na[a-z]{2}|nu[a-z])"
+)
+THIRD_SUBJECT_V2 = re.compile(
+    r"^(a(?!ma|ba|riko$)[a-z]{1,}|ya[a-z]{2}|nta[a-z]{2}|ada[a-z]+|yu[a-z]+)"
+)
 CLAUSE_BREAK = {"kandi", "ariko", "none", "iyo"}
 
 
@@ -206,8 +282,14 @@ def rendered_clause(row: dict[str, str]) -> tuple[str, str | None]:
     low = text.lower()
     if V.REL_PLACEHOLDER not in phrase:
         return phrase, None
-    for rel in sorted({*V.RELATIONS["kinyarwanda"], *V.CHILD_RELATIONS, *V.ADULT_RELATIONS}, key=len, reverse=True):
-        candidate = phrase.replace(V.REL_PLACEHOLDER, rel).rstrip(V.SENTENCE_END).lower()
+    for rel in sorted(
+        {*V.RELATIONS["kinyarwanda"], *V.CHILD_RELATIONS, *V.ADULT_RELATIONS},
+        key=len,
+        reverse=True,
+    ):
+        candidate = (
+            phrase.replace(V.REL_PLACEHOLDER, rel).rstrip(V.SENTENCE_END).lower()
+        )
         if candidate in low:
             return candidate, rel
     return phrase.replace(V.REL_PLACEHOLDER, ""), "UNRECOVERED"
@@ -243,7 +325,11 @@ def main() -> None:
         pat[pt] += 1
         by_domain[r["domain"]][pt] += 1
         ref = reference(r["phrase"])
-        for name, fn, src in (("v1 clause", classify_v1, clause), ("v2 clause", classify, clause), ("v2 whole row", classify, r["text"])):
+        for name, fn, src in (
+            ("v1 clause", classify_v1, clause),
+            ("v2 clause", classify, clause),
+            ("v2 whole row", classify, r["text"]),
+        ):
             out = fn(src)
             auto[name][(ref, out)] += 1
             if name in distinct_err and ref != CARER and out != ref:
@@ -252,9 +338,13 @@ def main() -> None:
         about_child = pt.startswith("B")
         text = r["text"]
         if text.startswith("Nzanye umwana wanjye") and not about_child:
-            frame_conflict["opener 'Nzanye umwana wanjye' (I have brought my child) on a row not about a child"] += 1
+            frame_conflict[
+                "opener 'Nzanye umwana wanjye' (I have brought my child) on a row not about a child"
+            ] += 1
         if "Abandi bana na bo bafite iki kibazo" in text and not about_child:
-            frame_conflict["context 'Abandi bana na bo bafite iki kibazo' (other children have this too) on a row not about a child"] += 1
+            frame_conflict[
+                "context 'Abandi bana na bo bafite iki kibazo' (other children have this too) on a row not about a child"
+            ] += 1
         if r["split"] == "eval" and r["phrase_group"] in REPORTING_GROUPS:
             reporting.append((r, pt))
 
@@ -266,7 +356,9 @@ def main() -> None:
     block("== 1. Whole corpus (330,000 rows): whose condition ==", pat, N)
     third = sum(v for k, v in pat.items() if k[0] in "BCD")
     child = sum(v for k, v in pat.items() if k.startswith("B"))
-    print(f"  -> self-report {pct(pat[P_SELF], N)}; about someone else {pct(third, N)}; about a child {pct(child, N)}")
+    print(
+        f"  -> self-report {pct(pat[P_SELF], N)}; about someone else {pct(third, N)}; about a child {pct(child, N)}"
+    )
 
     print("\n== 2. Seed phrases (165 distinct) ==")
     seed = Counter()
@@ -282,14 +374,24 @@ def main() -> None:
             else:
                 seed["{REL}, rendered with adult relations only"] += 1
         else:
-            seed[{SELF: "no {REL}: self-report", CARER: "no {REL}: speaker's request for their child",
-                  OTHER: "no {REL}: third person, nobody named", UNMARKED: "no {REL}: no person marked"}[reference(p)]] += 1
+            seed[
+                {
+                    SELF: "no {REL}: self-report",
+                    CARER: "no {REL}: speaker's request for their child",
+                    OTHER: "no {REL}: third person, nobody named",
+                    UNMARKED: "no {REL}: no person marked",
+                }[reference(p)]
+            ] += 1
     for k in sorted(seed):
         print(f"  {k:52s} {seed[k]:3d} / 165 ({100 * seed[k] / 165:.1f}%)")
 
     print("\n== 3. n=9 reporting set (v2d test set) ==")
     rp = Counter(pt for _, pt in reporting)
-    block(f"  rows {len(reporting):,}; distinct phrases {len({r['phrase'] for r, _ in reporting})}", rp, len(reporting))
+    block(
+        f"  rows {len(reporting):,}; distinct phrases {len({r['phrase'] for r, _ in reporting})}",
+        rp,
+        len(reporting),
+    )
     for p in sorted({r["phrase"] for r, _ in reporting}):
         print(f"    {reference(p):22s} {p}")
 
@@ -300,21 +402,37 @@ def main() -> None:
         for k in sorted(by_domain[dom]):
             print(f"      {k:58s} {pct(by_domain[dom][k], tot)}")
 
-    print("\n== 5. Frame contradictions (opener/context implies a child, clause does not) ==")
+    print(
+        "\n== 5. Frame contradictions (opener/context implies a child, clause does not) =="
+    )
     for k, v in frame_conflict.items():
         print(f"  {k}: {pct(v, N)}")
 
     labels, outs = [SELF, OTHER, CARER, UNMARKED], [SELF, OTHER, "mixed", UNMARKED]
-    print(f"\n== 6. Automatic concord classifier vs reference subject person ({len(distinct_all)} distinct clauses) ==")
+    print(
+        f"\n== 6. Automatic concord classifier vs reference subject person ({len(distinct_all)} distinct clauses) =="
+    )
     for name, table in auto.items():
         print(f"  -- {name}")
-        print("  " + "reference \\ automatic".ljust(32) + "".join(o[:14].rjust(16) for o in outs))
+        print(
+            "  "
+            + "reference \\ automatic".ljust(32)
+            + "".join(o[:14].rjust(16) for o in outs)
+        )
         for lab in labels:
             print(f"  {lab[:30]:32s}" + "".join(f"{table[(lab, o)]:16,}" for o in outs))
-        agree = table[(SELF, SELF)] + table[(OTHER, OTHER)] + table[(UNMARKED, UNMARKED)]
+        agree = (
+            table[(SELF, SELF)] + table[(OTHER, OTHER)] + table[(UNMARKED, UNMARKED)]
+        )
         scored = sum(v for (lab, _), v in table.items() if lab != CARER)
-        extra = f"; wrong on {len(distinct_err[name])} distinct clauses" if name in distinct_err else ""
-        print(f"  row error {100 * (1 - agree / scored):.2f}% ({scored - agree:,} of {scored:,} rows, carer requests excluded){extra}")
+        extra = (
+            f"; wrong on {len(distinct_err[name])} distinct clauses"
+            if name in distinct_err
+            else ""
+        )
+        print(
+            f"  row error {100 * (1 - agree / scored):.2f}% ({scored - agree:,} of {scored:,} rows, carer requests excluded){extra}"
+        )
 
     print("\n== 7. Uncertain hand readings (need a Kinyarwanda speaker) ==")
     for p, why in UNCERTAIN.items():

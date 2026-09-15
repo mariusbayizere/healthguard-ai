@@ -53,7 +53,10 @@ def area_of(path: str) -> str:
 
 def tracked_files() -> list[str]:
     out = subprocess.run(
-        ["git", "ls-files", "--full-name", "."], capture_output=True, text=True, check=True
+        ["git", "ls-files", "--full-name", "."],
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.splitlines()
     # --full-name gives paths from the repo root; make them relative to kinyamed/.
     return [p.removeprefix("kinyamed/") for p in out] + ["../README.md", "CLAUDE.md"]
@@ -63,7 +66,11 @@ def main() -> None:
     rows: list[tuple[str, str, int, str]] = []
     for rel in tracked_files():
         path = Path(rel)
-        if path.suffix in SKIP_SUFFIXES or path.name in SKIP_NAMES or not path.is_file():
+        if (
+            path.suffix in SKIP_SUFFIXES
+            or path.name in SKIP_NAMES
+            or not path.is_file()
+        ):
             continue
         try:
             text = path.read_text(encoding="utf-8")
