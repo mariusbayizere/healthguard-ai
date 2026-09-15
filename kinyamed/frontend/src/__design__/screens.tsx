@@ -1,48 +1,29 @@
-/* The REAL application shell, for landmark auditing.
- *
- * The multi-view harness stacks every view in bare <section>s so they can be
- * screenshotted side by side, which puts content outside any landmark and
- * makes axe's `region` rule fire on the harness rather than on the app. This
- * page renders exactly what a user loads -- Layout (header/main/footer) with
- * one route inside it -- so the landmark result is about the product.
- */
+/* The four account/analytics screens, for rendering. Seeded cache, no network. */
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { keys } from "@/api/hooks";
-import type { QueueEntry } from "@/api/types";
-import { Layout } from "@/components/Layout";
 import { Dashboard } from "@/routes/Dashboard";
-import { Queue } from "@/routes/Queue";
+import { SignUp } from "@/routes/SignUp";
+import { ResetPassword } from "@/routes/ResetPassword";
 import { Settings } from "@/routes/Settings";
 import "@/styles/index.css";
 
 localStorage.setItem("kinyamed.token", "harness");
 
-const ROWS: QueueEntry[] = [
-  { id: 1, queue_number: 12, urgency_level: "CRITICAL", status: "WAITING",
-    patient_id: 1, patient_name: "Uwimana Claudine", doctor_name: null,
-    estimated_wait: 0 },
-  { id: 2, queue_number: 9, urgency_level: "URGENT", status: "WAITING",
-    patient_id: 2, patient_name: "Nshimiyimana Eric", doctor_name: null,
-    estimated_wait: 25 },
-];
-
 const qc = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchInterval: false, staleTime: Infinity } },
 });
-qc.setQueryData(keys.queue, ROWS);
-qc.setQueryData(keys.doctors, []);
-qc.setQueryData(keys.patients, []);
 qc.setQueryData(keys.summary, {
-  total_patients: 1284, total_triage_done: 3921, critical_cases: 214,
-  urgent_cases: 1180, routine_cases: 2527, queue_waiting: 12,
-  queue_in_progress: 3, queue_done: 3844, queue_cancelled: 62,
+  total_patients: 1284, total_triage_done: 3921,
+  critical_cases: 214, urgent_cases: 1180, routine_cases: 2527,
+  queue_waiting: 12, queue_in_progress: 3, queue_done: 3844, queue_cancelled: 62,
   sms_sent: 2731, sms_failed: 88, doctors_on_duty: 4,
 });
 qc.setQueryData(keys.urgency, {
-  total: 3921, critical: { count: 214, percentage: 5.46 },
+  total: 3921,
+  critical: { count: 214, percentage: 5.46 },
   urgent: { count: 1180, percentage: 30.09 },
   routine: { count: 2527, percentage: 64.45 },
 });
@@ -64,22 +45,33 @@ qc.setQueryData(keys.me, {
 qc.setQueryData(keys.sessions, [
   { jti: "a1", created_at: "2026-09-11T06:42:00Z", expires_at: "2026-09-18T06:42:00Z",
     user_agent: "Mozilla/5.0 (Linux; Android 12) AppleWebKit/537.36" },
+  { jti: "b2", created_at: "2026-09-09T14:10:00Z", expires_at: "2026-09-16T14:10:00Z",
+    user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)" },
 ]);
 
-// ?view=dashboard|settings|queue -- one route at a time, inside the real Layout.
-const view = new URLSearchParams(location.search).get("view") ?? "queue";
-const ROUTES = { queue: <Queue />, dashboard: <Dashboard />, settings: <Settings /> } as const;
-const element = ROUTES[view as keyof typeof ROUTES] ?? <Queue />;
+function Frame({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
+  return (
+    <section id={id} data-view={id} className="mb-12">
+      <div className="mb-2 border-b-2 border-ink-900 pb-1 text-xs font-bold uppercase tracking-widest text-ink-900">
+        {label}
+      </div>
+      {children}
+    </section>
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={["/queue"]}>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/queue" element={element} />
-          </Route>
-        </Routes>
+      <MemoryRouter>
+        <Frame id="dashboard" label="Dashboard">
+          <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6"><Dashboard /></main>
+        </Frame>
+        <Frame id="settings" label="Account settings">
+          <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6"><Settings /></main>
+        </Frame>
+        <Frame id="signup" label="Sign up (patient registration)"><SignUp /></Frame>
+        <Frame id="reset" label="Password reset"><ResetPassword /></Frame>
       </MemoryRouter>
     </QueryClientProvider>
   </StrictMode>,

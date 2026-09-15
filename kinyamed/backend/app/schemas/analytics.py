@@ -69,3 +69,58 @@ class AnalyticsSnapshotResponse(ORMModel):
     top_symptom: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class UrgencyDayPoint(BaseModel):
+    """One day of the acuity series. Days with no cases are present as zeroes."""
+
+    day: date
+    critical: int
+    urgent: int
+    routine: int
+
+    @property
+    def total(self) -> int:
+        return self.critical + self.urgent + self.routine
+
+
+class UrgencyOverTimeResponse(BaseModel):
+    """Cases per acuity per day, computed from triage rows.
+
+    NOT from the `analytics` snapshot table, which stores cumulative all-time
+    totals and would draw as three rising curves regardless of what happened.
+    """
+
+    days: int
+    points: list[UrgencyDayPoint]
+
+
+class ThroughputPoint(BaseModel):
+    day: date
+    completed: int
+
+
+class ThroughputResponse(BaseModel):
+    """Entries completed per day. Measured on completion, not arrival."""
+
+    days: int
+    points: list[ThroughputPoint]
+    total_completed: int
+
+
+class WaitStats(BaseModel):
+    p50_minutes: float = Field(description="Median wait, joining to completion.")
+    p90_minutes: float = Field(description="90th percentile wait.")
+    completed: int = Field(description="Completed entries this is computed over.")
+
+
+class WaitByUrgencyResponse(BaseModel):
+    """Wait distribution per acuity.
+
+    Percentiles rather than a mean: the mean hides the tail, and a CRITICAL p90
+    is the figure that says whether the sickest patients are seen first.
+    """
+
+    critical: WaitStats | None = None
+    urgent: WaitStats | None = None
+    routine: WaitStats | None = None

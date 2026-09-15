@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from sqlalchemy import func, select
+from datetime import UTC, date, datetime, timedelta
+
+from sqlalchemy import cast, func, select
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.types import Date
 
 from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult, UrgencyLevel
@@ -44,6 +47,44 @@ class TriageRepository(BaseRepository[TriageResult]):
             .unique()
             .one_or_none()
         )
+
+    def urgency_by_day(
+        self, db: Session, *, days: int
+    ) -> list[tuple[date, dict[str, int]]]:
+        """Cases per acuity per day, over the last `days` days.
+
+        COMPUTED FROM RAW TRIAGE ROWS, not from the `analytics` snapshot table.
+        That table stores CUMULATIVE all-time counts -- `save_daily_snapshot`
+        calls the same `urgency_counts` that the headline summary uses -- so
+        plotting it over time would draw three monotonically rising curves and
+        suggest acuity was climbing when the clinic was merely open. Nothing
+        schedules the snapshot either, so differencing consecutive rows would
+        attribute several days of cases to one. This reads the source of truth
+        and is correct retroactively over data already collected.
+
+        EVERY DAY IN THE RANGE IS RETURNED, including days with no cases. A
+        time series with missing days lets the renderer join across a gap and
+        draw a slope that never happened; explicit zeroes cannot be misdrawn.
+        """
+        today = datetime.now(UTC).date()
+        start = today - timedelta(days=days - 1)
+        day = cast(TriageResult.created_at, Date).label("day")
+
+        rows = db.execute(
+            select(day, TriageResult.urgency_level, func.count().label("n"))
+            .where(cast(TriageResult.created_at, Date) >= start)
+            .group_by(day, TriageResult.urgency_level)
+        ).all()
+
+        empty = {"critical": 0, "urgent": 0, "routine": 0}
+        buckets: dict[date, dict[str, int]] = {
+            start + timedelta(days=offset): dict(empty) for offset in range(days)
+        }
+        for row_day, level, count in rows:
+            bucket = buckets.get(row_day)
+            if bucket is not None:
+                bucket[level.value.lower()] = count
+        return sorted(buckets.items())
 
     def urgency_counts(self, db: Session) -> dict[str, int]:
         """Every acuity count in one pass over the table."""

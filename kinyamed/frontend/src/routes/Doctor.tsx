@@ -62,7 +62,7 @@ export function Doctor() {
                         "They will be removed from the waiting list.",
                     )
                   ) {
-                    setStatus.mutate({ id: entry.id, status: "COMPLETED" });
+                    setStatus.mutate({ id: entry.id, status: "DONE" });
                   }
                 }}
               >

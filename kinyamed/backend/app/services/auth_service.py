@@ -11,10 +11,14 @@ ended rather than just refusing the one request.
 
 from __future__ import annotations
 
+import hashlib
+import secrets
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+from typing import NamedTuple
 
 import structlog
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -34,7 +38,7 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.models.user import RefreshToken, User, UserRole
+from app.models.user import PasswordResetToken, RefreshToken, User, UserRole
 from app.repositories import (
     patient_repository,
     refresh_token_repository,
@@ -250,3 +254,107 @@ def change_password(
     refresh_token_repository.revoke_all_for_user(db, user.id, commit=False)
     db.commit()
     logger.info("password_changed", user_id=user.id)
+
+
+# ── Password reset ──────────────────────────────────────────────────────────
+#
+# Three properties this flow is built around, none of them optional:
+#
+#   1. NO USER ENUMERATION. `request_password_reset` returns the same thing for
+#      a known and an unknown address. An endpoint that says "no such account"
+#      is a free account-existence oracle, and for a clinical system the set of
+#      accounts is the set of staff at a named health centre.
+#   2. THE RAW TOKEN IS NEVER PERSISTED. Only its SHA-256 is stored, so the
+#      table proves a token was issued without being usable by anyone who can
+#      read it.
+#   3. SINGLE USE, SHORT LIFE. Redemption stamps `used_at`; expiry is 30
+#      minutes because delivery is to a phone that may be shared.
+
+PASSWORD_RESET_TTL_MINUTES = 30
+
+
+def _hash_token(raw: str) -> str:
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+class IssuedReset(NamedTuple):
+    """The raw token and the account it belongs to.
+
+    Returned together so the route can deliver without a second lookup, and so
+    the raw token never has to be recovered from the hash (it cannot be).
+    """
+
+    token: str
+    user: User
+
+
+def request_password_reset(db: Session, email: str) -> IssuedReset | None:
+    """Issue a reset token for `email`, if that account exists.
+
+    Returns the RAW token for the caller to deliver, or None when no account
+    matches. The route discards this and always answers the same way; it is
+    returned rather than delivered here so the delivery channel stays a
+    decision for the layer above, and so tests can exercise redemption without
+    an SMS gateway.
+    """
+    user = user_repository.get_by_email(db, email.strip().lower())
+    if user is None or not user.is_active:
+        return None
+
+    raw = secrets.token_urlsafe(32)
+    db.add(
+        PasswordResetToken(
+            token_hash=_hash_token(raw),
+            user_id=user.id,
+            expires_at=datetime.now(UTC)
+            + timedelta(minutes=PASSWORD_RESET_TTL_MINUTES),
+        )
+    )
+    db.commit()
+    logger.info("password_reset_requested", user_id=user.id)
+    return IssuedReset(token=raw, user=user)
+
+
+def _live_token(db: Session, raw: str) -> PasswordResetToken | None:
+    """The unused, unexpired row for `raw`, or None."""
+    token = db.scalar(
+        select(PasswordResetToken).where(
+            PasswordResetToken.token_hash == _hash_token(raw)
+        )
+    )
+    if token is None or token.used_at is not None:
+        return None
+    if token.expires_at <= datetime.now(UTC):
+        return None
+    return token
+
+
+def password_reset_token_is_valid(db: Session, raw: str) -> bool:
+    """Whether a token would be accepted right now.
+
+    Lets the client show the set-a-new-password form only when it will work,
+    rather than after the user has typed a password twice.
+    """
+    return _live_token(db, raw) is not None
+
+
+def reset_password(db: Session, raw: str, new_password: str) -> None:
+    """Redeem a token and set the new password.
+
+    Raises `InvalidCredentialsError` for a token that is unknown, already used
+    or expired -- one error for all three on purpose, so the response cannot be
+    used to probe which tokens ever existed.
+
+    Every session is revoked. Someone resetting a password has usually lost
+    control of the account or the device, and leaving live refresh tokens
+    behind would make the reset cosmetic.
+    """
+    token = _live_token(db, raw)
+    if token is None:
+        raise InvalidTokenError("This reset link is invalid or has expired.")
+
+    token.user.hashed_password = hash_password(new_password)
+    token.used_at = datetime.now(UTC)
+    logout_everywhere(db, token.user)
+    db.commit()
+    logger.info("password_reset_completed", user_id=token.user_id)

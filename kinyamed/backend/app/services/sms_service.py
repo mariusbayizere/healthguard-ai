@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import SessionLocal
 from app.models.sms_log import SMSLog, SMSStatus
+from app.models.user import User
 from app.repositories import sms_log_repository
 
 logger = structlog.get_logger(__name__)
@@ -170,3 +171,36 @@ def send_sms_in_background(patient_id: int, phone: str, message: str) -> None:
             send_sms(db, patient_id=patient_id, phone=phone, message=message)
         except Exception:
             logger.exception("background_sms_failed", patient_id=patient_id)
+
+
+def send_password_reset(db: Session, *, user: User, token: str) -> None:
+    """Deliver a reset token to the account's phone, if there is one.
+
+    NEVER RAISES AND NEVER REVEALS. The caller answers identically whether or
+    not an account exists, so this must not turn a missing phone number into a
+    different HTTP response or a 500.
+
+    Staff accounts have no patient chart and therefore no phone number on file.
+    For them the token is logged and delivery is a human step -- which is the
+    honest state of this system, not a silent failure: `logger.warning` is
+    where an administrator finds it, and nothing on screen claims a message
+    was sent to someone who cannot receive one.
+    """
+    patient = user.patient
+    if patient is None or not patient.phone:
+        logger.warning(
+            "password_reset_undeliverable",
+            user_id=user.id,
+            reason="no phone number on the account",
+        )
+        return
+
+    send_sms(
+        db,
+        patient_id=patient.id,
+        phone=patient.phone,
+        message=(
+            f"KinyaMed: use this code to set a new password: {token}. "
+            "It expires in 30 minutes. If you did not ask for it, ignore this."
+        ),
+    )

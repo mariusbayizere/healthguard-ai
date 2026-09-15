@@ -1,15 +1,18 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { auth } from "@/lib/auth";
+import { useLogout } from "@/api/hooks";
 import { Button } from "./ui";
 
 const TABS = [
   { to: "/", label: "Triage", end: true },
   { to: "/queue", label: "Queue", end: false },
   { to: "/doctor", label: "Doctor", end: false },
+  { to: "/dashboard", label: "Dashboard", end: false },
+  { to: "/settings", label: "Account", end: false },
 ];
 
 export function Layout() {
   const { pathname } = useLocation();
+  const logout = useLogout();
   // Every page needs exactly one h1, and it should say which page. The brand
   // was a <span> and views begin at h2 (Card titles), so an authenticated page
   // had NO level-one heading at all -- a screen-reader user navigating by
@@ -50,12 +53,19 @@ export function Layout() {
           <div className="ml-auto">
             <Button
               variant="quiet"
-              onClick={() => {
-                auth.clear();
-                location.assign("/");
-              }}
+              // Calls /auth/logout, which REVOKES the refresh token, then
+              // clears local state. The previous version only did the second
+              // half: on a device handed to the next member of staff, the
+              // refresh token stayed live and could still mint access tokens
+              // for the person who had just "signed out".
+              disabled={logout.isPending}
+              onClick={() =>
+                logout.mutate(undefined, {
+                  onSettled: () => location.assign("/login"),
+                })
+              }
             >
-              Sign out
+              {logout.isPending ? "Signing out…" : "Sign out"}
             </Button>
           </div>
         </div>

@@ -107,3 +107,42 @@ class SessionResponse(ORMModel):
     created_at: datetime
     expires_at: datetime
     user_agent: str | None
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def _normalise(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class PasswordResetConfirm(BaseModel):
+    token: Annotated[str, Field(min_length=16, max_length=128)]
+    new_password: PasswordStr
+
+
+class PasswordResetTokenStatus(BaseModel):
+    """Whether a reset link would be accepted, without redeeming it."""
+
+    valid: bool
+
+
+class ProfileUpdate(BaseModel):
+    """The fields an account may change about itself.
+
+    Deliberately NOT role, is_active, patient_id or doctor_id: those decide
+    what the account may reach, and an account that can grant itself a role is
+    not an account, it is a vulnerability.
+    """
+
+    full_name: Annotated[str, Field(min_length=2, max_length=100)]
+
+    @field_validator("full_name")
+    @classmethod
+    def _strip(cls, value: str) -> str:
+        stripped = value.strip()
+        if len(stripped) < 2:
+            raise ValueError("full_name must be at least 2 characters")
+        return stripped

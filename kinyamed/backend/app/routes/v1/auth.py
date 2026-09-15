@@ -18,13 +18,17 @@ from app.core.dependencies import AuthenticatedUser, CurrentUser, get_client_use
 from app.schemas.auth import (
     LoginRequest,
     PasswordChangeRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
+    PasswordResetTokenStatus,
+    ProfileUpdate,
     RegisterRequest,
     SessionResponse,
     TokenResponse,
     UserResponse,
 )
 from app.schemas.common import Message
-from app.services import auth_service
+from app.services import auth_service, sms_service
 from app.services.auth_service import IssuedSession
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -147,6 +151,71 @@ def logout_all(
     ended = auth_service.logout_everywhere(db, user)
     _clear_refresh_cookie(response)
     return Message(message=f"Ended {ended} session(s)")
+
+
+@router.post("/password-reset/request", response_model=Message)
+def request_password_reset(
+    data: PasswordResetRequest, db: Session = Depends(get_db)
+) -> Message:
+    """Start a password reset.
+
+    ALWAYS ANSWERS THE SAME WAY, for a known address and an unknown one. An
+    endpoint that distinguishes them is a free account-existence oracle, and
+    for this system the accounts are the staff of a named health centre.
+
+    The token is delivered out of band and is never returned here. Delivery is
+    the SMS integration this project already carries behind a feature flag;
+    with the flag off, it is logged for a developer and goes nowhere else.
+    """
+    issued = auth_service.request_password_reset(db, data.email)
+    if issued is not None:
+        sms_service.send_password_reset(db, user=issued.user, token=issued.token)
+    return Message(
+        message="If that address has an account, a reset link has been sent."
+    )
+
+
+@router.get("/password-reset/validate", response_model=PasswordResetTokenStatus)
+def validate_password_reset_token(
+    token: str, db: Session = Depends(get_db)
+) -> PasswordResetTokenStatus:
+    """Whether a reset link is still good, without spending it.
+
+    Lets the client show the new-password form only when submitting it will
+    work, instead of after someone has typed a password twice.
+    """
+    return PasswordResetTokenStatus(
+        valid=auth_service.password_reset_token_is_valid(db, token)
+    )
+
+
+@router.post("/password-reset/confirm", response_model=Message)
+def confirm_password_reset(
+    data: PasswordResetConfirm, db: Session = Depends(get_db)
+) -> Message:
+    """Redeem a reset token and set the new password.
+
+    Unknown, already-used and expired tokens all raise the same error, so the
+    response cannot be used to probe which tokens existed. Every session is
+    revoked: a reset usually follows a lost device.
+    """
+    auth_service.reset_password(db, data.token, data.new_password)
+    return Message(message="Your password has been changed. Sign in again.")
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_current_user(
+    data: ProfileUpdate, user: AuthenticatedUser, db: Session = Depends(get_db)
+) -> UserResponse:
+    """Change what the account may change about itself.
+
+    Name only. Role, active state and the patient/doctor links decide what the
+    account can reach and are not self-service.
+    """
+    user.full_name = data.full_name
+    db.commit()
+    db.refresh(user)
+    return UserResponse.model_validate(user)
 
 
 @router.get("/me", response_model=UserResponse)

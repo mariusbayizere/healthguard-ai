@@ -133,6 +133,38 @@ jobs:
     # this remote: every local gate was run except the one that was skipped.
     name: Backend suite
     runs-on: ubuntu-latest
+
+    # THIS JOB HAD NO DATABASE AND THEREFORE NEVER RAN. `conftest.py` requires
+    # DATABASE_URL and connects with psycopg2 to CREATE DATABASE for the test
+    # run; `.env` is gitignored, so in CI the variable was simply unset and the
+    # suite errored at collection. The job added in AUDIT 1.1 to stop the
+    # backend going unrun was itself not running the backend.
+    #
+    # A real PostgreSQL service rather than SQLite, deliberately: `DATABASE_URL`
+    # is typed `PostgresDsn` and would reject a sqlite:// URL, and testing
+    # against a different engine than production is how dialect differences
+    # reach a clinic.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kinyamed
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kinyamed
+      # A throwaway value for the test run. `config.py` blocks placeholder
+      # secrets only when ENVIRONMENT=production, which this is not.
+      SECRET_KEY: ci-only-not-a-real-secret-0123456789abcdef
+
     defaults:
       run:
         working-directory: kinyamed/backend

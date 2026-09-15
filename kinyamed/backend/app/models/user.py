@@ -116,3 +116,33 @@ class RefreshToken(TimestampedModel):
 
     def __repr__(self) -> str:
         return f"<RefreshToken jti={self.jti} user_id={self.user_id} revoked={self.is_revoked}>"
+
+
+class PasswordResetToken(TimestampedModel):
+    """A single-use credential for setting a new password without the old one.
+
+    THE HASH IS STORED, NEVER THE TOKEN. A reset token is a bearer credential
+    that grants account takeover for its lifetime; holding the raw value means
+    a database read is a password reset for every pending user. Only the SHA-256
+    of it is kept, so the row proves a token was issued without being usable.
+
+    Single-use and short-lived, both enforced in the service: `used_at` is
+    stamped on redemption and a used or expired row is refused. Expiry is
+    deliberately short -- this is delivered over SMS to a phone that may be
+    shared, and a token that lives for a day is a token someone else can find.
+    """
+
+    __tablename__ = "password_reset_tokens"
+
+    token_hash: Mapped[str] = mapped_column(
+        String(64), unique=True, nullable=False, index=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship()

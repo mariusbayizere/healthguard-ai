@@ -65,6 +65,11 @@ export default {
       "2xl":["1.875rem",  { lineHeight: "2.25rem", letterSpacing: "-0.02em" }],
       // Queue number: large enough to read across a desk.
       queue:["2.25rem",   { lineHeight: "2.4rem",  letterSpacing: "-0.03em" }],
+      // FRONT DOOR ONLY. The one display size, for the single statement on the
+      // sign-in panel. It is deliberately absent from every clinical surface:
+      // inside the app the largest thing on screen is an urgency badge or a
+      // queue number, and a 48px heading would outrank both.
+      display:["3rem",    { lineHeight: "3.25rem", letterSpacing: "-0.035em" }],
     },
     // 4px base. Every gap in the UI is a multiple; nothing is eyeballed.
     //

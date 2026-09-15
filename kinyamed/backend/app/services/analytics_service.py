@@ -99,6 +99,42 @@ def build_language_breakdown(db: Session) -> dict[str, int]:
     return symptom_report_repository.language_counts(db)
 
 
+def build_urgency_over_time(db: Session, *, days: int) -> dict:
+    """Acuity per day from raw triage rows. See `urgency_by_day` for why."""
+    series = triage_repository.urgency_by_day(db, days=days)
+    return {
+        "days": days,
+        "points": [
+            {
+                "day": day,
+                "critical": c["critical"],
+                "urgent": c["urgent"],
+                "routine": c["routine"],
+            }
+            for day, c in series
+        ],
+    }
+
+
+def build_throughput(db: Session, *, days: int) -> dict:
+    """Completions per day, zero-filled across the whole range."""
+    series = queue_repository.completions_by_day(db, days=days)
+    return {
+        "days": days,
+        "points": [{"day": day, "completed": n} for day, n in series],
+        "total_completed": sum(n for _, n in series),
+    }
+
+
+def build_wait_by_urgency(db: Session) -> dict:
+    """p50/p90 wait per acuity. Absent acuities stay None, not zero.
+
+    A level with no completed entries has no measured wait; reporting 0.0
+    would read as "seen instantly", which is the opposite of the truth.
+    """
+    return queue_repository.wait_percentiles_by_urgency(db)
+
+
 def list_snapshots(
     db: Session, *, skip: int, limit: int
 ) -> tuple[Sequence[Analytics], int]:

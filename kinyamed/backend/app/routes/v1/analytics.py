@@ -15,7 +15,10 @@ from app.schemas.analytics import (
     LanguageBreakdownResponse,
     QueuePerformanceResponse,
     SummaryResponse,
+    ThroughputResponse,
     UrgencyBreakdownResponse,
+    UrgencyOverTimeResponse,
+    WaitByUrgencyResponse,
 )
 from app.schemas.common import PaginatedResponse, PaginationParams, pagination
 from app.services import analytics_service
@@ -52,6 +55,46 @@ def get_language_breakdown(
     """Symptom reports per detected language — the multilingual coverage metric."""
     counts = analytics_service.build_language_breakdown(db)
     return LanguageBreakdownResponse(counts=counts, total=sum(counts.values()))
+
+
+@router.get("/urgency-over-time", response_model=UrgencyOverTimeResponse)
+def get_urgency_over_time(
+    _admin: AdminUser,
+    db: Session = Depends(get_db),
+    days: int = Query(30, ge=1, le=365, description="Days back, inclusive of today."),
+) -> UrgencyOverTimeResponse:
+    """Cases per acuity per day.
+
+    Computed from triage rows, NOT from the daily snapshot table: that table
+    stores cumulative all-time totals, so charting it would draw three rising
+    curves whatever the clinic actually did. Every day in the window is
+    returned, zero-filled, so a renderer cannot interpolate across a gap.
+    """
+    return UrgencyOverTimeResponse(
+        **analytics_service.build_urgency_over_time(db, days=days)
+    )
+
+
+@router.get("/throughput", response_model=ThroughputResponse)
+def get_throughput(
+    _admin: AdminUser,
+    db: Session = Depends(get_db),
+    days: int = Query(30, ge=1, le=365, description="Days back, inclusive of today."),
+) -> ThroughputResponse:
+    """Queue entries completed per day, measured on completion rather than arrival."""
+    return ThroughputResponse(**analytics_service.build_throughput(db, days=days))
+
+
+@router.get("/wait-by-urgency", response_model=WaitByUrgencyResponse)
+def get_wait_by_urgency(
+    _admin: AdminUser, db: Session = Depends(get_db)
+) -> WaitByUrgencyResponse:
+    """p50 and p90 wait per acuity.
+
+    Percentiles rather than the mean the summary reports: a mean hides the
+    tail, and the tail is where a long wait becomes a clinical problem.
+    """
+    return WaitByUrgencyResponse(**analytics_service.build_wait_by_urgency(db))
 
 
 @router.get("/daily", response_model=PaginatedResponse[AnalyticsSnapshotResponse])

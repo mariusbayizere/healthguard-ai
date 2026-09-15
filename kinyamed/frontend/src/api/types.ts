@@ -33,8 +33,15 @@ import type { Urgency } from "./urgency.gen";
 export { URGENCY, URGENCY_RANK } from "./urgency.gen";
 export type { Urgency };
 
-export type QueueStatus =
-  | "WAITING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+/** Mirrors `app.models.queue.QueueStatus` EXACTLY.
+ *
+ * It said "COMPLETED" until 2026-09-11 and the server has always called it
+ * "DONE", so `PATCH /queue/{id}/status` was rejected 422 and the Done button
+ * on the doctor board had never once worked. Same shape as the login
+ * `username`/`email` bug: a hand-written client drifting from a server nobody
+ * checked it against. `backend/tests/unit/test_login_contract.py` now pins
+ * this enum too. */
+export type QueueStatus = "WAITING" | "IN_PROGRESS" | "DONE" | "CANCELLED";
 
 export interface Patient {
   id: number;
@@ -97,4 +104,110 @@ export function toList<T>(body: unknown): T[] {
     if (Array.isArray(items)) return items as T[];
   }
   return [];
+}
+
+/* ── Analytics ──────────────────────────────────────────────────────────────
+ *
+ * Mirrors `backend/app/schemas/analytics.py`. Every endpoint behind these is
+ * gated on AdminUser, so a doctor or nurse account gets 403 and the dashboard
+ * must say so rather than render an empty board.
+ */
+
+export interface UrgencyCount {
+  count: number;
+  /** Share of all triaged cases, 0-100. */
+  percentage: number;
+}
+
+export interface Summary {
+  total_patients: number;
+  total_triage_done: number;
+  critical_cases: number;
+  urgent_cases: number;
+  routine_cases: number;
+  queue_waiting: number;
+  queue_in_progress: number;
+  queue_done: number;
+  queue_cancelled: number;
+  sms_sent: number;
+  sms_failed: number;
+  doctors_on_duty: number;
+}
+
+export interface UrgencyBreakdown {
+  total: number;
+  critical: UrgencyCount;
+  urgent: UrgencyCount;
+  routine: UrgencyCount;
+}
+
+export interface QueuePerformance {
+  currently_waiting: number;
+  currently_in_progress: number;
+  completed_today: number;
+  /** Mean wait QUOTED to patients at intake. */
+  average_quoted_wait_minutes: number;
+  /** Mean MEASURED time from joining the queue to completion. */
+  average_actual_wait_minutes: number;
+}
+
+export interface LanguageBreakdown {
+  counts: Record<string, number>;
+  total: number;
+}
+
+export interface Session {
+  jti: string;
+  created_at: string;
+  expires_at: string;
+  user_agent: string | null;
+}
+
+export interface CurrentUser {
+  id: number;
+  email: string;
+  full_name: string;
+  role: "PATIENT" | "DOCTOR" | "ADMIN";
+  is_active: boolean;
+  patient_id: number | null;
+  doctor_id: number | null;
+  last_login_at: string | null;
+  created_at: string;
+}
+
+export interface UrgencyDayPoint {
+  day: string;
+  critical: number;
+  urgent: number;
+  routine: number;
+}
+
+export interface UrgencyOverTime {
+  days: number;
+  points: UrgencyDayPoint[];
+}
+
+export interface ThroughputPoint {
+  day: string;
+  completed: number;
+}
+
+export interface Throughput {
+  days: number;
+  points: ThroughputPoint[];
+  total_completed: number;
+}
+
+export interface WaitStats {
+  p50_minutes: number;
+  p90_minutes: number;
+  completed: number;
+}
+
+/** An acuity with no completed entries is NULL, not zero: 0.0 would read as
+ *  "seen instantly", which is the opposite of "not measured". */
+export interface WaitByUrgency {
+  critical: WaitStats | null;
+  urgent: WaitStats | null;
+  routine: WaitStats | null;
 }
