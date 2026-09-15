@@ -1076,9 +1076,15 @@ was partial, and the findings were re-verified from `results.json` before writin
 
 ## Next — single action
 
-**C: item 2, the empty red-flag layer. First the migration SQL** for `rules_layer_triggered`, `rules_layer_reason`
-and `model_urgency_raw` on `triage_results`, for your approval before any code (L14).
-Waiting on you:
+**C: waiting for your approval of the red-flag migration SQL** (shown in the session report; L14). No migration
+file, model or test exists yet.
+- The migration adds `rules_layer_triggered`, `rules_layer_reason` and `model_urgency_raw` to `triage_results`,
+  with three CHECK constraints, including escalate-only at database level. Pre-migration rows get NULL for
+  `model_urgency_raw` rather than a false backfill.
+- **Merge hazard:** `wip/account-analytics-frontend` has `f1a2b3c4d5e6` (password reset) on the same parent
+  `e77159c3482a`. Merging gives two Alembic heads and needs a merge revision.
+
+Also waiting on you:
 - the README diff;
 - E8b;
 - pinning `sentencepiece`;
