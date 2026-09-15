@@ -1247,7 +1247,7 @@ measurement of any KinyaMed model.
 **Refusal on the n=9 set, demonstrated with the committed pipeline and the real trainer class** (`pipeline_n9_refusal.txt`,
 byte-identical over two runs):
 - Exit 2. "17,942 rows from 9 distinct source sentences".
-- 40 test-split cells INSUFFICIENT DATA; the calibration split is absent.
+- 38 test-split cells INSUFFICIENT DATA; the calibration split is absent.
 - "leakage check: NOT RUN (refused before the training corpus was read)"; "Nothing was trained."
 - Peak RSS 250 MB; no model loaded. The manifest records status `refused`, with no `train` input.
 
