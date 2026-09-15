@@ -3,8 +3,13 @@
 **Updated** 2026-09-15 · **Phase** Remediation · **Branch** `audit-p0-p1-and-frontend` (clean; your in-flight
 work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4. **Items 1
 (`af643d0`, `6e81dd8`), 2 (`f739985`) and 3 (`caada64`, `994bbdf`) done; item 4 is a proposal
-(`reports/I18N_PLAN.md`).** **mypy `--strict` gate exception CLEARED: 0 errors at HEAD.** ETAT reading task: the
-manual was reported placed in `docs/clinical/` after the 2026-09-15 restart; not yet read or verified.
+(`reports/I18N_PLAN.md`, `23842f0`).** **mypy `--strict` gate exception CLEARED: 0 errors at HEAD.** Suites
+re-verified after the restart: backend **250 passed**, Vitest **139 passed**. **ETAT manual read: ETAT is
+paediatric, and it is defined on examination signs. That is a MODALITY mismatch with text triage, separate from
+the age mismatch (`TAXONOMY_SCOPE.md` §2, §2a).** **Construct-validity gap recorded: no document in the repo
+authorises urgency from an unexamined written report (`TAXONOMY_SCOPE.md` §2b). A proposed construct is in
+`reports/CONSTRUCT.md` (not adopted), and wording is inventoried as SRS correction A27.** E6 not decided; nothing
+renamed.
 
 ## Order agreed
 
@@ -630,10 +635,99 @@ code, both files were run with and without the fixes, and passed each time.
 **Still not enforced by CI:** `.github/workflows/ci.yml` has no mypy step (0 occurrences). Until it does, mypy is
 run by hand before each backend commit, and any new error blocks that commit.
 
+## 2026-09-15 (after the restart) — counts re-verified; ETAT manual read
+
+**Recovery check.** The session died after `994bbdf`. On disk:
+- no partial files;
+- `I18N_PLAN.md` complete but uncommitted, now `23842f0`;
+- STATE lacked item 3, now `7fa2099`.
+
+**Suites, run one at a time, nothing else running:**
+
+| Suite | Result | Time |
+|---|---|---|
+| Backend pytest | **250 passed**, 0 failed / skipped / errors; exit 0 | 363 s; lowest free memory 2,373 MB |
+| Vitest | **139 passed** (13 files); exit 0 | 153 s |
+
+The first backend attempt was stopped at about 11 minutes because the host was swapping with both browsers open.
+
+**ETAT reading task: done** (`TAXONOMY_SCOPE.md` §2, every cell cited by printed and PDF page).
+- **Source:** `docs/clinical/participant_manual.pdf`, WHO *ETAT Manual for participants*, © 2005, SHA-256
+  `9f2c85bf…c104`.
+- **Checked complete before use:** 83 PDF pages, printed pp. 1–78 all present, text extractable, three blank
+  versos confirmed by rendering.
+- **Age:** "all sick children". Newborns are in scope ("under two months" is a priority sign). **No upper age is
+  stated.** Adults are not addressed; "adult" appears only for equipment.
+- **Categories:** EMERGENCY CASES / PRIORITY CASES / NON-URGENT CASES (E / P / Q), p. 4.
+- **Modality: examination-based.** "Triage is the process of rapidly examining all sick children" (p. 3). The
+  emergency signs are elicited by hand and eye (capillary refill, AVPU, skin pinch). On convulsion the manual
+  rules against parental history (p. 36). History from the mother is an adjunct. Only the tiny-baby age,
+  poisoning and referral priority signs rest on history alone.
+- **Remote or written report: not addressed.** Triage happens on arrival. There are 0 occurrences of
+  telephone/phone/radio/remote/SMS/mobile. The only written item is a referral note read with the child
+  present.
+- **Recorded as a MODALITY mismatch (§2a), separate from age.**
+  - No dataset fixes it, and no age rule fixes it.
+  - The question for H6 changes: is there any validated basis for urgency from an unexamined report, and if
+    not, what may a text classification claim to be?
+- **Not decided:** E6, or which carer descriptions equal an ETAT sign.
+- **Not built:** the lexicon and the red-flag layer.
+- **Not in the file:** Rwanda (0 mentions) and ETAT+. The upper age limit and ETAT+ cells name their missing
+  documents.
+
+**Licensing flag.** The PDF is marked "© WHO 2005, All rights reserved", and `docs/clinical/` is **untracked**.
+I did not commit it: committing the PDF would redistribute it if the repo is public. Whether to commit it,
+gitignore it or link to it is your call.
+
+## 2026-09-15 (later) — consequences of the ETAT finding recorded; stopped
+
+Documentation only. No code, test, model or server ran. Nothing renamed, no wording changed; the lexicon and
+red-flag layer were not built; E6 was not decided.
+
+1. **`TAXONOMY_SCOPE.md` §2b, the construct-validity gap.**
+   - No document in the repo authorises assigning urgency from a written report by someone who has not examined
+     the patient.
+   - ETAT requires examination (p. 3 definition; the p. 36 convulsion rule).
+   - IMCI and BEC are recorded as bedside instruments **as you report them**. Neither document is in the repo, so
+     this is not verified from the documents. The repo's own BEC summary is consistent with it
+     (`clinical-anchors.md:15–16`, `:20`).
+   - This is a gap in what the labels measure, so no dataset or model fixes it.
+   - Checked: `docs/clinical/` holds only the ETAT manual, `docs/compliance/` does not exist, and no tracked file
+     mentions telephone, advice-line or remote triage.
+2. **SRS correction A27.**
+   - The inventory script `reports/measurements/triage_wording_inventory.py` (output `.txt`) finds 895 matching
+     lines in 153 files.
+   - The curated list covers the spec, README, paper, staff UI strings, API strings, and clinician-, speaker- and
+     externally facing documents, each with file:line. Code identifiers are counted, not listed.
+   - **Patient-facing text contains no occurrence** of "triage" or ETAT. The paper has no ETAT citation; it frames
+     the work as triage against ESI and MTS.
+   - "Triage manually" refers to staff triaging in person, and is flagged as possibly correct as it stands.
+3. **`reports/CONSTRUCT.md` (497 words), proposal only.**
+   - It describes the system as queue prioritisation from a patient-authored report.
+   - Proposed ground truth: a clinician's urgency judgement from the text alone.
+   - It lists what that construct can and cannot support: agreement with clinicians is not accuracy against
+     outcomes, and clinicians and model share blind spots.
+   - It lists the D7 §3/§4/§10 and EVAL_SET_SPEC §4/§7/§9/§10/§11 changes adoption would require.
+   - One correction made while drafting: the 0.75 review threshold is not an EVAL_SET_SPEC gate threshold, so it
+     is not listed among the §4 changes.
+4. **H6a added** to the clinical-lead questions.
+   - The question: is there a validated instrument for urgency from a report without examination (for example a
+     telephone or nurse-advice-line protocol), and is one in use in Rwanda?
+   - If yes, it replaces ETAT as the anchor.
+   - **Marked as an unverified lead.** No such system is asserted.
+
+**Uncommitted, for your review:**
+- modified: `reports/STATE.md`, `reports/TAXONOMY_SCOPE.md`;
+- new: `reports/CONSTRUCT.md`, `reports/measurements/triage_wording_inventory.{py,txt}`;
+- untracked: `docs/clinical/participant_manual.pdf` (© WHO, all rights reserved; not committed).
+
 ## Next — single action
 
-**Re-verify the test counts after the restart, one suite at a time (backend, then Vitest).** Then the ETAT reading
-task from the manual in `docs/clinical/`, after confirming it is a complete, readable PDF.
+**Take H6a and H6 to the lead clinician, with `TAXONOMY_SCOPE.md` §2–§2b and `reports/CONSTRUCT.md`.**
+- The first question is whether a validated report-based urgency instrument exists and is used in Rwanda.
+- If one does, it becomes the anchor, and CONSTRUCT.md is likely superseded.
+- If none does, the lead clinician decides whether to adopt CONSTRUCT.md.
+- Rewording (A27), E6 and the D7 §3 label definitions wait on that answer.
 
 ## Blocked on you (unchanged)
 
@@ -735,12 +829,118 @@ Every "measured" value comes from a run in this session (see the Phase 0 reports
 | A18 | Deployment gate "Overall accuracy (test set, n=100,000)" (§9.2 #1) | Reporting set n = **17,942** (9 sentences) | Correct n; report distinct sentences alongside rows |
 | A19 | Duplicate rate "< 2% near-duplicate (MD5 on lowercased stripped text)" (§9.1) | MD5 measures exact, not near, duplicates: **0.000%**. MinHash Jaccard ≥ 0.85: **≥ 2.77%** within train (lower bound); the repo's own scan at 0.80: **8.71%** | Separate exact from near-duplicate and report both |
 | A20 | Clinical validation "1,500-example sample reviewed by 2 registered nurses; Cohen's κ ≥ 0.80" and naturalness "≥ 3.5/5" presented as dataset standards with rationale "Medical accuracy confirmed" (§9.1) | **No review, no κ, no ratings exist.** Protocols only (`ml_model/docs/protocols/d1`, `d3`) | Remove "confirmed"; mark as pending studies |
-| A21 | ETAT "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy" (§18) | The repo's taxonomy cites **WHO IMCI 2014** and **WHO-ICRC Basic Emergency Care 2018**, not ETAT (`ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md`). No ETAT document is in the repo. No clinician has approved the taxonomy | Correct the basis, or supply the ETAT source (D2) |
+| A21 | ETAT "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy" (§18) | The repo's taxonomy cites **WHO IMCI 2014** and **WHO-ICRC Basic Emergency Care 2018**, not ETAT (`ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md`). No ETAT document is in the repo. No clinician has approved the taxonomy | Correct the basis, or supply the ETAT source (D2). **Update 2026-09-15:** the WHO ETAT participant manual (2005) is now in `docs/clinical/`. It contradicts §18 on two counts: ETAT covers sick children, not adults, and it is defined on examination signs, not a reported description (`TAXONOMY_SCOPE.md` §2, §2a). |
 | A22 | Fine-tuned weights at `mariusbayizere/kinyamed-afro-xlmr` (§14) | Not verified (no network check made). The only credible weights (v2d) exist **only in `~/kinyamed-runs/` on the development machine**; `ml_model/saved_model/` is a different checkpoint trained on 179 rows (accuracy 0.414) that the backend refuses to load | Do not cite the HF repo until it exists with a pinned revision |
 | A23 | Model "AfroXLMR-mini + **PyTorch 2.1** + **HF Transformers** [4.40]" (§4.2, §3.1) | torch **2.12.0+cpu**, transformers **5.8.1** | Update versions |
 | A24 | **Four distinct triage instruments are cited as the clinical basis across the spec and code, and none is in the repository.** (1) **WHO ETAT**, the basis of the 3-class taxonomy: `CLAUDE.md:902` (also :14, :51, :677, :697). (2) **ESI**: CLAUDE.md:899 CRITICAL = "ESI 1–2", :915 URGENT = "ESI 3", :913 ROUTINE = "ESI 4–5"; paper `related_work.tex:16`. (3) **WHO IMCI Chart Booklet 2014**: `ml_model/docs/triage-taxonomy.md:14`, `clinical-anchors.md:11`, `licensing.md:14`, paper `related_work.tex:34`, `method.tex:116`. (4) **WHO-ICRC Basic Emergency Care 2018**: `clinical-anchors.md:10`, `licensing.md:12`, paper `related_work.tex:35`, `method.tex:117`. Also cited, not as a taxonomy basis: WHO *Managing Complications in Pregnancy and Childbirth* 2017 (`related_work.tex:36`) and the Manchester Triage System (`introduction.tex:25`). | `find` over the repo: the only PDF is `ml_model/paper/main.pdf`. **No instrument's text is available to verify any category, age range or licence claim** (the licence checks in `clinical-anchors.md` say the PDFs were read, but the PDFs were not kept). ETAT (paediatric, per your 2026-09-15 finding) and ESI are different instruments for the same three classes. `language-resources.md:12` still says IMCI booklets are CC BY-NC-SA, which `triage-taxonomy.md:23` records as wrong. | Choose one basis per population (TAXONOMY_SCOPE E6); place each cited document in `docs/clinical/`; delete citations of instruments not used |
 | A26 | **The concept total has five values across the repo. One number with several values is, on its own, disqualifying at review.** **68**: `ml_model/docs/clinical-anchors.md:32` ("Of the 68 general concepts"). **80**: `ml_model/docs/triage-taxonomy.md:37` ("Of the 80 new concepts"), `licensing.md:24` ("Where the 80 concepts now stand"). **126**: `triage-taxonomy.md:8` ("126 concept slots per language"), `v2-sizing.md:185`, `utterance-form-decision.md:52`, `clinician-session-guide.md:109` ("all 126 concepts"). **127**: `licensing.md:180` and `:191` ("28 of 127 concepts"), `split-authoring.md:17`, `v2-sizing.md:141`, `session-state.md:522`, `build_english_brief.py:19`, `build_swahili_brief.py:1174`, `:1206`. **128**: paper `related_work.tex:26`, `method.tex:109`, `future_work.tex:12`; `d2-clinician-review-pack.md:98`; `swahili-authoring-brief.md:11`; `session-state.md:46`, `:445`; `build_french_brief.py:2`, `:16`; `build_swahili_brief.py:2`; `build_english_brief.py:2`; `csv_to_xlsx.py:133`. | The Kinyarwanda brief `review/speaker_brief_kinyarwanda_v2.csv` has **128 distinct `concept_id`s** (256 rows), counted 2026-09-15. Some other values are subsets (68 general, 80 new) or superseded (127 before OB13 was added 2026-09-05, per `session-state.md:46`), but the documents do not say so where the number is used. The corpus itself has **165 distinct phrases**, which is neither. | Define "concept" once. Derive the count by script from the brief. Replace or explicitly date every other occurrence. Paper submission blocked with A25. |
 | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 70 carry an anchor" and table total "Anchored concepts & 70" (`method.tex:109`, `:121`). Same claim in the clinician pack: "70 of 128 concepts carry a published anchor" (`ml_model/docs/protocols/d2-clinician-review-pack.md:98`). | **Actual sum:** the four table rows are 24 + 15 + 11 + 20 = 70 (`method.tex:116–119`; `related_work.tex:34–37`). But the fourth row (20) is "Clinician-defined, no WHO anchor", so **concepts with a document anchor = 24 + 15 + 11 = 50, not 70.** Other repo counts disagree: `clinical-anchors.md:35–37` IMCI 28, BEC 18, 22 unanchored, of 68 general concepts; `licensing.md:27–30` IMCI 29, clinician-defined 23, BEC 18, MCPC 10, of 80; `licensing.md:183–188` IMCI 28, 22, BEC 18, MCPC 10, "78 anchored" of 127 (that 78 also counts the 22 as anchored). The paper (128), `licensing.md` (127, 80) and `triage-taxonomy.md` (126 slots, 80 new concepts) each state a different concept total. | Re-derive every count from `review/concepts.py` / `concept_anchors.csv` with a script; count clinician-defined concepts as unanchored; one number everywhere. **No paper submission until done.** |
+| A27 | **The system is called "triage", and ETAT is cited as its basis**, across the spec, README, paper, UI, API and clinician-facing documents (inventory below). | **No document in the repo authorises assigning urgency from an unexamined written report** (`TAXONOMY_SCOPE.md` §2b). ETAT, the only instrument present, is defined on examination (manual p. 3, p. 36). The system receives text and examines nobody. **Full line inventory:** `reports/measurements/triage_wording_inventory.py` → `.txt`: 895 matching lines in 153 files, most of them code identifiers. This snapshot was taken before this A27 entry and `TAXONOMY_SCOPE.md` §2b were written. Re-running now gives 972; all 77 extra lines are in those two audit reports. **Patient-facing text contains none:** 0 occurrences in `backend/app/services/patient_message.py`, `response_templates.py` and the four `ml_model/review/speaker_brief_*_v2_responses.csv` template files. | **Listed only; no wording changed, no code renamed.** Choose the construct first (`reports/CONSTRUCT.md`, lead-clinician decision), then reword from this inventory. Uses of "triage manually" that refer to **staff** triaging in person are a different thing, and may be correct as they stand. |
+
+#### A27 inventory — where the system is *described* as triage or as ETAT-based
+
+Curated from the script output. It covers descriptions and visible strings; code identifiers are counted, not
+listed. Line numbers are as of 2026-09-15.
+
+**Specification — `kinyamed/CLAUDE.md` (local, git-ignored)**
+- ETAT as basis or source:
+  - `:902` glossary: "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy";
+  - `:14`, `:51` (L5): triage taxonomy comes from "WHO ETAT" materials;
+  - `:697` §10.4 T1 "terminology and taxonomy": "WHO ETAT".
+- System named as triage:
+  - `:2` title "Medical Triage & Patient Queue System";
+  - `:47` L1 "KinyaMed performs **triage prioritisation only**";
+  - `:196` "§4.3 Triage data flow";
+  - `:177` "Manual triage causes ~47-minute delay" (the problem statement, unsourced, C2);
+  - `:833`, `:907` dataset name "KinyaMed-Triage".
+- As a feature name in requirements: `:189`, `:202`, `:205`, `:243`, `:252`, `:262`, `:285`, `:301`, `:319`, `:335`,
+  `:365`, `:379`, `:603`, `:748`, `:793`, `:807`, `:811`, `:813`, `:814`.
+
+**Repository README — `README.md`**
+- `:8` "AI-powered medical triage and patient queue system"
+- `:24` "Triage endpoint"
+- `:26` "Triage intake"
+- `:252` "FastAPI triage service"
+- `:134` "Under-triage", used as the failure-mode term
+
+**Paper — `ml_model/paper/`.** ETAT: 0 occurrences. The paper frames the work as triage and positions it
+against ESI and MTS.
+- `main.tex:95` title "Kinyarwanda triage classification: results"
+- `sections/abstract.tex:14–17` "Triage decides who is seen first … a classifier for three-level urgency triage
+  from patient-voice Kinyarwanda"; `:46` "patient-voice triage dataset"
+- `sections/introduction.tex:23–25` "Triage systems support that decision … the Emergency Severity Index, the
+  Manchester Triage System"; `:30` "three-level urgency triage"; `:79` "medical triage dataset"
+- `sections/related_work.tex:12–20` subsection "Triage instruments"; `:91` "patient-voice medical triage dataset"
+- `sections/system.tex:45` "The triage endpoint accepts a free-text symptom description … places the patient in a
+  queue ordered by clinical priority"
+- `generated/results_table.tex:22` caption "Triage performance of the reported model"
+- Over- and under-triage as terms: `results.tex:50`, `sections/discussion.tex:26`, `:33–34`,
+  `sections/future_work.tex:64`, `sections/limitations.tex:38`, `:137`, `:144`,
+  `generated/gate_derivation.tex:25`, `generated/finding_gate_degeneracy.tex:23`
+
+**Staff-facing UI strings — `frontend/`**
+- `index.html:6` page title "KinyaMed — triage"
+- `src/components/Layout.tsx:6` navigation label "Triage"
+- `src/components/TriageOfflineAlert.tsx:27` "Automated triage is offline"
+- `src/components/TriageOfflineBanner.tsx:39` "Automated triage offline — triage manually"; the second half refers
+  to staff triage
+- `src/components/PatientMessage.tsx:31` "not a triage result"
+- `src/__design__/main.tsx:90` "Triage view (empty form)" (design harness only)
+- The e2e fixture `e2e/fixtures/triage-model-unavailable.json` mirrors the API message below
+
+**API strings and contract — `backend/`**
+- `main.py:68` OpenAPI description "AI-powered multilingual medical triage for Kinyarwanda speakers."
+- `app/routes/v1/triage.py:16` path `/api/v1/triage`, OpenAPI tag "Triage"; `:36`, `:87` endpoint docstrings
+- `app/core/exceptions.py:119–120` error message shown to staff: "Automated triage is unavailable … Triage this
+  patient manually now"; `:122` code `TRIAGE_MODEL_UNAVAILABLE`; `:124` `manual_triage_required`; `:98`
+  "Triage service error"; `:104` code `TRIAGE_NOT_FOUND`
+- `app/routes/v1/health.py:54` readiness docstring "whether automated triage is available"
+- Analytics response fields `total_triage_done` (`app/schemas/analytics.py:19`) and `total_triaged` (`:64`;
+  model `app/models/analytics.py:31`); description "Share of all triaged cases" (`app/schemas/analytics.py:14`)
+- Log text `main.py:52` and `app/services/model_classifier.py:137` "triage patients manually" (staff triage)
+- Module docstrings: `app/services/triage_service.py:1` "Symptom triage."; `app/models/triage_result.py:1` "AI triage
+  outcomes"; `app/core/logging.py:3` "the triage system"
+
+**Clinician-, speaker- and externally facing documents**
+- `reports/CLINICIAN_BRIEF.md:1` "a triage evaluation set"; `:16`, `:21`; `:53–54` names "the WHO ETAT document"
+  as the guidance to supply
+- `reports/CURRENT_CAPABILITY.md:19` "triage is refused and staff are told to triage manually"
+- `ml_model/docs/invitation-to-review.md:1` "Helping build a Kinyarwanda medical triage tool"
+- `ml_model/docs/moh-request.md:44` "multilingual medical triage … AI-assisted pre-screening" (a letter to the
+  MoH)
+- `ml_model/docs/outreach-digital-umuganda.md:30`, `:34`, `:71`, `:96` "Kinyarwanda triage corpus", "dataset for
+  clinical triage", "triage taxonomy"
+- `ml_model/docs/triage-taxonomy.md:1` "Triage concept taxonomy — for clinician sign-off"; `:76`
+- `ml_model/docs/clinician-session-guide.md:124`
+- `ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:59` label source "(e.g. ETAT)"; `:66–68` B1 ETAT, B2
+  triage protocol, B3 adult triage tool; `:71–72`
+- `ml_model/docs/protocols/d2-clinician-review-pack.md:84` "Does fetal demise belong in a triage taxonomy"
+- `ml_model/review/clinician_pack/sheet1_clinical.csv:21–22` and the speaker briefs: Kinyarwanda `:40`, `:48`,
+  `:112`, `:188–189`, `:202–203`; Swahili `:186–187`; French `:102`, `:186`. These are reviewer notes
+  ("belongs in the triage taxonomy", "where triage still helps").
+- Project documents:
+  - `ml_model/docs/roadmap.md:8` "triage classifier";
+  - `ml_model/docs/STATUS.md:33`;
+  - `ml_model/docs/licensing.md:96`, `:109`;
+  - `ml_model/docs/clinical-anchors.md:59`;
+  - `ml_model/docs/language-resources.md:18`, `:23`;
+  - `docs/frontend-limitations.md:26`, `:43`, `:66`, `:68`, `:80`, `:104`.
+
+**Audit and planning reports (mine).**
+- `reports/EVAL_SET_SPEC.md:182` "national triage protocol"; `:250–252` B1–B3 ETAT and triage tools
+- `reports/CORPUS_REBUILD.md:28–29`
+- REQUIREMENTS_MATRIX, AUDIT_REPORT, MODEL_AUDIT and REMEDIATION_PLAN: 51 lines together. These largely quote the
+  spec; see the `.txt`.
+
+**Code identifiers (counted, not listed; renaming not proposed yet).**
+- Backend source: 236 lines in 35 files. Includes the table `triage_results`, `TriageResult`, `triage_service`,
+  `TRIAGE_MODEL_PATH`, and the `/api/v1/triage` path.
+- Frontend source: 49 lines in 16 files.
+- Tests: backend 174 lines in 20 files, frontend 54 in 8.
+- Migrations: 16 lines in 2 files.
+- ML code and run records: 35 lines in 12 files.
+- **Renaming the table needs a migration, and renaming the path breaks the API contract. Both require your
+  approval (L14).**
 
 ### B. Performance and quality stated as system behaviour, with measured values
 
@@ -795,7 +995,7 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 
 | # | What | Needs exactly | Who supplies | Blocks downstream |
 |---|---|---|---|---|
-| H3 | WHO ETAT (B1) | The edition used in Rwandan facilities. Confirm whether it covers adults (**you report paediatric; see TAXONOMY_SCOPE.md, to be cited from the manual**), and whether its categories can be applied to a text description at all. The Participant Manual is being placed 2026-09-15; not yet present. | Lead clinician / RBC | Label definitions (D7 protocol §3); presentation types |
+| H3 | WHO ETAT (B1) | **Partly cleared 2026-09-15.** The WHO 2005 participant manual has been read (`TAXONOMY_SCOPE.md` §2): children only, no upper age stated, examination-based, no remote triage. **Still needed:** the edition actually used in Rwandan facilities (the manual does not mention Rwanda), the ETAT+ materials, and a source for the upper age limit. Whether text can carry any ETAT sign is now an H6 question (§2a). | Lead clinician / RBC | Label definitions (D7 protocol §3); presentation types |
 | H4 | National triage protocol (B2, B3) | MoH/RBC triage protocol for health centres and district hospitals, adult and paediatric, **with its mapping to CRITICAL/URGENT/ROUTINE**; the adult tool if not ETAT | Lead clinician / RBC / MoH | Domain axis of the eval grid; category mapping; clinical lexicon (§10.6); red-flag layer content (L2) |
 | H5 | Obstetric guidance and referral data (B4, D2) | RBC maternal/obstetric danger signs; emergency numbers; referral pathways | RBC / lead clinician | Obstetric presentation type; any patient text beyond the generic escalation line |
 
@@ -804,6 +1004,7 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 | # | What | Needs exactly | Who supplies | Blocks downstream |
 |---|---|---|---|---|
 | H6 | Lead clinician (B5, D3) | Approve the category mapping and worked examples (≥2 per label, ≥3 boundary pairs per line). Ratify the unsourced numbers: CRITICAL recall 0.91 (old charter 0.95), CRITICAL→ROUTINE < 1%, **review threshold 0.75**. Ratify the 2d design: NEEDS REVIEW above URGENT; low-confidence CRITICAL stays CRITICAL. Rule on the taxonomy pack `ml_model/docs/protocols/d2-clinician-review-pack.md` (e.g. is an unstoppable nosebleed CRITICAL?) | A registered clinician practising in Rwanda | Protocol §3–4; the pilot; every gate verdict; the queue design's clinical basis |
+| H6a | Lead clinician: **is there a validated report-based urgency instrument?** (added 2026-09-15) | **Question:** does any **validated** instrument exist for assigning urgency from a symptom report **without examination**, for example a telephone or nurse-advice-line triage protocol? **Is any such protocol in use in Rwanda?** If yes, the document itself, cited by section and page and placed in `docs/clinical/`, with its validation evidence and its population (age range). **If yes, that instrument replaces ETAT as the clinical anchor.** **UNVERIFIED LEAD:** the example is yours, not a finding. I have not verified that any such instrument exists, is validated, or is used in Rwanda, and nothing in the repo mentions one (`TAXONOMY_SCOPE.md` §2b). Do not cite one until the document is in hand (L5, L16). | Lead clinician (H6); RBC / MoH (H4) | The clinical anchor for labels (D7 §3); whether `reports/CONSTRUCT.md` is needed at all or is superseded by that instrument; E6; A27 rewording |
 | H7 | Kinyarwanda clinicians (B6, D4) — first | Authors for about 1,300 items. Two annotators (about 11–16 h each, estimated). One adjudicator. Nobody labels their own items. | Native-speaker clinicians (see CLINICIAN_BRIEF) | Kinyarwanda test set, κ, gates 5 (KW) and 9, calibration, and any retraining (R5) |
 | H8 | EN / FR / SW clinicians (B6, D4) | The same roles per language. Swahili needs TZ and KE variants. | Native-speaker clinicians | Gates 5 (EN/FR/SW) and 10–12. §16's hard gate needs all four. |
 | H9 | Bilingual raters per mixed pair (D4) | Authors and annotators for 6 code-switch pairs; naturalness ratings ≥ 2 raters per pair | Bilingual speakers of each pair | Gate 13; the code-switching claim |

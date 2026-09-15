@@ -1,39 +1,144 @@
 # Taxonomy scope — which patients the three urgency classes are defined for
 
-**Status 2026-09-15: decision deferred at your instruction (E6/E7 below); corpus measurement added (§8).** Nothing in this document is a clinical
+**Status 2026-09-15: decision deferred at your instruction (E6/E7 below); corpus measurement added (§8); ETAT
+manual read and cited (§2), and a MODALITY mismatch recorded separately from the age mismatch (§2a).** Nothing in this document is a clinical
 definition. Where a clinical fact is needed, it names the document that must supply it.
 
 ## 1. The defect
 
 CLAUDE.md §18 defines ETAT as the *"WHO framework used in Rwandan health centres; basis for the 3-class
 taxonomy"*. The same specification applies that taxonomy to every patient: registration takes any age (§7.4 form: 1–120;
-§8.2 `patients` CHECK: 1–129), and the population is "14M+ Rwandans" (§4.1). You report that WHO ETAT and
-Rwanda's ETAT+ are paediatric frameworks, for newborns and children. If so, the specification defines adult
-urgency from a framework that does not cover adults.
+§8.2 `patients` CHECK: 1–129), and the population is "14M+ Rwandans" (§4.1). You reported that WHO ETAT and
+Rwanda's ETAT+ are paediatric frameworks, for newborns and children.
 
-## 2. What ETAT / ETAT+ actually covers — PENDING the document
+**The WHO ETAT manual confirms this for ETAT (§2).** It covers sick children from newborns ("under two months" is
+a priority sign), does not address adults, and does not state an upper age. The specification therefore defines
+adult urgency from a framework that does not cover adults. ETAT+ is still unread: no document is present.
 
-**Not yet citable.** `docs/clinical/` does not exist in the repository as of 2026-09-15. Per L5 this section
-states nothing from memory. When the WHO ETAT Participant Manual is placed, fill in:
+**A second, separate defect: modality (§2a).** ETAT is defined on examination signs, and KinyaMed classifies
+unexamined text.
 
-| Question | Answer (verbatim or close paraphrase) | Document, section, page |
+## 2. What ETAT actually covers — read from the manual, 2026-09-15
+
+**Source, the only one used in this section:** World Health Organization, *Emergency Triage Assessment and
+Treatment (ETAT). Manual for participants*. © WHO 2005, ISBN 92 4 154687 5, "All rights reserved" (p. II).
+- **File:** `docs/clinical/participant_manual.pdf`, SHA-256
+  `9f2c85bf95925dd29905372bb8d650aae696a4af05dc0f32c55c1f602154c104`.
+- **Completeness, checked before use:**
+  - `pdfinfo`: 83 pages, not encrypted, `%%EOF` present.
+  - `pdftotext` extracted every page without error.
+  - Printed pages 1–78 are all present in sequence, and PDF page = printed page + 5 throughout. Front matter is
+    cover, I–IV.
+  - The three near-empty pages (PDF 59, 63, 83 = printed 54, 58, 78) were rendered and are blank versos
+    carrying only a page number.
+  - The table of contents (pp. III–IV) ends at Chart 11, p. 77, and that chart is present.
+- **Not in this file:** the companion *Facilitator guide* (ISBN 92 4 154688 3, p. II).
+- **Citation form:** *printed page (PDF page)*. Quotations are verbatim from the extracted text. Nothing here is
+  from memory. A blank cell names the document that would fill it.
+
+| Question | Answer from the manual | Section, page |
 |---|---|---|
-| Stated target population / age range | PENDING | PENDING |
-| Triage categories and their names | PENDING | PENDING |
-| Criteria for each category | PENDING | PENDING |
-| Does it address adults? | PENDING | PENDING |
-| Does it assume physical examination by a trained health worker? | PENDING | PENDING |
-| ETAT+ (Rwanda): which document, and what it adds | PENDING (no ETAT+ document listed for placement) | PENDING |
+| **Stated target population** | **Sick children presenting to a hospital or health facility.** "a process of rapid triage for all children presenting to hospital" · "Triage all sick children when they arrive at a health facility" · chart title "Triage of all sick children". Published by the WHO Department of Child and Adolescent Health and Development; catalogued under "Child health services". | Introduction, p. 1 (PDF 6); Learning objectives, p. 2 (PDF 7); Annex 3, Chart 2, p. 67 (PDF 72); cover (PDF 1); p. II (PDF 3) |
+| **Age range** | **Lower end:** "Tiny baby: any sick child aged under two months" is a priority sign, so newborns are in scope. **Upper age limit: not stated.** The manual never defines what age "child" ends at. The ages that do appear are bands for specific tasks: infant "under 12 months" (airway positioning), "infant (less than one year of age)" (pulse), fluid volumes for "infants (aged <12 months)" and "children (aged 12 months to 5 years)". The oldest case in the manual is "a 10-year old boy". | Priority signs, p. 4 (PDF 9) and p. 6 (PDF 11); Module Two, p. 16 (PDF 21); Module Three, p. 27 (PDF 32); Chart 11, p. 77 (PDF 82); Assessment questions: Circulation Q9, p. 33 (PDF 38) |
+| Upper age limit, **blank** | — | **Not in this document.** The manual says its guidelines are contained in WHO *"Management of the child with a serious infection or severe malnutrition"* and the *"Pocketbook of hospital care for children"* (p. 2, PDF 7). Neither is in `docs/clinical/`. Rwanda's ETAT+ materials, if they exist as a document, could also state it. Whether any of these does is unverified. |
+| **Exact triage category names** | Table "Categories after triage": **EMERGENCY CASES** ("Need immediate emergency treatment"), **PRIORITY CASES** ("Need assessment and rapid attention"), **NON-URGENT CASES** ("Can wait their turn in the queue"). Short forms: "E Emergency · P Priority · Q Queue (non-urgent)". Chart 2's headings are "EMERGENCY SIGNS", "PRIORITY SIGNS", "NON-URGENT". The manual mentions colour as an option only: "a red sticker to emergency cases, a yellow for priority and green for the queue". | Module One, p. 4 (PDF 9); p. 3 (PDF 8); p. 8 (PDF 13); Chart 2, pp. 67–68 (PDF 72–73); colours p. 5 (PDF 10) |
+| **Criteria for each category** | **Emergency ("ABCD")**, from Chart 2: (1) airway and breathing: obstructed breathing, or central cyanosis, or severe respiratory distress; (2) circulation: cold hands with capillary refill longer than 3 seconds and a weak, fast pulse; (3) coma, or convulsing (now); (4) severe dehydration, "only in child with diarrhoea": diarrhoea plus any two of lethargy, sunken eyes, very slow skin pinch. **Priority ("3 TPR-MOB")**: tiny baby (<2 months); temperature very high; trauma or other urgent surgical condition; pallor (severe); poisoning (history of); pain (severe); respiratory distress; restless, continuously irritable, or lethargic; referral (urgent); malnutrition: visible severe wasting; oedema of both feet; burns (major). **Non-urgent**: "no emergency or priority signs". The manual says priority signs "might need to be adapted" to local epidemiology. | Chart 2, pp. 67–68 (PDF 72–73); Module One, pp. 3–4 (PDF 8–9) |
+| **Does it address adults?** | **No, not as a triage population.** Every category, sign and chart concerns children. "Adult" appears only for equipment: adult-size nasal prongs (p. 21, PDF 26), adult IV giving sets (p. 46, PDF 51), adult self-inflating bags (p. 65, PDF 70). The only wider reference concerns the improvement process, not triage criteria: "Lessons learned in this process can be applied to other areas of child health in hospital and to care of other patient groups." | pp. 21, 46, 65; Introduction, p. 2 (PDF 7) |
+| **Examination signs, or a verbal description?** | **Physical examination signs, observed or elicited by a health worker with the child present.** Definition: "Triage is the process of rapidly **examining** all sick children when they first arrive in hospital". "Triage of patients involves **looking for signs** of serious illness or injury." "The health worker **looks at the child, observes the chest** for breathing and priority signs such as severe malnutrition **and listens** to abnormal sounds such as stridor or grunting." Each emergency sign is elicited by hand or eye: "take the child's hand in your own" (warm hands); pressing the nail bed and timing the refill (capillary refill); calling, shaking and "a firm squeeze to the nail bed" (AVPU); pinching the abdominal skin (skin pinch); "comparing the child's palms with your own" (pallor). **On convulsion the manual rules explicitly against history:** "This assessment depends on your observation of the child and not on the history from the parent. Children who have a history of convulsion, but are alert during triage, need a complete clinical history and investigation, but no emergency treatment for convulsions. The child must be seen to have a convulsion during the triage process or while waiting in the outpatient department." | Module One, p. 3 (PDF 8), p. 4 (PDF 9); Module Three, p. 26 (PDF 31); Module Four, pp. 35–36 (PDF 40–41); Module Five, p. 44 (PDF 49); p. 7 (PDF 12) |
+| — where history is used | **Asked of the mother or caretaker, in person, as an adjunct to the examination.** Whether the child has diarrhoea ("This information comes from the parent or guardian"), which gates the dehydration signs. The child's age "If the child appears very young". Poisoning ("The mother will tell you"). Urgent referral ("Ask the mother if she was referred … and for any note"). Head or neck trauma ("Ask if the child has had trauma"). Choking ("Ask the child's caretaker explicitly for a history of choking"). Whether a sleeping child "is just sleeping". Whether the eyes are "more sunken than usual". **In each case, a sign on the examined child is still assessed**, except the tiny-baby age, poisoning and referral priority signs, which can rest on history alone. | p. 43 (PDF 48); p. 6 (PDF 11); p. 7 (PDF 12); p. 16 (PDF 21), p. 8 (PDF 13); p. 14 (PDF 19); p. 35 (PDF 40); p. 44 (PDF 49) |
+| **Does it address triage from a remote or written report?** | **No.** Triage happens on arrival: "as soon as a sick child arrives in the hospital, well before any administrative procedure such as registration", in "the outpatient queue, in the emergency room, or in a ward". The extracted text of all 83 pages contains **no** occurrence of *telephone, phone, radio, remote, SMS* or *mobile*. The one written document the manual mentions is a referral note that the mother brings. The note is read at the triage point with the child present: "Read the note carefully and determine if the child has an urgent problem." | Module One, "When and where should triaging take place?", p. 5 (PDF 10); Urgent Referral, p. 7 (PDF 12) |
+| Remote or written-report triage, **blank** | — | **Not in this document.** It would need a MoH/RBC protocol for remote, pre-arrival or telephone triage, if one exists (H4), or the lead clinician's ruling (H6). None is in `docs/clinical/`. |
+| Who triages | "Triage may be done in 15-20 seconds by medical staff or by non-medical staff (after appropriate training) as soon as the child arrives" · "gatemen, record clerks, cleaners, janitors who have early patient contact should be trained in triage for emergency signs" | Introduction, p. 1 (PDF 6); p. 5 (PDF 10) |
+| **Rwanda / ETAT+** | **Not addressed.** The manual does not mention Rwanda. It names its development and field-test countries as Malawi, Angola, Brazil, Cambodia, Indonesia, Kenya and Niger. Whether this 2005 edition is the one used in Rwandan facilities is not stated. | p. 2 (PDF 7) |
+| ETAT+ content, **blank** | — | **Not in this document.** It needs Rwanda's ETAT+ training materials (H3). None is in `docs/clinical/`. |
 
-The last two questions matter to this project in particular. KinyaMed classifies a **patient's or carer's text**.
-A framework whose categories depend on signs a health worker observes may not be applicable to text at all.
-That is a question for the lead clinician (H6), not something I can decide.
+## 2a. MODALITY mismatch — separate from the age mismatch
+
+**ETAT is defined on physical examination signs, not on a reported description of symptoms.** Its categories
+are assigned by a trained person who examines the child on arrival (§2, pp. 3–4). The emergency signs are
+things that person sees, hears, feels, presses or times on the child. KinyaMed receives text written or relayed
+by a patient or carer, and nobody examines the patient before the classification.
+
+These are two different mismatches:
+
+| | Age mismatch (§1) | **Modality mismatch (this section)** |
+|---|---|---|
+| What differs | who the patients are | **what the categories are defined on** |
+| ETAT | sick children; upper age not stated (§2) | examination signs, elicited in person, at arrival (§2) |
+| KinyaMed | all ages (form 1–120) | an unexamined text report, possibly from someone other than the patient |
+| Could data fix it? | Partly: a paediatric-scoped, natively authored corpus could match ETAT's population | **No.** A larger or better corpus improves how text is classified. It cannot make a category defined on capillary refill, AVPU response to pain, skin pinch or an observed convulsion apply to text that nobody examined. |
+| Could an age rule fix it? | Yes, if E6 chooses (a) or (c) | **No.** It applies to children and adults alike |
+
+**What the manual itself says about the gap, and no more than that:**
+- For **convulsion**, it rules that a parent's history does **not** establish the emergency sign. The child "must
+  be seen to have a convulsion during the triage process" (p. 36, PDF 41).
+- For the **other emergency signs**, it does not discuss whether a carer's description can stand in for the
+  health worker's observation (for example "his lips are blue" for central cyanosis). It is silent, not
+  permissive. Deciding that equivalence is a clinical question (L16), and I have not answered it.
+- **Three priority signs rest on history** (tiny baby by age, poisoning, urgent referral), per pp. 6–7. These
+  are the only ETAT criteria the manual shows being assigned from what someone says.
+
+**What this does to the question for the lead clinician (H6).** The earlier question was "map ETAT's
+categories to CRITICAL / URGENT / ROUTINE, and does it apply to text?" The manual answers the second half: it
+does not describe text at all. The questions become:
+1. Is there **any validated basis** for assigning urgency from an unexamined text or verbal report, for children
+   or adults, in use in Rwanda? If so, which document? (Not ETAT, per §2.)
+2. If there is none, **what may a text-based classification claim to be?** For example, a pre-examination hint
+   that never replaces ETAT at the door. This is a product and clinical-safety question. I have not decided it.
+3. If ETAT is kept as a reference at all, **which carer descriptions, if any, count as equivalent to an ETAT
+   sign**, sign by sign? And who validates that mapping?
+
+**Consequences recorded, nothing changed:**
+- **E6 is not decided.** Options (a) and (c) in §4 both assumed ETAT could be the clinical basis, subject to H6
+  confirming it applies to text. The manual now makes that confirmation unlikely in the form it was asked.
+  So (a) does not escape the modality question.
+- The same question applies to IMCI, BEC, MCPC and ESI (§3). Each is cited in the repo, none is in the repo,
+  and whether each is examination-based is **unverified**.
+- The evaluation-set label definitions (EVAL_SET_SPEC, D7 protocol §3) cannot be drawn from ETAT's criteria as
+  written, because an annotator reading a vignette cannot examine anyone.
+- CLAUDE.md §18 ("ETAT … basis for the 3-class taxonomy") is contradicted by the document on **two** counts, age
+  and modality. SRS correction A21 needs both.
+
+## 2b. Construct-validity gap — nothing in the repo authorises urgency from an unexamined written report
+
+**Stated plainly: no document currently in this repository authorises assigning urgency to a patient from a
+written symptom report by someone who has not examined that patient.** Everything the system does after
+receiving text rests on that missing authority.
+
+**Checked on 2026-09-15:**
+- `docs/clinical/` holds one file, the WHO ETAT participant manual (§2).
+- `docs/compliance/` does not exist.
+- The only PDFs anywhere under `kinyamed/` are that manual and the project's own paper (`ml_model/paper/main.pdf`).
+- No tracked file mentions telephone triage, nurse advice lines, tele-triage or remote triage, other than this
+  file and STATE.md.
+
+| Instrument | In the repo? | Bedside or report-based | Authority for text triage |
+|---|---|---|---|
+| **WHO ETAT** (2005 participant manual) | **yes**, `docs/clinical/participant_manual.pdf` | **Bedside examination.** "Triage is the process of rapidly examining all sick children when they first arrive in hospital" (Module One, p. 3, PDF 8). On convulsion: "This assessment depends on your observation of the child and not on the history from the parent … The child must be seen to have a convulsion during the triage process" (Module Four, p. 36, PDF 41). | **None.** It requires examination and does not address remote or written reports (§2). |
+| **WHO IMCI Chart Booklet 2014** | **no** | Bedside, as you report it. **Not verifiable here: the document is absent.** | none that can be cited |
+| **WHO-ICRC Basic Emergency Care 2018** | **no** | Bedside, as you report it. The repo's own summary is consistent with that but is not the document: "first-contact providers", "ABCDE and SAMPLE history" (`ml_model/docs/clinical-anchors.md:15–16`, `:20`). **Not verifiable here: the document is absent.** | none that can be cited |
+| WHO MCPC 2017, ESI, Manchester Triage System | **no** | not verified | none that can be cited |
+
+**This is a construct-validity gap, not a data gap.** The labels CRITICAL / URGENT / ROUTINE are meant to
+measure a clinical construct. The only construct the repo can cite, ETAT's categories, is defined by an
+examination that never happens in this system. Consequences:
+- **No dataset fixes it.** More rows, native authoring, clinician labels and higher κ all make the labels more
+  reliable. None of them makes the labels measure an examination-defined category, because the input lacks
+  the examination.
+- **No model fixes it.** A perfect classifier of these labels would still be classifying something no
+  instrument defines.
+- **It is fixed only by choosing a construct that is defined on the input the system actually receives**, and
+  finding a document or clinical authority that supports it. `reports/CONSTRUCT.md` proposes one candidate; it is
+  not adopted. STATE.md adds the question of whether a validated report-based instrument exists (a lead, not
+  verified).
+
+**Not decided here:** E6, the construct, and any renaming. Nothing in the code was changed.
 
 ## 3. What the system currently claims to cover
 
 | Where | Claim | Age scope implied |
 |---|---|---|
-| CLAUDE.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope (paediatric, per your finding) |
+| CLAUDE.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope: sick children, upper age not stated (§2, from the manual). ETAT is defined on examination signs (§2a). |
 | CLAUDE.md §18 glossary | CRITICAL = "ESI 1–2", URGENT = "ESI 3", ROUTINE = "ESI 4–5" | ESI is the Emergency Severity Index, a different instrument from ETAT. The specification cites two incompatible bases. |
 | CLAUDE.md FR-01-01, §7.4, §8.2 `patients` | age collected; 1–120 on the form, CHECK 1–129 | all ages |
 | `ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md` | concepts anchored in WHO IMCI 2014 (children under five, per that file), WHO-ICRC Basic Emergency Care 2018 (recorded as "adult-inclusive"), plus clinician-defined concepts | mixed; no age field on any concept |
@@ -44,8 +149,9 @@ That is a question for the lead clinician (H6), not something I can decide.
 | D7 protocol, EVAL_SET_SPEC §11 | B1 = ETAT; B3 = "the adult triage tool, if not ETAT"; the adult question is flagged for the lead clinician | the defect was flagged, but not resolved |
 | Patient-facing text, `CURRENT_CAPABILITY.md` | no age scope stated anywhere | — |
 
-**None of the source documents above (IMCI, BEC, MCPC, ESI) is in the repository.** Their scopes are recorded
-here as the repo describes them. I have not verified them.
+**None of the other source documents above (IMCI, BEC, MCPC, ESI) is in the repository.** Their scopes are
+recorded here as the repo describes them. I have not verified them, including whether each is examination-based.
+Only ETAT has been read (§2).
 
 ## 4. Options
 
@@ -156,7 +262,9 @@ clinical logic of (a) is unchanged: it is still the only option whose framework 
 
 What would change this recommendation:
 - H6 says ETAT's categories cannot be applied to text descriptions. Then (a) has no basis either, and scope must
-  be rethought with the clinician.
+  be rethought with the clinician. **Update 2026-09-15:** the manual defines ETAT on examination signs and never
+  mentions remote or written-report triage (§2, §2a). This is the likelier outcome, and the question to H6 is
+  now the one set out in §2a. E6 stays undecided.
 - The Internal Medicine guidelines turn out to contain a usable adult triage scheme. Then (c) becomes feasible
   sooner.
 
