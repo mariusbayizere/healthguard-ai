@@ -180,6 +180,62 @@ listed red-flag phrase for "cannot breathe" that it is safe to wait.** Nothing f
 
 ---
 
+### 3.3 Reproducible measurement after micro-batching (2026-09-15) — supersedes §3.1 for the served path
+
+**Reproducible.**
+- Script: `backend/scripts/benchmark_inference.py`. Output: `reports/measurements/inference_benchmark/`
+  (`results.json`, and gate-ready `latency_batch*.json` / `memory_batch*.json`).
+- Root-cause check: `backend/scripts/diagnose_inference_path.py`, output `path_diagnosis.txt`.
+
+**Method**
+- The backend's own `ModelClassifier`, in-process: v2d at `max_length` 96, 2 torch threads.
+- 1,000 corpus texts (seed 42); closed loop with 1,000 timed requests per level.
+- p50/p95/p99 nearest-rank, each with a 95% bootstrap interval over requests.
+- "Serialised" is the same engine at `max_batch_size=1`: one worker, one forward pass at a time, exactly what the
+  removed lock did. "Micro-batched" is `max_batch_size=16`, with a 5 ms window.
+
+**Machine: not the target.** No target hardware is named (STATE.md H15).
+- **CPU:** Intel Core i5-6200U, **2 physical cores, 4 logical** (2 threads per core); 7,825 MB RAM.
+- **Memory state:** 3,870 MB available before model load, about 820 MB of swap already in use; 2,761–3,478 MB
+  available across the levels; lowest 1,585 MB (during load).
+- **The machine was not idle.** Load average was 2.7–4.2 on 2 cores, with Chrome running, during the runs and the
+  diagnosis. **These are upper bounds on a loaded laptop, not best cases.**
+
+**Cold start:** model load 31.5 s; first inference 705 ms; peak RSS 1,283 MB.
+
+**Equivalence.** Batching does not change what the model says: 200 texts, **0 argmax disagreements** between single
+and padded-batch inference; largest probability difference 2.4 × 10⁻⁷.
+
+| Concurrent | Serialised p50 (ms) | p95 | p99 | req/s | Micro-batched p50 (ms) | p95 | p99 | req/s |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 162 [157, 167] | 305 [289, 326] | 451 [388, 532] | 5.58 | 171 [166, 177] | 366 [344, 385] | 560 [478, 608] | 5.03 |
+| 10 | 1,548 [1,516, 1,576] | 2,552 [2,421, 2,616] | 3,036 [2,808, 3,220] | 5.98 | 1,015 [998, 1,026] | 1,697 [1,681, 1,955] | 2,268 [2,257, 2,561] | 9.04 |
+| 50 | 9,851 [9,715, 9,921] | 13,223 [13,098, 13,309] | 14,479 [14,189, 14,535] | 5.03 | **3,694 [3,685, 3,724]** | **4,988 [4,911, 5,101]** | 5,511 [5,400, 5,548] | **12.8** |
+
+Peak RSS at 50 concurrent: 1,334 MB serialised, 1,382 MB micro-batched. Gate 15's < 2 GB holds on this machine, but
+the gate cannot record MET until H15 names the target hardware.
+
+**Findings**
+1. **The serialisation defect is real and reproduced:** serialised p50 at 50 concurrent is 9.9 s (§3.1's
+   unreproducible 7.9 s was the same defect). Micro-batching cuts it to 3.7 s and raises throughput from 5.0 to
+   12.8 requests per second, 2.5×.
+2. **The ceiling is CPU, not the lock.**
+   - Serialised throughput is flat at 5.0–6.0 requests per second at every concurrency level. That is one worker
+     saturating the CPU.
+   - With batching, latency at 50 concurrent is about concurrency ÷ throughput (50 / 12.8 = 3.9 s, measured
+     3.7 s). The engine adds about 7 ms: direct forward p50 158 ms against 165 ms through the engine, same process,
+     interleaved.
+3. **The older 66 ms record** (`training/latency_v2d.json`, 2026-09-08, same CPU, same work) **is not
+   contradicted by the code.** The difference is machine state: two diagnosis runs minutes apart gave direct p50 133
+   and 158 ms as load rose. A clean, idle re-run is needed before any figure represents this CPU.
+4. **The latency NFR cannot be met on this hardware, at any concurrency, batched or not.** See SRS correction A29 in
+   STATE.md.
+   - At 1 concurrent the p50 interval [157, 167] ms lies wholly above 150 ms, and p95 is 305 ms against 200.
+   - Even the repository's cleanest record (66 / 103 ms, one request at a time) fails at 50 concurrent. Holding p50
+     at 150 ms with 50 requests in flight needs about 50 / 0.15 ≈ 333 requests per second. Measured capacity is 12.8
+     (about 26× short); even on the cleaner record with the measured 2.5× batching gain it would be about 38 (about
+     9× short).
+
 ## 4. Quality — held-out test set
 
 > **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.

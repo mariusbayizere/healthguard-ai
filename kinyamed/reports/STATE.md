@@ -1148,15 +1148,58 @@ Test-first in three steps. **Every term in every test is fictional** ("zorblax f
 - **Open, not built:** the staff UI does not yet show that a case was escalated by the rules layer. The data is
   stored; the display is a follow-up.
 
+## D — item 5b: serialisation fixed (`82bf6db`); latency and memory measured; NFR unreachable on this hardware
+
+**Micro-batching** (`82bf6db`). Correctness came before any latency measurement.
+- One worker thread owns the model. Each caller owns its request object; results are assigned by position only after
+  a one-result-per-input check.
+- Tests use a fake forward: 15 unit tests, red first. They cover 1,000 concurrent requests and 12 adversarial
+  rounds with random jitter, batch limits, wait windows and worker counts, and results never cross. A late result
+  after a timeout never reaches a later request.
+- A raising or wrong-count forward fails every caller in the batch; a timeout raises `InferenceTimeoutError`.
+- Mutation checks: crossed results, fail-open on error, and removing the count check are each caught.
+- Stable over 5 repeated runs.
+- **Fail-closed path, confirmed single:** `InferenceTimeoutError` and forward errors are caught in
+  `triage_service._classify` and re-raised as `TriageModelUnavailableError`, the same 503 as item 1.
+  - Service-level: `test_a_batch_error_or_timeout_fails_triage_closed[error|timeout]`.
+  - HTTP-level: `test_a_batched_inference_timeout_fails_closed_through_the_same_path`, which asserts
+    TRIAGE_MODEL_UNAVAILABLE, Retry-After, no detail leaked, nothing written. Characterisation; it passed on first
+    run.
+
+**Measurement** (MODEL_AUDIT §3.3; `backend/scripts/benchmark_inference.py`, tests `test_benchmark_inference.py`
+red first).
+- Machine: i5-6200U, 2 physical / 4 logical cores, 7.8 GB, loaded (load 2.7–4.2, Chrome), about 820 MB swap in
+  use. **Not the target (H15).**
+- Batching changes no result: 0 of 200 argmax disagreements.
+
+| Concurrent | Serialised p50 / p95 (ms) | req/s | Micro-batched p50 / p95 (ms) | req/s |
+|---|---|---|---|---|
+| 1 | 162 [157, 167] / 305 [289, 326] | 5.58 | 171 [166, 177] / 366 [344, 385] | 5.03 |
+| 10 | 1,548 [1,516, 1,576] / 2,552 [2,421, 2,616] | 5.98 | 1,015 [998, 1,026] / 1,697 [1,681, 1,955] | 9.04 |
+| 50 | 9,851 [9,715, 9,921] / 13,223 [13,098, 13,309] | 5.03 | 3,694 [3,685, 3,724] / 4,988 [4,911, 5,101] | 12.8 |
+
+- **Root cause:** a CPU ceiling, with the lock making it worse. Serialised throughput is flat at about 5–6
+  requests per second. Batching gives 2.5× throughput and cuts p50 at 50 concurrent from 9.9 s to 3.7 s.
+- The engine adds about 7 ms: direct forward p50 158 ms against 165 ms through the engine
+  (`diagnose_inference_path.py`). The older 66 ms record differs by machine state, not code. A clean idle re-run is
+  needed.
+- **Verdict: p50 < 150 / p95 < 200 ms at 50 concurrent is unreachable on this hardware, at any concurrency, batched
+  or not.** Recorded as **SRS correction A29, a spec defect, not a model defect.**
+  - The target needs about 333 req/s at 50 in flight; measured capacity is 12.8, about 26× short.
+  - The hardware reasoning in A29 is labelled unmeasured. The target was **not** tuned.
+- Memory at 50 concurrent: 1,382 MB, under 2 GB, but gate 15 cannot be MET without H15.
+- The gate reads the new files: gate 14 NOT MET and gate 15 NOT DEMONSTRATED, each "no target hardware named, H15".
+
 ## Next — single action
 
-**D: item 5b.**
-- Latency and memory benchmark: a committed script, target CPU stated, memory state recorded.
-- Fix the single-lock serialisation in `ModelClassifier`, test-first.
+**E: the `max_length` 96 vs 512 train/serve mismatch.** Test first: the model directory records its training length,
+and the backend refuses to start on a mismatch. Then 5c.
 
-Then 5c, then E.
-
-Waiting on you: H21 (the Alembic merge), branch protection, and H6 (red flag with no model).
+Waiting on you:
+- **H15, now informed by A29:** name the target CPU, and restate the latency NFR as a measured arrival rate;
+- H21 (the Alembic merge);
+- H6 (red flag with no model);
+- branch protection.
 
 ## Blocked on you (unchanged)
 
@@ -1266,6 +1309,7 @@ Every "measured" value comes from a run in this session (see the Phase 0 reports
 | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 70 carry an anchor" and table total "Anchored concepts & 70" (`method.tex:109`, `:121`). Same claim in the clinician pack: "70 of 128 concepts carry a published anchor" (`ml_model/docs/protocols/d2-clinician-review-pack.md:98`). | **Actual sum:** the four table rows are 24 + 15 + 11 + 20 = 70 (`method.tex:116–119`; `related_work.tex:34–37`). But the fourth row (20) is "Clinician-defined, no WHO anchor", so **concepts with a document anchor = 24 + 15 + 11 = 50, not 70.** Other repo counts disagree: `clinical-anchors.md:35–37` IMCI 28, BEC 18, 22 unanchored, of 68 general concepts; `licensing.md:27–30` IMCI 29, clinician-defined 23, BEC 18, MCPC 10, of 80; `licensing.md:183–188` IMCI 28, 22, BEC 18, MCPC 10, "78 anchored" of 127 (that 78 also counts the 22 as anchored). The paper (128), `licensing.md` (127, 80) and `triage-taxonomy.md` (126 slots, 80 new concepts) each state a different concept total. | Re-derive every count from `review/concepts.py` / `concept_anchors.csv` with a script; count clinician-defined concepts as unanchored; one number everywhere. **No paper submission until done.** |
 | A27 | **The system is called "triage", and ETAT is cited as its basis**, across the spec, README, paper, UI, API and clinician-facing documents (inventory below). | **No document in the repo authorises assigning urgency from an unexamined written report** (`TAXONOMY_SCOPE.md` §2b). ETAT, the only instrument present, is defined on examination (manual p. 3, p. 36). The system receives text and examines nobody. **Full line inventory:** `reports/measurements/triage_wording_inventory.py` → `.txt`: 895 matching lines in 153 files, most of them code identifiers. This snapshot was taken before this A27 entry and `TAXONOMY_SCOPE.md` §2b were written. Re-running now gives 972; all 77 extra lines are in those two audit reports. **Patient-facing text contains none:** 0 occurrences in `backend/app/services/patient_message.py`, `response_templates.py` and the four `ml_model/review/speaker_brief_*_v2_responses.csv` template files. | **Listed only; no wording changed, no code renamed.** Choose the construct first (`reports/CONSTRUCT.md`, lead-clinician decision), then reword from this inventory. Uses of "triage manually" that refer to **staff** triaging in person are a different thing, and may be correct as they stand. |
 | A28 | **The two hard safety thresholds were specified without checking they can be measured, and neither has a source.** CRITICAL recall ≥ 0.91 in each pure language: CLAUDE.md §9.2 #5 (`:643`), FR-04-04 (`:296`), FR-01-07 (`:245`), §15 (`:854`), §16 (`:872`). CRITICAL→ROUTINE < 1.0%: L3 (`:49`), §9.2 #7 (`:645`), §16 (`:873`). | **Required n**, from `ml_model/training/eval_spec.py`: exact Clopper–Pearson, 80% power for the 95% bound to clear the threshold. **Gate 5 (recall ≥ 0.91), gold CRITICAL per pure language:** **365** at a true recall of 0.95 (test-verified by `test_stored_minimums_are_the_derived_ones`); 1,535 at 0.93 and 145 at 0.97 (stated in the requirement's rationale, not re-run 2026-09-15). **An observed recall of exactly 0.91 never clears, at any n.** **Gate 7 (rate < 1.0%), gold CRITICAL:** **720** at a true rate of 0.2% (test-verified); 368 if zero events are observed (`test_zero_events_in_368_bounds_a_rate_below_one_percent`); 2,470 at a true 0.5% (rationale). Per language (E8), each pure language needs its own 720. **What the SRS designed:** n = 100,000 overall (§9.2 #1, `:639`) and "≥ 10,000 per language in the test set" (§9.1, `:617`). Neither size was derived from these thresholds, and no per-class count was given. What was actually built and reported on: **4 CRITICAL sentences in Kinyarwanda, 0 in any other language** (DATASET_AUDIT §10), where gate 5 needs 365 and gate 7 needs 720 per language. **Source:** none in the repository for 0.91 or 1.0%. The earlier repo gate of 0.95 is marked "Inherited; source not verified" (`paper/generated/gate_derivation.tex:25`, `training/run_records/protocol.json:241`). See C7. | Cite a clinical source for each threshold, or have the lead clinician ratify each with a written rationale (H6). Size the test set from the ratified thresholds, as EVAL_SET_SPEC does, not the reverse. Any threshold change must re-run `eval_spec.py --verify`. Never tune a threshold to the data available. |
+| A29 | **The latency NFR was specified without measurement against a named hardware spec**, the same failure as A28's thresholds. CLAUDE.md FR-04-05 (`:297`): inference p50 < 150 / p95 < 200 / p99 < 300 ms "on CPU-only hardware" at 50 concurrent; §6.1 (`:336`) ML inference p50 < 150 / p95 < 200 ms; §9.2 gate 14 (`:652`) p50 / p95 < 150 / < 200 ms "on CPU". The end-to-end targets at 50 concurrent share the flaw: FR-01-05 (`:243`) triage p95 < 250 ms; §6.1 (`:335`) API p50 < 200 / p95 < 350 / p99 < 500 ms. None names a CPU, core count, or arrival rate; H15 is still open. | **Measured** (MODEL_AUDIT §3.3; `backend/scripts/benchmark_inference.py`; i5-6200U, 2 physical / 4 logical cores, loaded laptop, about 820 MB swap in use). **Achievable after micro-batching** — p50 / p95 in ms, 95% intervals: **1 concurrent** 171 [166, 177] / 366 [344, 385]; **10 concurrent** 1,015 [998, 1,026] / 1,697 [1,681, 1,955]; **50 concurrent** 3,694 [3,685, 3,724] / 4,988 [4,911, 5,101]; throughput 12.8 req/s at most. **Concurrency this machine supports within p50 < 150 / p95 < 200: none measured.** Even a single serialised request missed: p50 162 [157, 167], p95 305 [289, 326]. The older record (`training/latency_v2d.json`, warm p50 66 / p95 103, one request at a time) suggests one request at a time could pass on an idle machine; that needs a clean re-run. **What the stated target would require, reasoned, not measured:** with 50 requests continuously in flight, latency ≈ 50 ÷ throughput, so p50 ≤ 150 ms needs ≳ 333 req/s. Measured capacity is 12.8, about **26× short**; on the cleaner record with the measured 2.5× batching gain it is still about 9× short. If throughput scaled linearly with physical cores (optimistic, unmeasured), that is about 18–52 physical cores of this class; alternatives such as a GPU, a smaller or distilled encoder, or INT8 quantisation are **unmeasured**. Batching does not change results: 0 argmax disagreements in 200 texts. **Not a model defect:** the limit is CPU capacity against a load figure nobody derived. | Do **not** tune the target. Decide H15 with this measurement: name the target CPU (cores, RAM) and write the NFR as an **arrival rate** a health centre actually sees (patients per minute at the busiest hour, measured), not "50 concurrent" closed-loop users. Then either choose hardware to meet the NFR at that rate, or restate the NFR for the hardware chosen, with a clinical lead ruling what latency is acceptable (H6). Re-run `benchmark_inference.py` on the named machine, idle. |
 
 #### A27 inventory — where the system is *described* as triage or as ETAT-based
 
