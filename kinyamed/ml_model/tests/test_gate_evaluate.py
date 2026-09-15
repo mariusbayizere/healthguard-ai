@@ -262,7 +262,12 @@ def test_check_gold_passes_a_set_built_to_the_allocation(tmp_path, capsys):
     gold, _ = _write(tmp_path, _full_allocation())
     assert gate.main(["--gold", str(gold), "--check-gold"]) == 0
     out = capsys.readouterr().out
-    assert "SUFFICIENT (400 distinct" in _line(out, "CRITICAL recall [kinyarwanda]")
+    critical = next(
+        a for a in spec.TEST_ALLOCATION if a.language == "kinyarwanda"
+    ).critical
+    assert f"SUFFICIENT ({critical} distinct" in _line(
+        out, "CRITICAL recall [kinyarwanda]"
+    )
 
 
 def test_inference_is_refused_before_the_model_is_loaded(tmp_path, capsys):
@@ -390,15 +395,16 @@ def test_every_pooled_gate_is_also_gated_per_pure_language(tmp_path, capsys):
             assert f"{name} [{lang}]" in out, f"no row for {name} [{lang}]"
 
 
-def test_the_designed_allocation_cannot_clear_per_language_critical_to_routine(
+def test_the_designed_allocation_clears_per_language_critical_to_routine(
     tmp_path, capsys
 ):
-    """400 CRITICAL per pure language (EVAL_SET_SPEC §6) is below gate 7's 720, so a
-    perfect model on the designed test set is still blocked per language. This is a
-    specification conflict recorded for decision, not a bug to route around."""
+    """E8: 800 CRITICAL per pure language clears gate 7's 720 in each language. The
+    per-language URGENT rows are still short (E8b, open), so deployment stays blocked."""
     code, out = _run(tmp_path, _full_allocation(), capsys=capsys)
-    line = _line(out, "CRITICAL -> ROUTINE rate [kinyarwanda]")
-    assert "INSUFFICIENT DATA (n=400, need 720)" in line
+    assert "INSUFFICIENT" not in _line(out, "CRITICAL -> ROUTINE rate [kinyarwanda]")
+    assert "INSUFFICIENT DATA (n=300, need 570)" in _line(
+        out, "URGENT recall [kinyarwanda]"
+    )
     assert "Deployment BLOCKED" in out
     assert code == 1
 
@@ -590,7 +596,10 @@ def test_reliability_diagram_is_written_only_with_enough_items(tmp_path, capsys)
     _run(big, _full_allocation(confidence=0.8), "--out", str(big / "r"), capsys=capsys)
     svg = ET.parse(big / "r" / "reliability.svg").getroot()
     bars = [el for el in svg.iter() if el.get("class") == "bin"]
-    assert sum(int(b.get("data-count")) for b in bars) == 4900
+    assert (
+        sum(int(b.get("data-count")) for b in bars)
+        == spec.allocation_totals(spec.TEST_ALLOCATION)["items"]
+    )
     report = json.loads((big / "r" / "gate_report.json").read_text())
     assert any(r["gate"] == "X-ECE" and r["point"] is not None for r in report["rows"])
 

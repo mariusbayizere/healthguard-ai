@@ -46,8 +46,41 @@ def test_power_rises_with_n_and_with_the_true_value() -> None:
     assert spec.power_at_least(365, 0.97, 0.91) > spec.power_at_least(365, 0.95, 0.91)
 
 
-def test_the_allocation_meets_every_minimum_fixed_in_advance() -> None:
-    assert spec.check_allocation_meets_requirements() == []
+# E8, ruled 2026-09-15: CRITICAL -> ROUTINE is gated per pure language, never
+# pooled only, so each pure language needs its own 720 gold CRITICAL items.
+def test_each_pure_language_has_at_least_800_critical_items() -> None:
+    by_lang = {a.language: a for a in spec.TEST_ALLOCATION}
+    for lang in spec.PURE_LANGUAGES:
+        assert by_lang[lang].critical >= 800, lang
+
+
+def test_the_allocation_check_covers_per_language_critical_to_routine(
+    monkeypatch,
+) -> None:
+    """The old 400-per-language allocation passed the pooled check (1,600 >= 720)
+    while every per-language gate 7 row was unmeasurable. The check must see that."""
+    old = tuple(
+        spec.Allocation(a.language, 400, a.urgent, a.routine)
+        if a.language in spec.PURE_LANGUAGES
+        else a
+        for a in spec.TEST_ALLOCATION
+    )
+    monkeypatch.setattr(spec, "TEST_ALLOCATION", old)
+    failures = spec.check_allocation_meets_requirements()
+    for lang in spec.PURE_LANGUAGES:
+        assert f"{lang} CRITICAL: 400 < 720 (gate 7, per language)" in failures
+
+
+def test_the_open_per_language_urgent_and_routine_shortfall_is_named() -> None:
+    """E8b, not decided: 300 URGENT and 300 ROUTINE per pure language are below the
+    570 that per-language URGENT recall and weighted/macro F1 need. The check says
+    so rather than passing a set the gate would refuse."""
+    failures = set(spec.check_allocation_meets_requirements())
+    expected = set()
+    for lang in spec.PURE_LANGUAGES:
+        expected.add(f"{lang} URGENT: 300 < 570 (gate 8, per language)")
+        expected.add(f"{lang} smallest class: 300 < 570 (gates 2 and 3, per language)")
+    assert failures == expected
 
 
 def test_every_gate_metric_of_section_9_2_has_a_requirement() -> None:

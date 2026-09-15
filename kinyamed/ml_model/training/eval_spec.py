@@ -464,12 +464,15 @@ class Allocation:
         return self.critical + self.urgent + self.routine
 
 
-# Per pure language: 400 CRITICAL clears 365 with ~9% for items adjudicated
-# UNCLASSIFIABLE or excluded; 1000 in total clears the largest per-language
-# accuracy minimum (780). Per mixed pair: 150 clears the per-pair floor of 100
-# with the same margin, and 6 x 150 = 900 clears the pooled 710.
+# Per pure language: 800 CRITICAL (E8, ruled 2026-09-15). CRITICAL -> ROUTINE is
+# gated per pure language, never pooled only, and its minimum is 720; 800 leaves
+# ~9% for items adjudicated UNCLASSIFIABLE or excluded. It also clears gate 5's 365.
+# URGENT and ROUTINE stay 300 pending E8b: per-language URGENT recall and F1 need
+# 570, and check_allocation_meets_requirements names that shortfall.
+# Per mixed pair: 150 clears the per-pair floor of 100 with the same margin, and
+# 6 x 150 = 900 clears the pooled 710.
 TEST_ALLOCATION: tuple[Allocation, ...] = tuple(
-    Allocation(lang, 400, 300, 300) for lang in PURE_LANGUAGES
+    Allocation(lang, 800, 300, 300) for lang in PURE_LANGUAGES
 ) + tuple(Allocation(lang, 60, 45, 45) for lang in MIXED_LANGUAGES)
 
 # Fits ONE temperature parameter and nothing else; never scored. 300 per pure
@@ -500,6 +503,29 @@ def allocation_totals(allocation: tuple[Allocation, ...]) -> dict[str, int]:
     }
 
 
+# CLINICIAN_BRIEF's per-item rates. ASSUMPTIONS, not measurements: the pilot
+# replaces them. (minutes, low and high)
+WRITE_MINUTES = (2.0, 3.0)
+LABEL_MINUTES = (0.5, 0.75)  # per label; every item is labelled twice (§9)
+ADJUDICATE_MINUTES = 1.0
+DISAGREEMENT_RATE = (0.15, 0.25)
+
+
+def clinician_hours(items: int) -> tuple[float, float]:
+    """Author + two annotators + adjudication for `items` items, in hours (low, high)."""
+    low = items * (
+        WRITE_MINUTES[0]
+        + 2 * LABEL_MINUTES[0]
+        + DISAGREEMENT_RATE[0] * ADJUDICATE_MINUTES
+    )
+    high = items * (
+        WRITE_MINUTES[1]
+        + 2 * LABEL_MINUTES[1]
+        + DISAGREEMENT_RATE[1] * ADJUDICATE_MINUTES
+    )
+    return low / 60, high / 60
+
+
 def check_allocation_meets_requirements() -> list[str]:
     """Every minimum that the allocation fixes in advance, checked. Returns failures."""
     t = allocation_totals(TEST_ALLOCATION)
@@ -517,6 +543,22 @@ def check_allocation_meets_requirements() -> list[str]:
     need("pooled CRITICAL", t["CRITICAL"], "7")
     for lang in PURE_LANGUAGES:
         need(f"{lang} CRITICAL", by_lang[lang].critical, "5")
+        # Per-language rows of the pooled gates (CLAUDE.md §16; evaluate.py).
+        a = by_lang[lang]
+        if a.critical < requirement("7").minimum_n:
+            failures.append(
+                f"{lang} CRITICAL: {a.critical} < {requirement('7').minimum_n} (gate 7, per language)"
+            )
+        if a.urgent < requirement("8").minimum_n:
+            failures.append(
+                f"{lang} URGENT: {a.urgent} < {requirement('8').minimum_n} (gate 8, per language)"
+            )
+        smallest = min(a.critical, a.urgent, a.routine)
+        if smallest < requirement("2").minimum_n:
+            failures.append(
+                f"{lang} smallest class: {smallest} < {requirement('2').minimum_n} "
+                "(gates 2 and 3, per language)"
+            )
     need("kinyarwanda items", by_lang["kinyarwanda"].total, "9")
     need("english items", by_lang["english"].total, "10")
     need("french items", by_lang["french"].total, "11")
@@ -599,6 +641,38 @@ def _report() -> str:
     lines.append(f"Calibration allocation: {c}")
     failures = check_allocation_meets_requirements()
     lines.append(f"Allocation check: {failures if failures else 'PASS'}")
+    lines.append("")
+    total = t["items"] + c["items"]
+    previous_test = 4 * 1000 + 6 * 150  # before E8: 400 / 300 / 300 per pure language
+    added = t["items"] - previous_test
+    lo, hi = clinician_hours(total)
+    alo, ahi = clinician_hours(added)
+    lines.append(
+        f"Items: test {t['items']:,} + calibration {c['items']:,} = {total:,}, "
+        f"labelled twice = {2 * total:,} labels"
+    )
+    lines.append(
+        f"E8 added {added:,} test items (was {previous_test:,}); clinician-hours for the "
+        f"added items {alo:,.0f}-{ahi:,.0f}; whole set {lo:,.0f}-{hi:,.0f} "
+        "(CLINICIAN_BRIEF assumed rates, not measured)"
+    )
+    kw = next(a for a in TEST_ALLOCATION if a.language == "kinyarwanda")
+    kw_cal = next(a for a in CALIBRATION_ALLOCATION if a.language == "kinyarwanda")
+    klo, khi = clinician_hours(kw.total + kw_cal.total)
+    lines.append(
+        f"Kinyarwanda first (E5): {kw.total:,} test + {kw_cal.total:,} calibration = "
+        f"{kw.total + kw_cal.total:,} items, {klo:,.0f}-{khi:,.0f} clinician-hours"
+    )
+    e8b_per_lang = 2 * (
+        math.ceil(requirement("8").minimum_n / (1 - UNCLASSIFIABLE_MARGIN)) - 300
+    )
+    e8b_items = e8b_per_lang * len(PURE_LANGUAGES)
+    blo, bhi = clinician_hours(e8b_items)
+    lines.append(
+        f"If E8b is ruled (URGENT and ROUTINE to {300 + e8b_per_lang // 2} per pure language): "
+        f"+{e8b_items:,} test items -> test {t['items'] + e8b_items:,}, "
+        f"+{blo:,.0f}-{bhi:,.0f} clinician-hours"
+    )
     return "\n".join(lines)
 
 

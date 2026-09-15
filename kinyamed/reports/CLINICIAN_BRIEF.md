@@ -13,8 +13,8 @@ annotate an item you wrote.
 
 | Role | What you do | How much (Kinyarwanda first) |
 |---|---|---|
-| **Author** | Write short descriptions of symptoms, as a patient might say them, in your language, following a quota sheet (e.g. "a relative describing something you would triage as the highest urgency"). | ~1,300 descriptions across the authors |
-| **Annotator** (2 people) | Read each description on a laptop and choose CRITICAL, URGENT, ROUTINE, or "cannot classify", plus how sure you are. You work alone and never see the other annotator's answer. | ~1,300 descriptions each |
+| **Author** | Write short descriptions of symptoms, as a patient might say them, in your language, following a quota sheet (e.g. "a relative describing something you would triage as the highest urgency"). | ~1,700 descriptions across the authors |
+| **Annotator** (2 people) | Read each description on a laptop and choose CRITICAL, URGENT, ROUTINE, or "cannot classify", plus how sure you are. You work alone and never see the other annotator's answer. | ~1,700 descriptions each |
 | **Adjudicator** (1 person) | Decide the cases where the two annotators disagreed, and record why. | the disagreements only |
 
 We also need **one lead clinician** to confirm, before we start:
@@ -29,14 +29,14 @@ We also need **one lead clinician** to confirm, before we start:
 These are **assumptions, not measurements.** The first session is a pilot that measures the real time per item,
 and we will re-plan from that.
 
-| Step | Assumption | Estimate for Kinyarwanda (1,300 items) |
+| Step | Assumption | Estimate for Kinyarwanda (1,700 items) |
 |---|---|---|
 | Pilot (60 practice items, then a discussion) | ~2 hours | 2 annotators + lead clinician, one session |
-| Writing items | 2–3 minutes per description | ~45–65 hours, shared across authors |
-| Labelling | 30–45 seconds per description | **~11–16 hours per annotator**, in sessions of up to one hour |
-| Adjudication | ~1 minute per disagreement; 15–25% disagree | ~3–5 hours |
+| Writing items | 2–3 minutes per description | ~57–85 hours, shared across authors |
+| Labelling | 30–45 seconds per description | **~14–21 hours per annotator**, in sessions of up to one hour |
+| Adjudication | ~1 minute per disagreement; 15–25% disagree | ~4–7 hours |
 
-The full four-language set is about five times larger (6,400 descriptions). We would only ask for it after the
+The full four-language set is about five times larger (8,000 descriptions). We would only ask for it after the
 Kinyarwanda set works.
 
 ## What happens to your work
