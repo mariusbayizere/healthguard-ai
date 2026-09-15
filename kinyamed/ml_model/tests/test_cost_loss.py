@@ -54,18 +54,19 @@ def test_a_critical_case_predicted_routine_costs_more_than_predicted_urgent():
     assert loss(toward_routine, label) > loss(toward_urgent, label)
 
 
-def test_training_on_synthetic_labels_reduces_critical_to_routine_errors():
-    """A linear model on overlapping synthetic data, same seed and steps: the
-    cost-sensitive objective leaves fewer CRITICAL rows predicted ROUTINE than plain
-    cross-entropy does."""
+@pytest.mark.parametrize("seed", [7, 11, 13])
+def test_training_on_synthetic_labels_reduces_critical_to_routine_errors(seed):
+    """A linear model on heavily overlapping synthetic classes, same seed and steps.
+    Plain cross-entropy leaves 18-23 CRITICAL rows predicted ROUTINE; the
+    cost-sensitive objective must cut that at least fourfold (measured: 2, 0, 1)."""
 
     def train(cost_weight: float) -> int:
-        generator = torch.Generator().manual_seed(7)
+        generator = torch.Generator().manual_seed(seed)
         n = 600
         labels = torch.randint(0, 3, (n,), generator=generator)
         centres = torch.tensor([[1.0, 0.0], [0.0, 0.0], [-1.0, 0.0]])
-        features = centres[labels] + 0.9 * torch.randn(n, 2, generator=generator)
-        torch.manual_seed(7)
+        features = centres[labels] + 1.5 * torch.randn(n, 2, generator=generator)
+        torch.manual_seed(seed)
         model = torch.nn.Linear(2, 3)
         optimiser = torch.optim.SGD(model.parameters(), lr=0.5)
         objective = cl.CostSensitiveLoss(
@@ -78,8 +79,9 @@ def test_training_on_synthetic_labels_reduces_critical_to_routine_errors():
         predicted = model(features).argmax(dim=1)
         return int(((labels == C) & (predicted == R)).sum())
 
-    plain, sensitive = train(0.0), train(2.0)
-    assert sensitive < plain, (plain, sensitive)
+    plain, sensitive = train(0.0), train(3.0)
+    assert plain >= 10, f"the synthetic problem is too easy to show anything ({plain})"
+    assert sensitive * 4 <= plain, (plain, sensitive)
 
 
 def test_the_expected_cost_term_is_differentiable_and_finite():
