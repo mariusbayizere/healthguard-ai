@@ -124,7 +124,11 @@ def test_the_environment_and_machine_are_recorded(repo):
     record = _started(repo).finish(outputs={}, results={}).record
     env = record["environment"]
     assert env["python"].count(".") == 2
-    assert env["packages"]["numpy"]
+    # Every tracked package is listed, installed or not: CI's dependency-free job has
+    # no numpy, and the record must say None there rather than omit it.
+    assert set(env["packages"]) == set(rm.PACKAGES)
+    assert all(v is None or isinstance(v, str) for v in env["packages"].values())
+    assert rm.package_versions(["pytest"])["pytest"]  # installed wherever tests run
     assert "not-a-real-package-kinyamed" in rm.package_versions(
         ["not-a-real-package-kinyamed"]
     )
