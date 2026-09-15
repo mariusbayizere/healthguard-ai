@@ -1,8 +1,10 @@
 # STATE
 
 **Updated** 2026-09-15 · **Phase** Remediation · **Branch** `audit-p0-p1-and-frontend` (clean; your in-flight
-work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4 in progress. **Items 1
-(`af643d0`, `6e81dd8`) and 2 (`f739985`) done.** **ETAT reading task BLOCKED: `docs/clinical/` exists but is empty.**
+work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4. **Items 1
+(`af643d0`, `6e81dd8`), 2 (`f739985`) and 3 (`caada64`, `994bbdf`) done; item 4 is a proposal
+(`reports/I18N_PLAN.md`).** **mypy `--strict` gate exception CLEARED: 0 errors at HEAD.** ETAT reading task: the
+manual was reported placed in `docs/clinical/` after the 2026-09-15 restart; not yet read or verified.
 
 ## Order agreed
 
@@ -585,19 +587,74 @@ resolves that when merged; item 2 will not duplicate it, to avoid a conflict.
 - **Scope note.** The a11y tests are Vitest and already ran in the `frontend` job; what was missing from CI was
   the two Playwright specs.
 
+## Item 3 — mypy `--strict` backlog cleared, 15 → 0 (`caada64`, `994bbdf`)
+
+**Starting count was 15, not 18.** The 18 in the gate-exception table was measured on a working tree that held
+your uncommitted files. On this branch the count was 15 from `ed7063e` onward (see item 2d and item 1 above).
+
+**Tests first, as characterisation tests** (`caada64`). Nothing tested the code being retyped, so these pin its
+behaviour. They were written alongside the fixes, not red-first. To show they test the behaviour and not the new
+code, both files were run with and without the fixes, and passed each time.
+- `tests/unit/test_update_validators.py`: `PatientUpdate`/`DoctorUpdate` strip text and reject blanks through the
+  base models' shared validator; unnamed fields are untouched.
+- `tests/integration/test_repository_rowcounts.py`: analytics `delete_by_date`/`delete_all`, refresh-token
+  `revoke_all_for_user` (live sessions only) and `delete_expired` (expired only) return the rows changed.
+
+**The fixes** (`994bbdf`), no behaviour change intended:
+- `core/logging.py`: `list[structlog.typing.Processor]`.
+- `core/middleware.py`: `RateLimitMiddleware` takes `ASGIApp`, as Starlette's factory protocol expects.
+- `repositories/base.py`: `Select[Any]`.
+- `repositories/analytics_repo.py`, `repositories/user_repo.py`: `cast(Table, Model.__table__)` and
+  `cast(CursorResult[Any], ...)`. The statements are unchanged. They were not switched to ORM-enabled delete,
+  which would change session synchronisation.
+- `services/queue_service.py`, `services/analytics_service.py`: `dict[str, Any]`.
+- `schemas/patient.py`, `schemas/doctor.py`: **type suppression, not a fix.** See the follow-up below.
+
+**Verified 2026-09-15, after the restart, at HEAD `994bbdf`:**
+- `mypy --strict app main.py` (run with `pipx run mypy --python-executable venv/bin/python`, since mypy is not
+  installed in the backend venv): **"Success: no issues found in 62 source files"**.
+- ruff: all checks passed.
+- Backend suite: the previous session reported 250 passed. The first re-run after the restart was stopped at
+  about 11 minutes because the machine was swapping, so that count is **not yet re-verified**.
+
+**Follow-up, open: replace the `cast(Any, ...).__func__` suppression.**
+- Where: `backend/app/schemas/patient.py:84–86`
+  (`_strip_text = field_validator("name", "location")(cast(Any, PatientBase._strip_text).__func__)`) and
+  `backend/app/schemas/doctor.py:54–56` (the same, for `"name", "specialty"`).
+- Why it is a suppression: reusing the base classmethod's function through `__func__` is invisible to mypy. The
+  cast only tells the checker what runtime already does.
+- The real fix: one module-level strip-and-reject-blank function, applied by `field_validator` in both the base
+  and update models. This changes validation code, so it needs its own test-first increment.
+  `test_update_validators.py` already pins the behaviour it must keep.
+
+**Still not enforced by CI:** `.github/workflows/ci.yml` has no mypy step (0 occurrences). Until it does, mypy is
+run by hand before each backend commit, and any new error blocks that commit.
+
 ## Next — single action
 
-**Engineering paused, as instructed.** Work through the BLOCKED ON HUMAN INPUT register at the end of this file,
-starting with H1 (institutional ethics question) and H6 (lead clinician). Your review of `reports/EVAL_SET_SPEC.md` and
-decisions E1–E5, then the clinical documents B1–B4. With those in `docs/clinical/`, protocol §3–4 can be filled
-and the Kinyarwanda pilot can run.
+**Re-verify the test counts after the restart, one suite at a time (backend, then Vitest).** Then the ETAT reading
+task from the manual in `docs/clinical/`, after confirming it is a complete, readable PDF.
 
 ## Blocked on you (unchanged)
 
 D0 working tree · D1 spec rulings · D2 `docs/clinical/` · D3 clinician · D4 speakers · D5 target CPU ·
 D6 v2d weights location · D7 `docs/compliance/` (REMEDIATION_PLAN §0).
 
-## GATE EXCEPTION — `mypy --strict` (CLAUDE.md §16)
+## GATE EXCEPTION — `mypy --strict` (CLAUDE.md §16) — CLEARED 2026-09-15
+
+**CLEARED by `994bbdf`: 0 errors at HEAD**, re-verified after the restart ("no issues found in 62 source
+files").
+- **The branch started at 15, not 18.** The 18 below was measured on a working tree that included your uncommitted
+  files.
+- Fifteen of the 18 rows below existed on this branch, and all 15 are fixed. The three that did not exist here are
+  among rows 12–16 (`analytics_service.py`): this branch has only two of those functions
+  (`build_urgency_breakdown`, `build_queue_performance`), and `994bbdf` fixed both. The other three errors are
+  in your uncommitted analytics functions.
+  **Merging `wip/account-analytics-frontend` will need its own mypy run.**
+- Rows 17 and 18 are cleared by a type suppression that is still open (item 3, follow-up).
+- mypy is still not in CI.
+
+The record below is kept as history.
 
 **Recorded 2026-09-14. Proposed target date to clear: 2026-09-28** (not agreed yet; set your own).
 
