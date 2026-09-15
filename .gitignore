@@ -95,3 +95,6 @@ kinyamed/ml_model/paper/CORRECTIONS.md
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# make reproduce-env
+.venv-reproduce/

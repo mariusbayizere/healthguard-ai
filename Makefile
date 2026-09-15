@@ -8,7 +8,7 @@ ML := kinyamed/ml_model
 PY := python3
 
 .DEFAULT_GOAL := help
-.PHONY: help install install-dev test test-clean check-attribution install-hooks verify verify-full reproduce sample dataset splits freeze clean
+.PHONY: help install install-dev test test-clean check-attribution install-hooks verify verify-full reproduce-env reproduce sample dataset splits freeze clean
 
 help:  ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -72,8 +72,25 @@ verify:  ## Re-derive the committed sample and its splits from seed 42 (seconds)
 verify-full:  ## Regenerate all 1M rows and check every frozen digest (~1 min, ~1GB scratch)
 	cd $(ML) && $(PY) verify.py --scope full
 
-reproduce:  ## Re-derive every committed offline result and refusal; diff each (~minutes, ~1GB scratch)
-	cd $(ML) && $(PY) reproduce.py
+# ── Reproducing the results on a machine that has never seen this project ─────
+# A reviewer needs only: git, make, network access for the one-time install, and
+# Python 3.11 (pinned in .python-version; pass its path as PY311 if it is not on PATH).
+#   1. make reproduce-env                 # once: .venv-reproduce from requirements-reproduce.lock
+#   2. make reproduce                     # ~15 min, ~1 GB scratch; offline
+# reproduce.py step 0 refuses to run anything on the wrong Python, on any package
+# version that differs from the lock, or if a needed module will not import.
+PY311 ?= python3.11
+REPRO_VENV := $(CURDIR)/.venv-reproduce
+REPRO_PY ?= $(REPRO_VENV)/bin/python
+
+reproduce-env:  ## First, once: a venv with Python 3.11 and every package pinned in requirements-reproduce.lock
+	$(PY311) -c 'import sys; v = sys.version_info[:2]; sys.exit(0 if v == (3, 11) else "PY311 must be Python 3.11, got %d.%d" % v)'
+	$(PY311) -m venv $(REPRO_VENV)
+	$(REPRO_PY) -m pip install --no-deps -r $(ML)/requirements-reproduce.lock
+
+reproduce:  ## Then: re-derive every committed offline result and refusal; diff each (~15 min, ~1GB scratch)
+	@test -x $(REPRO_PY) || { echo "No $(REPRO_PY). Run 'make reproduce-env' first (needs Python 3.11), or pass REPRO_PY=/path/to/python."; exit 1; }
+	cd $(ML) && $(REPRO_PY) reproduce.py
 
 sample:  ## Regenerate the committed 1,000-row sample
 	cd $(ML) && $(PY) dataset/generate_large_dataset.py \

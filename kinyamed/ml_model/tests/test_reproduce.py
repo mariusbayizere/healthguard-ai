@@ -96,3 +96,102 @@ def test_what_is_left_out_is_listed_with_a_reason():
     names = " ".join(item for item, _ in rp.NOT_REPRODUCED)
     assert "tokenizer" in names and "latency" in names
     assert all(reason for _, reason in rp.NOT_REPRODUCED)
+
+
+def test_missing_dependencies_are_named_before_any_step_runs(monkeypatch, capsys):
+    """A clean clone run with an interpreter lacking the pinned packages failed only at
+    step 7, after 14 minutes of regeneration. It must fail first, and say what to do."""
+    ran = []
+    monkeypatch.setattr(rp, "REQUIRED_MODULES", ("json", "not_a_module_kinyamed"))
+    monkeypatch.setattr(
+        rp, "run_step", lambda step: ran.append(step) or rp.Result(True, "")
+    )
+    monkeypatch.setattr(
+        rp, "ensure_phrase_v2_split", lambda: ran.append("split") or rp.Result(True, "")
+    )
+    assert rp.main() == 1
+    out = capsys.readouterr().out
+    assert ran == []
+    assert "not_a_module_kinyamed" in out and "make install" in out
+
+
+def test_the_required_modules_cover_what_the_steps_import():
+    assert {"numpy", "pandas", "torch"} <= set(rp.REQUIRED_MODULES)
+
+
+# ── The environment is pinned in the repository, not on one machine ──────────
+# A clean clone in /tmp ran steps 1-6 and failed 7-8: outside the author's home
+# directory pyenv fell back to a system Python without the packages. The fix must
+# not depend on anything outside the clone.
+def test_the_required_python_is_pinned_at_the_repository_root():
+    pinned = (REPO / ".python-version").read_text().strip()
+    major, minor = rp.REQUIRED_PYTHON
+    assert pinned.startswith(f"{major}.{minor}.")
+
+
+def test_a_wrong_python_is_refused_by_name_before_any_step(monkeypatch, capsys):
+    ran = []
+    monkeypatch.setattr(rp, "REQUIRED_PYTHON", (3, 99))
+    monkeypatch.setattr(
+        rp, "run_step", lambda step: ran.append(step) or rp.Result(True, "")
+    )
+    monkeypatch.setattr(
+        rp, "ensure_phrase_v2_split", lambda: ran.append(1) or rp.Result(True, "")
+    )
+    assert rp.main() == 1
+    assert ran == []
+    assert "Python 3.99" in capsys.readouterr().out
+
+
+def test_the_lock_file_pins_every_package_to_one_version():
+    requirements = rp.read_lock(rp.LOCK_FILE)
+    assert {"numpy", "pandas", "torch", "transformers"} <= requirements.keys()
+    assert all(version for version in requirements.values())
+    raw = [
+        line.strip()
+        for line in rp.LOCK_FILE.read_text().splitlines()
+        if line.strip() and not line.startswith(("#", "--"))
+    ]
+    assert all("==" in line for line in raw), [line for line in raw if "==" not in line]
+
+
+def test_the_lock_agrees_with_the_top_level_pins():
+    lock = rp.read_lock(rp.LOCK_FILE)
+    top = rp.read_lock(ML_ROOT / "requirements.txt")
+    assert top and all(lock[name] == version for name, version in top.items())
+
+
+def test_installed_versions_that_differ_from_the_lock_are_named():
+    problems = rp.dependency_mismatches(
+        {"numpy": "2.4.4", "pandas": "2.3.3", "absentpkg": "1.0"},
+        installed=lambda name: {"numpy": "2.4.4", "pandas": "2.2.0"}.get(name),
+    )
+    assert problems == [
+        "pandas 2.2.0 installed, 2.3.3 locked",
+        "absentpkg not installed, 1.0 locked",
+    ]
+
+
+def test_an_environment_off_the_lock_is_refused_before_any_step(monkeypatch, capsys):
+    ran = []
+    monkeypatch.setattr(
+        rp,
+        "dependency_mismatches",
+        lambda locked, installed=None: ["pandas 2.2.0 installed, 2.3.3 locked"],
+    )
+    monkeypatch.setattr(
+        rp, "run_step", lambda step: ran.append(step) or rp.Result(True, "")
+    )
+    monkeypatch.setattr(
+        rp, "ensure_phrase_v2_split", lambda: ran.append(1) or rp.Result(True, "")
+    )
+    assert rp.main() == 1
+    out = capsys.readouterr().out
+    assert ran == [] and "pandas 2.2.0" in out and "make reproduce-env" in out
+
+
+def test_the_makefile_tells_a_reviewer_what_to_run_first():
+    makefile = (REPO / "Makefile").read_text()
+    assert "reproduce-env:" in makefile
+    assert "requirements-reproduce.lock" in makefile
+    assert ".venv-reproduce" in (REPO / ".gitignore").read_text()

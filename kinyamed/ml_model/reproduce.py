@@ -13,17 +13,25 @@ pointed at the working tree. If both CSVs are already present with the frozen
 digests they are left alone.
 
 What is not covered, and why, is printed at the end (NOT_REPRODUCED).
+
+STEP 0, BEFORE ANYTHING RUNS: the interpreter must be Python 3.11 (pinned in the
+repository's `.python-version`), every package in `requirements-reproduce.lock` must be
+installed at exactly its locked version, and the modules the steps import must import.
+Any failure names what is wrong and runs nothing. A reviewer on a fresh machine runs
+`make reproduce-env` once (a venv built from the lock), then `make reproduce`.
 """
 
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
+import importlib.util
 import json
 import shutil
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
@@ -33,6 +41,14 @@ KINYAMED = ML_ROOT.parent
 MEASUREMENTS = KINYAMED / "reports" / "measurements"
 PY = sys.executable
 PHRASE_V2_MANIFEST = ML_ROOT / "dataset/processed/eval_manifest_phrase_v2.json"
+
+REQUIRED_PYTHON: tuple[int, int] = (3, 11)
+LOCK_FILE = ML_ROOT / "requirements-reproduce.lock"
+
+# Imported by the steps (pandas: the n=9 gold builder; numpy: the gate; torch: the
+# pipeline's cost matrix). Checked before anything runs, so a wrong interpreter fails in
+# a second, not after the corpus regeneration.
+REQUIRED_MODULES: tuple[str, ...] = ("numpy", "pandas", "torch")
 
 NOT_REPRODUCED: tuple[tuple[str, str], ...] = (
     (
@@ -258,7 +274,85 @@ def steps(pipeline_out: Path | None = None) -> list[Step]:
     ]
 
 
+def _normalise(name: str) -> str:
+    return name.strip().lower().replace("_", "-")
+
+
+def read_lock(path: Path) -> dict[str, str]:
+    """name -> version for every `name==version` line; comments and pip options skipped."""
+    pins = {}
+    for raw in Path(path).read_text(encoding="utf-8").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line or line.startswith("-"):
+            continue
+        name, _, version = line.partition("==")
+        pins[_normalise(name)] = version.strip()
+    return pins
+
+
+def _installed_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def dependency_mismatches(
+    locked: dict[str, str],
+    installed: Callable[[str], str | None] | None = None,
+) -> list[str]:
+    lookup = installed or _installed_version
+    problems = []
+    for name, version in locked.items():
+        found = lookup(name)
+        if found is None:
+            problems.append(f"{name} not installed, {version} locked")
+        elif found != version:
+            problems.append(f"{name} {found} installed, {version} locked")
+    return problems
+
+
+def python_version_problem(version: Sequence[int]) -> str | None:
+    if tuple(version[:2]) == REQUIRED_PYTHON:
+        return None
+    major, minor = REQUIRED_PYTHON
+    found = ".".join(str(v) for v in version[:3])
+    return (
+        f"Python {major}.{minor} is required (repository .python-version); {PY} is "
+        f"Python {found}."
+    )
+
+
+def preflight() -> list[str]:
+    """Step 0. Everything that would make a later step fail for a reason other than code."""
+    problem = python_version_problem(sys.version_info)
+    if problem:
+        return [problem]
+    problems = dependency_mismatches(read_lock(LOCK_FILE))
+    problems += [f"cannot import {name}" for name in missing_modules(REQUIRED_MODULES)]
+    return problems
+
+
+def missing_modules(names: Sequence[str]) -> list[str]:
+    return [name for name in names if importlib.util.find_spec(name) is None]
+
+
 def main() -> int:
+    problems = preflight()
+    if problems:
+        print("[0] environment ... FAIL. Nothing was run.")
+        for problem in problems:
+            print(f"    {problem}")
+        print(
+            "    Build the pinned environment first: make reproduce-env "
+            "(Python 3.11 plus requirements-reproduce.lock), then make reproduce.\n"
+            "    Or install the lock into your own Python 3.11 (make install uses the "
+            "same pins) and run: make reproduce REPRO_PY=/path/to/python"
+        )
+        return 1
+    print(
+        f"[0] environment ... PASS: Python {sys.version.split()[0]}, lock matched, imports ok"
+    )
     failures = 0
     with tempfile.TemporaryDirectory(prefix="kinyamed-reproduce-run-") as tmp:
         plan = steps(pipeline_out=Path(tmp) / "pipeline")
