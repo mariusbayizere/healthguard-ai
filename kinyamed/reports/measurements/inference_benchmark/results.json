@@ -1,0 +1,224 @@
+{
+  "model": "/home/marius/kinyamed-runs/model_v2d_freeze8_lr1e-5",
+  "max_length": 96,
+  "torch_threads": 2,
+  "machine": {
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.39",
+    "python": "3.11.9",
+    "cpu": "Intel(R) Core(TM) i5-6200U CPU @ 2.30GHz",
+    "logical_cpus": 4
+  },
+  "target_hardware": "NOT NAMED (STATE.md H15); these are not target-hardware measurements",
+  "memory_before_load": {
+    "mem_total_mb": 7825,
+    "mem_available_mb": 3870,
+    "swap_used_mb": 821
+  },
+  "texts": {
+    "source": "ml_model/dataset/processed/eval_phrase_holdout.csv",
+    "count": 1000,
+    "seed": 42
+  },
+  "runs": {
+    "batch_1": {
+      "1": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          161.64964899871848,
+          157.43301899783546,
+          167.31733400229132
+        ],
+        "p95": [
+          304.59763500039116,
+          289.2397270006768,
+          326.42402200144716
+        ],
+        "p99": [
+          451.022698001907,
+          387.6071699996828,
+          531.8005270019057
+        ],
+        "throughput_rps": 5.58,
+        "peak_rss_mb": 1333,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2851,
+          "swap_used_mb": 810
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2823,
+          "swap_used_mb": 826
+        }
+      },
+      "10": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          1547.7911699999822,
+          1516.1692020010378,
+          1576.3273700031277
+        ],
+        "p95": [
+          2552.164613000059,
+          2421.1184439991484,
+          2616.180617998907
+        ],
+        "p99": [
+          3036.069891997613,
+          2808.379731999594,
+          3219.6058230001654
+        ],
+        "throughput_rps": 5.98,
+        "peak_rss_mb": 1333,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2823,
+          "swap_used_mb": 826
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2761,
+          "swap_used_mb": 826
+        }
+      },
+      "50": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          9850.967638998554,
+          9714.529190998292,
+          9920.537662001152
+        ],
+        "p95": [
+          13223.02506500273,
+          13098.039590000553,
+          13309.246087002975
+        ],
+        "p99": [
+          14479.172953997477,
+          14189.006262000476,
+          14535.138904000632
+        ],
+        "throughput_rps": 5.03,
+        "peak_rss_mb": 1334,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2761,
+          "swap_used_mb": 826
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2827,
+          "swap_used_mb": 851
+        }
+      }
+    },
+    "batch_16": {
+      "1": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          171.27590100062662,
+          166.36601600112044,
+          177.22630600110278
+        ],
+        "p95": [
+          366.3106290005089,
+          343.51139000136754,
+          385.19993600129965
+        ],
+        "p99": [
+          560.1146779990813,
+          478.1157580000581,
+          608.304343000782
+        ],
+        "throughput_rps": 5.03,
+        "peak_rss_mb": 1340,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2827,
+          "swap_used_mb": 851
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2884,
+          "swap_used_mb": 851
+        }
+      },
+      "10": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          1015.015132001281,
+          997.8094090001832,
+          1025.7139120003558
+        ],
+        "p95": [
+          1697.126766997826,
+          1681.1642400025448,
+          1954.952273001254
+        ],
+        "p99": [
+          2267.9859550007677,
+          2256.8259660001786,
+          2561.000518999208
+        ],
+        "throughput_rps": 9.04,
+        "peak_rss_mb": 1364,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 2884,
+          "swap_used_mb": 851
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 3375,
+          "swap_used_mb": 850
+        }
+      },
+      "50": {
+        "n": 1000,
+        "gate_minimum_met": true,
+        "p50": [
+          3693.5047199986,
+          3685.44734399984,
+          3724.0318000003754
+        ],
+        "p95": [
+          4988.068742000905,
+          4911.346504999528,
+          5101.007827001013
+        ],
+        "p99": [
+          5511.156466000102,
+          5400.243034997402,
+          5547.685417001048
+        ],
+        "throughput_rps": 12.8,
+        "peak_rss_mb": 1382,
+        "memory_before": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 3375,
+          "swap_used_mb": 850
+        },
+        "memory_after": {
+          "mem_total_mb": 7825,
+          "mem_available_mb": 3478,
+          "swap_used_mb": 850
+        }
+      }
+    }
+  },
+  "cold_start": {
+    "model_load_s": 31.5,
+    "first_inference_ms": 704.8,
+    "peak_rss_mb": 1283
+  },
+  "equivalence": {
+    "texts": 200,
+    "argmax_disagreements": 0,
+    "max_abs_probability_difference": 2.384185791015625e-07
+  }
+}

@@ -1,0 +1,4 @@
+direct forward (main thread): p50 158 ms, p95 226 ms, mean 166 ms, n=300
+through engine, batch 1: p50 165 ms, p95 231 ms, mean 170 ms, n=300
+torch threads 2; MemAvailable 3402 MB, swap used 850 MB
+load average ['4.21', '3.57', '3.88']

@@ -125,3 +125,43 @@ def test_the_keyword_matcher_is_gone():
     for name in ("KeywordClassifier", "CRITICAL_TERMS", "URGENT_TERMS"):
         assert not hasattr(triage_service, name), f"{name} still exists"
     assert not hasattr(model_classifier, "KeywordClassifier")
+
+
+def test_a_batched_inference_timeout_fails_closed_through_the_same_path(
+    client, patient_factory, db
+):
+    """A real BatchedInference whose forward outlasts its timeout. The timeout is not
+    a second error path: it surfaces as the same TRIAGE_MODEL_UNAVAILABLE 503 as a
+    missing model, with nothing written. Characterisation: the path already existed."""
+    import threading
+
+    import main
+    from app.routes.v1.triage import get_triage_classifier
+    from app.services.model_classifier import BatchedInference, ModelClassifier
+
+    release = threading.Event()
+
+    def stuck_forward(texts: list[str]) -> list[list[float]]:
+        release.wait(5)
+        return [[1.0, 0.0, 0.0] for _ in texts]
+
+    engine = BatchedInference(
+        stuck_forward, max_batch_size=1, max_wait_ms=0, timeout_s=0.2
+    )
+    classifier = ModelClassifier.with_engine(engine)
+    main.app.dependency_overrides[get_triage_classifier] = lambda: classifier
+    try:
+        patient = patient_factory()
+        response = client.post(
+            "/api/v1/triage",
+            json={"patient_id": patient["id"], "symptoms_input": "sinshobora guhumeka"},
+        )
+    finally:
+        release.set()
+        engine.close()
+
+    assert response.status_code == 503, response.text
+    assert response.json()["error"]["code"] == "TRIAGE_MODEL_UNAVAILABLE"
+    assert "Retry-After" in response.headers
+    assert "within" not in response.text, "internal timeout detail leaked"
+    assert _clinical_row_counts(db) == (0, 0, 0)
