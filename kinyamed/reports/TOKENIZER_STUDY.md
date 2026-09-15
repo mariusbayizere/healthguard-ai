@@ -134,7 +134,7 @@ Generated from `results.json`. The XLM-R family rows are those of `Davlan/afro-x
    - Examples, not judged: `ndashaka` → XLM-R `▁ | ndas | haka`, AfriBERTa `▁n | dashaka`, LaBSE `ndashaka`;
      `amaraso` → XLM-R `▁amar | as | o`, AfriBERTa `▁amaraso`, LaBSE `amaraso`.
    - **To be judged by a native Kinyarwanda linguist** (T1: Digital Umuganda or a native linguist, §10.2).
-5. **Defect found while checking serving: train/serve length mismatch.**
+5. **Known defect, confirmed while checking serving: train/serve length mismatch.** It was already recorded in Phase 0 (MODEL_AUDIT §2, "Mismatch, currently harmless") and never fixed. An earlier draft of this study called it newly found; that was wrong.
    - v2d was fine-tuned at `max_length` 96 (run record `args.max_length`).
    - The backend serves with `MODEL_MAX_LENGTH`, default **512** (`backend/app/core/config.py:105`,
      `.env.example:60`).

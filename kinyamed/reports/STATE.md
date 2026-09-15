@@ -1064,7 +1064,7 @@ was partial, and the findings were re-verified from `results.json` before writin
 - **Recommended `max_length` 128** (headroom over 94), re-checked on pilot items. **Shortlist:** AfroXLMR-mini,
   AfroXLMR-base, LaBSE; AfriBERTa-large undecided until measured. Final choice after 5b and a label-dependent
   evaluation.
-- **New defect, not fixed: train/serve length mismatch.**
+- **Train/serve length mismatch, not fixed.** **Correction:** this is not new. MODEL_AUDIT §2 recorded it in Phase 0 ("Mismatch, currently harmless"); the session report wrongly called it a new defect.
   - v2d was fine-tuned at `max_length` 96; the backend serves with `MODEL_MAX_LENGTH` default 512
     (`backend/app/core/config.py:105`).
   - No current text exceeds 94 tokens, so no measured number is affected.
@@ -1074,21 +1074,46 @@ was partial, and the findings were re-verified from `results.json` before writin
   figure is 94.
 - Tests: `tests/test_tokenizer_study.py` **10 passed**, red first. Ruff clean.
 
+## Rulings applied (2026-09-15): migration SQL approved, README committed, E8b, AfriBERTa, NOT REPRODUCIBLE marks
+
+- **README committed** (`73508b6`), as approved.
+- **H21 added to the register:** the Alembic head conflict with `wip/account-analytics-frontend`, yours to resolve
+  before merging.
+- **E8b built** (`5254ed0`): 800 / 627 / 627 per pure language. The allocation check passes, and every
+  per-language gate row is measurable on the designed set.
+  - **Test set 9,116; whole set 10,616 items (21,232 labels); 557–840 clinician-hours** on assumed rates (was
+    6,400 items, 336–507 hours).
+  - Kinyarwanda first: 2,354 items, 124–186 hours.
+  - The full cost is in one table in EVAL_SET_SPEC §6. CLINICIAN_BRIEF is updated.
+  - 94 dependent tests pass.
+- **`sentencepiece==0.2.2` pinned** in `ml_model/requirements-dev.txt`. **AfriBERTa-large measured** (`7cc63f9`):
+  Kinyarwanda 1.66 [1.64, 1.68] tokens per word; French 2.40 [2.37, 2.43], the worst measured.
+  - Shortlist is now AfroXLMR-mini, AfroXLMR-base, AfriBERTa-large, LaBSE.
+  - TOKENIZER_STUDY states that every distribution describes synthetic text, and that `max_length` must be
+    re-measured on natively authored pilot items.
+- **NOT REPRODUCIBLE marks**, figures kept and labelled, none re-derived:
+  - **MODEL_AUDIT:** a header banner, plus a mark on §1.3, §1.4, §2 (except the committed label-parity test), §2.1,
+    §3, §4, §5, §6, §7 and §8, each naming `scratchpad/ml_audit.py` or `scratchpad/latency_audit.py`.
+  - **CURRENT_CAPABILITY:** every model figure marked † with its script. Its stale "mypy currently failing" line
+    now reads met (0 errors since `994bbdf`).
+  - **CORPUS_REBUILD §1:** the row-level provenance split and the 45,232 union marked. No script, committed or in
+    history, prints them; `review/provenance.py` prints phrase-level categories only.
+  - **TAXONOMY_SCOPE §8:** the same, plus the adult/sister split, paediatric and other-domain aggregates, the
+    14,926 and the 1,141, marked †. The rest of §8 is printed by `grammatical_person.py`.
+  - A check against `grammatical_person.txt` separated reprinted-in-another-format figures (18.90%, 71.82%) from
+    truly unprinted ones.
+- **88 vs 94 reconciled** in MODEL_AUDIT §2.1: 88 struck through and superseded by 94. 88 was the maximum of a
+  random 20,000-row sample; 94 covers all 330,000 rows with a committed script.
+- **Correction to my previous report:** the 96/512 train/serve mismatch is not new. MODEL_AUDIT §2 recorded it in
+  Phase 0.
+
 ## Next — single action
 
-**C: waiting for your approval of the red-flag migration SQL** (shown in the session report; L14). No migration
-file, model or test exists yet.
-- The migration adds `rules_layer_triggered`, `rules_layer_reason` and `model_urgency_raw` to `triage_results`,
-  with three CHECK constraints, including escalate-only at database level. Pre-migration rows get NULL for
-  `model_urgency_raw` rather than a false backfill.
-- **Merge hazard:** `wip/account-analytics-frontend` has `f1a2b3c4d5e6` (password reset) on the same parent
-  `e77159c3482a`. Merging gives two Alembic heads and needs a merge revision.
+**C: the red-flag layer, test-first, empty term table**, using the approved migration SQL. Then D (5b, then 5c),
+then E (the `max_length` mismatch).
 
-Also waiting on you:
-- the README diff;
-- E8b;
-- pinning `sentencepiece`;
-- the L6 figures in the other reports;
+Waiting on you:
+- H21, the Alembic merge;
 - branch protection.
 
 ## Blocked on you (unchanged)
@@ -1386,6 +1411,7 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 | H17 | mypy exception date | Agree or replace the proposed 2026-09-28 | §16 commit-gate compliance |
 | H18 | History before push | Squash `2db26c8`+`fed85d7` (history rewrite, needs your explicit yes, L14) or leave with the bisect note | Pushing the branch |
 | H19 | SRS document | Apply "SRS CORRECTIONS REQUIRED" to `KinyaMed_SRS_v2_0.docx` (not in repo; a copy sits in `~/Downloads`, not opened by me). **Add: §18 cites both ETAT (paediatric, per your finding) and ESI as the basis of the same 3 classes.** | Anyone reading the SRS |
+| H21 | **Alembic head conflict before merging `wip/account-analytics-frontend`** (recorded 2026-09-15; yours to resolve) | That branch's `f1a2b3c4d5e6_add_password_reset_tokens.py` and this branch's red-flag migration both take `e77159c3482a` as parent. Merging gives two Alembic heads, and `alembic upgrade head` refuses. **Needs:** a merge revision (`alembic merge`), or re-parenting one migration, before the merge. The downgrade path through both must be tested. | Merging the WIP branch; any deploy |
 
 ### Facts needing a document before use (L5)
 

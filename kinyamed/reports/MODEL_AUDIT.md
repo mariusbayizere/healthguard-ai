@@ -1,5 +1,11 @@
 # Model audit — Phase 0 (CLAUDE.md §3.5)
 
+> **NOT REPRODUCIBLE — read this first** (marked 2026-09-15, CLAUDE.md L6). The measurements in this report were produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`. Neither was committed, and neither exists on disk (§9), so no measured figure below can be re-run. Each section says so. What the repository *can* reproduce today:
+> - token lengths: `reports/TOKENIZER_STUDY.md`, which supersedes §2.1;
+> - the reporting set's composition, 17,942 rows from 9 sentences: DATASET_AUDIT §10;
+> - the gate's refusal on that set: `evaluate.py --check-gold`;
+> - the label-order parity test: `ml_model/tests/test_label_parity.py`.
+
 Audit date 2026-09-14. Every number below was produced in this session by
 `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py` (kept outside the repo; see §9 for how to re-run).
 Nothing here is copied from `last_run.json`, the README or the paper. Where my measurement matches a
@@ -40,6 +46,8 @@ Also present outside the repo: `model_v2b_freeze10_lr1e-5`, `model_v2c_freeze6_l
 
 ### 1.3 Fine-tuned or base model with an untrained head? — measured
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+
 Per-tensor max |Δ| between each checkpoint and the base snapshot:
 
 | Checkpoint | Embeddings | Layers 0–7 | Layers 8–11 | Classifier head |
@@ -58,6 +66,8 @@ near chance on the v2 evaluation set (accuracy 0.414, §4.3).
 
 ### 1.4 Reproducibility of the recorded v2d result — measured
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+
 Re-running inference on the frozen reporting subset reproduced `training/last_run.json` **exactly**: accuracy
 0.706499, macro F1 0.772399, CRITICAL recall 0.850368, identical confusion matrix `[[7621,1341,0],[3869,3868,56],[0,0,1187]]`.
 Eval file SHA-256 `b8cddf0d…23af5` matches the manifest. This is a strength of the project and should be kept.
@@ -71,6 +81,8 @@ recorded. Missing: pinned base revision, published weights (the SRS names `mariu
 
 ## 2. Correctness
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this table, except the label-parity test (`tests/test_label_parity.py`, committed) was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+
 | Check | Result | Evidence |
 |---|---|---|
 | Thread-safe singleton (100 concurrent) | **FAIL** | `get_classifier()` is `@lru_cache`. With a stub builder that sleeps 0.5 s, 100 threads released by a barrier on a cold cache invoked the builder **100 times** and received 2 distinct objects. Production is protected only because `main.py` lifespan calls it once before serving. With the real model this would be 100 × 470 MB loads. |
@@ -83,9 +95,12 @@ recorded. Missing: pinned base revision, published weights (the SRS names `mariu
 
 ### 2.1 Token-length distribution (tokenizer from v2d, XLM-R SentencePiece)
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+> **Superseded by `reports/TOKENIZER_STUDY.md`** (committed `training/tokenizer_study.py`), which measures all 330,000 v2 rows rather than a sample. **The longest Kinyarwanda row is 94 tokens, not 88.** 88 was the maximum of the random 20,000-row sample below. The committed study's v1 figures agree with this table (p95 54, p99 59, max 68 for Kinyarwanda).
+
 | Text source | n | p50 | p95 | p99 | max | % > 96 | % > 128 | chars/token |
 |---|---|---|---|---|---|---|---|---|
-| **v2 corpus, Kinyarwanda** full utterances (random 20k of 330k) | 20,000 | 50 | 66 | 74 | 88 | 0.00 | 0.00 | **2.66** |
+| **v2 corpus, Kinyarwanda** full utterances (random 20k of 330k) | 20,000 | 50 | 66 | 74 | ~~88~~ **superseded: 94 over all 330,000 rows (TOKENIZER_STUDY)** | 0.00 | 0.00 | **2.66** |
 | v1 corpus (regenerated to scratch), Kinyarwanda | 5,000 | 43 | 54 | 59 | 68 | 0.00 | 0.00 | 2.65 |
 | v1 corpus, English | 5,000 | 26 | 32 | 34 | 38 | 0.00 | 0.00 | 3.89 |
 | v1 corpus, French | 5,000 | 33 | 42 | 45 | 50 | 0.00 | 0.00 | 3.47 |
@@ -96,7 +111,7 @@ recorded. Missing: pinned base revision, published weights (the SRS names `mariu
 
 **Finding.** Kinyarwanda does tokenise ~1.5× longer per character than English (2.66 vs 3.89 chars/token),
 as the spec warns — but **truncation is not the silent killer here, because the corpus is short and
-templated**: the longest Kinyarwanda row is 88 tokens. That is itself a warning: real patient narratives are
+templated**: the longest Kinyarwanda row is ~~88~~ **94** tokens (superseded; see the note above). That is itself a warning: real patient narratives are
 longer than template rows, and the absence of truncation in evaluation says nothing about field inputs.
 (A per-language row for v1 bare seed phrases was also computed and **discarded** — my script iterated the wrong
 level of `SYMPTOMS` and produced identical numbers for all four languages.)
@@ -104,6 +119,8 @@ level of `SYMPTOMS` and produced identical numbers for all four languages.)
 ---
 
 ## 3. Performance (CPU)
+
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/latency_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
 
 **Hardware:** Intel Core i5-6200U (2 cores / 4 threads, 2015 laptop part), 7.6 GiB RAM, Linux 7.0, Python 3.11.9,
 torch 2.12.0+cpu, transformers 5.8.1, `torch.set_num_threads(2)`. **Conditions were not clean:** Firefox and
@@ -164,6 +181,9 @@ listed red-flag phrase for "cannot breathe" that it is safe to wait.** Nothing f
 ---
 
 ## 4. Quality — held-out test set
+
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+> The set's composition (17,942 rows from 9 sentences, 4 CRITICAL) **is** reproducible: DATASET_AUDIT §10. The metrics and intervals are not.
 
 ### 4.1 What the test set actually is
 
@@ -242,6 +262,8 @@ is capacity- or schedule-limited (8 of 12 layers frozen, lr 1e-5, early-stopped 
 
 ## 5. Calibration
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+
 | | ECE (15 equal-width bins) |
 |---|---|
 | Reporting set, raw softmax | **0.188** |
@@ -280,6 +302,8 @@ is capacity- or schedule-limited (8 of 12 layers frozen, lr 1e-5, early-stopped 
 ---
 
 ## 6. Safety
+
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
 
 ### 6.1 Red-flag probe — v2d (**illustrative, not a validated suite**)
 
@@ -347,6 +371,8 @@ No dedicated language-ID evaluation set exists.
 
 ## 7. Error analysis
 
+> **NOT REPRODUCIBLE** (marked 2026-09-15): every measured figure in this section was produced by `scratchpad/ml_audit.py`, which was never committed and is no longer on disk (§9). Do not quote it. Not re-derived.
+
 The spec asks for 100 sampled errors clustered. With 9 distinct sentences the clusters *are* the sentences.
 100 errors sampled at random (seed 7) from 5,266 errors:
 
@@ -375,6 +401,8 @@ the third-person fever sentence **13.8%**. Chest-pain + breathlessness sentences
 ---
 
 ## 8. Verdict per threshold and recommendation
+
+> **Rests on NOT REPRODUCIBLE measurements** (§1.3–§7). The deployment gate, which is reproducible, reaches the same end by refusal: 0 of 45 gate cells can be measured on the current set (DATASET_AUDIT §10).
 
 | Gate | Verdict |
 |---|---|

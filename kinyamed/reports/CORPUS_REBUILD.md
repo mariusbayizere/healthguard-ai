@@ -2,6 +2,8 @@
 
 ## 1. Why the v2 corpus is replaced
 
+> Marked 2026-09-15 (CLAUDE.md L6). The row-level provenance figures below (180,272 / 54.6%; 99,136 / 36.6% / 55.0%; 81,136) and the frame-contradiction union (45,232 / 13.7%) are **NOT REPRODUCIBLE**: no script in the repository, committed now or in its history, prints these row counts. `review/provenance.py` prints phrase-level categories only, and `reports/measurements/grammatical_person.py` does not print them. The computation was never committed. Not re-derived. What **is** reproducible: 330,000 rows from 165 phrases, so about 2,000 rows per phrase (`grammatical_person.py`), and the two frame counts separately, 21,651 and 25,670 (same script).
+
 - **Effective size is 165 authored phrases.** 330,000 rows are those phrases × relations × frames: about 2,000
   rows per phrase (DATASET_AUDIT; TAXONOMY_SCOPE §8).
 - **More than half the rows are mechanical person-transforms.**

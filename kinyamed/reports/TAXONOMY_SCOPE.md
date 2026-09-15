@@ -309,6 +309,17 @@ The grid (§7) and power calculation (§3–4) assume one taxonomy with one set 
 ## 8. Measurement: grammatical person and patient of the v2 corpus (2026-09-15)
 
 Script: `reports/measurements/grammatical_person.py`. Output: `reports/measurements/grammatical_person.txt`.
+
+> **Partly NOT REPRODUCIBLE** (marked 2026-09-15, CLAUDE.md L6). Most figures in this section are printed by that script. **These are not**, and are marked † where they appear:
+> - the split of "adult or unspecified relative" (205,361, printed) into adult relation 141,934 (43.0%) and sister or neighbour 63,427 (19.2%);
+> - the provenance of third-person rows (270,892; 86,708 / 32.0%; 81,136 / 30.0%; 99,136 / 36.6%; 3,912);
+> - the test-set `{REL}` rows (14,926 / 83.2%);
+> - the paediatric breakdown (11,002 / 96.2%; 9,170 weighing requests);
+> - the other-seven-domains aggregates (285,959; 46,147; 59,129; 180,190);
+> - the brief/corpus mismatch count (1,141);
+> - the frame-contradiction union (45,232 / 13.7%; the two parts, 21,651 and 25,670, are printed).
+>
+> **NOT REPRODUCIBLE**: no script in the repository, committed now or in its history, prints these row counts. `review/provenance.py` prints phrase-level categories only, and `reports/measurements/grammatical_person.py` does not print them. The computation was never committed. Not re-derived. §4 and §5 repeat some of these figures and carry the same status.
 Run from `ml_model/`, about 1 minute. It reads the frozen split files (`train_phrase_holdout.csv` +
 `eval_phrase_holdout.csv` = 330,000 rows, Kinyarwanda only, 165 distinct phrases) and writes nothing.
 
@@ -362,8 +373,8 @@ not be used without a Kinyarwanda speaker.
 | – about a child: the relation is "Umwana wanjye" | 33,352 | 10.1% |
 | – about a child: the speaker's own request for their child | 4,600 | 1.4% |
 | – about a child: an adult relative's request, relayed | 32,179 | 9.8% |
-| – about an adult relation (wife, husband, mother, father, elderly woman) | 141,934 | 43.0% |
-| – about a sister or neighbour (age not stated) | 63,427 | 19.2% |
+| – about an adult relation (wife, husband, mother, father, elderly woman) | † 141,934 | † 43.0% |
+| – about a sister or neighbour (age not stated) | † 63,427 | † 19.2% |
 | – third person, nobody named ("umubiri we") | 493 | 0.1% |
 | No person marked ("Amazi yamenetse") | 444 | 0.1% |
 
@@ -375,7 +386,7 @@ child. The premise that the corpus is written like "sinshobora guhumeka" holds f
 - The 77 `{REL}` phrases render as: 50 with child and adult relations, 14 with adult relations only, 9 with
   child relations only, and 4 relayed child requests.
 
-**Provenance of the third-person rows** (270,892), from `review/provenance.py`:
+† **Provenance of the third-person rows** (270,892), categories from `review/provenance.py` (**NOT REPRODUCIBLE** row counts):
 - 86,708 (32.0%) speaker-authored;
 - **81,136 (30.0%) speaker-derived and 99,136 (36.6%) machine-derived**, i.e. person-transforms of a
   first-person phrase;
@@ -387,16 +398,16 @@ therefore not testable on this corpus: it barely contains natively written careg
 
 **n=9 test set (17,942 rows):**
 - 5 self-report phrases: 3,016 rows (16.8%);
-- 4 `{REL}` phrases rendered over 8 relations: 14,926 rows (83.2%);
+- 4 `{REL}` phrases rendered over 8 relations: † 14,926 rows (83.2%);
 - about a child: 1,931 rows (10.8%), four sentences, **2 CRITICAL**.
 
 **Domains:**
 
 | Domain | Share of corpus | Self-report | About a child | About an adult or unstated-age relation |
 |---|---|---|---|---|
-| paediatric | 11,441 (3.5%) | 439 (3.8%)¹ | **11,002 (96.2%)**, of which 9,170 are weighing requests | 0 |
+| paediatric | 11,441 (3.5%) | 439 (3.8%)¹ | † **11,002 (96.2%)**, of which † 9,170 are weighing requests | 0 |
 | obstetric | 32,600 (9.9%) | 6,985 (21.4%) | 0 | 25,171 (77.2%); 444 unmarked |
-| all other 7 domains | 285,959 (86.7%) | 46,147 | 59,129 | 180,190 (+493 third person, nobody named) |
+| all other 7 domains | † 285,959 (86.7%) | † 46,147 | † 59,129 | † 180,190 (+493 third person, nobody named) |
 
 ¹ "Mfite umuhaha", first person in the paediatric domain.
 
@@ -407,11 +418,11 @@ therefore not testable on this corpus: it barely contains natively written careg
 
 ### 8.3 Data findings outside the question, recorded not acted on
 
-- **Brief/corpus mismatch.** "iyo maze kurya numva mu nda ntameze neza" is in the corpus (1,141 rows), but the
+- **Brief/corpus mismatch.** "iyo maze kurya numva mu nda ntameze neza" is in the corpus († 1,141 rows), but the
   speaker brief marks that first-person concept (EX17) `applies=no`. "Nkorora gake ariko nta muriro mfite"
   maps to CR07 (`applies=yes`) and also to EX30 (`applies=no`).
 - **Frame contradictions on age:** 21,651 rows open "Nzanye umwana wanjye" and 25,670 rows carry "Abandi bana
-  na bo bafite iki kibazo" on a clause not about a child; 45,232 rows (13.7%) have one or both.
+  na bo bafite iki kibazo" on a clause not about a child; † 45,232 rows (13.7%) have one or both.
 
 ### 8.4 What this measurement does not establish
 
