@@ -13,7 +13,6 @@ and the transaction boundary.
 from __future__ import annotations
 
 import re
-import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Protocol
@@ -31,10 +30,11 @@ from app.repositories import symptom_report_repository, triage_repository
 from app.services import queue_service
 from app.services.patient_message import patient_receipt
 from app.services.review import ReviewStatus, review_status
+from app.services.text_fold import fold
 
 logger = structlog.get_logger(__name__)
 
-__all__ = ["ReviewStatus", "review_status"]  # re-exported for existing callers
+__all__ = ["ReviewStatus", "fold", "review_status"]  # re-exported for existing callers
 
 SUPPORTED_LANGUAGES = frozenset(
     {"kinyarwanda", "english", "french", "swahili", "mixed", "unknown"}
@@ -66,17 +66,6 @@ class SymptomClassifier(Protocol):
     def classify(self, text: str) -> Classification:
         """Return the triage decision for a free-text symptom description."""
         ...
-
-
-def fold(text: str) -> str:
-    """Strip accents so that "fievre" matches "fièvre".
-
-    Patients type symptoms on feature-phone keypads and through USSD, where
-    accented characters are routinely dropped. Matching on the folded form means
-    accent-free French and Kinyarwanda still triage correctly.
-    """
-    decomposed = unicodedata.normalize("NFKD", text)
-    return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
 def _term_pattern(terms: tuple[str, ...]) -> re.Pattern[str]:

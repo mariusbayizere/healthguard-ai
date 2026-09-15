@@ -11,6 +11,7 @@ from __future__ import annotations
 import ipaddress
 import logging
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, PostgresDsn, SecretStr, field_validator, model_validator
@@ -115,6 +116,13 @@ class Settings(BaseSettings):
     # succeeds only after a restart; the header paces clients, the response
     # body tells staff to triage manually meanwhile.
     TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS: int = Field(default=60, ge=1, le=3600)
+
+    # --- Red-flag rules layer (CLAUDE.md L2) --------------------------------
+    # The §10.6 lexicon. It ships EMPTY (header only), so the layer is a no-op
+    # until a clinical lead supplies validated terms. An invalid file stops start-up.
+    RED_FLAG_LEXICON_PATH: str = str(
+        Path(__file__).resolve().parents[3] / "data" / "lexicon" / "red_flags.csv"
+    )
 
     # --- Triage / queue tuning -------------------------------------------
     # Average minutes a clinician spends per patient; drives wait estimates.
