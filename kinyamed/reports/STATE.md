@@ -1107,14 +1107,56 @@ was partial, and the findings were re-verified from `results.json` before writin
 - **Correction to my previous report:** the 96/512 train/serve mismatch is not new. MODEL_AUDIT §2 recorded it in
   Phase 0.
 
+## C — red-flag layer built, empty term table (`809ced8`, `447c41e`, and the C3 commit)
+
+Test-first in three steps. **Every term in every test is fictional** ("zorblax fever", "quenthari").
+
+1. **C1, database** (`809ced8`).
+   - Migration `a7c3e9f1d2b4` runs the approved SQL verbatim. Offline SQL matches it, `alembic check` finds no drift,
+     and downgrade → upgrade round-trips.
+   - 9 tests prove PostgreSQL refuses: any de-escalation; a changed urgency without a trigger; a reason without a
+     trigger, or a trigger without a reason.
+2. **C2, lexicon** (`447c41e`).
+   - `data/lexicon/red_flags.csv` has the §10.6 header and **no rows** (tested).
+   - The loader rejects the whole file with line numbers on: a missing `source` or `validated_by`, a bad
+     concept_id / red_flag / date, a duplicate, a row with no terms, a wrong header, or a missing file.
+   - Matching is whole-word, case-, accent- and whitespace-insensitive. Only `red_flag=true` rows match.
+   - The reason stores concept_ids only, cut to 200 characters.
+   - 27 tests. `fold()` moved to `text_fold.py`, shared with language detection.
+3. **C3, wiring.**
+   - `run_triage` matches the lexicon **before** calling the model (tested order: rules, then model). It stores
+     `urgency_level` = CRITICAL on a match, otherwise the model's urgency, plus `model_urgency_raw`,
+     `rules_layer_triggered` and `rules_layer_reason`.
+   - The route takes the lexicon as a dependency.
+   - Start-up validates the lexicon and **refuses to start** on an invalid file (tested).
+   - Logs record concept_ids only.
+   - 14 tests:
+     - **no-op proof**: with the shipped empty table, every urgency × confidence stores the model's urgency, no
+       trigger, no reason;
+     - a fictional match forces CRITICAL for every model answer and sorts first in the CRITICAL band;
+     - **fail-closed is not bypassed**: no model → 503, nothing written;
+     - **property test**: 3,000 seeded cases, where adding terms never lowers urgency and the final urgency is
+       never below the model's. **This test passed on first run** (it exercises C2's functions), so it is
+       characterisation coverage, not red-first.
+
+- **Suites:** full backend suite alone **300 passed** (was 250; +50), 327 s; `mypy --strict` 0 issues in 64 files;
+  ruff clean.
+- **Docs:** CURRENT_CAPABILITY and README no longer say "no red-flag layer exists". They say it is built, empty, and
+  escalate-only. `data/lexicon/README.md` records the rules for adding terms.
+- **Open, for the lead clinician (H6):** should a red-flag match enqueue a CRITICAL from rules alone when the model is
+  unavailable? Today the request fails closed and nothing is written, as before.
+- **Open, not built:** the staff UI does not yet show that a case was escalated by the rules layer. The data is
+  stored; the display is a follow-up.
+
 ## Next — single action
 
-**C: the red-flag layer, test-first, empty term table**, using the approved migration SQL. Then D (5b, then 5c),
-then E (the `max_length` mismatch).
+**D: item 5b.**
+- Latency and memory benchmark: a committed script, target CPU stated, memory state recorded.
+- Fix the single-lock serialisation in `ModelClassifier`, test-first.
 
-Waiting on you:
-- H21, the Alembic merge;
-- branch protection.
+Then 5c, then E.
+
+Waiting on you: H21 (the Alembic merge), branch protection, and H6 (red flag with no model).
 
 ## Blocked on you (unchanged)
 

@@ -67,7 +67,7 @@ python training/evaluate.py --gold dataset/processed/gate_n9_gold.csv --check-go
 The refusal is the result. A metric needs the clinician-labelled evaluation set that
 [EVAL_SET_SPEC.md](kinyamed/reports/EVAL_SET_SPEC.md) specifies, and it does not exist yet.
 
-**No red-flag rules layer exists.** ([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
+**The red-flag rules layer is built but empty.** No validated clinical terms exist yet, so it matches nothing (`kinyamed/data/lexicon/red_flags.csv`). When terms are added, it can only escalate, and the database enforces that. ([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
 
 ## Software state
 

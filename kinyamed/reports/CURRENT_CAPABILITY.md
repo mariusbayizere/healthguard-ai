@@ -26,7 +26,7 @@ intervals cannot separate a safe model from a dangerous one.
 - † **Confident errors are not flagged.** "douleur thoracique, je ne peux pas respirer" came back ROUTINE at 0.78. **NOT REPRODUCIBLE** (`ml_audit.py`).
 - † **11 of 20 emergency phrases went to ROUTINE** (unvalidated probe; **NOT REPRODUCIBLE**, `ml_audit.py`), including "sinshobora guhumeka" ("I can't
   breathe").
-- No red-flag rules layer exists; there is no validated clinical term list.
+- **The red-flag rules layer exists but holds no terms**, so it changes nothing. `data/lexicon/red_flags.csv` ships empty because there is no validated clinical term list (H10). When terms are added, a match forces CRITICAL before the model runs, and PostgreSQL refuses any lowered urgency.
 
 ## Measured (v2d; 95% CI resampling the 9 sentences) — † NOT REPRODUCIBLE, `ml_audit.py`
 
