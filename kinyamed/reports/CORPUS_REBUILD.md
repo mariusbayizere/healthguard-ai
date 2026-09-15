@@ -116,7 +116,7 @@ age group: roughly 780 frames across 10 combinations, about 26–39 author-hours
 
 ### 5.3 A constraint that cannot be computed yet
 
-§9.1 caps near-duplicates below 2% (docs/ENGINEERING_SPEC.md also requires MinHash Jaccard ≥ 0.85 to be reported). Rows built
+§9.1 caps near-duplicates below 2% (docs/ENGINEERING_SPEC.md §3.6 and §9.1 also require MinHash Jaccard ≥ 0.85 to be reported). Rows built
 from one seed with different frames are the likeliest near-duplicates. Whether 28–42 frame variants per seed
 pass depends on frame length and variety, and no native frames exist to measure.
 

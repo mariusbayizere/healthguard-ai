@@ -1,4 +1,4 @@
-# 1071 matching lines in 166 files
+# 1073 matching lines in 166 files
 
   293 lines   13 files  audit reports
   252 lines   36 files  backend source (API strings and identifiers)
@@ -10,7 +10,7 @@
    28 lines    3 files  backend migrations
    27 lines   12 files  paper
    22 lines   13 files  speaker- and clinician-facing briefs
-   17 lines    1 files  spec: docs/ENGINEERING_SPEC.md
+   19 lines    1 files  spec: docs/ENGINEERING_SPEC.md
    14 lines    2 files  docs/
     4 lines    3 files  other
     3 lines    1 files  readme
@@ -1118,12 +1118,14 @@ docs/ENGINEERING_SPEC.md:132: | Physician shortage | 1 doctor per ~14,000 patien
 docs/ENGINEERING_SPEC.md:144: | Business logic | Service layer, repository pattern, Pydantic v2 | Triage orchestration, queue, SMS, analytics |
 docs/ENGINEERING_SPEC.md:151: ### §4.3 Triage data flow and latency budget, as specified
 docs/ENGINEERING_SPEC.md:154: detection < 10 ms; model < 150 ms; one atomic transaction writing the symptom report, triage result, queue entry and
-docs/ENGINEERING_SPEC.md:168: | FR-01-05 | A patient submits symptom text in any of the ten language combinations as free-form input | Triage result within 250 ms p95 under 50 concurrent users **[unsourced]** |
-docs/ENGINEERING_SPEC.md:186: | Triage API response | p50 < 200 ms · p95 < 350 ms · p99 < 500 ms **[unsourced]** | Server histogram under 50-concurrent load |
-docs/ENGINEERING_SPEC.md:203: | ML model not loaded | Triage is not assigned by the system; 503 with Retry-After; clinicians notified; manual triage mode |
-docs/ENGINEERING_SPEC.md:240: - **`triage_results`**: urgency (CRITICAL / URGENT / ROUTINE), confidence in [0, 1], per-class probabilities summing
-docs/ENGINEERING_SPEC.md:310: | T1, authoritative | Digital Umuganda (validated corpora and terminology work); Rwanda MoH / RBC clinical materials; WHO ETAT materials; native Kinyarwanda-speaking clinicians and nurses | Gold label
-docs/ENGINEERING_SPEC.md:326: T1 for terminology and taxonomy: WHO ETAT, ICD-11, SNOMED CT and UMLS (licensing checked before redistribution),
-docs/ENGINEERING_SPEC.md:388: Planned artefacts: the **KinyaMed-Triage** dataset (CSV and Parquet, CC BY 4.0) with a datasheet; the fine-tuned
-docs/ENGINEERING_SPEC.md:431: | ETAT | Emergency Triage Assessment and Treatment; specified as the WHO framework used in Rwandan health centres and the basis of the three-class taxonomy. **Contradicted by the ETAT manual itself on
-docs/ENGINEERING_SPEC.md:434: | KinyaMed-Triage | The multilingual medical symptom dataset introduced by this project. |
+docs/ENGINEERING_SPEC.md:169: | FR-01-05 | A patient submits symptom text in any of the ten language combinations as free-form input | Triage result within 250 ms p95 under 50 concurrent users **[unsourced]** |
+docs/ENGINEERING_SPEC.md:178: | FR-04-09 | A response in all four pure languages for every triage result, whatever the input language | All four fields non-empty in integration tests across all urgency classes and input languages 
+docs/ENGINEERING_SPEC.md:182: | FR-05-07 | Anonymous symptom submission: the triage endpoint accepts a patient without a sign-in token, identified by phone | The endpoint is callable with no Authorization header; the patient is re
+docs/ENGINEERING_SPEC.md:190: | Triage API response | p50 < 200 ms · p95 < 350 ms · p99 < 500 ms **[unsourced]** | Server histogram under 50-concurrent load |
+docs/ENGINEERING_SPEC.md:207: | ML model not loaded | Triage is not assigned by the system; 503 with Retry-After; clinicians notified; manual triage mode |
+docs/ENGINEERING_SPEC.md:244: - **`triage_results`**: urgency (CRITICAL / URGENT / ROUTINE), confidence in [0, 1], per-class probabilities summing
+docs/ENGINEERING_SPEC.md:314: | T1, authoritative | Digital Umuganda (validated corpora and terminology work); Rwanda MoH / RBC clinical materials; WHO ETAT materials; native Kinyarwanda-speaking clinicians and nurses | Gold label
+docs/ENGINEERING_SPEC.md:330: T1 for terminology and taxonomy: WHO ETAT, ICD-11, SNOMED CT and UMLS (licensing checked before redistribution),
+docs/ENGINEERING_SPEC.md:392: Planned artefacts: the **KinyaMed-Triage** dataset (CSV and Parquet, CC BY 4.0) with a datasheet; the fine-tuned
+docs/ENGINEERING_SPEC.md:435: | ETAT | Emergency Triage Assessment and Treatment; specified as the WHO framework used in Rwandan health centres and the basis of the three-class taxonomy. **Contradicted by the ETAT manual itself on
+docs/ENGINEERING_SPEC.md:438: | KinyaMed-Triage | The multilingual medical symptom dataset introduced by this project. |
