@@ -984,25 +984,72 @@ Rates are CLINICIAN_BRIEF's **assumptions** (2–3 min to write a seed, 30–45 
   - Run on the real corpus: exit 2, peak RSS 486 MB (no model), no predictions file. The gold file SHA-256 prefix
     `636b7727e428` is identical to the first build.
 
+## E8 ruled and built; A28 added; README cut to committed-script numbers (2026-09-15)
+
+**Full ML suite result for A** (it ran to completion, not killed): **211 passed, 3 skipped, 0 failed**, 1,264 s.
+The five approved commits landed: `fed9c3d`, `9c59824`, `cebad2f`, `8787314`, `00bdc71`.
+
+**E8 — ruled: ≥ 800 CRITICAL per pure language; CRITICAL → ROUTINE gated per language, never pooled only.**
+- `training/eval_spec.py` `TEST_ALLOCATION`: 400 → **800** CRITICAL per pure language.
+- `check_allocation_meets_requirements()` now also checks the per-language rows: gate 7 CRITICAL, gate 8 URGENT,
+  and the F1 smallest class.
+- Tests first: 4 red.
+  - One passed vacuously at first, so it was rewritten to patch the allocation back to 400 and require the gate 7
+    shortfall to be named. That made it red.
+  - Two older gate tests hard-coded 4,900 and 400; they now derive both from `spec.TEST_ALLOCATION`.
+- Green: `test_eval_spec.py`, `test_gate_evaluate.py`, `test_annotation.py`, `test_gate_script.py` **87 passed,
+  1 skipped**; `test_paper_numbers.py` 6 passed, 2 skipped. These are all the test files that import the spec or
+  the gate.
+- **Cost**, printed by `python training/eval_spec.py --report` on CLINICIAN_BRIEF's **assumed** rates:
+  - **+1,600 test items** (+3,200 labels), **84–127 clinician-hours**;
+  - the set goes from 6,400 to **8,000 items** (6,500 test + 1,500 calibration), 420–633 hours in all;
+  - Kinyarwanda-first goes from 1,300 to **1,700 items**, 89–135 hours.
+- EVAL_SET_SPEC §5, §6, §9 and §12 updated. CLINICIAN_BRIEF's Kinyarwanda estimates updated to 1,700 items: 57–85
+  h writing, 14–21 h per annotator, 4–7 h adjudication.
+- **E8b, open, not decided:** per-language URGENT recall and weighted/macro F1 need 570 per pure language; the
+  allocation has 300 URGENT and 300 ROUTINE.
+  - The allocation check names these 8 shortfalls, so the designed set is still blocked per language on gates 2,
+    3 and 8.
+  - Ruling E8b (627 each) adds **+2,616 test items (test 9,116) and 137–207 clinician-hours**.
+- **Not updated, historical:** `TAXONOMY_SCOPE.md` §6 still costs E6/E7 against 4,900 and 1,300. Under (c) with a
+  powered age axis the figures double from the new base.
+
+**A28 added to SRS CORRECTIONS REQUIRED.**
+- CRITICAL recall ≥ 0.91 and CRITICAL → ROUTINE < 1.0% have no source and no measurability check.
+- Required n from `eval_spec.py`: gate 5 needs 365 gold CRITICAL per language at a true 0.95; gate 7 needs 720 at
+  a true 0.2%.
+- Built and reported on: 4 CRITICAL sentences.
+
+**README (held, not committed; diff shown in this report).**
+- Every number whose script was never committed is cut:
+  - every model metric and interval;
+  - calibration error, 93.4%, 11 of 20, latency, and 136 of 200;
+  - 360 word types;
+  - 82 of 165 speaker-authored;
+  - **180,272 rows / 54.6% person-transforms**.
+- **Conflict with an earlier instruction:** 54.6% was required in the previous README rewrite, but no committed
+  script prints it. It is cut under L6. It remains in CORPUS_REBUILD §1 and TAXONOMY_SCOPE §8 with the same
+  defect.
+- Kept, each with its command:
+  - 330,000 rows and 165 phrases (`grammatical_person.py`);
+  - regenerates from seed 42 (`make verify-full`);
+  - 17,942 rows from 9 sentences, and 0 of 45 cells measurable (`evaluate.py --check-gold`);
+  - backend 250, frontend 146, mypy 0.
+
+**The same L6 defect remains in reports that are not the README (listed, not edited):**
+- CURRENT_CAPABILITY and MODEL_AUDIT §3–§6 quote the uncommitted Phase 0 measurements;
+- CORPUS_REBUILD §1 and TAXONOMY_SCOPE §8 quote the provenance split (180,272 / 99,136 / 81,136), which
+  `grammatical_person.py` does not print.
+
 ## Next — single action
 
-**Your ruling on E8** (per-language gate 7 against the 400-per-language CRITICAL allocation). Then **B: item 5a
-tokenizer study**. It is label-independent and runs no training, only tokenizers.
-
-Also waiting on you:
-- the held README diff: it quotes MODEL_AUDIT intervals that cannot be re-run;
-- approval to commit A as five commits. Fixes 1–6 all touch `evaluate.py` and its test file, and interactive
-  hunk staging is not available here, so the gate lands as one commit whose message lists the six defects:
-  1. `fix(eval)!: gate counts distinct source sentences; refuses legacy route, missing hardware and red-flag
-     evidence` — `training/evaluate.py`, `training/holdout_eval.py`, paper instruction comments,
-     `tests/test_gate_evaluate.py`;
-  2. `fix(annotation): scenario rules at import, two labels only, withdraw and request-adjudication` —
-     `annotation/`, `tests/test_annotation.py`, D7 protocol;
-  3. `feat(eval): script to rebuild the current holdout as a gold file` — `scripts/gate_on_current_holdout.py`;
-  4. `docs: eval-set collapse (DATASET_AUDIT §10), path to 1M (CORPUS_REBUILD §5)` — the reports and
-     measurements;
-  5. `docs(state)` — this file.
-- a branch-protection rule on `main`.
+**B: item 5a tokenizer study, one checkpoint at a time.** It loads tokenizers only, no model weights or training.
+Waiting on you in parallel:
+- the README diff;
+- E8b;
+- whether to add committed scripts, or "not reproducible" notes, for the L6 figures in CURRENT_CAPABILITY,
+  MODEL_AUDIT, CORPUS_REBUILD §1 and TAXONOMY_SCOPE §8;
+- the branch-protection rule on `main`.
 
 ## Blocked on you (unchanged)
 
@@ -1111,6 +1158,7 @@ Every "measured" value comes from a run in this session (see the Phase 0 reports
 | A26 | **The concept total has five values across the repo. One number with several values is, on its own, disqualifying at review.** **68**: `ml_model/docs/clinical-anchors.md:32` ("Of the 68 general concepts"). **80**: `ml_model/docs/triage-taxonomy.md:37` ("Of the 80 new concepts"), `licensing.md:24` ("Where the 80 concepts now stand"). **126**: `triage-taxonomy.md:8` ("126 concept slots per language"), `v2-sizing.md:185`, `utterance-form-decision.md:52`, `clinician-session-guide.md:109` ("all 126 concepts"). **127**: `licensing.md:180` and `:191` ("28 of 127 concepts"), `split-authoring.md:17`, `v2-sizing.md:141`, `session-state.md:522`, `build_english_brief.py:19`, `build_swahili_brief.py:1174`, `:1206`. **128**: paper `related_work.tex:26`, `method.tex:109`, `future_work.tex:12`; `d2-clinician-review-pack.md:98`; `swahili-authoring-brief.md:11`; `session-state.md:46`, `:445`; `build_french_brief.py:2`, `:16`; `build_swahili_brief.py:2`; `build_english_brief.py:2`; `csv_to_xlsx.py:133`. | The Kinyarwanda brief `review/speaker_brief_kinyarwanda_v2.csv` has **128 distinct `concept_id`s** (256 rows), counted 2026-09-15. Some other values are subsets (68 general, 80 new) or superseded (127 before OB13 was added 2026-09-05, per `session-state.md:46`), but the documents do not say so where the number is used. The corpus itself has **165 distinct phrases**, which is neither. | Define "concept" once. Derive the count by script from the brief. Replace or explicitly date every other occurrence. Paper submission blocked with A25. |
 | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 70 carry an anchor" and table total "Anchored concepts & 70" (`method.tex:109`, `:121`). Same claim in the clinician pack: "70 of 128 concepts carry a published anchor" (`ml_model/docs/protocols/d2-clinician-review-pack.md:98`). | **Actual sum:** the four table rows are 24 + 15 + 11 + 20 = 70 (`method.tex:116–119`; `related_work.tex:34–37`). But the fourth row (20) is "Clinician-defined, no WHO anchor", so **concepts with a document anchor = 24 + 15 + 11 = 50, not 70.** Other repo counts disagree: `clinical-anchors.md:35–37` IMCI 28, BEC 18, 22 unanchored, of 68 general concepts; `licensing.md:27–30` IMCI 29, clinician-defined 23, BEC 18, MCPC 10, of 80; `licensing.md:183–188` IMCI 28, 22, BEC 18, MCPC 10, "78 anchored" of 127 (that 78 also counts the 22 as anchored). The paper (128), `licensing.md` (127, 80) and `triage-taxonomy.md` (126 slots, 80 new concepts) each state a different concept total. | Re-derive every count from `review/concepts.py` / `concept_anchors.csv` with a script; count clinician-defined concepts as unanchored; one number everywhere. **No paper submission until done.** |
 | A27 | **The system is called "triage", and ETAT is cited as its basis**, across the spec, README, paper, UI, API and clinician-facing documents (inventory below). | **No document in the repo authorises assigning urgency from an unexamined written report** (`TAXONOMY_SCOPE.md` §2b). ETAT, the only instrument present, is defined on examination (manual p. 3, p. 36). The system receives text and examines nobody. **Full line inventory:** `reports/measurements/triage_wording_inventory.py` → `.txt`: 895 matching lines in 153 files, most of them code identifiers. This snapshot was taken before this A27 entry and `TAXONOMY_SCOPE.md` §2b were written. Re-running now gives 972; all 77 extra lines are in those two audit reports. **Patient-facing text contains none:** 0 occurrences in `backend/app/services/patient_message.py`, `response_templates.py` and the four `ml_model/review/speaker_brief_*_v2_responses.csv` template files. | **Listed only; no wording changed, no code renamed.** Choose the construct first (`reports/CONSTRUCT.md`, lead-clinician decision), then reword from this inventory. Uses of "triage manually" that refer to **staff** triaging in person are a different thing, and may be correct as they stand. |
+| A28 | **The two hard safety thresholds were specified without checking they can be measured, and neither has a source.** CRITICAL recall ≥ 0.91 in each pure language: CLAUDE.md §9.2 #5 (`:643`), FR-04-04 (`:296`), FR-01-07 (`:245`), §15 (`:854`), §16 (`:872`). CRITICAL→ROUTINE < 1.0%: L3 (`:49`), §9.2 #7 (`:645`), §16 (`:873`). | **Required n**, from `ml_model/training/eval_spec.py`: exact Clopper–Pearson, 80% power for the 95% bound to clear the threshold. **Gate 5 (recall ≥ 0.91), gold CRITICAL per pure language:** **365** at a true recall of 0.95 (test-verified by `test_stored_minimums_are_the_derived_ones`); 1,535 at 0.93 and 145 at 0.97 (stated in the requirement's rationale, not re-run 2026-09-15). **An observed recall of exactly 0.91 never clears, at any n.** **Gate 7 (rate < 1.0%), gold CRITICAL:** **720** at a true rate of 0.2% (test-verified); 368 if zero events are observed (`test_zero_events_in_368_bounds_a_rate_below_one_percent`); 2,470 at a true 0.5% (rationale). Per language (E8), each pure language needs its own 720. **What the SRS designed:** n = 100,000 overall (§9.2 #1, `:639`) and "≥ 10,000 per language in the test set" (§9.1, `:617`). Neither size was derived from these thresholds, and no per-class count was given. What was actually built and reported on: **4 CRITICAL sentences in Kinyarwanda, 0 in any other language** (DATASET_AUDIT §10), where gate 5 needs 365 and gate 7 needs 720 per language. **Source:** none in the repository for 0.91 or 1.0%. The earlier repo gate of 0.95 is marked "Inherited; source not verified" (`paper/generated/gate_derivation.tex:25`, `training/run_records/protocol.json:241`). See C7. | Cite a clinical source for each threshold, or have the lead clinician ratify each with a written rationale (H6). Size the test set from the ratified thresholds, as EVAL_SET_SPEC does, not the reverse. Any threshold change must re-run `eval_spec.py --verify`. Never tune a threshold to the data available. |
 
 #### A27 inventory — where the system is *described* as triage or as ETAT-based
 
