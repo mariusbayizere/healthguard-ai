@@ -1,8 +1,8 @@
 # STATE
 
 **Updated** 2026-09-15 · **Phase** Remediation · **Branch** `audit-p0-p1-and-frontend` (clean; your in-flight
-work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4 in progress. **Item 1 done**
-(`af643d0`, `6e81dd8`). **ETAT reading task BLOCKED: `docs/clinical/` exists but is empty.**
+work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4 in progress. **Items 1
+(`af643d0`, `6e81dd8`) and 2 (`f739985`) done.** **ETAT reading task BLOCKED: `docs/clinical/` exists but is empty.**
 
 ## Order agreed
 
@@ -561,6 +561,29 @@ uncommitted files); Vitest **132 passed**; `tsc -b` clean; Playwright 2 passed.
 **Seen on your WIP branch, not touched:** its `ci.yml` change adds a PostgreSQL service to the backend job and
 notes the job "never ran" without one. On this branch the backend CI job still has no database. Your fix
 resolves that when merged; item 2 will not duplicate it, to avoid a conflict.
+
+## Item 2 — Playwright in CI (`f739985`)
+
+- **New `e2e` job** in `.github/workflows/ci.yml`:
+  - `npm ci`;
+  - `npx playwright install --with-deps --force chrome`. The config uses `channel: "chrome"`; `--force`
+    because the runner image already ships a Chrome;
+  - `npm run e2e`;
+  - traces uploaded with `actions/upload-artifact@v4` on failure;
+  - 15-minute timeout.
+- **`forbidOnly: !!process.env.CI`** in `playwright.config.ts`: a stray `test.only` fails the run instead of
+  reporting one spec green.
+- **Guard test `src/__tests__/ci-e2e.test.ts`**, run by the existing frontend job. It fails if the job is removed,
+  given `continue-on-error` or `|| true`, stops installing Chrome or uploading traces, or if `forbidOnly` is
+  dropped. It checks the workflow text structurally, with no YAML library, since none is a direct dependency.
+- **Red first:** 6 of 7 failing. **Mutations:** a planted `test.only` under `CI=true` fails with the forbidOnly
+  error; renaming the job fails 5 guard tests.
+- **Green:** Vitest 139 passed; `tsc -b` clean; `CI=true` Playwright 2 passed locally; the workflow parses as
+  YAML with jobs `[… frontend, e2e, lint]`.
+- **Not verified:** the job has not run on GitHub from here (branch not pushed). The first push will show whether
+  the runner install step works as written.
+- **Scope note.** The a11y tests are Vitest and already ran in the `frontend` job; what was missing from CI was
+  the two Playwright specs.
 
 ## Next — single action
 
