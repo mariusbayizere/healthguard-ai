@@ -94,12 +94,19 @@ class Item:
     scenario: str
     probs: tuple[float, float, float]
     detected_language: str | None
+    # The served decision when it is not the argmax (training/thresholds.py). Every
+    # classification metric scores this; calibration (ECE) always scores the argmax.
+    decision: int | None = None
 
     @property
-    def pred(self) -> int:
+    def argmax(self) -> int:
         # Ties resolve to the more urgent class.
         best = max(self.probs)
         return self.probs.index(best)
+
+    @property
+    def pred(self) -> int:
+        return self.argmax if self.decision is None else self.decision
 
     @property
     def confidence(self) -> float:
@@ -167,6 +174,11 @@ def load_items(
                 f"item {item_id}: probabilities {probs} are not a distribution"
             )
         detected = (p.get("detected_language") or "").strip() or None
+        decided = (p.get("predicted_label") or "").strip()
+        if decided and decided not in CLASSES:
+            raise InputError(
+                f"item {item_id}: predicted_label {decided!r} is not one of {CLASSES}"
+            )
         items.append(
             Item(
                 item_id=item_id,
@@ -175,6 +187,7 @@ def load_items(
                 scenario=scenario,
                 probs=probs,
                 detected_language=detected,
+                decision=CLASSES.index(decided) if decided else None,
             )
         )
     return items, excluded
@@ -208,7 +221,7 @@ def _cluster_arrays(items: list[Item]):
         k, lang = index[item.scenario], spec.LANGUAGES.index(item.language)
         confusion[k, lang, item.gold, item.pred] += 1
         b = min(BINS - 1, max(0, math.ceil(item.confidence * BINS) - 1))
-        ece[k, b] += (1.0, item.confidence, float(item.pred == item.gold))
+        ece[k, b] += (1.0, item.confidence, float(item.argmax == item.gold))
         if item.detected_language is not None:
             lid[k, lang, 0] += 1
             lid[k, lang, 1] += int(
@@ -998,7 +1011,7 @@ def reliability_svg(items: list[Item]) -> str:
         b = min(BINS - 1, max(0, math.ceil(i.confidence * BINS) - 1))
         bins[b][0] += 1
         bins[b][1] += i.confidence
-        bins[b][2] += float(i.pred == i.gold)
+        bins[b][2] += float(i.argmax == i.gold)
 
     def sx(v: float) -> float:
         return pad + v * plot
