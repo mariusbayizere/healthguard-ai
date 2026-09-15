@@ -188,6 +188,49 @@ jobs:
         # bundle has happened here already.
         run: npm run build
 
+  e2e:
+    # The browser tests guard two safety interlocks: on a 503 the nurse sees the
+    # full manual-triage instruction, and every screen shows the "automated
+    # triage offline" banner while readiness reports model: false. Until
+    # 2026-09-15 they ran only when someone remembered, and an untested
+    # interlock decays. `src/__tests__/ci-e2e.test.ts` fails if this job is
+    # removed or allowed to fail.
+    name: Browser tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: kinyamed/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: kinyamed/frontend/package-lock.json
+
+      - name: Install from the lockfile
+        run: npm ci
+
+      - name: Install Chrome for Playwright
+        # The config uses channel "chrome". --force because the runner image
+        # already ships a Chrome that Playwright will not install over otherwise.
+        run: npx playwright install --with-deps --force chrome
+
+      - name: Browser tests
+        # No API is started: specs serve recorded responses pinned to the real
+        # API by backend contract tests. Playwright starts Vite itself.
+        run: npm run e2e
+
+      - name: Keep traces of failed runs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: kinyamed/frontend/test-results/
+          retention-days: 14
+
   lint:
     # AUDIT 1.2. 15,585 lines of Python with no linter configured. Kept as a
     # separate job so a style failure is distinguishable at a glance from a
