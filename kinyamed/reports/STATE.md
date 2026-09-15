@@ -1,15 +1,108 @@
 # STATE
 
-**Updated** 2026-09-15 · **Phase** Remediation · **Branch** `audit-p0-p1-and-frontend` (clean; your in-flight
-work is on `wip/account-analytics-frontend`) · **Status** Engineering items 1–4. **Items 1
-(`af643d0`, `6e81dd8`), 2 (`f739985`) and 3 (`caada64`, `994bbdf`) done; item 4 is a proposal
-(`reports/I18N_PLAN.md`, `23842f0`).** **mypy `--strict` gate exception CLEARED: 0 errors at HEAD.** Suites
-re-verified after the restart: backend **250 passed**, Vitest **139 passed**. **ETAT manual read: ETAT is
-paediatric, and it is defined on examination signs. That is a MODALITY mismatch with text triage, separate from
-the age mismatch (`TAXONOMY_SCOPE.md` §2, §2a).** **Construct-validity gap recorded: no document in the repo
-authorises urgency from an unexamined written report (`TAXONOMY_SCOPE.md` §2b). A proposed construct is in
-`reports/CONSTRUCT.md` (not adopted), and wording is inventoried as SRS correction A27.** E6 not decided; nothing
-renamed.
+## READ THIS FIRST — status at end of day, 2026-09-15
+
+Branch `audit-p0-p1-and-frontend`. HEAD `a32a5b0` plus the commit carrying this file. `main` untouched.
+
+**In one line:** every engineering item that was blocked only on code is built and verified. No clinical content
+was invented. **No model has been trained or measured,** because no evaluation set exists. What is left needs
+people, documents, or your decisions.
+
+### Items 1–5
+
+| Item | Status | Evidence |
+|---|---|---|
+| 1 CI on every branch and PR | **DONE-VERIFIED locally**; see CI below | `95bd49e`; `ci-triggers.test.ts` 7 tests, red first. Blocks nothing until branch protection is set (yours). |
+| 2 Red-flag layer, empty term table | **DONE-VERIFIED** | `809ced8`: PostgreSQL CHECKs make it escalate-only. `447c41e`: loader, header-only table. `f9b1c61`: runs before the model; start-up refuses an invalid lexicon. 50 tests. H6 ruled: no rules-only CRITICAL. **Terms blocked on H10.** |
+| 3 Gate refuses below the spec | **DONE-VERIFIED** | `87a746e`, `fed9c3d`: counts distinct scenarios; per-language cells. The n=9 refusal is reproduced from a clean clone (`make reproduce` step 7). It scores the served thresholded decision (`9d34977`). |
+| 4 Annotation tool | **DONE-VERIFIED (tool); unused** | `7de4061` plus the gaps; `test_annotation.py`. No clinicians yet (H1, H6–H8). |
+| 5a Tokenizer study | **DONE-VERIFIED** | `TOKENIZER_STUDY.md`, `7cc63f9`; 10 tests. Synthetic text only. Needs network, so not in `make reproduce`. |
+| 5b Latency and memory | **Fix DONE-VERIFIED; NFR NOT MET here** | `82bf6db`: micro-batching, 15 tests. p50 < 150 ms at 50 concurrent is unreachable on this machine (A29). Gates 14/15 need a target CPU (H15). |
+| 5c Training pipeline | **DONE-VERIFIED except a real training run, deliberately not run** | `3d84c8b`…`4b5fe24`: loss, calibration, safety thresholds, manifest, pipeline. It refuses on the n=9 set. `a8c18aa`, `16968ed`: **the backend serves the recorded temperature and thresholds or refuses to start** (27 tests: red 25, green 27). |
+
+### Test counts at HEAD, each suite run alone
+
+| Suite | Result |
+|---|---|
+| Backend, clean clone with no `.env`, CI's variables only | **362 passed, 0 failed, 0 skipped**; 422 s; `mypy --strict` 0 issues in 64 files |
+| Frontend, Vitest | **NOT RE-RUN at HEAD** (memory; see note). Last full run: **146 passed** (14 files) at `16968ed`. Since then only `ci-backend-db.test.ts` was added; it ran with the other two CI guard files, 18 passed. |
+| ML with torch | **NOT MEASURED at HEAD.** The run at `a32a5b0` was **killed by the system for low memory** at about 25%, with no failure before the kill (Firefox and Chrome held about 3 GB, 2.0 GB available). Last full run: **324 passed, 0 failed, 3 skipped** at `16968ed`. Since then: `importorskip` guards (no effect with deps), docstring repointing, and the run-manifest test fix (17/17 with deps). |
+| ML without dependencies (CI's dataset job, clean clone, pytest only) | Collection now succeeds. At `aca3e11`: **199 passed, 1 failed, 13 skipped**. The failure is fixed in `a32a5b0` (17/17 for that file in the same venv). `make verify` 6/6; attribution sweep 2 passed. |
+| Ruff | check and format clean (273 files) |
+
+### `make reproduce` from a clean clone: **PASS, all 8 steps**
+
+- Clone `e4d253a` in `/tmp`, run under `env -i PATH=/usr/bin:/bin`: no pyenv, no pip cache, system `python3` 3.12.
+- `make reproduce-env` (Python 3.11 plus the complete 43-package lock) took 725 s. Step 0 passed (interpreter, lock
+  and imports), then steps 1–8 all PASS, in 895 s. The clone's `git status` was empty afterwards.
+- The earlier attempt passed steps 1–6 and failed 7–8. The cause was the **environment, not the code**: pyenv's 3.11
+  applies only under `~`, and system Python lacked numpy and pandas. The fix is `8b242c9`: in-repo
+  `.python-version`, `requirements-reproduce.lock` (complete, proven with `--no-deps` and `pip check`), and step 0.
+
+### CI
+
+- **Last GitHub result I know of: run #77 at `e4d253a`, RED on 2 jobs**, 6 green (as you reported; `gh` is not
+  installed here).
+- **"Reproducibility and dataset tests", exit 2.** The job installs only pytest. Four new 5c test modules imported
+  numpy/torch at module level, so collection errored.
+  - Fix `66f5c5c`: they `importorskip`.
+  - A second defect surfaced only when replicating the job: a run-manifest test asserted numpy was installed.
+    Fixed in `a32a5b0`.
+- **"Backend suite", exit 4.** `tests/conftest.py` refuses to load without `DATABASE_URL`. Your machine has a local
+  PostgreSQL and a git-ignored `backend/.env`; the runner has neither.
+  - Fix `26010aa`: a `postgres:16` service plus `DATABASE_URL`, `SECRET_KEY`, `SMS_API_KEY` and `SMS_ENABLED`
+    (throwaway CI values, not secrets).
+  - Guarded by `frontend/src/__tests__/ci-backend-db.test.ts` (red 3, green).
+  - Replicated locally without `.env` (above). **Not replicated: the service container itself** (no Docker daemon
+    here).
+- **Green on GitHub is NOT VERIFIED until the push runs.** Check the run for this push.
+
+### Specification citations
+
+- Tracked files cited a git-ignored local file 135 times. They now cite **`docs/ENGINEERING_SPEC.md`** (tracked,
+  ignored by no rule): laws L1–L16, gate table §16, practitioner standards §1, sourcing tiers §10, dataset standards
+  §9.1, the 15 metrics §9.2, and every other section cited. Unsourced numbers are marked in the file.
+- **Zero** occurrences remain in tracked files. 80 mentions and 209 section references were checked, and every one
+  resolves (`aca3e11`, `57f51b4`, and this file).
+- The local ignore rule moved to `.git/info/exclude`. Commit messages are unchanged; no history was rewritten.
+
+### Commit hygiene note
+
+**`26010aa` mixes two concerns** (L13). Its message is the CI backend fix, but it also adds
+`docs/ENGINEERING_SPEC.md` and deletes `kinyamed/.gitignore`: they were already staged when I committed. The content
+is correct; the commit is not one concern. It was left as is, because you said not to rewrite history.
+
+### Blocked on human input, in priority order
+
+1. **H1** Ethics answer from clinicians' institutions. It gates engaging any clinician.
+2. **H6** Lead clinician: ratify the taxonomy and the unsourced 0.91, < 1% and 0.75. **H6b:** the cost of a missed
+   CRITICAL against a false alarm; the 10:1 is unsourced and reaches every served decision (A30). **H6a:** is there a
+   validated report-based urgency instrument?
+3. **H3–H5** Clinical documents in `docs/clinical/`: the Rwandan ETAT edition, the national triage protocol and its
+   mapping, obstetric danger signs and referral data.
+4. **H12** Your spec rulings E1–E7, including **E6** (scope: paediatric, adult, or both).
+5. **H7** Kinyarwanda clinician pilot, which starts the evaluation set and unblocks every model number.
+6. **H15** Target CPU and an arrival-rate latency NFR (A29).
+7. **Branch protection** on `main`, requiring the CI checks.
+8. **H21** Alembic merge revision before merging `wip/account-analytics-frontend`.
+9. **H10** red-flag validators; **H8/H9** other languages and code-switch raters; **H11** receipt translations;
+   **H16** v2d weights location; **H13/H19** governing spec and applying A27–A30 to the .docx; **H20** SAMU/912
+   unconfirmed, never shown.
+10. **H2** NHRC/IRB approval, before any real patient.
+- Your local `backend/.env`: `MODEL_MAX_LENGTH` must be unset or 96 before serving v2d (you are doing this).
+
+### Uncommitted and unpushed
+
+- **Unpushed before this push:** `26010aa`, `66f5c5c`, `aca3e11`, `57f51b4`, `a32a5b0`, and the commit carrying this
+  file. `origin` had `16968ed`.
+- **Uncommitted, deliberately:** `docs/clinical/` (the WHO PDF, never committed).
+
+### Tomorrow's single next action
+
+**With browsers fully closed** (Firefox and Chrome kept about 3 GB after their windows were closed): re-run the ML
+suite and Vitest at HEAD, one at a time, and check CI for this push. Then send **H1** (ethics) and the **H6 / H6a / H6b** clinician questions.
+
+---
 
 ## Order agreed
 
@@ -21,7 +114,7 @@ No new feature work after item 4.
 **Item 2d was inserted "before item 4" after items 4, docs and 5 were already committed.** It was not redone or
 reordered: 2d lands after `ed7063e` in history (no rewrite, L14).
 
-## Commits so far (branch `audit-p0-p1-and-frontend`, not pushed)
+## Commits of items 1–5 of the first remediation order (historical table; the branch is pushed, see top)
 
 | Commit | Item | What |
 |---|---|---|
@@ -413,7 +506,7 @@ measured. The page states 93.4% flagged and does not give a band share.
 ## 2026-09-15 — taxonomy scope and document intake
 
 **Finding 1, the scope defect: written up in `reports/TAXONOMY_SCOPE.md`.** Nothing was decided or built.
-- CLAUDE.md §18 cites ETAT as the basis of a 3-class taxonomy applied to all ages (age 1–120 on the form).
+- docs/ENGINEERING_SPEC.md §18 cites ETAT as the basis of a 3-class taxonomy applied to all ages (age 1–120 on the form).
   You report ETAT/ETAT+ as paediatric. **The same glossary also maps the classes to ESI 1–2 / 3 / 4–5**, a
   different instrument. The specification cites two incompatible bases.
 - The repo's own concept taxonomy never used ETAT. It anchors to IMCI 2014 (children under five, per the repo),
@@ -840,7 +933,7 @@ on:
 - **Not fixed; needs you, not code:** a red run does not *block* anything until `main` has a branch-protection
   rule that requires these status checks before merge. That is a GitHub repository setting. It cannot be made in
   `ci.yml`, and I have no authenticated GitHub access here.
-- **Still missing from CI:** `mypy --strict`. CLAUDE.md §16 makes it a commit gate, and the backend passes it (0
+- **Still missing from CI:** `mypy --strict`. docs/ENGINEERING_SPEC.md §16 makes it a commit gate, and the backend passes it (0
   errors), but no job runs it. Proposed as a follow-up: one step in the `backend` job, with a guard test. Not done.
 - **Warning seen in runs #71/#72:** Node.js 20 is deprecated for `actions/checkout@v4` and `actions/setup-python@v5`
   (forced onto Node 24). Not a failure today. Recorded only.
@@ -885,7 +978,7 @@ defect in the gate.
 |---|---|---|---|
 | 1 | **The minimum-n check counted rows.** 2,000 rows from 4 CRITICAL sentences printed CRITICAL recall **MET, [0.998, 1.000]**: the gate would have permitted a model on four sentences. A gold file without `scenario_id` was accepted, making every row its own scenario. | 2 failed | *n* counts distinct source sentences (`scenario_id`) per population. The refusal prints both counts: `INSUFFICIENT DATA (17,942 rows from 9 distinct source sentences; need 780 distinct)`. A missing `scenario_id` is REFUSED. A report header warns when a test split has more than one item per scenario (EVAL_SET_SPEC §8). |
 | 2 | **`evaluate.py --model` (no `--gold`), `--writeup` and `--manifest` were forwarded to `holdout_eval.py`**, which prints metrics on the 9-sentence holdout with no refusal and applies the superseded 0.95 three-condition gate. | 4 failed | Refused with exit 2 and a pointer. `holdout_eval.py` must be run by name, and it prints "NOT A DEPLOYMENT GATE". The paper's instruction comments and the legacy docstrings now name `holdout_eval.py`. Generated `.tex` provenance headers were left as written. |
-| 3 | **Pooled gates had no per-language rows** (CLAUDE.md §16: all 15 metrics per language). | 3 failed | Gates 2, 3, 4, 6, 7 and 8 are gated per pure language, with the pooled gate's own threshold and minimum. Gates 5 and 9–12 were already per language. |
+| 3 | **Pooled gates had no per-language rows** (docs/ENGINEERING_SPEC.md §16: all 15 metrics per language). | 3 failed | Gates 2, 3, 4, 6, 7 and 8 are gated per pure language, with the pooled gate's own threshold and minimum. Gates 5 and 9–12 were already per language. |
 | 4 | **The red-flag suite (§16 hard gate) had no row**, so it was silently absent. | 4 failed | A `X-REDFLAG` row. NOT MEASURED without `--red-flag-report` or with 0 cases; MET only if every case passes; NOT MET otherwise; a malformed report is REFUSED. |
 | 5 | **Gate 14 printed MET from `latency_v2d.json`** (warm p95 103 ms): percentiles with no interval, on an unnamed laptop. Gate 15 likewise. | 7 failed | Latency needs ≥ 1,000 per-request `samples_ms`. p50 and p95 are printed with bootstrap intervals, and MET needs both upper bounds under threshold. **Neither 14 nor 15 can be MET without `--target-hardware` matching the machine (H15).** Memory is labelled a single measurement, as the spec defines gate 15. |
 | 6 | **Inference ran before any check that the gold set could support a result.** | 3 failed | `--check-gold` counts every population from the gold file alone, with no model. `--model` refuses before loading the model when no cell is measurable. |
@@ -1265,40 +1358,84 @@ byte-identical over two runs):
 - Threshold warnings printed interval-less point estimates (`8ebd9ed`).
 - A passing pipeline run printed the gate's count table; it now prints it only on refusal.
 
-**NOT VERIFIED: `make reproduce` from a clean clone.**
-- Two attempts in `git clone` of `2e05521` were **killed by the system for low memory**: once in step 2, once in
-  step 1, which had passed the first time.
-- Measured alone, step 2 peaks at 15 MB (80 s). The kills track the machine's free memory: Chrome held about 2.5 GB,
-  and 4.4 GB was available.
-- Retries stopped. The last two steps' outputs were produced and diffed in the working tree, not in a clean clone.
-- **Needs:** browsers closed, then `make reproduce` from a fresh clone, run alone. `verify --scope full` needs
-  about 1 GB of scratch space.
+**`make reproduce` from a clean clone: first attempts killed for low memory, then 6/8 on the environment, then 8/8
+PASS.** The full record is at the top of this file.
 
-**Open, found in 5c (engineering, not blocked on anyone):** the backend reads only `max_length` from
-`kinyamed_training.json`. It would ignore a pipeline-trained model's temperature and thresholds, and serve argmax
-of uncalibrated probabilities, which is not the decision the gate scored. Before serving any pipeline-trained model,
-the service must either apply both or **refuse to start** (as for `max_length`). Latent today: no such model can
-exist until the eval set does.
+## 5c follow-up (2026-09-15, end of day): the backend serves the recorded decision rule or refuses to start (`a8c18aa`, `16968ed`)
+
+- **Contract** (ML side, `a8c18aa`):
+  - `training/thresholds.py` `RULE` is the rule text;
+  - `pipeline.training_metadata()` is the only writer of `kinyamed_training.json`;
+  - `tests/fixtures/decision_rule_cases.json` holds 9 golden cases (logits, temperature, thresholds → probabilities
+    and decision), generated by a committed script from `calibration.softmax` and `thresholds.decide`, each kept at
+    least 1e-6 from a boundary;
+  - `tests/fixtures/pipeline_training_metadata.json` pins the metadata shape;
+  - `tests/test_serving_contract.py` (4) proves the fixtures match the ML code, and parses the backend constant with
+    `ast`.
+- **Service** (`16968ed`):
+  - `read_decision_rule` runs at start-up beside `resolve_max_length`;
+  - `calibrated_probabilities` runs inside the forward pass;
+  - `DecisionRule.decide` runs in `classify`;
+  - confidence is the probability of the class served (a CRITICAL at p = 0.25 keeps its low confidence for the
+    review flag, L4);
+  - **start-up is refused on:** half a rule, a non-finite or non-positive temperature, a threshold outside [0, 1],
+    an unknown rule text, an unknown key, or a different label order;
+  - a model recording neither (v2d) is served by argmax, which is what the gate scores without a
+    `predicted_label`;
+  - the benchmark scripts pass the rule too.
+- **Tests:** `tests/unit/test_decision_rule.py`, **red 25 failed** with the implementation stashed. The 2 that
+  passed read only fixtures or existing argmax behaviour (characterisation). **Green 27 passed.**
+  - `mypy --strict` caught a missing type narrowing (`TypeGuard`), fixed.
+  - Full backend **362 passed**.
+- **A new cross-package test failed once, and it was the test's fault.** It text-matched the backend constant, and
+  ruff had wrapped the string. It now parses the source.
+
+## SYSTEMIC RISK, recorded 2026-09-15: a decision rule can be tuned, served, and never measured
+
+**One risk, found twice.** The decision that reaches a patient is produced in three places that could each use a
+different rule:
+1. where it is **tuned** (the training pipeline: temperature and thresholds on the calibration split);
+2. where it is **measured** (the deployment gate on the test split);
+3. where it is **served** (the backend).
+
+Nothing tied them together:
+- **The gate scored the argmax** (`evaluate.py` `Item.pred`), so a thresholded rule would have been tuned and then
+  gated as a different rule (found in 5c, fixed `9d34977`).
+- **The backend read only `max_length`,** so it would have served the argmax of uncalibrated probabilities, a
+  third rule that neither the tuning nor the gate had seen (fixed `16968ed`).
+
+Either gap alone gives a gate verdict about a decision no patient receives. The same class of defect as the 96/512
+`max_length` mismatch: train, measure and serve silently disagree.
+
+**What now prevents it, end to end:**
+
+| Link | Mechanism | Test |
+|---|---|---|
+| Tuned → recorded | The pipeline writes temperature, thresholds and `RULE` text into `kinyamed_training.json` through one function | `test_pipeline.py` passing run; `test_serving_contract.py` metadata shape |
+| Tuned → measured | Test predictions carry `predicted_label` from the same `thresholds.decide`; the gate scores it; ECE stays on the argmax | `test_thresholds.py` gate tests; `test_pipeline.py` predictions load in the gate and match `decide` |
+| Recorded → served | The service applies the record exactly, or **refuses to start** | `test_decision_rule.py` (27), incl. start-up refusal through the app lifespan |
+| Served = tuned, numerically | Both implementations reproduce the same 9 golden cases, incl. a threshold overturning the argmax and a temperature alone changing the decision | `test_serving_contract.py` (ML), `test_decision_rule.py` (backend) |
+| Label order | Metadata `labels` must equal `CRITICAL, URGENT, ROUTINE`; the model's `id2label` is still checked at load | `test_decision_rule.py`; `test_label_parity.py` |
+
+**Still open:**
+- No pipeline-trained model exists, so this chain has run end to end only on fakes and a tiny random model.
+- The first real run must confirm, on its own artefacts, that the gate's `predicted_label` equals what the running
+  service returns for the same test texts. That is one integration check, recorded here as required before any
+  deploy.
 
 ## Next — single action
 
-**Verify `make reproduce` from a clean clone, with nothing else running, then run the ML suite alone.** Needs the
-browsers closed. After that: the backend applies or refuses a model's temperature and thresholds (the open item
-above).
-
-Waiting on you:
-- H15 (target CPU and an arrival-rate NFR, informed by A29);
-- H21;
-- branch protection;
-- clinical ratification of the cost matrix and of the gate 5/7 targets (H6, A30);
-- removing `MODEL_MAX_LENGTH` from your local `.env` before serving v2d (you said you are doing this).
+**H1/H6: send the ethics question and the clinician questions (H6, H6a, H6b).** Engineering follow-ups, small:
+- the staff UI shows red-flag escalation;
+- `mypy --strict` in CI;
+- the served-vs-gated integration check on the first real model (above).
 
 ## Blocked on you (unchanged)
 
 D0 working tree · D1 spec rulings · D2 `docs/clinical/` · D3 clinician · D4 speakers · D5 target CPU ·
 D6 v2d weights location · D7 `docs/compliance/` (REMEDIATION_PLAN §0).
 
-## GATE EXCEPTION — `mypy --strict` (CLAUDE.md §16) — CLEARED 2026-09-15
+## GATE EXCEPTION — `mypy --strict` (docs/ENGINEERING_SPEC.md §16) — CLEARED 2026-09-15
 
 **CLEARED by `994bbdf`: 0 errors at HEAD**, re-verified after the restart ("no issues found in 62 source
 files").
@@ -1365,13 +1502,13 @@ detail in AUDIT_REPORT, MODEL_AUDIT, DATASET_AUDIT, REQUIREMENTS_MATRIX, REMEDIA
 ## SRS CORRECTIONS REQUIRED
 
 **Source limitation.** `docs/KinyaMed_SRS_v2_0.docx` is **not in the repository**, so I could not read it.
-Every SRS claim below is quoted from the SRS content inlined in `CLAUDE.md` (which states it inlines "every
-requirement from SRS v2.0"). Claims that appear only in the docx could not be checked and are not listed.
+Every SRS claim below is quoted from the SRS requirements as consolidated in `docs/ENGINEERING_SPEC.md` (section numbers
+below refer to it). Claims that appear only in the docx could not be checked and are not listed.
 Every "measured" value comes from a run in this session (see the Phase 0 reports for method).
 
 ### A. Statements of fact or status that the audit contradicted
 
-| # | SRS claim (location in CLAUDE.md) | Measured / found | Correction |
+| # | SRS claim (location in `docs/ENGINEERING_SPEC.md`) | Measured / found | Correction |
 |---|---|---|---|
 | A1 | "Backend Phase 1 Complete (94 tests passing)" (§3) | **213** backend tests pass, 0 fail; 127 ML pass + 2 skip; 85 frontend pass; **425 total** | Replace the count. Also drop "Phase 1 Complete": §15 defines Phase 1 as JWT RS256 + Google OAuth + first/last name + password+confirm; measured HS256, no OAuth, `full_name`, no confirm on sign-up |
 | A2 | CI "Unit Tests: pytest (≥ 94 tests)" (§12.1) | 213 backend tests | Update the number, or state a coverage criterion instead of a count |
@@ -1396,32 +1533,33 @@ Every "measured" value comes from a run in this session (see the Phase 0 reports
 | A21 | ETAT "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy" (§18) | The repo's taxonomy cites **WHO IMCI 2014** and **WHO-ICRC Basic Emergency Care 2018**, not ETAT (`ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md`). No ETAT document is in the repo. No clinician has approved the taxonomy | Correct the basis, or supply the ETAT source (D2). **Update 2026-09-15:** the WHO ETAT participant manual (2005) is now in `docs/clinical/`. It contradicts §18 on two counts: ETAT covers sick children, not adults, and it is defined on examination signs, not a reported description (`TAXONOMY_SCOPE.md` §2, §2a). |
 | A22 | Fine-tuned weights at `mariusbayizere/kinyamed-afro-xlmr` (§14) | Not verified (no network check made). The only credible weights (v2d) exist **only in `~/kinyamed-runs/` on the development machine**; `ml_model/saved_model/` is a different checkpoint trained on 179 rows (accuracy 0.414) that the backend refuses to load | Do not cite the HF repo until it exists with a pinned revision |
 | A23 | Model "AfroXLMR-mini + **PyTorch 2.1** + **HF Transformers** [4.40]" (§4.2, §3.1) | torch **2.12.0+cpu**, transformers **5.8.1** | Update versions |
-| A24 | **Four distinct triage instruments are cited as the clinical basis across the spec and code, and none is in the repository.** (1) **WHO ETAT**, the basis of the 3-class taxonomy: `CLAUDE.md:902` (also :14, :51, :677, :697). (2) **ESI**: CLAUDE.md:899 CRITICAL = "ESI 1–2", :915 URGENT = "ESI 3", :913 ROUTINE = "ESI 4–5"; paper `related_work.tex:16`. (3) **WHO IMCI Chart Booklet 2014**: `ml_model/docs/triage-taxonomy.md:14`, `clinical-anchors.md:11`, `licensing.md:14`, paper `related_work.tex:34`, `method.tex:116`. (4) **WHO-ICRC Basic Emergency Care 2018**: `clinical-anchors.md:10`, `licensing.md:12`, paper `related_work.tex:35`, `method.tex:117`. Also cited, not as a taxonomy basis: WHO *Managing Complications in Pregnancy and Childbirth* 2017 (`related_work.tex:36`) and the Manchester Triage System (`introduction.tex:25`). | `find` over the repo: the only PDF is `ml_model/paper/main.pdf`. **No instrument's text is available to verify any category, age range or licence claim** (the licence checks in `clinical-anchors.md` say the PDFs were read, but the PDFs were not kept). ETAT (paediatric, per your 2026-09-15 finding) and ESI are different instruments for the same three classes. `language-resources.md:12` still says IMCI booklets are CC BY-NC-SA, which `triage-taxonomy.md:23` records as wrong. | Choose one basis per population (TAXONOMY_SCOPE E6); place each cited document in `docs/clinical/`; delete citations of instruments not used |
+| A24 | **Four distinct triage instruments are cited as the clinical basis across the spec and code, and none is in the repository.** (1) **WHO ETAT**, the basis of the 3-class taxonomy: `docs/ENGINEERING_SPEC.md` §18 glossary (also L5, §10.2 T1, §10.4 T1). (2) **ESI**: docs/ENGINEERING_SPEC.md §18 glossary, CRITICAL = "ESI 1–2", :915 URGENT = "ESI 3", :913 ROUTINE = "ESI 4–5"; paper `related_work.tex:16`. (3) **WHO IMCI Chart Booklet 2014**: `ml_model/docs/triage-taxonomy.md:14`, `clinical-anchors.md:11`, `licensing.md:14`, paper `related_work.tex:34`, `method.tex:116`. (4) **WHO-ICRC Basic Emergency Care 2018**: `clinical-anchors.md:10`, `licensing.md:12`, paper `related_work.tex:35`, `method.tex:117`. Also cited, not as a taxonomy basis: WHO *Managing Complications in Pregnancy and Childbirth* 2017 (`related_work.tex:36`) and the Manchester Triage System (`introduction.tex:25`). | `find` over the repo: the only PDF is `ml_model/paper/main.pdf`. **No instrument's text is available to verify any category, age range or licence claim** (the licence checks in `clinical-anchors.md` say the PDFs were read, but the PDFs were not kept). ETAT (paediatric, per your 2026-09-15 finding) and ESI are different instruments for the same three classes. `language-resources.md:12` still says IMCI booklets are CC BY-NC-SA, which `triage-taxonomy.md:23` records as wrong. | Choose one basis per population (TAXONOMY_SCOPE E6); place each cited document in `docs/clinical/`; delete citations of instruments not used |
 | A26 | **The concept total has five values across the repo. One number with several values is, on its own, disqualifying at review.** **68**: `ml_model/docs/clinical-anchors.md:32` ("Of the 68 general concepts"). **80**: `ml_model/docs/triage-taxonomy.md:37` ("Of the 80 new concepts"), `licensing.md:24` ("Where the 80 concepts now stand"). **126**: `triage-taxonomy.md:8` ("126 concept slots per language"), `v2-sizing.md:185`, `utterance-form-decision.md:52`, `clinician-session-guide.md:109` ("all 126 concepts"). **127**: `licensing.md:180` and `:191` ("28 of 127 concepts"), `split-authoring.md:17`, `v2-sizing.md:141`, `session-state.md:522`, `build_english_brief.py:19`, `build_swahili_brief.py:1174`, `:1206`. **128**: paper `related_work.tex:26`, `method.tex:109`, `future_work.tex:12`; `d2-clinician-review-pack.md:98`; `swahili-authoring-brief.md:11`; `session-state.md:46`, `:445`; `build_french_brief.py:2`, `:16`; `build_swahili_brief.py:2`; `build_english_brief.py:2`; `csv_to_xlsx.py:133`. | The Kinyarwanda brief `review/speaker_brief_kinyarwanda_v2.csv` has **128 distinct `concept_id`s** (256 rows), counted 2026-09-15. Some other values are subsets (68 general, 80 new) or superseded (127 before OB13 was added 2026-09-05, per `session-state.md:46`), but the documents do not say so where the number is used. The corpus itself has **165 distinct phrases**, which is neither. | Define "concept" once. Derive the count by script from the brief. Replace or explicitly date every other occurrence. Paper submission blocked with A25. |
 | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 70 carry an anchor" and table total "Anchored concepts & 70" (`method.tex:109`, `:121`). Same claim in the clinician pack: "70 of 128 concepts carry a published anchor" (`ml_model/docs/protocols/d2-clinician-review-pack.md:98`). | **Actual sum:** the four table rows are 24 + 15 + 11 + 20 = 70 (`method.tex:116–119`; `related_work.tex:34–37`). But the fourth row (20) is "Clinician-defined, no WHO anchor", so **concepts with a document anchor = 24 + 15 + 11 = 50, not 70.** Other repo counts disagree: `clinical-anchors.md:35–37` IMCI 28, BEC 18, 22 unanchored, of 68 general concepts; `licensing.md:27–30` IMCI 29, clinician-defined 23, BEC 18, MCPC 10, of 80; `licensing.md:183–188` IMCI 28, 22, BEC 18, MCPC 10, "78 anchored" of 127 (that 78 also counts the 22 as anchored). The paper (128), `licensing.md` (127, 80) and `triage-taxonomy.md` (126 slots, 80 new concepts) each state a different concept total. | Re-derive every count from `review/concepts.py` / `concept_anchors.csv` with a script; count clinician-defined concepts as unanchored; one number everywhere. **No paper submission until done.** |
 | A27 | **The system is called "triage", and ETAT is cited as its basis**, across the spec, README, paper, UI, API and clinician-facing documents (inventory below). | **No document in the repo authorises assigning urgency from an unexamined written report** (`TAXONOMY_SCOPE.md` §2b). ETAT, the only instrument present, is defined on examination (manual p. 3, p. 36). The system receives text and examines nobody. **Full line inventory:** `reports/measurements/triage_wording_inventory.py` → `.txt`: 895 matching lines in 153 files, most of them code identifiers. This snapshot was taken before this A27 entry and `TAXONOMY_SCOPE.md` §2b were written. Re-running now gives 972; all 77 extra lines are in those two audit reports. **Patient-facing text contains none:** 0 occurrences in `backend/app/services/patient_message.py`, `response_templates.py` and the four `ml_model/review/speaker_brief_*_v2_responses.csv` template files. | **Listed only; no wording changed, no code renamed.** Choose the construct first (`reports/CONSTRUCT.md`, lead-clinician decision), then reword from this inventory. Uses of "triage manually" that refer to **staff** triaging in person are a different thing, and may be correct as they stand. |
-| A28 | **The two hard safety thresholds were specified without checking they can be measured, and neither has a source.** CRITICAL recall ≥ 0.91 in each pure language: CLAUDE.md §9.2 #5 (`:643`), FR-04-04 (`:296`), FR-01-07 (`:245`), §15 (`:854`), §16 (`:872`). CRITICAL→ROUTINE < 1.0%: L3 (`:49`), §9.2 #7 (`:645`), §16 (`:873`). | **Required n**, from `ml_model/training/eval_spec.py`: exact Clopper–Pearson, 80% power for the 95% bound to clear the threshold. **Gate 5 (recall ≥ 0.91), gold CRITICAL per pure language:** **365** at a true recall of 0.95 (test-verified by `test_stored_minimums_are_the_derived_ones`); 1,535 at 0.93 and 145 at 0.97 (stated in the requirement's rationale, not re-run 2026-09-15). **An observed recall of exactly 0.91 never clears, at any n.** **Gate 7 (rate < 1.0%), gold CRITICAL:** **720** at a true rate of 0.2% (test-verified); 368 if zero events are observed (`test_zero_events_in_368_bounds_a_rate_below_one_percent`); 2,470 at a true 0.5% (rationale). Per language (E8), each pure language needs its own 720. **What the SRS designed:** n = 100,000 overall (§9.2 #1, `:639`) and "≥ 10,000 per language in the test set" (§9.1, `:617`). Neither size was derived from these thresholds, and no per-class count was given. What was actually built and reported on: **4 CRITICAL sentences in Kinyarwanda, 0 in any other language** (DATASET_AUDIT §10), where gate 5 needs 365 and gate 7 needs 720 per language. **Source:** none in the repository for 0.91 or 1.0%. The earlier repo gate of 0.95 is marked "Inherited; source not verified" (`paper/generated/gate_derivation.tex:25`, `training/run_records/protocol.json:241`). See C7. | Cite a clinical source for each threshold, or have the lead clinician ratify each with a written rationale (H6). Size the test set from the ratified thresholds, as EVAL_SET_SPEC does, not the reverse. Any threshold change must re-run `eval_spec.py --verify`. Never tune a threshold to the data available. |
-| A29 | **The latency NFR was specified without measurement against a named hardware spec**, the same failure as A28's thresholds. CLAUDE.md FR-04-05 (`:297`): inference p50 < 150 / p95 < 200 / p99 < 300 ms "on CPU-only hardware" at 50 concurrent; §6.1 (`:336`) ML inference p50 < 150 / p95 < 200 ms; §9.2 gate 14 (`:652`) p50 / p95 < 150 / < 200 ms "on CPU". The end-to-end targets at 50 concurrent share the flaw: FR-01-05 (`:243`) triage p95 < 250 ms; §6.1 (`:335`) API p50 < 200 / p95 < 350 / p99 < 500 ms. None names a CPU, core count, or arrival rate; H15 is still open. | **Measured** (MODEL_AUDIT §3.3; `backend/scripts/benchmark_inference.py`; i5-6200U, 2 physical / 4 logical cores, loaded laptop, about 820 MB swap in use). **Achievable after micro-batching** — p50 / p95 in ms, 95% intervals: **1 concurrent** 171 [166, 177] / 366 [344, 385]; **10 concurrent** 1,015 [998, 1,026] / 1,697 [1,681, 1,955]; **50 concurrent** 3,694 [3,685, 3,724] / 4,988 [4,911, 5,101]; throughput 12.8 req/s at most. **Concurrency this machine supports within p50 < 150 / p95 < 200: none measured.** Even a single serialised request missed: p50 162 [157, 167], p95 305 [289, 326]. The older record (`training/latency_v2d.json`, warm p50 66 / p95 103, one request at a time) suggests one request at a time could pass on an idle machine; that needs a clean re-run. **What the stated target would require, reasoned, not measured:** with 50 requests continuously in flight, latency ≈ 50 ÷ throughput, so p50 ≤ 150 ms needs ≳ 333 req/s. Measured capacity is 12.8, about **26× short**; on the cleaner record with the measured 2.5× batching gain it is still about 9× short. If throughput scaled linearly with physical cores (optimistic, unmeasured), that is about 18–52 physical cores of this class; alternatives such as a GPU, a smaller or distilled encoder, or INT8 quantisation are **unmeasured**. Batching does not change results: 0 argmax disagreements in 200 texts. **Not a model defect:** the limit is CPU capacity against a load figure nobody derived. | Do **not** tune the target. Decide H15 with this measurement: name the target CPU (cores, RAM) and write the NFR as an **arrival rate** a health centre actually sees (patients per minute at the busiest hour, measured), not "50 concurrent" closed-loop users. Then either choose hardware to meet the NFR at that rate, or restate the NFR for the hardware chosen, with a clinical lead ruling what latency is acceptable (H6). Re-run `benchmark_inference.py` on the named machine, idle. |
-| A30 | **One systemic specification failure: four gate numbers were each specified with no stated source, no derivation, and no check that they could be measured or achieved.** The four: **CRITICAL recall ≥ 0.91** in each pure language; **CRITICAL→ROUTINE false-negative rate < 1.0%**; **inference latency p50 < 150 ms**; **p95 < 200 ms** (CLAUDE.md L3, FR-04-04/05, §6.1, §9.2 gates 5, 7 and 14, §16). They are not four unrelated slips. Each is a hard deploy gate that was written first, and never tested against either the test-set size needed to measure it or the hardware needed to meet it. | **Measurability** (A28): on the set actually built, 4 CRITICAL sentences, recall ≥ 0.91 needs 365 gold CRITICAL per language, and the < 1% rate needs 720. The SRS's own sizes (n = 100,000; ≥ 10,000 per language) were never derived from either threshold. **Achievability** (A29): the latency pair was never measured against any named hardware. On the only machine measured it fails at every concurrency, and at 50 concurrent it is about 26× beyond capacity. **Source:** none in the repository for any of the four. The earlier repo recall gate of 0.95 is itself marked "Inherited; source not verified". The same pattern produced E8/E8b, where the designed test set could not measure the per-language gates it existed to test. | For every gate number: (1) a cited clinical or operational source, or a written ratification by the owner (H6 for the clinical thresholds; H15 and an operational owner for latency); (2) a derivation of the measurement it needs, run through `eval_spec.py --verify` (sample size) or `benchmark_inference.py` on the named hardware (latency); (3) only then, the gate. Never lower a number to make it pass, and never adopt one without step 2. See A28, A29. |
+| A28 | **The two hard safety thresholds were specified without checking they can be measured, and neither has a source.** CRITICAL recall ≥ 0.91 in each pure language: docs/ENGINEERING_SPEC.md §9.2 #5, FR-04-04, FR-01-07, §15, §16. CRITICAL→ROUTINE < 1.0%: L3, §9.2 #7, §16. | **Required n**, from `ml_model/training/eval_spec.py`: exact Clopper–Pearson, 80% power for the 95% bound to clear the threshold. **Gate 5 (recall ≥ 0.91), gold CRITICAL per pure language:** **365** at a true recall of 0.95 (test-verified by `test_stored_minimums_are_the_derived_ones`); 1,535 at 0.93 and 145 at 0.97 (stated in the requirement's rationale, not re-run 2026-09-15). **An observed recall of exactly 0.91 never clears, at any n.** **Gate 7 (rate < 1.0%), gold CRITICAL:** **720** at a true rate of 0.2% (test-verified); 368 if zero events are observed (`test_zero_events_in_368_bounds_a_rate_below_one_percent`); 2,470 at a true 0.5% (rationale). Per language (E8), each pure language needs its own 720. **What the SRS designed:** n = 100,000 overall (§9.2 #1, `:639`) and "≥ 10,000 per language in the test set" (§9.1, `:617`). Neither size was derived from these thresholds, and no per-class count was given. What was actually built and reported on: **4 CRITICAL sentences in Kinyarwanda, 0 in any other language** (DATASET_AUDIT §10), where gate 5 needs 365 and gate 7 needs 720 per language. **Source:** none in the repository for 0.91 or 1.0%. The earlier repo gate of 0.95 is marked "Inherited; source not verified" (`paper/generated/gate_derivation.tex:25`, `training/run_records/protocol.json:241`). See C7. | Cite a clinical source for each threshold, or have the lead clinician ratify each with a written rationale (H6). Size the test set from the ratified thresholds, as EVAL_SET_SPEC does, not the reverse. Any threshold change must re-run `eval_spec.py --verify`. Never tune a threshold to the data available. |
+| A29 | **The latency NFR was specified without measurement against a named hardware spec**, the same failure as A28's thresholds. docs/ENGINEERING_SPEC.md FR-04-05: inference p50 < 150 / p95 < 200 / p99 < 300 ms "on CPU-only hardware" at 50 concurrent; §6.1 ML inference p50 < 150 / p95 < 200 ms; §9.2 gate 14 p50 / p95 < 150 / < 200 ms "on CPU". The end-to-end targets at 50 concurrent share the flaw: FR-01-05 triage p95 < 250 ms; §6.1 API p50 < 200 / p95 < 350 / p99 < 500 ms. None names a CPU, core count, or arrival rate; H15 is still open. | **Measured** (MODEL_AUDIT §3.3; `backend/scripts/benchmark_inference.py`; i5-6200U, 2 physical / 4 logical cores, loaded laptop, about 820 MB swap in use). **Achievable after micro-batching** — p50 / p95 in ms, 95% intervals: **1 concurrent** 171 [166, 177] / 366 [344, 385]; **10 concurrent** 1,015 [998, 1,026] / 1,697 [1,681, 1,955]; **50 concurrent** 3,694 [3,685, 3,724] / 4,988 [4,911, 5,101]; throughput 12.8 req/s at most. **Concurrency this machine supports within p50 < 150 / p95 < 200: none measured.** Even a single serialised request missed: p50 162 [157, 167], p95 305 [289, 326]. The older record (`training/latency_v2d.json`, warm p50 66 / p95 103, one request at a time) suggests one request at a time could pass on an idle machine; that needs a clean re-run. **What the stated target would require, reasoned, not measured:** with 50 requests continuously in flight, latency ≈ 50 ÷ throughput, so p50 ≤ 150 ms needs ≳ 333 req/s. Measured capacity is 12.8, about **26× short**; on the cleaner record with the measured 2.5× batching gain it is still about 9× short. If throughput scaled linearly with physical cores (optimistic, unmeasured), that is about 18–52 physical cores of this class; alternatives such as a GPU, a smaller or distilled encoder, or INT8 quantisation are **unmeasured**. Batching does not change results: 0 argmax disagreements in 200 texts. **Not a model defect:** the limit is CPU capacity against a load figure nobody derived. | Do **not** tune the target. Decide H15 with this measurement: name the target CPU (cores, RAM) and write the NFR as an **arrival rate** a health centre actually sees (patients per minute at the busiest hour, measured), not "50 concurrent" closed-loop users. Then either choose hardware to meet the NFR at that rate, or restate the NFR for the hardware chosen, with a clinical lead ruling what latency is acceptable (H6). Re-run `benchmark_inference.py` on the named machine, idle. |
+| A30 | **One systemic specification failure: numbers in safety-critical positions, each with no stated source, no derivation, and no check that it could be measured or achieved.** Five numbers:<br>• **CRITICAL recall ≥ 0.91** in each pure language<br>• **CRITICAL→ROUTINE false-negative rate < 1.0%**<br>• **inference latency p50 < 150 ms**<br>• **p95 < 200 ms**<br>• **(added 2026-09-15) the cost of a missed CRITICAL: 10.0 for CRITICAL→ROUTINE against 1.0 for every other error.** The engineering default in `ml_model/training/cost_loss.py` `DEFAULT_COST_MATRIX`, carried into `training/configs/pipeline_default.json`.<br>Sources: docs/ENGINEERING_SPEC.md L3, FR-04-04/05, FR-04-13, §6.1, §9.2 gates 5, 7 and 14, §16. They are not five unrelated slips. Each was written first, and never tested against the test-set size needed to measure it, the hardware needed to meet it, or (for the cost) any clinical judgement.<br>**The cost is not a training detail. It reaches every serving decision.** The shape (CRITICAL→ROUTINE strictly the worst error) is required by docs/ENGINEERING_SPEC.md L3 and FR-04-13 and enforced in code. The magnitude 10.0 has no derivation. It acts twice:<br>1. In training, it weights the loss term that moves probability mass away from ROUTINE for CRITICAL cases.<br>2. In `training/thresholds.py`, 0.91 and < 1% only fix which threshold pairs count as safe. Among those, the cost ratio alone picks the pair that is recorded in `kinyamed_training.json` and served; the backend now applies that record exactly or refuses to start.<br>A different ratio picks different thresholds, and so a different urgency for the same patient report. An unsourced 10.0 therefore propagates into every served decision, trading false alarms (alert fatigue) against missed emergencies at a rate nobody chose. | **Measurability** (A28): on the set actually built, 4 CRITICAL sentences, recall ≥ 0.91 needs 365 gold CRITICAL per language, and the < 1% rate needs 720. The SRS's own sizes (n = 100,000; ≥ 10,000 per language) were never derived from either threshold. **Achievability** (A29): the latency pair was never measured against any named hardware. On the only machine measured it fails at every concurrency, and at 50 concurrent it is about 26× beyond capacity. **Source:** none in the repository for any of the four. The earlier repo recall gate of 0.95 is itself marked "Inherited; source not verified". The same pattern produced E8/E8b, where the designed test set could not measure the per-language gates it existed to test. | For every such number: (1) a cited clinical or operational source, or a written ratification by the owner (H6 for the clinical thresholds; **H6b for the cost ratio**; H15 and an operational owner for latency); (2) a derivation of the measurement it needs, run through `eval_spec.py --verify` (sample size) or `benchmark_inference.py` on the named hardware (latency). For the cost ratio: re-run threshold tuning at the ratified ratio, and report how the served thresholds move across plausible ratios, so the sensitivity is visible. (3) Only then, the gate or the served default. Never lower a number to make it pass, and never adopt one without step 2. Until H6b is answered, any pipeline run must state that its thresholds were chosen at an unsourced 10:1. See A28, A29. |
 
 #### A27 inventory — where the system is *described* as triage or as ETAT-based
 
 Curated from the script output. It covers descriptions and visible strings; code identifiers are counted, not
 listed. Line numbers are as of 2026-09-15.
 
-**Specification — `kinyamed/CLAUDE.md` (local, git-ignored)**
+**Specification — `docs/ENGINEERING_SPEC.md`** (committed 2026-09-15; it keeps the source's triage wording, so these
+still stand. Before that date they were cited by line number in a local, uncommitted file.)
 - ETAT as basis or source:
-  - `:902` glossary: "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy";
-  - `:14`, `:51` (L5): triage taxonomy comes from "WHO ETAT" materials;
-  - `:697` §10.4 T1 "terminology and taxonomy": "WHO ETAT".
+  - §18 glossary: ETAT as the "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy";
+  - L5: the triage taxonomy comes from WHO materials in `docs/clinical/`;
+  - §10.2 T1 and §10.4 T1 "terminology and taxonomy": "WHO ETAT".
 - System named as triage:
-  - `:2` title "Medical Triage & Patient Queue System";
-  - `:47` L1 "KinyaMed performs **triage prioritisation only**";
-  - `:196` "§4.3 Triage data flow";
-  - `:177` "Manual triage causes ~47-minute delay" (the problem statement, unsourced, C2);
-  - `:833`, `:907` dataset name "KinyaMed-Triage".
-- As a feature name in requirements: `:189`, `:202`, `:205`, `:243`, `:252`, `:262`, `:285`, `:301`, `:319`, `:335`,
-  `:365`, `:379`, `:603`, `:748`, `:793`, `:807`, `:811`, `:813`, `:814`.
+  - the title "medical triage and patient queue system";
+  - L1 "**triage prioritisation only**";
+  - §4.3 "Triage data flow";
+  - §4.1 "Manual triage causes a ~47-minute delay" (the problem statement, unsourced, C2);
+  - §14 and §18 dataset name "KinyaMed-Triage".
+- As a feature name in requirements: §4.2, §4.3, FR-01-05, §6.1 ("Triage API response"), §6.3 ("ML model not
+  loaded"), §8.2 `triage_results`, §13, FR-04-03.
 
 **Repository README — `README.md`**
 - `:8` "AI-powered medical triage and patient queue system"
@@ -1572,6 +1710,7 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 |---|---|---|---|---|
 | H6 | Lead clinician (B5, D3) | Approve the category mapping and worked examples (≥2 per label, ≥3 boundary pairs per line). Ratify the unsourced numbers: CRITICAL recall 0.91 (old charter 0.95), CRITICAL→ROUTINE < 1%, **review threshold 0.75**. Ratify the 2d design: NEEDS REVIEW above URGENT; low-confidence CRITICAL stays CRITICAL. Rule on the taxonomy pack `ml_model/docs/protocols/d2-clinician-review-pack.md` (e.g. is an unstoppable nosebleed CRITICAL?) | A registered clinician practising in Rwanda | Protocol §3–4; the pilot; every gate verdict; the queue design's clinical basis |
 | H6a | Lead clinician: **is there a validated report-based urgency instrument?** (added 2026-09-15) | **Question:** does any **validated** instrument exist for assigning urgency from a symptom report **without examination**, for example a telephone or nurse-advice-line triage protocol? **Is any such protocol in use in Rwanda?** If yes, the document itself, cited by section and page and placed in `docs/clinical/`, with its validation evidence and its population (age range). **If yes, that instrument replaces ETAT as the clinical anchor.** **UNVERIFIED LEAD:** the example is yours, not a finding. I have not verified that any such instrument exists, is validated, or is used in Rwanda, and nothing in the repo mentions one (`TAXONOMY_SCOPE.md` §2b). Do not cite one until the document is in hand (L5, L16). | Lead clinician (H6); RBC / MoH (H4) | The clinical anchor for labels (D7 §3); whether `reports/CONSTRUCT.md` is needed at all or is superseded by that instrument; E6; A27 rewording |
+| H6b | Lead clinician: **what relative cost should a missed CRITICAL carry against a false alarm?** (added 2026-09-15) | **Question:** how many false CRITICAL alerts (a non-critical patient escalated, a staff interruption) is it acceptable to raise to avoid missing one true CRITICAL (sent to ROUTINE)? And how do URGENT↔ROUTINE and URGENT↔CRITICAL errors compare? **This is a clinical judgement about alert fatigue versus missed emergencies, not an engineering constant.** The answer should come with its reasoning, and should say whether it differs by setting (health centre or hospital) or age group. **Current state:** CRITICAL→ROUTINE costs 10.0 and every other error 1.0 (`training/cost_loss.py`), UNSOURCED (A30). Only the ordering (a missed CRITICAL is the worst error) is required by docs/ENGINEERING_SPEC.md L3. No number is proposed here: I will not suggest one. | Lead clinician (H6), ideally with the nurses who will receive the alerts | The cost matrix (training objective and threshold choice); every served decision of a pipeline-trained model (A30); the review-load estimate for staff |
 | H7 | Kinyarwanda clinicians (B6, D4) — first | Authors for about 1,300 items. Two annotators (about 11–16 h each, estimated). One adjudicator. Nobody labels their own items. | Native-speaker clinicians (see CLINICIAN_BRIEF) | Kinyarwanda test set, κ, gates 5 (KW) and 9, calibration, and any retraining (R5) |
 | H8 | EN / FR / SW clinicians (B6, D4) | The same roles per language. Swahili needs TZ and KE variants. | Native-speaker clinicians | Gates 5 (EN/FR/SW) and 10–12. §16's hard gate needs all four. |
 | H9 | Bilingual raters per mixed pair (D4) | Authors and annotators for 6 code-switch pairs; naturalness ratings ≥ 2 raters per pair | Bilingual speakers of each pair | Gate 13; the code-switching claim |
@@ -1583,7 +1722,7 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 | # | What | Needs exactly | Blocks downstream |
 |---|---|---|---|
 | H12 | E1–E7 (EVAL_SET_SPEC §12, TAXONOMY_SCOPE §6) | Yes/no on each: E1 interval decision rule; E2 pooled mixed accuracy with per-pair floor; E3 distinct-item minimums instead of n=100,000; E4 ECE on the test set, temperature fitted on the calibration split; E5 Kinyarwanda first; **E6 scope option (a) paediatric only / (b) adult only / (c) both with age routing; E7 under (c), age group powered or coverage-only** | Freezing the spec; quota sheets for authors (H7); every protocol §3 definition |
-| H13 | Governing spec (D1) | A ruling on the 9 conflicts (a)–(i) between the old `ml_model/CLAUDE.md` and CLAUDE.md v2.0. Also: 87% vs 82% accuracy, and 13px vs 14px minimum text. | R1.3, R3, R5–R7; schema and auth work |
+| H13 | Governing spec (D1) | A ruling on the 9 conflicts (a)–(i) between the old ml_model charter file and `docs/ENGINEERING_SPEC.md` v2.0. Also: 87% vs 82% accuracy, and 13px vs 14px minimum text. | R1.3, R3, R5–R7; schema and auth work |
 | H14 | Your uncommitted work (D0) | Commit or stash your 19 modified files, 1 deleted file and untracked files (`queue_repo.py`, `hooks.ts`, `types.ts`, the password-reset migration, CI). | Folding the band fields into `QueueEntry`; putting mypy in CI (`ci.yml`); clean commits |
 | H15 | Target CPU (D5) | Cores, RAM, whether shared | Gates 14–15 verdicts |
 | H16 | v2d weights (D6) | Publish with pinned revision and SHA-256, or keep private and document where | `make reproduce`; model card; paper reproducibility |
