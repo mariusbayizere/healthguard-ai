@@ -1,5 +1,5 @@
 """training/pipeline.py: the training pipeline, ready to run, refusing below the eval-set
-minimum (CLAUDE.md FR-04-12, FR-04-13, L6, L8).
+minimum (docs/ENGINEERING_SPEC.md FR-04-12, FR-04-13, L6, L8).
 
 Order, each step gating the next:
   1. eval sets meet EVAL_SET_SPEC (test: every pre-inference gate cell SUFFICIENT;
@@ -22,10 +22,14 @@ import json
 import zlib
 from pathlib import Path
 
-import numpy as np
 import pytest
-from training import eval_spec as spec
-from training import pipeline as pl
+
+# CI's dependency-free job collects every test file with only pytest installed.
+np = pytest.importorskip("numpy", reason="the pipeline is numpy code")
+pytest.importorskip("torch", reason="training.pipeline imports the cost-sensitive loss")
+
+from training import eval_spec as spec  # noqa: E402
+from training import pipeline as pl  # noqa: E402
 
 ML_ROOT = Path(__file__).resolve().parent.parent
 N9_GOLD = ML_ROOT / "dataset/processed/gate_n9_gold.csv"
@@ -302,7 +306,7 @@ def test_a_clean_split_passes_the_leakage_check():
 
 
 def test_the_near_duplicate_threshold_is_the_contract_value():
-    assert pl.NEAR_DUPLICATE_JACCARD == 0.85  # CLAUDE.md §3.6
+    assert pl.NEAR_DUPLICATE_JACCARD == 0.85  # docs/ENGINEERING_SPEC.md §3.6
 
 
 # ── 3-6. A run that passes every check ────────────────────────────────────────

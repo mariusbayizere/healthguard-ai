@@ -1,4 +1,4 @@
-"""training/calibration.py: temperature scaling on the calibration split (CLAUDE.md FR-04-12).
+"""training/calibration.py: temperature scaling on the calibration split (docs/ENGINEERING_SPEC.md FR-04-12).
 
 Synthetic data with a KNOWN miscalibration: labels are drawn from softmax(z), and the
 "model" reports T_true * z. The fitted temperature must recover T_true. Nothing here
@@ -7,10 +7,13 @@ says anything about a real model.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
-from training import calibration as cal
-from training import eval_spec as spec
+
+# CI's dependency-free job collects every test file with only pytest installed.
+np = pytest.importorskip("numpy", reason="calibration is numpy code")
+
+from training import calibration as cal  # noqa: E402
+from training import eval_spec as spec  # noqa: E402
 
 
 def _synthetic(n: int, t_true: float, seed: int = 3):

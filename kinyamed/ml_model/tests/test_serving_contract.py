@@ -17,11 +17,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
 import pytest
-from training import calibration as cal
-from training import pipeline as pl
-from training import thresholds as th
+
+# CI's dependency-free job collects every test file with only pytest installed.
+np = pytest.importorskip("numpy", reason="the decision rule is numpy code")
+pytest.importorskip("torch", reason="training.pipeline imports the cost-sensitive loss")
+
+from training import calibration as cal  # noqa: E402
+from training import pipeline as pl  # noqa: E402
+from training import thresholds as th  # noqa: E402
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 CASES = FIXTURES / "decision_rule_cases.json"

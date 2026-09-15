@@ -1,5 +1,5 @@
 """training/thresholds.py: decision thresholds tuned to CRITICAL safety, not accuracy
-(CLAUDE.md FR-04-13).
+(docs/ENGINEERING_SPEC.md FR-04-13).
 
 The two hard constraints are the safety gates, read from eval_spec (5: CRITICAL recall
 in each pure language; 7: CRITICAL -> ROUTINE rate, pooled). Among thresholds that
@@ -9,10 +9,13 @@ Synthetic probabilities only; nothing here describes a real model.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
-from training import eval_spec as spec
-from training import thresholds as th
+
+# CI's dependency-free job collects every test file with only pytest installed.
+np = pytest.importorskip("numpy", reason="threshold tuning is numpy code")
+
+from training import eval_spec as spec  # noqa: E402
+from training import thresholds as th  # noqa: E402
 
 COSTS = ((0.0, 1.0, 10.0), (1.0, 0.0, 1.0), (1.0, 1.0, 0.0))  # cost_loss default
 C, U, R = 0, 1, 2
