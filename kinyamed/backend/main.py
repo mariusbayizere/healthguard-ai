@@ -43,7 +43,17 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # against a warm median of 66 ms, so it is paid at start-up, not by a patient.
     # A missing model does not stop the service: the queue and records stay
     # usable, and triage FAILS CLOSED with 503 until a model is loaded.
-    from app.services import triage_service
+    from app.services import red_flags, triage_service
+
+    # L2. The red-flag lexicon is validated before the service starts. An invalid
+    # file (e.g. a row without source or validated_by) raises here, so the API never
+    # serves with a lexicon nobody can vouch for. As shipped it is empty: a no-op.
+    lexicon = red_flags.get_lexicon()
+    logger.info(
+        "red_flag_lexicon_loaded",
+        concepts=len(lexicon.patterns),
+        effect="no-op: the lexicon is empty" if lexicon.is_empty else "escalate-only",
+    )
 
     if triage_service.get_classifier() is None:
         logger.error(

@@ -27,7 +27,7 @@ from app.models.queue import Queue
 from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import symptom_report_repository, triage_repository
-from app.services import queue_service
+from app.services import queue_service, red_flags
 from app.services.patient_message import patient_receipt
 from app.services.review import ReviewStatus, review_status
 from app.services.text_fold import fold
@@ -260,6 +260,7 @@ def run_triage(
     patient: Patient,
     symptoms_input: str,
     classifier: SymptomClassifier | None,
+    lexicon: red_flags.RedFlagLexicon | None = None,
 ) -> TriageOutcome:
     """Triage a symptom report and place the patient in the queue.
 
@@ -271,11 +272,24 @@ def run_triage(
     transaction, so a failure can never leave a symptom report with no triage or
     a triage with no place in the queue.
 
+    RED-FLAG LAYER (CLAUDE.md L2). The lexicon is matched BEFORE the model is
+    called. A match forces CRITICAL whatever the model says; nothing lowers
+    urgency, and PostgreSQL rejects any row that would. The model's own urgency
+    is stored as `model_urgency_raw`. A match does not bypass fail-closed: with no
+    model the request is still a 503 and nothing is written. Whether rules alone
+    should enqueue a CRITICAL without the model is a clinical decision (H6). With
+    the shipped, empty lexicon the layer matches nothing, so the stored urgency
+    equals the model's.
+
     The SMS is deliberately not sent here: the caller dispatches
     `outcome.sms_message` after the commit, so a carrier outage cannot roll back
     a completed triage.
     """
+    rule_match = (lexicon if lexicon is not None else red_flags.get_lexicon()).match(
+        symptoms_input
+    )
     classification = _classify(classifier, symptoms_input)
+    decision = red_flags.apply(classification.urgency, rule_match)
     language = detect_language(symptoms_input)
     logger.info(
         "triage_started",
@@ -298,7 +312,10 @@ def run_triage(
         db,
         commit=False,
         symptom_report_id=report.id,
-        urgency_level=classification.urgency,
+        urgency_level=decision.urgency,
+        model_urgency_raw=decision.model_urgency,
+        rules_layer_triggered=decision.triggered,
+        rules_layer_reason=decision.reason,
         # Retired columns: no condition is ever named, and no machine-drafted
         # advice is stored. Written as NULL until a migration drops them.
         possible_conditions=None,
@@ -314,7 +331,11 @@ def run_triage(
         "triage_completed",
         patient_id=patient.id,
         triage_id=result.id,
-        urgency=classification.urgency.value,
+        urgency=decision.urgency.value,
+        model_urgency=decision.model_urgency.value,
+        rules_layer_triggered=decision.triggered,
+        # concept_ids only, never text (L11)
+        rules_layer_concepts=list(rule_match.concept_ids),
         confidence=classification.confidence,
         language=language,
         queue_number=queue_entry.queue_number,

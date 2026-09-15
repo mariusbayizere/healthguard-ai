@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, assert_may_act_for_patient
 from app.schemas.triage import TriageRequest, TriageResponse
-from app.services import patient_service, queue_service, triage_service
+from app.services import patient_service, queue_service, red_flags, triage_service
 from app.services.patient_message import PATIENT_MESSAGE_LANGUAGE, patient_receipt
 from app.services.sms_service import send_sms_in_background
 from app.services.triage_service import SymptomClassifier
@@ -25,6 +25,12 @@ def get_triage_classifier() -> SymptomClassifier | None:
     return triage_service.get_classifier()
 
 
+def get_red_flag_lexicon() -> red_flags.RedFlagLexicon:
+    """The configured red-flag lexicon (empty as shipped). A dependency so tests can
+    supply a fixture lexicon of fictional terms."""
+    return red_flags.get_lexicon()
+
+
 @router.post("", response_model=TriageResponse, status_code=status.HTTP_201_CREATED)
 def submit_triage(
     data: TriageRequest,
@@ -32,6 +38,7 @@ def submit_triage(
     user: CurrentUser,
     db: Session = Depends(get_db),
     classifier: SymptomClassifier | None = Depends(get_triage_classifier),
+    lexicon: red_flags.RedFlagLexicon = Depends(get_red_flag_lexicon),
 ) -> TriageResponse:
     """Triage a symptom report and place the patient in the queue.
 
@@ -49,7 +56,11 @@ def submit_triage(
     assert_may_act_for_patient(user, data.patient_id)
     patient = patient_service.get_patient(db, data.patient_id)
     outcome = triage_service.run_triage(
-        db, patient=patient, symptoms_input=data.symptoms_input, classifier=classifier
+        db,
+        patient=patient,
+        symptoms_input=data.symptoms_input,
+        classifier=classifier,
+        lexicon=lexicon,
     )
 
     review = triage_service.review_status(outcome.result.confidence_score)
