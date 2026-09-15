@@ -1,273 +1,108 @@
-# HealthGuard AI Platform
+# HealthGuard AI — KinyaMed (research prototype)
 
-[![CI](https://github.com/mariusbayizere/healthguard-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/mariusbayizere/healthguard-ai/actions/workflows/ci.yml)
+> **Not deployed. It must not be used with patients.** No ethics approval is on file, and no clinician has
+> validated anything in this repository.
+> ([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
 
-A platform targeting two problems in emerging markets. One module has code in this
-repository; the other is planned and not yet started.
+**Start with the audit.** The reports are the source of truth; this page links to them.
 
-- **KinyaMed** *(in progress)* — AI-powered medical triage and patient queue system
-  for Kinyarwanda-speaking populations. The dataset pipeline is complete and
-  verifiable; a FastAPI backend is in development.
-
-## What is built, what is measured, what is pending
-
-This section is the honest summary. `kinyamed/ml_model/docs/STATUS.md` is the
-same thing per item; this is the short version.
-
-### Built and working
-
-- **Kinyarwanda corpus.** 330,000 rows generated from 165 distinct phrases
-  across 96 clinical concepts, anchored to WHO guidance where guidance exists.
-  Reproducible from seed 42; `make verify-full` re-derives every committed
-  digest.
-- **Trained classifier.** Three-level urgency from patient-voice Kinyarwanda.
-- **API.** Triage endpoint, urgency-ordered queue, doctor assignment, SMS
-  behind a feature flag in dry-run.
-- **Frontend.** Triage intake, live queue, doctor dashboard, wired to the real
-  endpoints. Static files, no build step.
-- **Paper.** 19 pages, every number emitted from one verified inference pass.
-
-### Measured
-
-| | |
+| Report | What it establishes |
 |---|---|
-| Macro F1 | 0.7724 |
-| CRITICAL recall | 0.8504 |
-| Inference latency | warm p95 103 ms, cold 1341 ms |
-| Corpus provenance | 82 of 165 phrases (49.7%) directly speaker-authored |
+| [CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md) | One page: what the prototype does and cannot do |
+| [MODEL_AUDIT.md](kinyamed/reports/MODEL_AUDIT.md) | The model against its gates |
+| [DATASET_AUDIT.md](kinyamed/reports/DATASET_AUDIT.md) · [CORPUS_REBUILD.md](kinyamed/reports/CORPUS_REBUILD.md) | What the corpus is, why it must be replaced, and the path to a defensible one |
+| [TAXONOMY_SCOPE.md](kinyamed/reports/TAXONOMY_SCOPE.md) · [CONSTRUCT.md](kinyamed/reports/CONSTRUCT.md) | The missing clinical basis |
+| [EVAL_SET_SPEC.md](kinyamed/reports/EVAL_SET_SPEC.md) | The evaluation set that deployment gates require, and how large it must be |
+| [STATE.md](kinyamed/reports/STATE.md) | Current work, corrections to the specification, and everything blocked on a person or document |
 
-### Pending, and honest about it
+**Numbers on this page.** Only figures that a script committed to this repository reproduces are stated here,
+each with the command. The Phase 0 model measurements (accuracy, recall, intervals, calibration, latency) came
+from scripts that were never committed, so they are not repeated here. See MODEL_AUDIT §9.
 
-**The model does not meet its own acceptance gate.** CRITICAL recall is 0.8504
-against a threshold of 0.95. It is not deployed and is not cleared for use with
-any patient.
+## What it is
 
-**The evaluation base is nine distinct sentences**, four of them CRITICAL. Every
-performance figure above is bounded by that, and no amount of training changes
-it — only more authored phrases do.
+A staff-operated web app and API. Staff enter a patient's symptom text. A fine-tuned AfroXLMR-mini model, trained
+on Kinyarwanda only, suggests CRITICAL, URGENT or ROUTINE with a confidence score, as a staff-facing hint. The
+queue is ordered by that suggestion. Patients receive only a receipt and queue position, in English.
+([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
 
-**Three of four languages have no corpus.** English and French exist as
-machine-drafted briefs no speaker has reviewed; Swahili has authored relation
-terms and response templates but no authored phrases. Frame fragments exist for
-Kinyarwanda only, so no other language can generate a row.
+## No clinical basis yet
 
-**Code-switching generates nothing.** Six language pairs are designed; zero
-produce a row, because the noun-class data needed to insert a word correctly
-has been ruled for one matrix language and is incomplete even there.
+**No document in this repository authorises assigning urgency from a written report about a patient nobody has
+examined.** The only clinical instrument present, the WHO ETAT participant manual (2005), defines its categories
+by examining children on arrival. It does not address remote or written reports.
+([TAXONOMY_SCOPE.md §2, §2a, §2b](kinyamed/reports/TAXONOMY_SCOPE.md))
 
-**Six claims require studies that have not run** — inter-rater agreement,
-clinician approval of the taxonomy, native-speaker authenticity ratings, a
-human-nurse baseline, community health worker consultation, and deployment. No
-value exists for any of them anywhere in this repository. The protocol for each
-is written and ready to execute under `kinyamed/ml_model/docs/protocols/`.
+Earlier versions of this README called the project "AI-powered medical triage". That claim is withdrawn.
+- A proposed description of what the system actually measures is in [CONSTRUCT.md](kinyamed/reports/CONSTRUCT.md).
+  It is **not adopted**; that is a clinical-lead decision.
+- Code and API names still say "triage" (for example `POST /api/v1/triage`). Every such use is listed in
+  [STATE.md, SRS correction A27](kinyamed/reports/STATE.md). Nothing has been renamed yet.
 
-**No baseline comparison exists.** mBERT and AfriBERTa were scoped and not
-trained.
+## The corpus is not a validated dataset
 
-### The rule this project runs on
+- **330,000 rows of Kinyarwanda from 165 distinct phrases.** English, French and Swahili have no rows.
+  Reproduce: `cd kinyamed/ml_model && python ../reports/measurements/grammatical_person.py`.
+- **It regenerates exactly from seed 42**, every frozen digest included: `make verify-full`. That shows the
+  pipeline is deterministic, not that the data is valid.
+- **There is no per-row provenance, no clinician validation and no inter-rater agreement.** It is **not
+  publishable** and must not be cited as a dataset. ([DATASET_AUDIT.md §6](kinyamed/reports/DATASET_AUDIT.md),
+  [CORPUS_REBUILD.md §1](kinyamed/reports/CORPUS_REBUILD.md))
 
-Patient-facing text is speaker-authored or absent. The endpoint returns an
-explicit pending state rather than a machine-drafted sentence, and the SMS
-service sends nothing at all in a language no speaker has written for. A stated
-gap is a finding; a filled gap nobody measured is a fabrication.
+## The model cannot be evaluated on the data that exists
 
-**Status:** 🚧 under active development. No model has been trained on the
-leakage-controlled splits yet, so this repository currently contains
-**no accuracy claims** — and nothing here has been validated by a clinician.
+The only held-out reporting set is **17,942 rows from 9 distinct Kinyarwanda sentences**, the same template
+collapse as the training corpus. English, French, Swahili and mixed-language input have no test data.
+([DATASET_AUDIT.md §10](kinyamed/reports/DATASET_AUDIT.md))
 
----
-
-## What the badge means
-
-On every push, CI regenerates the **full 1,000,000-row corpus** from seed 42 on a
-clean machine, re-runs both splits, and re-derives every SHA-256 digest in both frozen
-manifests — the source corpus and all four train/eval files. Not a sample of them, and
-not a cached artefact: the bytes are rebuilt and compared.
-
-A second, faster job does the same against the committed 1,000-row sample, so a broken
-pipeline is reported in seconds rather than minutes. The dataset pipeline imports
-nothing outside the Python standard library, so neither check can break because an
-upstream package published a release.
-
-That is what the badge asserts. It does **not** assert anything about model quality —
-nothing has been trained on these splits.
-
-Reproduce it yourself:
+The deployment gate therefore **refuses to report any metric**. It measures 0 of 45 gate cells, and prints for
+example `INSUFFICIENT DATA (8,962 rows from 4 distinct source sentences; need 365 distinct)`.
 
 ```bash
-make verify        # regenerate the committed sample + both splits, check digests (seconds)
-make verify-full   # regenerate all 1,000,000 rows and check every frozen digest (~1 min)
-
-make install-dev   # pytest, plus the pinned training dependencies
-make test          # 41 tests
+cd kinyamed/ml_model
+python scripts/gate_on_current_holdout.py --model <v2d model dir>   # writes the gold file, then stops at the gate
+python training/evaluate.py --gold dataset/processed/gate_n9_gold.csv --check-gold
 ```
 
-`make verify` and `make verify-full` need **no dependencies at all** — both run in CI,
-and both were run for this README on a clean clone with nothing installed. `make test`
-needs pytest, so run `make install-dev` first; without torch the nine training tests
-skip as one module and the other 32 still pass.
+The refusal is the result. A metric needs the clinician-labelled evaluation set that
+[EVAL_SET_SPEC.md](kinyamed/reports/EVAL_SET_SPEC.md) specifies, and it does not exist yet.
 
----
+**No red-flag rules layer exists.** ([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
 
-## The dataset is template-generated. Read this before quoting any number.
+## Software state
 
-The corpus is **1,000,000 rows generated from 184 seed phrases** by
-`dataset/generate_large_dataset.py`, combined across 5 languages
-(Kinyarwanda, English, French, Swahili, and code-mixed), 3 urgency classes,
-and 9 clinical domains. It is **not** collected clinical text.
+- **Tests** on branch `audit-p0-p1-and-frontend`, re-run 2026-09-15:
+  - backend: 250 passed (`cd kinyamed/backend && python -m pytest`);
+  - frontend: 146 passed (`cd kinyamed/frontend && npx vitest run`);
+  - `mypy --strict`: 0 errors.
+- **Stack actually present:**
+  - FastAPI with PostgreSQL 16;
+  - React 18 + TypeScript 5 + Tailwind + Vite;
+  - PyTorch and Transformers for the model.
+- **Not present:**
+  - Redis is configured but unused by application code;
+  - no Kafka, WebSocket, Docker, Kubernetes, Prometheus or Grafana;
+  - no OAuth, and no live SMS provider.
 
-What that means, stated plainly:
+  ([STATE.md, SRS corrections A7–A12, A23](kinyamed/reports/STATE.md))
+- **The paper is not submittable.** Its clinical-anchor count and concept total disagree with the repository.
+  ([STATE.md, SRS corrections A25, A26](kinyamed/reports/STATE.md))
 
-- **Row count is not evidence of diversity.** A million rows resting on 184 seed
-  phrases carry roughly 184 phrasings' worth of linguistic variety, not a million.
-  `dataset/raw/symptoms_large.neardup.json` records the honest figure: a median of
-  5,674 rows per phrase.
-- **A high score here is a lower bound on difficulty, not a measure of clinical
-  readiness.** The templates are regular; real patient language is not. Expect a
-  large drop on genuine clinical text.
-- **No real patient data is involved**, so nothing here carries privacy risk — and
-  equally, nothing here has been validated by a clinician.
-- The intended use is to exercise and de-risk the pipeline — leakage control,
-  reproducibility, crash safety — before real data is available. Treat every metric
-  produced from it as an engineering signal, not a medical one.
+## Continuous integration
 
-Under-triage (missing a CRITICAL case) is the failure that matters, which is why the
-training script weights the loss by inverse class frequency and gates on CRITICAL
-recall rather than accuracy.
+CI runs on every branch and pull request. It covers:
+- dataset reproducibility;
+- training checkpoint tests;
+- repository hygiene;
+- the backend suite;
+- frontend typecheck, tests and build;
+- browser tests;
+- lint.
 
-**Planned for v2 (not yet built).** The seed vocabulary is being expanded to 504
-phrasings — 14 per domain per language — authored by native speakers and reviewed by
-a clinician. The corpus will then be regenerated at **1,008,000 rows**, chosen so
-that the median phrase accounts for 2,000 rows rather than the current 5,674. That
-figure is deliberate: rows-per-phrase is the honest measure of how much clinical
-variety a row count represents, and raising rows without adding phrases makes it
-worse. Everything described above is v1 and remains exactly as stated.
+Status is recorded in [STATE.md](kinyamed/reports/STATE.md), not shown as a badge, because a single badge
+overstates what it covers.
 
----
+## Licence and data
 
-## The two splits measure different things
-
-Both hold out **whole groups**, never individual rows, and both are frozen to a
-versioned manifest recording seeds, SHA-256 digests, and a full leakage report.
-
-### `eval_manifest_phrase_v1.json` — unseen wording
-
-Holds out entire phrase groups: 94,226 eval rows built on 16 seed phrases the model
-never saw in training.
-
-```
-leakage: substring_violations 0 | phrase_overlap 0 | eval_rows_leaked_fraction 0.0
-```
-
-**This is the split that supports a "generalises to wording it has never seen" claim.**
-
-Phrase groups are **substring-closed**. Some seed phrases contain others — for example
-`ububabare bukabije mu nda` sits inside
-`ububabare bukabije mu nda ndi utwite kandi ndavuye amaraso`. Holding out only the
-inner phrase would leave its exact characters in every training row built on the outer
-one: an exact-match overlap check reports **zero leakage while the model has plainly
-seen the string**. Nested phrases therefore move across the split as a single unit,
-and the check is cross-language, because leakage is textual regardless of which
-language list a phrase came from.
-
-### `eval_manifest_family_v1.json` — unseen category combinations
-
-Holds out whole families (`language-pair : label : domain`): 114,321 eval rows across
-18 families absent from training.
-
-```
-leakage: family_overlap 0 | phrase_overlap 50 | substring_violations 54
-         eval_rows_whose_phrase_appears_in_train 114321 | eval_rows_leaked_fraction 1.0
-```
-
-> **`substring_violations: 54` and `eval_rows_leaked_fraction: 1.0` in the family
-> manifest are expected and by design — not damage, and not a bug.**
->
-> A family holdout partitions on `language-pair : label : domain`. Seed phrases recur
-> across families by construction, so every family-eval row is built on a phrase that
-> also appears somewhere in training. That is what makes this split test *category*
-> generalisation. The numbers are recorded rather than suppressed precisely so the
-> limitation is visible to anyone reading the manifest.
-
-**Do not quote a family-split score as evidence of robustness to unseen phrasing.**
-It measures exactly one thing: generalisation to unseen language × label × domain
-combinations. Use the phrase split for wording claims. The family split's eval matrix
-is the better-balanced of the two — every language × class cell holds at least 5,047
-rows, with no cell too thin to report.
-
----
-
-## Reproducing the full pipeline
-
-```bash
-make dataset   # generate 1,000,000 rows from seed 42, then validate
-make splits    # build both leakage-controlled splits
-make freeze    # freeze both eval sets to versioned manifests with digests
-make verify-full
-```
-
-Everything derived is git-ignored. What is committed is the **code, the manifests, the
-split reports, and a 1,000-row sample** — the sample exists so the pipeline runs
-end-to-end from a clean clone without generating a million rows.
-
-### Crash safety
-
-Development hit a real `systemd-oomd` kill mid-run, which is why the pipeline is built
-to survive one:
-
-- outputs are streamed, never held in memory — the split peaks at ~98 MiB for 1M rows
-- every write goes to a temp file, is fsynced, and is atomically renamed, so a kill
-  leaves the previous complete file or nothing, never a truncated file that passes a
-  shallow check
-- each step checkpoints against a fingerprint of its inputs, so a restart costs one
-  step rather than the whole run
-- training checkpoints every 200 steps and refuses to resume into a different
-  configuration
-
-That last point is not theoretical. A crash during development left a
-`.train_phrase_holdout.csv.*.partial` of **228,007,694 bytes — byte-identical in size
-to a valid output**. Written directly to its destination it would have passed `ls`,
-passed a size check, and been trained on silently.
-
----
-
-## Repository layout
-
-```
-kinyamed/ml_model/
-  dataset/
-    vocabulary.py               184 seed phrases — the real input
-    generate_large_dataset.py   deterministic corpus generation (seed 42)
-    validate_dataset.py         balance, duplication and encoding checks
-    near_duplicates.py          MinHash/LSH near-duplicate scan
-    split_dataset.py            streaming, atomic, resumable splitter
-    freeze_eval.py              versioned manifests + per-cell eval matrix
-    atomicio.py                 atomic writes and step checkpoints
-    sample/                     committed 1,000-row sample + its manifest
-    processed/                  manifests and split reports (CSVs are ignored)
-  training/
-    train_holdout.py            checkpointed, resumable training
-  tests/                        41 tests
-  verify.py                     re-derives every committed digest
-kinyamed/backend/               FastAPI triage service (in development)
-```
-
-Every path above exists in a clean clone. The deployment manifests have no files
-yet, so they are deliberately absent rather than listed as empty directories that
-git cannot track and a reader would not find.
-
-## Tech stack
-
-**In this repository today:**
-
-- **Dataset pipeline:** Python standard library only — no third-party dependency
-- **NLP:** AfroXLMR (`Davlan/afro-xlmr-mini`) via HuggingFace Transformers, PyTorch
-- **Backend:** FastAPI (Python), SQLAlchemy
-- **Database:** PostgreSQL, Redis
-
-**Planned, not yet started** — listed as intent, not as something you will find here:
-
-- Spring Boot (Java) services
-- React.js + Tailwind CSS frontend
-- Apache Kafka streaming
-- Docker + Kubernetes deployment
+**No real patient data is in this repository.** The corpus has **no declared dataset licence**, and the licence
+terms of its clinical anchors are unresolved. ([DATASET_AUDIT.md §6](kinyamed/reports/DATASET_AUDIT.md))
