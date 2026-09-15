@@ -1190,16 +1190,39 @@ red first).
 - Memory at 50 concurrent: 1,382 MB, under 2 GB, but gate 15 cannot be MET without H15.
 - The gate reads the new files: gate 14 NOT MET and gate 15 NOT DEMONSTRATED, each "no target hardware named, H15".
 
+## E — train/serve `max_length` mismatch fixed
+
+- **Contract:**
+  - `<model dir>/kinyamed_training.json` records `max_length`, read before any weights load.
+  - `MODEL_MAX_LENGTH` is now optional (default `None`), so the recorded length is used.
+  - A configured value that differs, or a model that records no valid length, raises `ModelConfigurationError`
+    through start-up: **the service refuses to start**. It never becomes a quiet 503.
+  - A missing model is unchanged: it fails closed and the service stays up.
+- **Existing models:** `scripts/record_training_length.py` writes the file from the training run record's
+  `args.max_length`, and refuses to overwrite a different value.
+  - **Applied to v2d**, one additive file in `~/kinyamed-runs/model_v2d_freeze8_lr1e-5/`: `max_length` 96,
+    sourced from `last_run_v2d_freeze8_lr1e-5.json`.
+  - Resolving with the length unset gives 96; setting 512 refuses with the reason.
+- `.env.example` no longer sets 512. The benchmark and diagnostic scripts resolve the length the same way.
+- **Tests:** `test_training_length.py`, 15 tests, red first (14 failed). Two older `test_model_classifier.py` tests
+  now write the metadata their directories need, a deliberate behaviour change.
+- Backend suite **335 passed**; mypy clean. MODEL_AUDIT §2 and TOKENIZER_STUDY are marked fixed; README count
+  updated.
+- **For you:** your local `backend/.env` sets `MODEL_MAX_LENGTH`. It is harmless while `TRIAGE_MODEL_PATH` is unset.
+  Before pointing it at v2d, remove that line or set it to 96, or start-up will refuse. Not edited by me.
+
 ## Next — single action
 
-**E: the `max_length` 96 vs 512 train/serve mismatch.** Test first: the model directory records its training length,
-and the backend refuses to start on a mismatch. Then 5c.
+**5c: the training pipeline, ready to run and refusing to run below the evaluation-set minimum.** It covers the
+cost-sensitive loss, temperature calibration with ECE and a reliability diagram, safety-tuned thresholds, a full run
+manifest, `make reproduce`, and a demonstration of the refusal on the n=9 set. No model is trained for accuracy.
 
 Waiting on you:
-- **H15, now informed by A29:** name the target CPU, and restate the latency NFR as a measured arrival rate;
-- H21 (the Alembic merge);
+- H15 (target CPU and an arrival-rate NFR, informed by A29);
+- H21;
 - H6 (red flag with no model);
-- branch protection.
+- branch protection;
+- removing `MODEL_MAX_LENGTH` from your local `.env` before serving v2d.
 
 ## Blocked on you (unchanged)
 

@@ -72,7 +72,7 @@ The refusal is the result. A metric needs the clinician-labelled evaluation set 
 ## Software state
 
 - **Tests** on branch `audit-p0-p1-and-frontend`, re-run 2026-09-15:
-  - backend: 300 passed (`cd kinyamed/backend && python -m pytest`);
+  - backend: 335 passed (`cd kinyamed/backend && python -m pytest`);
   - frontend: 146 passed (`cd kinyamed/frontend && npx vitest run`);
   - `mypy --strict`: 0 errors.
 - **Stack actually present:**

@@ -140,8 +140,9 @@ Generated from `results.json`. The XLM-R family rows are those of `Davlan/afro-x
      `.env.example:60`).
    - The current corpus never exceeds 94 tokens, so no number measured to date is affected. Real input longer
      than 96 tokens would be classified at lengths the model was never fine-tuned on.
-   - The fix: store the training `max_length` in the model directory, and have the backend refuse to start when
-     its setting differs. Recorded in STATE.md; not fixed here.
+   - **Fixed 2026-09-15 (item E):** the model directory records its training `max_length`
+     (`kinyamed_training.json`), and the backend refuses to start when its setting differs or the length is
+     unrecorded.
 6. **Conflict with the Phase 0 audit.** MODEL_AUDIT §2.1 reports "max 88 tokens" for the v2d tokenizer, from the
    uncommitted `ml_audit.py`. This committed measurement gives a maximum of 94 over all 330,000 v2 rows. The
    populations may differ; that script cannot be re-run. The value here is the reproducible one.
