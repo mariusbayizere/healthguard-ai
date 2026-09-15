@@ -14,7 +14,7 @@ Each step gates the next, and nothing later runs when an earlier step refuses:
      distinct scenarios. Otherwise REFUSE, before the training corpus is even read.
      On today's only held-out set (n=9 source sentences) this is where it stops.
   2. LEAKAGE (L8). Train, calibration and test must share no normalised text, no
-     scenario_id, and no near-duplicate at word-3-gram Jaccard >= 0.85 (CLAUDE.md
+     scenario_id, and no near-duplicate at word-3-gram Jaccard >= 0.85 (docs/ENGINEERING_SPEC.md
      §3.6). Otherwise REFUSE before training.
   3. TRAIN with the cost-sensitive objective (training/cost_loss.py).
   4. CALIBRATE: one temperature, fitted on the calibration split only.
@@ -62,7 +62,7 @@ MANIFEST_NAME = "run_manifest.json"
 TEST_PREDICTIONS = "predictions_test.csv"
 THRESHOLDS_NAME = "thresholds.json"
 RELIABILITY_NAME = "reliability_calibration.svg"
-NEAR_DUPLICATE_JACCARD = 0.85  # CLAUDE.md §3.6
+NEAR_DUPLICATE_JACCARD = 0.85  # docs/ENGINEERING_SPEC.md §3.6
 SHINGLE_WORDS = 3
 MINHASH_PERMUTATIONS = 64
 MINHASH_BANDS = 16

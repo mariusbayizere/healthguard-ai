@@ -1,4 +1,4 @@
-"""Cost-sensitive training objective (CLAUDE.md FR-04-13).
+"""Cost-sensitive training objective (docs/ENGINEERING_SPEC.md FR-04-13).
 
     loss = cross_entropy(logits, y) + cost_weight * E_p[ cost[y, predicted] ]
 
@@ -7,7 +7,7 @@ softmax. It punishes probability mass on dangerous wrong classes, and above all 
 ROUTINE for a CRITICAL case, far more than mass on an adjacent class.
 
 THE DEFAULT COSTS ARE AN UNSOURCED ENGINEERING DEFAULT, not a clinical ruling. The
-only property enforced here is the one CLAUDE.md states: CRITICAL -> ROUTINE is
+only property enforced here is the one docs/ENGINEERING_SPEC.md L3 states: CRITICAL -> ROUTINE is
 strictly the most expensive error. The relative weights await the lead clinician
 (STATE.md H6, A30), and are configurable so a ruling is a config change.
 """
@@ -53,7 +53,7 @@ def validate_cost_matrix(matrix: Sequence[Sequence[float]]) -> None:
     ]
     if not all(worst > v for v in others):
         raise ValueError(
-            "CRITICAL -> ROUTINE must be strictly the most expensive error (CLAUDE.md L3)"
+            "CRITICAL -> ROUTINE must be strictly the most expensive error (docs/ENGINEERING_SPEC.md L3)"
         )
 
 

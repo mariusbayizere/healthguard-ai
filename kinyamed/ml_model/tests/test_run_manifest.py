@@ -1,4 +1,4 @@
-"""training/run_manifest.py: everything needed to re-run a training run (CLAUDE.md L6, L8,
+"""training/run_manifest.py: everything needed to re-run a training run (docs/ENGINEERING_SPEC.md L6, L8,
 §10.8: seed, config, data hash, code commit, environment).
 
 A run with a dirty tree, an unset seed, or an unhashed input still gets a manifest,

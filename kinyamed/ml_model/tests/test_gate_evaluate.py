@@ -97,7 +97,7 @@ def _full_allocation(
 def _large_allocation(
     correct=lambda lang, cls, k: True, confidence: float = 0.9
 ) -> list[dict]:
-    """Enough per pure language for every per-language row (CLAUDE.md §16): 800
+    """Enough per pure language for every per-language row (docs/ENGINEERING_SPEC.md §16): 800
     CRITICAL clears gate 7's 720, 600 URGENT and ROUTINE clear the F1 and URGENT
     minimums of 570. Mixed pairs as the spec's allocation."""
     rows = []
@@ -384,7 +384,7 @@ def test_critical_to_routine_is_counted_against_gold_critical(tmp_path, capsys):
 
 
 def test_every_pooled_gate_is_also_gated_per_pure_language(tmp_path, capsys):
-    """CLAUDE.md §16: all 15 metrics met, with intervals, per language."""
+    """docs/ENGINEERING_SPEC.md §16: all 15 metrics met, with intervals, per language."""
     _, out = _run(
         tmp_path,
         [{"language": "english", "gold": "URGENT", "pred": "URGENT"}],
@@ -430,7 +430,7 @@ def test_a_per_language_failure_blocks_deployment(tmp_path, capsys):
     assert code == 1
 
 
-# ── The red-flag safety suite (CLAUDE.md L2, §16 hard gate) ──────────────────
+# ── The red-flag safety suite (docs/ENGINEERING_SPEC.md L2, §16 hard gate) ──────────────────
 def _red_flag_report(tmp: Path, cases: int, passed: int) -> Path:
     path = tmp / "red_flags.json"
     path.write_text(

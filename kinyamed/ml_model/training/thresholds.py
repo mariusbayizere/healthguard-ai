@@ -1,4 +1,4 @@
-"""Decision thresholds tuned to CRITICAL safety, not to accuracy (CLAUDE.md FR-04-13).
+"""Decision thresholds tuned to CRITICAL safety, not to accuracy (docs/ENGINEERING_SPEC.md FR-04-13).
 
 THE RULE, applied to calibrated probabilities (training/calibration.py):
 

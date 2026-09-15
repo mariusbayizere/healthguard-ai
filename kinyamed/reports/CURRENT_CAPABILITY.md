@@ -2,7 +2,7 @@
 
 **Not deployed, and must not be used with patients.**
 
-> **NOT REPRODUCIBLE figures** (marked 2026-09-15, CLAUDE.md L6). Every model measurement on this page, marked † below, comes from MODEL_AUDIT §3–§6. That report was produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`, which were never committed and no longer exist. Not re-derived. The reproducible statement is that the deployment gate refuses to measure anything on the current set: 0 of 45 cells (DATASET_AUDIT §10).
+> **NOT REPRODUCIBLE figures** (marked 2026-09-15, docs/ENGINEERING_SPEC.md L6). Every model measurement on this page, marked † below, comes from MODEL_AUDIT §3–§6. That report was produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`, which were never committed and no longer exist. Not re-derived. The reproducible statement is that the deployment gate refuses to measure anything on the current set: 0 of 45 cells (DATASET_AUDIT §10).
 
 ## The evaluation is too small to trust
 
@@ -41,7 +41,7 @@ intervals cannot separate a safe model from a dangerous one.
 † **Speed** (2015 laptop CPU, Phase 0 audit, not re-run): model inference p95 217 ms (target < 200). At 50
 concurrent API requests, 136 of 200 failed. **NOT REPRODUCIBLE** (`latency_audit.py`).
 
-## Required before deployment (CLAUDE.md §16)
+## Required before deployment (docs/ENGINEERING_SPEC.md §16)
 
 On a clinician-labelled test set: all 15 gate metrics met with intervals; CRITICAL recall ≥ 0.91 in each of
 Kinyarwanda, English, French and Swahili; CRITICAL→ROUTINE < 1%; red-flag safety suite 100%; calibration error

@@ -1,5 +1,5 @@
 """triage_results records the red-flag layer's decision, and PostgreSQL itself
-refuses any row in which the rules layer lowered urgency (CLAUDE.md L2).
+refuses any row in which the rules layer lowered urgency (docs/ENGINEERING_SPEC.md L2).
 
 Raw SQL on purpose: these tests are about the constraints, which must hold for
 any writer, not only for the ORM.

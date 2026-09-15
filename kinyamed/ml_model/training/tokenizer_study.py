@@ -184,7 +184,7 @@ def vocabulary_identity(tokenizer) -> str:
 
 def segmentation_sheet(words: list[str], tokenizers: dict) -> list[dict[str, str]]:
     """How each tokenizer splits each word, for a native Kinyarwanda linguist to judge.
-    The judgement column is left blank on purpose (CLAUDE.md L16, §10.2)."""
+    The judgement column is left blank on purpose (docs/ENGINEERING_SPEC.md L16, §10.2)."""
     rows = []
     for word in words:
         row = {"word": word}

@@ -5,8 +5,7 @@ For SRS CORRECTIONS A27 (reports/STATE.md). Lists, does not change. Run from
 
     python3 reports/measurements/triage_wording_inventory.py > reports/measurements/triage_wording_inventory.txt
 
-Scope: files tracked by git under `kinyamed/` and the repository README, plus the
-local, git-ignored `CLAUDE.md`. Matches `triag` (triage, triaged, under-triage)
+Scope: files tracked by git under `kinyamed/` and the repository README. Matches `triag` (triage, triaged, under-triage)
 case-insensitively, and `ETAT` as a whole word. The area labels come from paths
 only. They do not decide whether a line describes the system or names a code
 identifier; the curated table in STATE.md A27 does that.
@@ -24,7 +23,7 @@ SKIP_SUFFIXES = {".png", ".jpg", ".pdf", ".ico", ".woff", ".woff2", ".lock"}
 SKIP_NAMES = {"package-lock.json"}
 
 AREAS: list[tuple[str, str]] = [
-    ("CLAUDE.md", "spec: CLAUDE.md (local, git-ignored)"),
+    ("docs/ENGINEERING_SPEC.md", "spec: docs/ENGINEERING_SPEC.md"),
     ("../README.md", "readme"),
     ("ml_model/paper/", "paper"),
     ("frontend/src/__tests__/", "frontend tests"),
@@ -59,7 +58,7 @@ def tracked_files() -> list[str]:
         check=True,
     ).stdout.splitlines()
     # --full-name gives paths from the repo root; make them relative to kinyamed/.
-    return [p.removeprefix("kinyamed/") for p in out] + ["../README.md", "CLAUDE.md"]
+    return [p.removeprefix("kinyamed/") for p in out] + ["../README.md"]
 
 
 def main() -> None:

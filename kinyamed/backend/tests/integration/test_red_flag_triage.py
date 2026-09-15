@@ -1,4 +1,4 @@
-"""The red-flag layer wired into triage (CLAUDE.md L2).
+"""The red-flag layer wired into triage (docs/ENGINEERING_SPEC.md L2).
 
 Every term here is FICTIONAL ("zorblax fever", "quenthari"). The shipped lexicon
 is empty; these tests prove the mechanism, not any clinical content.

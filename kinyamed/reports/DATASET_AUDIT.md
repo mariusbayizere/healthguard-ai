@@ -1,4 +1,4 @@
-# Dataset audit — Phase 0 (CLAUDE.md §3.6)
+# Dataset audit — Phase 0 (docs/ENGINEERING_SPEC.md §3.6)
 
 Audit date 2026-09-14. Measurements by `scratchpad/dataset_audit.py` and `scratchpad/ml_audit.py` in this
 session unless a line says otherwise. The corpus files are git-ignored derived artefacts; their SHA-256 digests

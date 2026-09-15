@@ -1,5 +1,5 @@
 """A run manifest: everything needed to re-run a training run and check its outputs
-(CLAUDE.md L6, L8, §10.8).
+(docs/ENGINEERING_SPEC.md L6, L8, §10.8).
 
 Recorded: seed, full config, sha256 and size of every input and output, the git
 commit and whether the tree was dirty, Python and package versions, the machine's

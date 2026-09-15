@@ -1,4 +1,4 @@
-# Clinical lexicon (CLAUDE.md §10.6)
+# Clinical lexicon (docs/ENGINEERING_SPEC.md §10.6)
 
 `red_flags.csv` is the source of truth for the red-flag rules layer (L2). **It ships empty on purpose**: a header
 and no terms. With it empty, the layer is a no-op and triage behaves exactly as it did without it.

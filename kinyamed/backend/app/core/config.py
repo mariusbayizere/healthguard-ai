@@ -125,7 +125,7 @@ class Settings(BaseSettings):
     TRIAGE_BATCH_MAX_WAIT_MS: float = Field(default=5.0, ge=0.0, le=1000.0)
     TRIAGE_INFERENCE_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0.0, le=600.0)
 
-    # --- Red-flag rules layer (CLAUDE.md L2) --------------------------------
+    # --- Red-flag rules layer (docs/ENGINEERING_SPEC.md L2) --------------------------------
     # The §10.6 lexicon. It ships EMPTY (header only), so the layer is a no-op
     # until a clinical lead supplies validated terms. An invalid file stops start-up.
     RED_FLAG_LEXICON_PATH: str = str(

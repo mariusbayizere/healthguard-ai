@@ -19,7 +19,7 @@ MIN_SEEDS_PER_CELL = 30  # G2
 MAX_AUTHOR_SHARE = 0.20  # G8, per language x domain
 MIN_AUTHORS_PER_LANGUAGE = 10  # CORPUS_REBUILD §2
 
-# CLAUDE.md §9.1 language balance: each pure language 10-15%, mixed 40-60% combined.
+# docs/ENGINEERING_SPEC.md §9.1 language balance: each pure language 10-15%, mixed 40-60% combined.
 PURE = 4
 MIXED_PAIRS = 6
 PURE_SHARE_EACH = 0.125  # midpoint of 10-15%

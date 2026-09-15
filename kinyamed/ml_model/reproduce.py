@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """`make reproduce`: re-derive every committed result that needs no network and no model
-weights, from a clean clone, with one command (CLAUDE.md §14).
+weights, from a clean clone, with one command (docs/ENGINEERING_SPEC.md §14).
 
 Each step either must exit with a stated code (a refusal must still refuse: exit 2) or
 must print exactly the committed output file. Any difference fails the run and names
@@ -65,8 +65,8 @@ NOT_REPRODUCED: tuple[tuple[str, str], ...] = (
     ),
     (
         "triage wording inventory (reports/measurements/triage_wording_inventory.txt)",
-        "an inventory of the working tree at one moment, including the git-ignored "
-        "CLAUDE.md; it changes with every edit and is not a result",
+        "an inventory of the tracked files at one moment; it changes with every "
+        "edit and is not a result",
     ),
     (
         "any model quality metric",

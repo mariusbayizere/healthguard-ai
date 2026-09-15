@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""The deployment gate: all 15 metrics of CLAUDE.md §9.2, with 95% intervals, per
+"""The deployment gate: all 15 metrics of docs/ENGINEERING_SPEC.md §9.2, with 95% intervals, per
 language, plus calibration and language identification — and a refusal to report
 any metric on too little data.
 
@@ -399,7 +399,7 @@ def _metric_specs() -> list[MetricSpec]:
         ),
         extra_floor=pair_floor,
     )
-    # CLAUDE.md §16: every metric, per language. Gates 5 and 9-12 are already per
+    # docs/ENGINEERING_SPEC.md §16: every metric, per language. Gates 5 and 9-12 are already per
     # language; these are the pooled gates again for each pure language, with the
     # pooled gate's own threshold and minimum n. Mixed pairs are covered by gate 13
     # and its per-pair floor.
@@ -908,7 +908,7 @@ RED_FLAG_METRIC = "red-flag safety suite"
 
 
 def red_flag_row(report: Path | None) -> Row:
-    """CLAUDE.md L2 and §16: the escalate-only red-flag suite must pass every case.
+    """docs/ENGINEERING_SPEC.md L2 and §16: the escalate-only red-flag suite must pass every case.
 
     A fixed regression suite, not a sample, so it has a count and no interval.
     Whether the suite's cases are clinically adequate is not something this row can

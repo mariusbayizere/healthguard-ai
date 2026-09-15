@@ -1,4 +1,4 @@
-"""The red-flag lexicon: loading, validation and matching (CLAUDE.md L2, §10.6).
+"""The red-flag lexicon: loading, validation and matching (docs/ENGINEERING_SPEC.md L2, §10.6).
 
 EVERY TERM IN THIS FILE IS FICTIONAL ("zorblax", "quenthari", "vellimor"). No real
 clinical term appears here or in the shipped lexicon: validated terms come from a

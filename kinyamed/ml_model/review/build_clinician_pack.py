@@ -1,7 +1,7 @@
 """Emit the D2 clinician review pack from the record.
 
 The pack was hand-typed until 2026-09-11 and said "the 20 `needs_clinician`
-rows" while the spine carried 25. `CLAUDE.md` says it in the general case --
+rows" while the spine carried 25. `docs/ENGINEERING_SPEC.md` L6 says it in the general case --
 no number is typed into prose -- and a count of rows going to a clinician is
 exactly a number that must not drift from the record it describes. So the pack
 is emitted, and the only numbers in it are counted here.

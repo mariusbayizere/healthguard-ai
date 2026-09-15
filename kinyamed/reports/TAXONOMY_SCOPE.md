@@ -6,7 +6,7 @@ definition. Where a clinical fact is needed, it names the document that must sup
 
 ## 1. The defect
 
-CLAUDE.md §18 defines ETAT as the *"WHO framework used in Rwandan health centres; basis for the 3-class
+docs/ENGINEERING_SPEC.md §18 defines ETAT as the *"WHO framework used in Rwandan health centres; basis for the 3-class
 taxonomy"*. The same specification applies that taxonomy to every patient: registration takes any age (§7.4 form: 1–120;
 §8.2 `patients` CHECK: 1–129), and the population is "14M+ Rwandans" (§4.1). You reported that WHO ETAT and
 Rwanda's ETAT+ are paediatric frameworks, for newborns and children.
@@ -96,7 +96,7 @@ does not describe text at all. The questions become:
   and whether each is examination-based is **unverified**.
 - The evaluation-set label definitions (EVAL_SET_SPEC, D7 protocol §3) cannot be drawn from ETAT's criteria as
   written, because an annotator reading a vignette cannot examine anyone.
-- CLAUDE.md §18 ("ETAT … basis for the 3-class taxonomy") is contradicted by the document on **two** counts, age
+- docs/ENGINEERING_SPEC.md §18 ("ETAT … basis for the 3-class taxonomy") is contradicted by the document on **two** counts, age
   and modality. SRS correction A21 needs both.
 
 ## 2b. Construct-validity gap — nothing in the repo authorises urgency from an unexamined written report
@@ -138,9 +138,9 @@ examination that never happens in this system. Consequences:
 
 | Where | Claim | Age scope implied |
 |---|---|---|
-| CLAUDE.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope: sick children, upper age not stated (§2, from the manual). ETAT is defined on examination signs (§2a). |
-| CLAUDE.md §18 glossary | CRITICAL = "ESI 1–2", URGENT = "ESI 3", ROUTINE = "ESI 4–5" | ESI is the Emergency Severity Index, a different instrument from ETAT. The specification cites two incompatible bases. |
-| CLAUDE.md FR-01-01, §7.4, §8.2 `patients` | age collected; 1–120 on the form, CHECK 1–129 | all ages |
+| docs/ENGINEERING_SPEC.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope: sick children, upper age not stated (§2, from the manual). ETAT is defined on examination signs (§2a). |
+| docs/ENGINEERING_SPEC.md §18 glossary | CRITICAL = "ESI 1–2", URGENT = "ESI 3", ROUTINE = "ESI 4–5" | ESI is the Emergency Severity Index, a different instrument from ETAT. The specification cites two incompatible bases. |
+| docs/ENGINEERING_SPEC.md FR-01-01, §7.4, §8.2 `patients` | age collected; 1–120 on the form, CHECK 1–129 | all ages |
 | `ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md` | concepts anchored in WHO IMCI 2014 (children under five, per that file), WHO-ICRC Basic Emergency Care 2018 (recorded as "adult-inclusive"), plus clinician-defined concepts | mixed; no age field on any concept |
 | Paper `related_work.tex:26–37`, `method.tex:109–122` | IMCI 24 · BEC 15 · MCPC 11 · "clinician-defined, no WHO anchor" 20, totalled as "70 of 128 concepts carry an anchor" | mixed. **The 70 counts 20 concepts that have no anchor**, so 50 have a document anchor. Other repo files give IMCI 28–29, BEC 18, MCPC 10, and totals of 68, 80, 127 or 128 concepts (see STATE.md, SRS CORRECTIONS) |
 | Corpus (DATASET_AUDIT) | 9 domains, including `paediatric`, `obstetric`, `chronic_care` and `preventive` | mixed; age is a domain, not a variable |
@@ -162,7 +162,7 @@ Only ETAT has been read (§2).
   - `age` becomes mandatory before triage. An adult, or an unknown age, gets the existing fail-closed path: no
     classification, "automated triage covers children only — triage manually" to staff.
   - Scope is stated on the patient receipt, the nurse screen, the doctor board, `CURRENT_CAPABILITY.md`, the
-    paper, the README and CLAUDE.md §4.
+    paper, the README and docs/ENGINEERING_SPEC.md §4.
   - Every adult who presents falls outside the tool, and staff must be told so; no adult is silently served.
 - **Data and model:**
   - The concepts, corpus and v2d are mixed-age. Rows about adults leave scope in every domain, and v2d's
@@ -298,7 +298,7 @@ The grid (§7) and power calculation (§3–4) assume one taxonomy with one set 
 
 ## 7. Other documents this touches, whichever option
 
-- **CLAUDE.md §18:** the ETAT basis and the ESI mapping contradict each other. This is a specification
+- **docs/ENGINEERING_SPEC.md §18:** the ETAT basis and the ESI mapping contradict each other. This is a specification
   correction for you (add to SRS CORRECTIONS REQUIRED).
 - **Paper `related_work.tex` / `method.tex`:** "70 carry an anchor" includes 20 concepts defined as having no
   anchor (50 are anchored), and the counts disagree with `clinical-anchors.md` and `licensing.md`. Recorded as
@@ -310,7 +310,7 @@ The grid (§7) and power calculation (§3–4) assume one taxonomy with one set 
 
 Script: `reports/measurements/grammatical_person.py`. Output: `reports/measurements/grammatical_person.txt`.
 
-> **Partly NOT REPRODUCIBLE** (marked 2026-09-15, CLAUDE.md L6). Most figures in this section are printed by that script. **These are not**, and are marked † where they appear:
+> **Partly NOT REPRODUCIBLE** (marked 2026-09-15, docs/ENGINEERING_SPEC.md L6). Most figures in this section are printed by that script. **These are not**, and are marked † where they appear:
 > - the split of "adult or unspecified relative" (205,361, printed) into adult relation 141,934 (43.0%) and sister or neighbour 63,427 (19.2%);
 > - the provenance of third-person rows (270,892; 86,708 / 32.0%; 81,136 / 30.0%; 99,136 / 36.6%; 3,912);
 > - the test-set `{REL}` rows (14,926 / 83.2%);

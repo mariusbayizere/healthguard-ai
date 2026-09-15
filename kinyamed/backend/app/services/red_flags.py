@@ -1,4 +1,4 @@
-"""The red-flag rules layer (CLAUDE.md L2): deterministic, escalate-only, run before the model.
+"""The red-flag rules layer (docs/ENGINEERING_SPEC.md L2): deterministic, escalate-only, run before the model.
 
 Terms load from `data/lexicon/red_flags.csv`, whose columns are the §10.6 clinical
 lexicon. The table SHIPS EMPTY: until a clinical lead supplies validated terms

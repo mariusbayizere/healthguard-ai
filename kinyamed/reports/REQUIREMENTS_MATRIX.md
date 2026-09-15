@@ -3,7 +3,7 @@
 Audit date 2026-09-14. Branch `audit-p0-p1-and-frontend` @ `7ef50c0` plus the uncommitted working tree
 (19 modified, 1 deleted, 21 untracked files at audit start — see AUDIT_REPORT §A.2). Paths are relative to `kinyamed/`.
 
-**Status key** (CLAUDE.md §3.3): `DONE-VERIFIED` = code + passing test + **executed by me in this audit**;
+**Status key** (docs/ENGINEERING_SPEC.md §3.3): `DONE-VERIFIED` = code + passing test + **executed by me in this audit**;
 `DONE-UNVERIFIED`; `PARTIAL`; `MISSING`; `INCORRECT` (exists but contradicts the spec); `BLOCKED` (needs
 something only the maintainer can supply). Only `DONE-VERIFIED` counts as done.
 
@@ -16,7 +16,7 @@ infra absent): gitleaks, OWASP ZAP, Lighthouse, Axe-in-browser,
 Playwright, Locust, Docker builds, Kubernetes, Kafka, WebSocket.
 
 **Headline:** 227 requirement rows (plus the 12-row law snapshot in §13). Status counts: **DONE-VERIFIED 13**, DONE-UNVERIFIED 14, PARTIAL 61, INCORRECT 36, MISSING 80, BLOCKED 4 across 208 non-gate rows; the 19 deployment-gate rows (§10) are scored MET 2 / NOT MET 11 / NOT MEASURABLE 4 / NOT DEFENSIBLY MET 1 / MISSING 1. The codebase is a coherent,
-well-tested system built to a *different, earlier specification* (the deleted `ml_model/CLAUDE.md`
+well-tested system built to a *different, earlier specification* (the deleted ml_model charter file
 charter, Kinyarwanda-first, staff-operated intake). Most v2.0 rows are therefore `MISSING` or
 `INCORRECT` against this document, not broken.
 

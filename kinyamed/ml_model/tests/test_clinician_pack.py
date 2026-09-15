@@ -1,8 +1,8 @@
 """The D2 clinician pack agrees with the record it describes.
 
 The pack said "the 20 `needs_clinician` rows" while the brief carried 25, and
-nothing noticed because the number was typed into prose. `CLAUDE.md` rule 3
-forbids exactly that for paper figures; a count of rows being sent to a
+nothing noticed because the number was typed into prose. `docs/ENGINEERING_SPEC.md` L6
+forbids exactly that for published figures; a count of rows being sent to a
 clinician for signature deserves the same treatment, so the pack is emitted by
 `review/build_clinician_pack.py` and this test is the gate that keeps it
 current.

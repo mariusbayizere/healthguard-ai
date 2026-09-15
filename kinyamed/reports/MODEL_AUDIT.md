@@ -1,6 +1,6 @@
-# Model audit — Phase 0 (CLAUDE.md §3.5)
+# Model audit — Phase 0 (docs/ENGINEERING_SPEC.md §3.5)
 
-> **NOT REPRODUCIBLE — read this first** (marked 2026-09-15, CLAUDE.md L6). The measurements in this report were produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`. Neither was committed, and neither exists on disk (§9), so no measured figure below can be re-run. Each section says so. What the repository *can* reproduce today:
+> **NOT REPRODUCIBLE — read this first** (marked 2026-09-15, docs/ENGINEERING_SPEC.md L6). The measurements in this report were produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`. Neither was committed, and neither exists on disk (§9), so no measured figure below can be re-run. Each section says so. What the repository *can* reproduce today:
 > - token lengths: `reports/TOKENIZER_STUDY.md`, which supersedes §2.1;
 > - the reporting set's composition, 17,942 rows from 9 sentences: DATASET_AUDIT §10;
 > - the gate's refusal on that set: `evaluate.py --check-gold`;

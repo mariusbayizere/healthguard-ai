@@ -1,4 +1,4 @@
-"""reproduce.py: `make reproduce` (CLAUDE.md §14). Every committed output it covers is
+"""reproduce.py: `make reproduce` (docs/ENGINEERING_SPEC.md §14). Every committed output it covers is
 re-derived and diffed; refusals must still refuse; nothing it runs may dirty the tree."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-# Sources — verification log (CLAUDE.md §10.1)
+# Sources — verification log (docs/ENGINEERING_SPEC.md §10.1)
 
 Every external model, tokenizer or corpus is recorded here **before** it is used. The checks:
 - the repository resolves, and the revision is pinned;

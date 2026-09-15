@@ -55,7 +55,7 @@ class TriageResult(TimestampedModel):
             "confidence_score IS NULL OR (confidence_score >= 0 AND confidence_score <= 1)",
             name="ck_triage_results_confidence_range",
         ),
-        # Red-flag layer (CLAUDE.md L2), migration a7c3e9f1d2b4. Escalate-only is a
+        # Red-flag layer (docs/ENGINEERING_SPEC.md L2), migration a7c3e9f1d2b4. Escalate-only is a
         # database property: PostgreSQL orders the enum CRITICAL < URGENT < ROUTINE,
         # so no writer can store an urgency lower than the model's.
         CheckConstraint(

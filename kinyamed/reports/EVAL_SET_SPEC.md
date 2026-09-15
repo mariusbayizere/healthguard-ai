@@ -44,7 +44,7 @@ For proportions, the deciding bound is the more conservative of the exact Cloppe
 scenario-cluster bootstrap.
 
 **Why a point estimate is not enough.** With 400 CRITICAL items and an observed recall of exactly 0.91, the
-exact 95% interval is [0.878, 0.936]. The data are consistent with a true recall as low as 0.878, below the safety floor. CLAUDE.md
+exact 95% interval is [0.878, 0.936]. The data are consistent with a true recall as low as 0.878, below the safety floor. docs/ENGINEERING_SPEC.md
 §9.2 says "report each with a 95% bootstrap CI" but does not say which end decides. This rule makes the interval
 decide, and it is stricter than a point-estimate gate. **It changes what "passing" means, so it needs your
 approval (decision E1).**

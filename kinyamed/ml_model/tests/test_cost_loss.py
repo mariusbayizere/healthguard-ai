@@ -1,4 +1,4 @@
-"""training/cost_loss.py: a cost-sensitive objective (CLAUDE.md FR-04-13).
+"""training/cost_loss.py: a cost-sensitive objective (docs/ENGINEERING_SPEC.md FR-04-13).
 
 CRITICAL -> ROUTINE must cost far more than an adjacent error. Every test uses
 synthetic labels; nothing here says anything about a real model.

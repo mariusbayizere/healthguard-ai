@@ -31,7 +31,7 @@ value, of observing a count whose interval clears the threshold. Minimum sizes a
 the smallest n at which power >= 0.80 holds for that n and the next 9 (binomial
 power is saw-toothed in n; the first crossing alone can be followed by dips).
 
-No clinical content lives here. Thresholds are CLAUDE.md §9.2's; the assumed true
+No clinical content lives here. Thresholds are docs/ENGINEERING_SPEC.md §9.2's; the assumed true
 values are design points stated beside each requirement, not measurements.
 """
 
@@ -50,7 +50,7 @@ TARGET_POWER = 0.80
 POWER_STABLE_FOR = 10
 
 PURE_LANGUAGES = ("kinyarwanda", "english", "french", "swahili")
-# CLAUDE.md §4.4. Unordered pairs; the matrix language is recorded per item.
+# docs/ENGINEERING_SPEC.md §4.4. Unordered pairs; the matrix language is recorded per item.
 MIXED_LANGUAGES = (
     "kinyarwanda+english",
     "kinyarwanda+french",
@@ -239,7 +239,7 @@ Direction = Literal["at_least", "below"]
 class Requirement:
     """A gate metric and the smallest population on which it may be reported."""
 
-    gate: str  # CLAUDE.md §9.2 number, or an X-gate
+    gate: str  # docs/ENGINEERING_SPEC.md §9.2 number, or an X-gate
     metric: str
     threshold: float | None
     direction: Direction | None
@@ -544,7 +544,7 @@ def check_allocation_meets_requirements() -> list[str]:
     need("pooled CRITICAL", t["CRITICAL"], "7")
     for lang in PURE_LANGUAGES:
         need(f"{lang} CRITICAL", by_lang[lang].critical, "5")
-        # Per-language rows of the pooled gates (CLAUDE.md §16; evaluate.py).
+        # Per-language rows of the pooled gates (docs/ENGINEERING_SPEC.md §16; evaluate.py).
         a = by_lang[lang]
         if a.critical < requirement("7").minimum_n:
             failures.append(

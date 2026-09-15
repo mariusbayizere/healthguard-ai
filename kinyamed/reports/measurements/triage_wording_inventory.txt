@@ -1,19 +1,19 @@
-# 895 matching lines in 153 files
+# 1071 matching lines in 166 files
 
-  236 lines   35 files  backend source (API strings and identifiers)
-  192 lines   11 files  audit reports
-  174 lines   20 files  backend tests
+  293 lines   13 files  audit reports
+  252 lines   36 files  backend source (API strings and identifiers)
+  238 lines   26 files  backend tests
    54 lines    8 files  frontend tests
    49 lines   16 files  frontend source (UI strings and identifiers)
-   36 lines    1 files  spec: CLAUDE.md (local, git-ignored)
-   35 lines   12 files  ml_model code and run records
+   37 lines   14 files  ml_model code and run records
    33 lines   18 files  ml_model docs, protocols, outreach
+   28 lines    3 files  backend migrations
    27 lines   12 files  paper
    22 lines   13 files  speaker- and clinician-facing briefs
-   16 lines    2 files  backend migrations
+   17 lines    1 files  spec: docs/ENGINEERING_SPEC.md
    14 lines    2 files  docs/
-    5 lines    1 files  readme
-    2 lines    2 files  other
+    4 lines    3 files  other
+    3 lines    1 files  readme
 
 ## audit reports
 
@@ -36,29 +36,34 @@ reports/CLINICIAN_BRIEF.md:16: | **Author** | Write short descriptions of sympto
 reports/CLINICIAN_BRIEF.md:21: 1. which official triage guidance defines those three categories in Rwandan facilities;
 reports/CLINICIAN_BRIEF.md:53: 1. **The triage guidance you use.** For example the WHO ETAT document in the edition your facility uses, the
 reports/CLINICIAN_BRIEF.md:54: Rwanda MoH/RBC triage protocol, and any adult triage tool. We need the actual documents, not a summary.
-reports/CORPUS_REBUILD.md:28: | Domains | the national protocol's own organisation, not the current 9 | **[BLANK — H4: MoH/RBC triage protocol]** |
-reports/CORPUS_REBUILD.md:29: | Age groups and boundary | as the chosen framework defines them | **[BLANK — E6; ETAT manual / adult framework in `docs/clinical/`, cited]** |
-reports/CURRENT_CAPABILITY.md:19: - With no model loaded, triage is refused and staff are told to triage manually.
-reports/EVAL_SET_SPEC.md:182: | Clinical domain | from the national triage protocol's own organisation | **BLOCKED**. The repo's 9 corpus domains (cardiac_respiratory … preventive) are a placeholder only; they come from an unratif
-reports/EVAL_SET_SPEC.md:250: | B1 | **The WHO ETAT document in the edition Rwandan facilities use**, full text, placed in `docs/clinical/`. I have not verified which edition that is and will not cite one from memory. One point to
-reports/EVAL_SET_SPEC.md:251: | B2 | **The Rwanda MoH / RBC triage protocol or clinical guideline** in use at health centres and district hospitals (adult and paediatric), with the mapping of its categories to CRITICAL / URGENT / 
-reports/EVAL_SET_SPEC.md:252: | B3 | **The adult triage tool used in Rwandan facilities**, if it is not ETAT | adult label definitions |
+reports/CONSTRUCT.md:8: **Not ETAT triage.** ETAT assigns categories by examining the child on arrival (manual p. 3, p. 36). No
+reports/CONSTRUCT.md:13: ordered by it. Staff still triage in person.
+reports/CONSTRUCT.md:19: not a way of applying ETAT.
+reports/CONSTRUCT.md:31: - Equivalence to ETAT or bedside triage, or safety with real patients.
+reports/CONSTRUCT.md:41: category (e.g. ETAT)" column and the B1/B3 dependency are removed. The framing paragraph becomes the
+reports/CORPUS_REBUILD.md:30: | Domains | the national protocol's own organisation, not the current 9 | **[BLANK — H4: MoH/RBC triage protocol]** |
+reports/CORPUS_REBUILD.md:31: | Age groups and boundary | as the chosen framework defines them | **[BLANK — E6; ETAT manual / adult framework in `docs/clinical/`, cited]** |
+reports/CURRENT_CAPABILITY.md:21: - With no model loaded, triage is refused and staff are told to triage manually.
+reports/EVAL_SET_SPEC.md:208: | Clinical domain | from the national triage protocol's own organisation | **BLOCKED**. The repo's 9 corpus domains (cardiac_respiratory … preventive) are a placeholder only; they come from an unratif
+reports/EVAL_SET_SPEC.md:276: | B1 | **The WHO ETAT document in the edition Rwandan facilities use**, full text, placed in `docs/clinical/`. I have not verified which edition that is and will not cite one from memory. One point to
+reports/EVAL_SET_SPEC.md:277: | B2 | **The Rwanda MoH / RBC triage protocol or clinical guideline** in use at health centres and district hospitals (adult and paediatric), with the mapping of its categories to CRITICAL / URGENT / 
+reports/EVAL_SET_SPEC.md:278: | B3 | **The adult triage tool used in Rwandan facilities**, if it is not ETAT | adult label definitions |
 reports/I18N_PLAN.md:11: - **Sent two ways:** by SMS (`triage_service`) and as `patient_response` on `POST /triage` (shown to staff by
 reports/I18N_PLAN.md:50: 2. Otherwise the language **staff select** on the triage screen.
 reports/I18N_PLAN.md:55: **The rule:** a missing translation must never block a triage or an SMS, never show a patient an unfilled slot,
 reports/I18N_PLAN.md:90: | I1 | Language source: stored patient preference (migration) vs staff selection per triage | you |
-reports/MODEL_AUDIT.md:12: and Swahili emergency phrase tried. It must not triage a patient. The checkpoint committed at `ml_model/saved_model/`
-reports/MODEL_AUDIT.md:77: | InferenceResult has 7 fields, no nulls (FR-04-02) | **FAIL** | `Classification` has 4 fields: `urgency, possible_conditions, confidence, advice_rw`. Absent: per-class probabilities, detected languag
-reports/MODEL_AUDIT.md:131: ### 3.2 End-to-end HTTP (`POST /api/v1/triage`, uvicorn 1 worker, PostgreSQL 16 local, v2d loaded, rate limiter off, SMS stubbed)
-reports/MODEL_AUDIT.md:150: **The single triage probe run through the real API with v2d loaded** (`symptoms_input: "sinshobora guhumeka"`):
-reports/MODEL_AUDIT.md:218: The model over-triages URGENT to CRITICAL (49.6% of URGENT) — the safer direction — and never predicts ROUTINE
-reports/MODEL_AUDIT.md:274: (`frontend/src/routes/Triage.tsx`), which is correct.
-reports/MODEL_AUDIT.md:287: list (`backend/app/services/triage_service.py:92`) plus short sentences built from them. These terms are
-reports/MODEL_AUDIT.md:317: accepts any text of ≥ 3 characters in any language (`backend/app/schemas/triage.py:19`), and no rules layer
-reports/MODEL_AUDIT.md:323: whenever `TRIAGE_MODEL_PATH` is unset (the default) outside production.
-reports/MODEL_AUDIT.md:336: with colloquial variants and a T1 validator. Every backend integration test that asserts a triage outcome
-reports/MODEL_AUDIT.md:337: (`test_full_triage_path.py`, `test_triage_routes.py`) runs this baseline, not the model.
-reports/REMEDIATION_PLAN.md:18: | **D1** | **Which specification governs, and what happens to the old charter.** The repo was built to `ml_model/CLAUDE.md` (deleted, uncommitted), whose standing rules conflict with CLAUDE.md v2.0 in
+reports/MODEL_AUDIT.md:18: and Swahili emergency phrase tried. It must not triage a patient. The checkpoint committed at `ml_model/saved_model/`
+reports/MODEL_AUDIT.md:89: | InferenceResult has 7 fields, no nulls (FR-04-02) | **FAIL** | `Classification` has 4 fields: `urgency, possible_conditions, confidence, advice_rw`. Absent: per-class probabilities, detected languag
+reports/MODEL_AUDIT.md:148: ### 3.2 End-to-end HTTP (`POST /api/v1/triage`, uvicorn 1 worker, PostgreSQL 16 local, v2d loaded, rate limiter off, SMS stubbed)
+reports/MODEL_AUDIT.md:167: **The single triage probe run through the real API with v2d loaded** (`symptoms_input: "sinshobora guhumeka"`):
+reports/MODEL_AUDIT.md:294: The model over-triages URGENT to CRITICAL (49.6% of URGENT) — the safer direction — and never predicts ROUTINE
+reports/MODEL_AUDIT.md:352: (`frontend/src/routes/Triage.tsx`), which is correct.
+reports/MODEL_AUDIT.md:367: list (`backend/app/services/triage_service.py:92`) plus short sentences built from them. These terms are
+reports/MODEL_AUDIT.md:397: accepts any text of ≥ 3 characters in any language (`backend/app/schemas/triage.py:19`), and no rules layer
+reports/MODEL_AUDIT.md:403: whenever `TRIAGE_MODEL_PATH` is unset (the default) outside production.
+reports/MODEL_AUDIT.md:416: with colloquial variants and a T1 validator. Every backend integration test that asserts a triage outcome
+reports/MODEL_AUDIT.md:417: (`test_full_triage_path.py`, `test_triage_routes.py`) runs this baseline, not the model.
+reports/REMEDIATION_PLAN.md:18: | **D1** | **Which specification governs, and what happens to the old charter.** The repo was built to the ml_model charter file (deleted, uncommitted), whose standing rules conflict with docs/ENGINEE
 reports/REMEDIATION_PLAN.md:19: | **D2** | **Clinical source documents in `docs/clinical/`** (Rwanda MoH / RBC triage protocol, WHO ETAT, emergency numbers, referral pathways). | L5: the red-flag rules content, escalation instructio
 reports/REMEDIATION_PLAN.md:35: | R1.1 | Migration: `triage_results` + `model_version`, `probabilities` JSONB (CHECK keys + sum within 1e-6 via trigger or CHECK on extracted floats), `requires_human_review`, `rules_layer_triggered`,
 reports/REMEDIATION_PLAN.md:44: test; no triage can be persisted without `model_version`.
@@ -85,75 +90,160 @@ reports/REQUIREMENTS_MATRIX.md:282: | DM-04 | `triage_results` | INCORRECT | `mo
 reports/REQUIREMENTS_MATRIX.md:292: | DM-X3 | Atomic triage write (report+result+queue+audit) | PARTIAL | `services/triage_service.py:399-421` single commit; `test_triage_records_the_full_chain` (ran) | No rollback test; no audit row | 
 reports/REQUIREMENTS_MATRIX.md:360: | TT-05 | Integration: API, 403 on all protected endpoints, 429 | PARTIAL | `test_authorization.py` 29 (ran); **every triage integration test runs the keyword baseline, never the model** (`TRIAGE_MODE
 reports/REQUIREMENTS_MATRIX.md:378: | L1 triage only + escalation instruction | PARTIAL | model predicts urgency only; `possible_conditions=""` for the model, but **the keyword baseline returns diagnosis-like strings** ("Possible malari
-reports/STATE.md:7: re-verified after the restart: backend **250 passed**, Vitest **139 passed**. **ETAT manual read: ETAT is
-reports/STATE.md:8: paediatric, and it is defined on examination signs. That is a MODALITY mismatch with text triage, separate from
-reports/STATE.md:25: | `fb64dc2` | 1 | fix(triage)!: fail closed when the trained model cannot classify |
-reports/STATE.md:27: | `21e90fc` | 1b | fix(api): readiness reports model: false when no triage model is loaded |
-reports/STATE.md:28: | `86b61dd` | 1b | feat(frontend): blocking triage-offline alert and persistent offline banner |
-reports/STATE.md:29: | `2db26c8` | 2a | feat(triage): below the confidence threshold, require clinician review — **BROKEN AT THIS SHA: deleted `PendingResponse.tsx` (and its test) while still imported; the frontend does n
-reports/STATE.md:31: | `e22efd8` | 2b | fix(triage)!: stop telling patients their condition can wait |
-reports/STATE.md:50: No model, or a model that raises → `POST /api/v1/triage` returns **503**, `Retry-After: 60`, code
-reports/STATE.md:51: `TRIAGE_MODEL_UNAVAILABLE`, and a manual-triage message; **nothing is written**. The keyword classifier and its
-reports/STATE.md:60: - **Every screen:** a sticky bar across the top, "Automated triage offline — triage manually".
-reports/STATE.md:62: "Automated triage is offline", body verbatim from the API: "Automated triage is unavailable. This report was not
-reports/STATE.md:63: assessed and was not added to the queue. Triage this patient manually now; do not wait for the system."
-reports/STATE.md:71: `POST /triage` → 503, `Retry-After: 60`; rows written (0, 0, 0).
-reports/STATE.md:89: triage continues. The alert blocks the intake flow visually and cannot be dismissed. Say if you want a true modal.
-reports/STATE.md:95: `model` reports the triage state. If a probe removed the pod for no model, nobody could see the banner.
-reports/STATE.md:100: `TriageModelUnavailableError`, so the recording cannot drift silently.
-reports/STATE.md:117: `frontend/src/components/PendingResponse.tsx` (and its test) while `routes/Triage.tsx` still imports it, so the
-reports/STATE.md:123: on POST and GET `/triage` and on every `/queue` item (with `confidence_score`). It is evaluated on read against the
-reports/STATE.md:135: reason; "Message for the patient" shows the receipt captioned "The same for every patient — not a triage result.
-reports/STATE.md:161: - **93% of v2d predictions fall below 0.75** (MODEL_AUDIT §5), so almost every triage will be flagged. That is
-reports/STATE.md:165: - **Dead code left in your uncommitted files:** `sms_service.build_triage_sms` and `services/response_templates.py`
-reports/STATE.md:166: are no longer reached by triage. Remove them once D0 is resolved.
-reports/STATE.md:168: through a runtime check (`api/triageResponse.ts`) until that file is committed.
-reports/STATE.md:187: **PII scan test (§13)** drives patient creation, registration, triage, the queue, a phone search, a 422, a 409,
-reports/STATE.md:303: - **B1** — the WHO ETAT document in the edition Rwandan facilities use. Unverified by me. To be confirmed with a
-reports/STATE.md:304: clinician: my understanding is that ETAT is paediatric, so it may not cover adults.
-reports/STATE.md:305: - **B2** — the Rwanda MoH/RBC triage protocol and its category mapping.
-reports/STATE.md:306: - **B3** — the adult triage tool, if not ETAT.
-reports/STATE.md:340: - API: `GET /queue`, `GET /queue/{id}` add `band` and `band_label`. Positions from the triage response, the list
-reports/STATE.md:352: This matters: `useSubmitTriage` inserts a row without a band until the next poll.
-reports/STATE.md:364: - The existing invariant test `test_full_triage_path.py::test_the_queue_orders_critical_before_routine` is
-reports/STATE.md:413: - CLAUDE.md §18 cites ETAT as the basis of a 3-class taxonomy applied to all ages (age 1–120 on the form).
-reports/STATE.md:414: You report ETAT/ETAT+ as paediatric. **The same glossary also maps the classes to ESI 1–2 / 3 / 4–5**, a
-reports/STATE.md:416: - The repo's own concept taxonomy never used ETAT. It anchors to IMCI 2014 (children under five, per the repo),
-reports/STATE.md:419: - The backend stores `patients.age` but triage never reads it. No scope is stated to patients or staff.
-reports/STATE.md:425: - ETAT's actual coverage is **PENDING**: §2 of that file is a fill-in table to complete, with page citations,
-reports/STATE.md:434: | WHO ETAT Participant Manual | H3: ETAT categories, criteria, stated age range (fills TAXONOMY_SCOPE §2) | The mapping of ETAT categories to CRITICAL/URGENT/ROUTINE (H4, needs H6). Whether ETAT appli
-reports/STATE.md:435: | Rwanda MoH Clinical Treatment Guidelines — Internal Medicine | Part of H4: an adult triage scheme, **only if it defines triage categories**. A treatment guideline may not. | The national triage prot
-reports/STATE.md:451: `useSubmitTriage`'s cache insert, is committed code. Item 1 can land cleanly after you commit or stash (H14).
-reports/STATE.md:479: differently. Decide on H6's two answers: can ETAT apply to text, and which adult framework is in use. Whatever
-reports/STATE.md:486: - A24, four triage instruments cited, none in the repo.
-reports/STATE.md:519: ## 2026-09-15 — ETAT reading task: BLOCKED, the manual is not in the repository
-reports/STATE.md:521: You reported the WHO ETAT Participant Manual placed in `docs/clinical/`.
-reports/STATE.md:524: - A search for ETAT-named or recently modified PDF/EPUB/DOCX files on this machine found only unrelated
-reports/STATE.md:545: - That needed one backend addition: `band` and `band_label` on `POST /triage` and `GET /triage/{id}`, from the
-reports/STATE.md:549: - Backend: the triage response band equals the queue list band for NEEDS_REVIEW, URGENT and a low-confidence
-reports/STATE.md:635: ## 2026-09-15 (after the restart) — counts re-verified; ETAT manual read
-reports/STATE.md:651: **ETAT reading task: done** (`TAXONOMY_SCOPE.md` §2, every cell cited by printed and PDF page).
-reports/STATE.md:652: - **Source:** `docs/clinical/participant_manual.pdf`, WHO *ETAT Manual for participants*, © 2005, SHA-256
-reports/STATE.md:659: - **Modality: examination-based.** "Triage is the process of rapidly examining all sick children" (p. 3). The
-reports/STATE.md:663: - **Remote or written report: not addressed.** Triage happens on arrival. There are 0 occurrences of
-reports/STATE.md:670: - **Not decided:** E6, or which carer descriptions equal an ETAT sign.
-reports/STATE.md:672: - **Not in the file:** Rwanda (0 mentions) and ETAT+. The upper age limit and ETAT+ cells name their missing
-reports/STATE.md:742: Cleared under this exception so far: `app/services/triage_service.py:370` [return-value] (by `fb64dc2`) and
-reports/STATE.md:767: | A4 | "All 11 tables" including `audit_logs`, `model_evaluations`, `analytics_daily`, `queue_entries` (§8) | Live 11 tables: `analytics, consultations, doctors, patients, password_reset_tokens, queue
-reports/STATE.md:777: | A14 | Supported languages: all 10 combinations (§4.4), triage "in any of 10 language combinations" (§4.3 step 1) | Trained model and corpus are **Kinyarwanda only** (330,000 rows, 100% kinyarwanda).
-reports/STATE.md:778: | A15 | "KinyaMed-Triage dataset (1M+ examples)" (§14); target ≥ 1,000,000 (§9.1, FR-04-07) | Trained-on corpus **330,000 rows** from **165 phrases** and **360 distinct word types**. The superseded v1
-reports/STATE.md:784: | A21 | ETAT "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy" (§18) | The repo's taxonomy cites **WHO IMCI 2014** and **WHO-ICRC Basic Emergency Care 2018**, not ETAT (`m
-reports/STATE.md:787: | A24 | **Four distinct triage instruments are cited as the clinical basis across the spec and code, and none is in the repository.** (1) **WHO ETAT**, the basis of the 3-class taxonomy: `CLAUDE.md:90
-reports/STATE.md:788: | A26 | **The concept total has five values across the repo. One number with several values is, on its own, disqualifying at review.** **68**: `ml_model/docs/clinical-anchors.md:32` ("Of the 68 genera
-reports/STATE.md:789: | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 7
-reports/STATE.md:798: | B1 | Triage end-to-end p95 < 250 ms (§4.3), API p50 < 200 / p95 < 350 / p99 < 500 ms @ 50 users (§6.1) | HTTP, v2d, 1 worker: c=1 p50 **363** / p95 **1,501** ms; c=50 p50 **34,067** ms, **136 of 200
-reports/STATE.md:808: | B11 | "ML model not loaded → 503 … manual triage mode" (§6.3) | Before today: silently served a keyword matcher (CRITICAL recall 0.057). **After increment 1 item 1 (uncommitted): 503 + Retry-After +
-reports/STATE.md:819: | C2 | "Manual triage causes ~47-minute delay before urgency assessed" (§4.1) | no citation in repo |
-reports/STATE.md:844: | H3 | WHO ETAT (B1) | **Partly cleared 2026-09-15.** The WHO 2005 participant manual has been read (`TAXONOMY_SCOPE.md` §2): children only, no upper age stated, examination-based, no remote triage. *
-reports/STATE.md:845: | H4 | National triage protocol (B2, B3) | MoH/RBC triage protocol for health centres and district hospitals, adult and paediatric, **with its mapping to CRITICAL/URGENT/ROUTINE**; the adult tool if n
-reports/STATE.md:870: | H19 | SRS document | Apply "SRS CORRECTIONS REQUIRED" to `KinyaMed_SRS_v2_0.docx` (not in repo; a copy sits in `~/Downloads`, not opened by me). **Add: §18 cites both ETAT (paediatric, per your find
+reports/STATE.md:54: 3. **H3–H5: clinical documents** in `docs/clinical/`: the Rwandan ETAT edition, the national triage protocol and its
+reports/STATE.md:100: | `fb64dc2` | 1 | fix(triage)!: fail closed when the trained model cannot classify |
+reports/STATE.md:102: | `21e90fc` | 1b | fix(api): readiness reports model: false when no triage model is loaded |
+reports/STATE.md:103: | `86b61dd` | 1b | feat(frontend): blocking triage-offline alert and persistent offline banner |
+reports/STATE.md:104: | `2db26c8` | 2a | feat(triage): below the confidence threshold, require clinician review — **BROKEN AT THIS SHA: deleted `PendingResponse.tsx` (and its test) while still imported; the frontend does n
+reports/STATE.md:106: | `e22efd8` | 2b | fix(triage)!: stop telling patients their condition can wait |
+reports/STATE.md:125: No model, or a model that raises → `POST /api/v1/triage` returns **503**, `Retry-After: 60`, code
+reports/STATE.md:126: `TRIAGE_MODEL_UNAVAILABLE`, and a manual-triage message; **nothing is written**. The keyword classifier and its
+reports/STATE.md:135: - **Every screen:** a sticky bar across the top, "Automated triage offline — triage manually".
+reports/STATE.md:137: "Automated triage is offline", body verbatim from the API: "Automated triage is unavailable. This report was not
+reports/STATE.md:138: assessed and was not added to the queue. Triage this patient manually now; do not wait for the system."
+reports/STATE.md:146: `POST /triage` → 503, `Retry-After: 60`; rows written (0, 0, 0).
+reports/STATE.md:164: triage continues. The alert blocks the intake flow visually and cannot be dismissed. Say if you want a true modal.
+reports/STATE.md:170: `model` reports the triage state. If a probe removed the pod for no model, nobody could see the banner.
+reports/STATE.md:175: `TriageModelUnavailableError`, so the recording cannot drift silently.
+reports/STATE.md:192: `frontend/src/components/PendingResponse.tsx` (and its test) while `routes/Triage.tsx` still imports it, so the
+reports/STATE.md:198: on POST and GET `/triage` and on every `/queue` item (with `confidence_score`). It is evaluated on read against the
+reports/STATE.md:210: reason; "Message for the patient" shows the receipt captioned "The same for every patient — not a triage result.
+reports/STATE.md:236: - **93% of v2d predictions fall below 0.75** (MODEL_AUDIT §5), so almost every triage will be flagged. That is
+reports/STATE.md:240: - **Dead code left in your uncommitted files:** `sms_service.build_triage_sms` and `services/response_templates.py`
+reports/STATE.md:241: are no longer reached by triage. Remove them once D0 is resolved.
+reports/STATE.md:243: through a runtime check (`api/triageResponse.ts`) until that file is committed.
+reports/STATE.md:262: **PII scan test (§13)** drives patient creation, registration, triage, the queue, a phone search, a 422, a 409,
+reports/STATE.md:378: - **B1** — the WHO ETAT document in the edition Rwandan facilities use. Unverified by me. To be confirmed with a
+reports/STATE.md:379: clinician: my understanding is that ETAT is paediatric, so it may not cover adults.
+reports/STATE.md:380: - **B2** — the Rwanda MoH/RBC triage protocol and its category mapping.
+reports/STATE.md:381: - **B3** — the adult triage tool, if not ETAT.
+reports/STATE.md:415: - API: `GET /queue`, `GET /queue/{id}` add `band` and `band_label`. Positions from the triage response, the list
+reports/STATE.md:427: This matters: `useSubmitTriage` inserts a row without a band until the next poll.
+reports/STATE.md:439: - The existing invariant test `test_full_triage_path.py::test_the_queue_orders_critical_before_routine` is
+reports/STATE.md:488: - docs/ENGINEERING_SPEC.md §18 cites ETAT as the basis of a 3-class taxonomy applied to all ages (age 1–120 on the form).
+reports/STATE.md:489: You report ETAT/ETAT+ as paediatric. **The same glossary also maps the classes to ESI 1–2 / 3 / 4–5**, a
+reports/STATE.md:491: - The repo's own concept taxonomy never used ETAT. It anchors to IMCI 2014 (children under five, per the repo),
+reports/STATE.md:494: - The backend stores `patients.age` but triage never reads it. No scope is stated to patients or staff.
+reports/STATE.md:500: - ETAT's actual coverage is **PENDING**: §2 of that file is a fill-in table to complete, with page citations,
+reports/STATE.md:509: | WHO ETAT Participant Manual | H3: ETAT categories, criteria, stated age range (fills TAXONOMY_SCOPE §2) | The mapping of ETAT categories to CRITICAL/URGENT/ROUTINE (H4, needs H6). Whether ETAT appli
+reports/STATE.md:510: | Rwanda MoH Clinical Treatment Guidelines — Internal Medicine | Part of H4: an adult triage scheme, **only if it defines triage categories**. A treatment guideline may not. | The national triage prot
+reports/STATE.md:526: `useSubmitTriage`'s cache insert, is committed code. Item 1 can land cleanly after you commit or stash (H14).
+reports/STATE.md:554: differently. Decide on H6's two answers: can ETAT apply to text, and which adult framework is in use. Whatever
+reports/STATE.md:561: - A24, four triage instruments cited, none in the repo.
+reports/STATE.md:594: ## 2026-09-15 — ETAT reading task: BLOCKED, the manual is not in the repository
+reports/STATE.md:596: You reported the WHO ETAT Participant Manual placed in `docs/clinical/`.
+reports/STATE.md:599: - A search for ETAT-named or recently modified PDF/EPUB/DOCX files on this machine found only unrelated
+reports/STATE.md:620: - That needed one backend addition: `band` and `band_label` on `POST /triage` and `GET /triage/{id}`, from the
+reports/STATE.md:624: - Backend: the triage response band equals the queue list band for NEEDS_REVIEW, URGENT and a low-confidence
+reports/STATE.md:710: ## 2026-09-15 (after the restart) — counts re-verified; ETAT manual read
+reports/STATE.md:726: **ETAT reading task: done** (`TAXONOMY_SCOPE.md` §2, every cell cited by printed and PDF page).
+reports/STATE.md:727: - **Source:** `docs/clinical/participant_manual.pdf`, WHO *ETAT Manual for participants*, © 2005, SHA-256
+reports/STATE.md:734: - **Modality: examination-based.** "Triage is the process of rapidly examining all sick children" (p. 3). The
+reports/STATE.md:738: - **Remote or written report: not addressed.** Triage happens on arrival. There are 0 occurrences of
+reports/STATE.md:745: - **Not decided:** E6, or which carer descriptions equal an ETAT sign.
+reports/STATE.md:747: - **Not in the file:** Rwanda (0 mentions) and ETAT+. The upper age limit and ETAT+ cells name their missing
+reports/STATE.md:754: ## 2026-09-15 (later) — consequences of the ETAT finding recorded; stopped
+reports/STATE.md:762: - ETAT requires examination (p. 3 definition; the p. 36 convulsion rule).
+reports/STATE.md:767: - Checked: `docs/clinical/` holds only the ETAT manual, `docs/compliance/` does not exist, and no tracked file
+reports/STATE.md:768: mentions telephone, advice-line or remote triage.
+reports/STATE.md:770: - The inventory script `reports/measurements/triage_wording_inventory.py` (output `.txt`) finds 895 matching
+reports/STATE.md:774: - **Patient-facing text contains no occurrence** of "triage" or ETAT. The paper has no ETAT citation; it frames
+reports/STATE.md:775: the work as triage against ESI and MTS.
+reports/STATE.md:776: - "Triage manually" refers to staff triaging in person, and is flagged as possibly correct as it stands.
+reports/STATE.md:788: - If yes, it replaces ETAT as the anchor.
+reports/STATE.md:793: - new: `reports/CONSTRUCT.md`, `reports/measurements/triage_wording_inventory.{py,txt}`;
+reports/STATE.md:807: - It states: not deployed and must not be used with patients; "AI-powered medical triage" withdrawn, with no
+reports/STATE.md:898: - `reports/measurements/triage_wording_inventory.py` needed formatting.
+reports/STATE.md:1199: - `run_triage` matches the lexicon **before** calling the model (tested order: rules, then model). It stores
+reports/STATE.md:1235: `triage_service._classify` and re-raised as `TriageModelUnavailableError`, the same 503 as item 1.
+reports/STATE.md:1236: - Service-level: `test_a_batch_error_or_timeout_fails_triage_closed[error|timeout]`.
+reports/STATE.md:1238: TRIAGE_MODEL_UNAVAILABLE, Retry-After, no detail leaked, nothing written. Characterisation; it passed on first
+reports/STATE.md:1283: - **For you:** your local `backend/.env` sets `MODEL_MAX_LENGTH`. It is harmless while `TRIAGE_MODEL_PATH` is unset.
+reports/STATE.md:1289: fail-closed path stays exactly as built: 503, nothing written, and the manual-triage instruction to staff.
+reports/STATE.md:1297: - `run_triage` matches the lexicon and then calls the model. A model failure raises `TriageModelUnavailableError`
+reports/STATE.md:1299: - Pinned by `test_a_red_flag_does_not_bypass_fail_closed` (fictional term, no model: 503, zero `triage_results`
+reports/STATE.md:1470: Cleared under this exception so far: `app/services/triage_service.py:370` [return-value] (by `fb64dc2`) and
+reports/STATE.md:1495: | A4 | "All 11 tables" including `audit_logs`, `model_evaluations`, `analytics_daily`, `queue_entries` (§8) | Live 11 tables: `analytics, consultations, doctors, patients, password_reset_tokens, queue
+reports/STATE.md:1505: | A14 | Supported languages: all 10 combinations (§4.4), triage "in any of 10 language combinations" (§4.3 step 1) | Trained model and corpus are **Kinyarwanda only** (330,000 rows, 100% kinyarwanda).
+reports/STATE.md:1506: | A15 | "KinyaMed-Triage dataset (1M+ examples)" (§14); target ≥ 1,000,000 (§9.1, FR-04-07) | Trained-on corpus **330,000 rows** from **165 phrases** and **360 distinct word types**. The superseded v1
+reports/STATE.md:1512: | A21 | ETAT "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy" (§18) | The repo's taxonomy cites **WHO IMCI 2014** and **WHO-ICRC Basic Emergency Care 2018**, not ETAT (`m
+reports/STATE.md:1515: | A24 | **Four distinct triage instruments are cited as the clinical basis across the spec and code, and none is in the repository.** (1) **WHO ETAT**, the basis of the 3-class taxonomy: `docs/ENGINEE
+reports/STATE.md:1516: | A26 | **The concept total has five values across the repo. One number with several values is, on its own, disqualifying at review.** **68**: `ml_model/docs/clinical-anchors.md:32` ("Of the 68 genera
+reports/STATE.md:1517: | A25 | **Paper clinical-anchor count — BLOCKS ANY SUBMISSION.** Stated figure: "Seventy of our 128 concepts carry an anchor" (`ml_model/paper/sections/related_work.tex:26`); "128 concepts, of which 7
+reports/STATE.md:1518: | A27 | **The system is called "triage", and ETAT is cited as its basis**, across the spec, README, paper, UI, API and clinician-facing documents (inventory below). | **No document in the repo authori
+reports/STATE.md:1520: | A29 | **The latency NFR was specified without measurement against a named hardware spec**, the same failure as A28's thresholds. docs/ENGINEERING_SPEC.md FR-04-05: inference p50 < 150 / p95 < 200 / 
+reports/STATE.md:1523: #### A27 inventory — where the system is *described* as triage or as ETAT-based
+reports/STATE.md:1528: **Specification — `docs/ENGINEERING_SPEC.md`** (committed 2026-09-15; it keeps the source's triage wording, so these
+reports/STATE.md:1530: - ETAT as basis or source:
+reports/STATE.md:1531: - §18 glossary: ETAT as the "WHO framework used in Rwandan health centres; basis for the 3-class taxonomy";
+reports/STATE.md:1532: - L5: the triage taxonomy comes from WHO materials in `docs/clinical/`;
+reports/STATE.md:1533: - §10.2 T1 and §10.4 T1 "terminology and taxonomy": "WHO ETAT".
+reports/STATE.md:1534: - System named as triage:
+reports/STATE.md:1535: - the title "medical triage and patient queue system";
+reports/STATE.md:1536: - L1 "**triage prioritisation only**";
+reports/STATE.md:1537: - §4.3 "Triage data flow";
+reports/STATE.md:1538: - §4.1 "Manual triage causes a ~47-minute delay" (the problem statement, unsourced, C2);
+reports/STATE.md:1539: - §14 and §18 dataset name "KinyaMed-Triage".
+reports/STATE.md:1540: - As a feature name in requirements: §4.2, §4.3, FR-01-05, §6.1 ("Triage API response"), §6.3 ("ML model not
+reports/STATE.md:1541: loaded"), §8.2 `triage_results`, §13, FR-04-03.
+reports/STATE.md:1544: - `:8` "AI-powered medical triage and patient queue system"
+reports/STATE.md:1545: - `:24` "Triage endpoint"
+reports/STATE.md:1546: - `:26` "Triage intake"
+reports/STATE.md:1547: - `:252` "FastAPI triage service"
+reports/STATE.md:1548: - `:134` "Under-triage", used as the failure-mode term
+reports/STATE.md:1550: **Paper — `ml_model/paper/`.** ETAT: 0 occurrences. The paper frames the work as triage and positions it
+reports/STATE.md:1552: - `main.tex:95` title "Kinyarwanda triage classification: results"
+reports/STATE.md:1553: - `sections/abstract.tex:14–17` "Triage decides who is seen first … a classifier for three-level urgency triage
+reports/STATE.md:1554: from patient-voice Kinyarwanda"; `:46` "patient-voice triage dataset"
+reports/STATE.md:1555: - `sections/introduction.tex:23–25` "Triage systems support that decision … the Emergency Severity Index, the
+reports/STATE.md:1556: Manchester Triage System"; `:30` "three-level urgency triage"; `:79` "medical triage dataset"
+reports/STATE.md:1557: - `sections/related_work.tex:12–20` subsection "Triage instruments"; `:91` "patient-voice medical triage dataset"
+reports/STATE.md:1558: - `sections/system.tex:45` "The triage endpoint accepts a free-text symptom description … places the patient in a
+reports/STATE.md:1560: - `generated/results_table.tex:22` caption "Triage performance of the reported model"
+reports/STATE.md:1561: - Over- and under-triage as terms: `results.tex:50`, `sections/discussion.tex:26`, `:33–34`,
+reports/STATE.md:1566: - `index.html:6` page title "KinyaMed — triage"
+reports/STATE.md:1567: - `src/components/Layout.tsx:6` navigation label "Triage"
+reports/STATE.md:1568: - `src/components/TriageOfflineAlert.tsx:27` "Automated triage is offline"
+reports/STATE.md:1569: - `src/components/TriageOfflineBanner.tsx:39` "Automated triage offline — triage manually"; the second half refers
+reports/STATE.md:1570: to staff triage
+reports/STATE.md:1571: - `src/components/PatientMessage.tsx:31` "not a triage result"
+reports/STATE.md:1572: - `src/__design__/main.tsx:90` "Triage view (empty form)" (design harness only)
+reports/STATE.md:1573: - The e2e fixture `e2e/fixtures/triage-model-unavailable.json` mirrors the API message below
+reports/STATE.md:1576: - `main.py:68` OpenAPI description "AI-powered multilingual medical triage for Kinyarwanda speakers."
+reports/STATE.md:1577: - `app/routes/v1/triage.py:16` path `/api/v1/triage`, OpenAPI tag "Triage"; `:36`, `:87` endpoint docstrings
+reports/STATE.md:1578: - `app/core/exceptions.py:119–120` error message shown to staff: "Automated triage is unavailable … Triage this
+reports/STATE.md:1579: patient manually now"; `:122` code `TRIAGE_MODEL_UNAVAILABLE`; `:124` `manual_triage_required`; `:98`
+reports/STATE.md:1580: "Triage service error"; `:104` code `TRIAGE_NOT_FOUND`
+reports/STATE.md:1581: - `app/routes/v1/health.py:54` readiness docstring "whether automated triage is available"
+reports/STATE.md:1582: - Analytics response fields `total_triage_done` (`app/schemas/analytics.py:19`) and `total_triaged` (`:64`;
+reports/STATE.md:1583: model `app/models/analytics.py:31`); description "Share of all triaged cases" (`app/schemas/analytics.py:14`)
+reports/STATE.md:1584: - Log text `main.py:52` and `app/services/model_classifier.py:137` "triage patients manually" (staff triage)
+reports/STATE.md:1585: - Module docstrings: `app/services/triage_service.py:1` "Symptom triage."; `app/models/triage_result.py:1` "AI triage
+reports/STATE.md:1586: outcomes"; `app/core/logging.py:3` "the triage system"
+reports/STATE.md:1589: - `reports/CLINICIAN_BRIEF.md:1` "a triage evaluation set"; `:16`, `:21`; `:53–54` names "the WHO ETAT document"
+reports/STATE.md:1591: - `reports/CURRENT_CAPABILITY.md:19` "triage is refused and staff are told to triage manually"
+reports/STATE.md:1592: - `ml_model/docs/invitation-to-review.md:1` "Helping build a Kinyarwanda medical triage tool"
+reports/STATE.md:1593: - `ml_model/docs/moh-request.md:44` "multilingual medical triage … AI-assisted pre-screening" (a letter to the
+reports/STATE.md:1595: - `ml_model/docs/outreach-digital-umuganda.md:30`, `:34`, `:71`, `:96` "Kinyarwanda triage corpus", "dataset for
+reports/STATE.md:1596: clinical triage", "triage taxonomy"
+reports/STATE.md:1597: - `ml_model/docs/triage-taxonomy.md:1` "Triage concept taxonomy — for clinician sign-off"; `:76`
+reports/STATE.md:1599: - `ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:59` label source "(e.g. ETAT)"; `:66–68` B1 ETAT, B2
+reports/STATE.md:1600: triage protocol, B3 adult triage tool; `:71–72`
+reports/STATE.md:1601: - `ml_model/docs/protocols/d2-clinician-review-pack.md:84` "Does fetal demise belong in a triage taxonomy"
+reports/STATE.md:1604: ("belongs in the triage taxonomy", "where triage still helps").
+reports/STATE.md:1606: - `ml_model/docs/roadmap.md:8` "triage classifier";
+reports/STATE.md:1614: - `reports/EVAL_SET_SPEC.md:182` "national triage protocol"; `:250–252` B1–B3 ETAT and triage tools
+reports/STATE.md:1620: - Backend source: 236 lines in 35 files. Includes the table `triage_results`, `TriageResult`, `triage_service`,
+reports/STATE.md:1621: `TRIAGE_MODEL_PATH`, and the `/api/v1/triage` path.
+reports/STATE.md:1636: | B1 | Triage end-to-end p95 < 250 ms (§4.3), API p50 < 200 / p95 < 350 / p99 < 500 ms @ 50 users (§6.1) | HTTP, v2d, 1 worker: c=1 p50 **363** / p95 **1,501** ms; c=50 p50 **34,067** ms, **136 of 200
+reports/STATE.md:1646: | B11 | "ML model not loaded → 503 … manual triage mode" (§6.3) | Before today: silently served a keyword matcher (CRITICAL recall 0.057). **After increment 1 item 1 (uncommitted): 503 + Retry-After +
+reports/STATE.md:1657: | C2 | "Manual triage causes ~47-minute delay before urgency assessed" (§4.1) | no citation in repo |
+reports/STATE.md:1682: | H3 | WHO ETAT (B1) | **Partly cleared 2026-09-15.** The WHO 2005 participant manual has been read (`TAXONOMY_SCOPE.md` §2): children only, no upper age stated, examination-based, no remote triage. *
+reports/STATE.md:1683: | H4 | National triage protocol (B2, B3) | MoH/RBC triage protocol for health centres and district hospitals, adult and paediatric, **with its mapping to CRITICAL/URGENT/ROUTINE**; the adult tool if n
+reports/STATE.md:1691: | H6a | Lead clinician: **is there a validated report-based urgency instrument?** (added 2026-09-15) | **Question:** does any **validated** instrument exist for assigning urgency from a symptom report
+reports/STATE.md:1710: | H19 | SRS document | Apply "SRS CORRECTIONS REQUIRED" to `KinyaMed_SRS_v2_0.docx` (not in repo; a copy sits in `~/Downloads`, not opened by me). **Add: §18 cites both ETAT (paediatric, per your find
 reports/TAXONOMY_SCOPE.md:3: **Status 2026-09-15: decision deferred at your instruction (E6/E7 below); corpus measurement added (§8); ETAT
-reports/TAXONOMY_SCOPE.md:9: CLAUDE.md §18 defines ETAT as the *"WHO framework used in Rwandan health centres; basis for the 3-class
+reports/TAXONOMY_SCOPE.md:9: docs/ENGINEERING_SPEC.md §18 defines ETAT as the *"WHO framework used in Rwandan health centres; basis for the 3-class
 reports/TAXONOMY_SCOPE.md:11: §8.2 `patients` CHECK: 1–129), and the population is "14M+ Rwandans" (§4.1). You reported that WHO ETAT and
 reports/TAXONOMY_SCOPE.md:12: Rwanda's ETAT+ are paediatric frameworks, for newborns and children.
 reports/TAXONOMY_SCOPE.md:14: **The WHO ETAT manual confirms this for ETAT (§2).** It covers sick children from newborns ("under two months" is
@@ -183,35 +273,58 @@ reports/TAXONOMY_SCOPE.md:87: that never replaces ETAT at the door. This is a pr
 reports/TAXONOMY_SCOPE.md:88: 3. If ETAT is kept as a reference at all, **which carer descriptions, if any, count as equivalent to an ETAT
 reports/TAXONOMY_SCOPE.md:92: - **E6 is not decided.** Options (a) and (c) in §4 both assumed ETAT could be the clinical basis, subject to H6
 reports/TAXONOMY_SCOPE.md:97: - The evaluation-set label definitions (EVAL_SET_SPEC, D7 protocol §3) cannot be drawn from ETAT's criteria as
-reports/TAXONOMY_SCOPE.md:99: - CLAUDE.md §18 ("ETAT … basis for the 3-class taxonomy") is contradicted by the document on **two** counts, age
-reports/TAXONOMY_SCOPE.md:106: | CLAUDE.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope: sick children, upper age not stated (§2, from the manual). ETAT is defined on examination signs (§2a). |
-reports/TAXONOMY_SCOPE.md:107: | CLAUDE.md §18 glossary | CRITICAL = "ESI 1–2", URGENT = "ESI 3", ROUTINE = "ESI 4–5" | ESI is the Emergency Severity Index, a different instrument from ETAT. The specification cites two incompatible
-reports/TAXONOMY_SCOPE.md:109: | `ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md` | concepts anchored in WHO IMCI 2014 (children under five, per that file), WHO-ICRC Basic Emergency Care 2018 (recorded as "adult-inclusive"
-reports/TAXONOMY_SCOPE.md:113: | Backend | `patients.age` optional (0–130); **triage never reads it** | none: the model sees text only |
-reports/TAXONOMY_SCOPE.md:114: | D7 protocol, EVAL_SET_SPEC §11 | B1 = ETAT; B3 = "the adult triage tool, if not ETAT"; the adult question is flagged for the lead clinician | the defect was flagged, but not resolved |
-reports/TAXONOMY_SCOPE.md:119: Only ETAT has been read (§2).
-reports/TAXONOMY_SCOPE.md:125: - **Clinical basis:** one framework (ETAT/ETAT+), if H6 confirms it applies to text-described presentations.
-reports/TAXONOMY_SCOPE.md:127: - `age` becomes mandatory before triage. An adult, or an unknown age, gets the existing fail-closed path: no
-reports/TAXONOMY_SCOPE.md:128: classification, "automated triage covers children only — triage manually" to staff.
-reports/TAXONOMY_SCOPE.md:148: - **Clinical basis:** a document that defines adult triage categories and is in use in Rwandan facilities.
-reports/TAXONOMY_SCOPE.md:150: - The Rwanda MoH Internal Medicine Clinical Treatment Guidelines are adult, but whether they contain triage
-reports/TAXONOMY_SCOPE.md:152: - BEC 2018 is recorded as adult-inclusive, but whether it defines triage *categories* is unverified.
-reports/TAXONOMY_SCOPE.md:163: ETAT/ETAT+ was written for.
-reports/TAXONOMY_SCOPE.md:168: - The **age boundary itself is a clinical definition**: it must be cited (ETAT's stated range), not chosen by
-reports/TAXONOMY_SCOPE.md:171: - `age` becomes mandatory. Missing age fails safe (manual triage, or NEEDS REVIEW — a clinical choice).
-reports/TAXONOMY_SCOPE.md:172: - Every triage record stores which framework applied.
-reports/TAXONOMY_SCOPE.md:220: 1. Can ETAT categories be applied to a text description?
-reports/TAXONOMY_SCOPE.md:229: - H6 says ETAT's categories cannot be applied to text descriptions. Then (a) has no basis either, and scope must
-reports/TAXONOMY_SCOPE.md:230: be rethought with the clinician. **Update 2026-09-15:** the manual defines ETAT on examination signs and never
-reports/TAXONOMY_SCOPE.md:231: mentions remote or written-report triage (§2, §2a). This is the likelier outcome, and the question to H6 is
-reports/TAXONOMY_SCOPE.md:233: - The Internal Medicine guidelines turn out to contain a usable adult triage scheme. Then (c) becomes feasible
-reports/TAXONOMY_SCOPE.md:237: silently triaged by a paediatric model.
-reports/TAXONOMY_SCOPE.md:245: | Protocol §3 definitions | one set, from ETAT | one set, from the adult document | **two sets**; annotators trained on both; the item records which applies |
-reports/TAXONOMY_SCOPE.md:249: | Domain axis (§7) | from ETAT's organisation; `chronic_care` / `preventive` adult concepts out | from the adult document; `paediatric` out | union of both, per group |
-reports/TAXONOMY_SCOPE.md:266: - **CLAUDE.md §18:** the ETAT basis and the ESI mapping contradict each other. This is a specification
+reports/TAXONOMY_SCOPE.md:99: - docs/ENGINEERING_SPEC.md §18 ("ETAT … basis for the 3-class taxonomy") is contradicted by the document on **two** counts, age
+reports/TAXONOMY_SCOPE.md:109: - `docs/clinical/` holds one file, the WHO ETAT participant manual (§2).
+reports/TAXONOMY_SCOPE.md:112: - No tracked file mentions telephone triage, nurse advice lines, tele-triage or remote triage, other than this
+reports/TAXONOMY_SCOPE.md:115: | Instrument | In the repo? | Bedside or report-based | Authority for text triage |
+reports/TAXONOMY_SCOPE.md:117: | **WHO ETAT** (2005 participant manual) | **yes**, `docs/clinical/participant_manual.pdf` | **Bedside examination.** "Triage is the process of rapidly examining all sick children when they first arri
+reports/TAXONOMY_SCOPE.md:120: | WHO MCPC 2017, ESI, Manchester Triage System | **no** | not verified | none that can be cited |
+reports/TAXONOMY_SCOPE.md:123: measure a clinical construct. The only construct the repo can cite, ETAT's categories, is defined by an
+reports/TAXONOMY_SCOPE.md:141: | docs/ENGINEERING_SPEC.md §18 glossary | ETAT is the basis of the 3-class taxonomy | ETAT's scope: sick children, upper age not stated (§2, from the manual). ETAT is defined on examination signs (§2a
+reports/TAXONOMY_SCOPE.md:142: | docs/ENGINEERING_SPEC.md §18 glossary | CRITICAL = "ESI 1–2", URGENT = "ESI 3", ROUTINE = "ESI 4–5" | ESI is the Emergency Severity Index, a different instrument from ETAT. The specification cites t
+reports/TAXONOMY_SCOPE.md:144: | `ml_model/docs/triage-taxonomy.md`, `clinical-anchors.md` | concepts anchored in WHO IMCI 2014 (children under five, per that file), WHO-ICRC Basic Emergency Care 2018 (recorded as "adult-inclusive"
+reports/TAXONOMY_SCOPE.md:148: | Backend | `patients.age` optional (0–130); **triage never reads it** | none: the model sees text only |
+reports/TAXONOMY_SCOPE.md:149: | D7 protocol, EVAL_SET_SPEC §11 | B1 = ETAT; B3 = "the adult triage tool, if not ETAT"; the adult question is flagged for the lead clinician | the defect was flagged, but not resolved |
+reports/TAXONOMY_SCOPE.md:154: Only ETAT has been read (§2).
+reports/TAXONOMY_SCOPE.md:160: - **Clinical basis:** one framework (ETAT/ETAT+), if H6 confirms it applies to text-described presentations.
+reports/TAXONOMY_SCOPE.md:162: - `age` becomes mandatory before triage. An adult, or an unknown age, gets the existing fail-closed path: no
+reports/TAXONOMY_SCOPE.md:163: classification, "automated triage covers children only — triage manually" to staff.
+reports/TAXONOMY_SCOPE.md:183: - **Clinical basis:** a document that defines adult triage categories and is in use in Rwandan facilities.
+reports/TAXONOMY_SCOPE.md:185: - The Rwanda MoH Internal Medicine Clinical Treatment Guidelines are adult, but whether they contain triage
+reports/TAXONOMY_SCOPE.md:187: - BEC 2018 is recorded as adult-inclusive, but whether it defines triage *categories* is unverified.
+reports/TAXONOMY_SCOPE.md:198: ETAT/ETAT+ was written for.
+reports/TAXONOMY_SCOPE.md:203: - The **age boundary itself is a clinical definition**: it must be cited (ETAT's stated range), not chosen by
+reports/TAXONOMY_SCOPE.md:206: - `age` becomes mandatory. Missing age fails safe (manual triage, or NEEDS REVIEW — a clinical choice).
+reports/TAXONOMY_SCOPE.md:207: - Every triage record stores which framework applied.
+reports/TAXONOMY_SCOPE.md:255: 1. Can ETAT categories be applied to a text description?
+reports/TAXONOMY_SCOPE.md:264: - H6 says ETAT's categories cannot be applied to text descriptions. Then (a) has no basis either, and scope must
+reports/TAXONOMY_SCOPE.md:265: be rethought with the clinician. **Update 2026-09-15:** the manual defines ETAT on examination signs and never
+reports/TAXONOMY_SCOPE.md:266: mentions remote or written-report triage (§2, §2a). This is the likelier outcome, and the question to H6 is
+reports/TAXONOMY_SCOPE.md:268: - The Internal Medicine guidelines turn out to contain a usable adult triage scheme. Then (c) becomes feasible
+reports/TAXONOMY_SCOPE.md:272: silently triaged by a paediatric model.
+reports/TAXONOMY_SCOPE.md:280: | Protocol §3 definitions | one set, from ETAT | one set, from the adult document | **two sets**; annotators trained on both; the item records which applies |
+reports/TAXONOMY_SCOPE.md:284: | Domain axis (§7) | from ETAT's organisation; `chronic_care` / `preventive` adult concepts out | from the adult document; `paediatric` out | union of both, per group |
+reports/TAXONOMY_SCOPE.md:301: - **docs/ENGINEERING_SPEC.md §18:** the ETAT basis and the ESI mapping contradict each other. This is a specification
+reports/measurements/triage_wording_inventory.py:1: """Inventory every line that calls something "triage" or cites ETAT.
+reports/measurements/triage_wording_inventory.py:6: python3 reports/measurements/triage_wording_inventory.py > reports/measurements/triage_wording_inventory.txt
+reports/measurements/triage_wording_inventory.py:8: Scope: files tracked by git under `kinyamed/` and the repository README. Matches `triag` (triage, triaged, under-triage)
+reports/measurements/triage_wording_inventory.py:9: case-insensitively, and `ETAT` as a whole word. The area labels come from paths
+reports/measurements/triage_wording_inventory.py:21: PATTERN = re.compile(r"triag|\bETAT\b", re.IGNORECASE)
 
 ## backend migrations
 
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:1: """red-flag layer columns on triage_results, with escalate-only enforced by the database
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:11: - rules_layer_triggered: whether the red-flag layer escalated this triage.
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:37: ALTER TABLE triage_results
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:45: ALTER TABLE triage_results
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:46: ADD CONSTRAINT ck_triage_results_rules_reason_iff_triggered
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:48: ADD CONSTRAINT ck_triage_results_rules_escalate_only
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:50: ADD CONSTRAINT ck_triage_results_untriggered_keeps_model_urgency
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:60: ALTER TABLE triage_results
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:61: DROP CONSTRAINT ck_triage_results_untriggered_keeps_model_urgency,
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:62: DROP CONSTRAINT ck_triage_results_rules_escalate_only,
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:63: DROP CONSTRAINT ck_triage_results_rules_reason_iff_triggered
+backend/migrations/versions/a7c3e9f1d2b4_red_flag_layer_columns.py:68: ALTER TABLE triage_results
 backend/migrations/versions/bbb8e77ab79d_add_updated_at_to_append_only_tables.py:26: op.add_column('triage_results', sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False))
 backend/migrations/versions/bbb8e77ab79d_add_updated_at_to_append_only_tables.py:33: op.drop_column('triage_results', 'updated_at')
 backend/migrations/versions/ca53d84340e4_initial_schema.py:32: sa.Column('total_triaged', sa.Integer(), server_default='0', nullable=False),
@@ -231,13 +344,16 @@ backend/migrations/versions/ca53d84340e4_initial_schema.py:185: op.drop_table('t
 
 ## backend source (API strings and identifiers)
 
-backend/.env.example:63: # --- Triage / queue tuning ---
-backend/app/core/config.py:110: # requirements.txt). Without a loaded model the triage endpoint FAILS
-backend/app/core/config.py:112: TRIAGE_MODEL_PATH: str = ""
-backend/app/core/config.py:113: TRIAGE_MODEL_THREADS: int | None = None
-backend/app/core/config.py:116: # body tells staff to triage manually meanwhile.
-backend/app/core/config.py:117: TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS: int = Field(default=60, ge=1, le=3600)
-backend/app/core/config.py:119: # --- Triage / queue tuning -------------------------------------------
+backend/.env.example:65: # --- Triage / queue tuning ---
+backend/app/core/config.py:113: # requirements.txt). Without a loaded model the triage endpoint FAILS
+backend/app/core/config.py:115: TRIAGE_MODEL_PATH: str = ""
+backend/app/core/config.py:116: TRIAGE_MODEL_THREADS: int | None = None
+backend/app/core/config.py:119: # body tells staff to triage manually meanwhile.
+backend/app/core/config.py:120: TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS: int = Field(default=60, ge=1, le=3600)
+backend/app/core/config.py:124: TRIAGE_BATCH_MAX_SIZE: int = Field(default=16, ge=1, le=256)
+backend/app/core/config.py:125: TRIAGE_BATCH_MAX_WAIT_MS: float = Field(default=5.0, ge=0.0, le=1000.0)
+backend/app/core/config.py:126: TRIAGE_INFERENCE_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0.0, le=600.0)
+backend/app/core/config.py:135: # --- Triage / queue tuning -------------------------------------------
 backend/app/core/dependencies.py:102: check, any logged-in patient could submit symptoms as, or read the triage
 backend/app/core/exceptions.py:93: # ── Triage / ML ───────────────────────────────────────────────────────────
 backend/app/core/exceptions.py:94: class TriageServiceError(HealthGuardBaseError):
@@ -271,14 +387,18 @@ backend/app/models/queue_band.py:70: TriageResult.confidence_score < threshold,
 backend/app/models/symptom_report.py:14: from app.models.triage_result import TriageResult
 backend/app/models/symptom_report.py:31: triage_result: Mapped[TriageResult | None] = relationship(
 backend/app/models/triage_result.py:1: """AI triage outcomes for a symptom report."""
-backend/app/models/triage_result.py:20: """Triage acuity, most urgent first.
-backend/app/models/triage_result.py:42: class TriageResult(TimestampedModel):
-backend/app/models/triage_result.py:43: __tablename__ = "triage_results"
-backend/app/models/triage_result.py:47: name="ck_triage_results_confidence_range",
-backend/app/models/triage_result.py:55: unique=True,  # one triage result per report; enforced, not assumed
-backend/app/models/triage_result.py:67: symptom_report: Mapped[SymptomReport] = relationship(back_populates="triage_result")
-backend/app/models/triage_result.py:69: back_populates="triage_result",
-backend/app/models/triage_result.py:76: return f"<TriageResult id={self.id} urgency={self.urgency_level.value}>"
+backend/app/models/triage_result.py:29: """Triage acuity, most urgent first.
+backend/app/models/triage_result.py:51: class TriageResult(TimestampedModel):
+backend/app/models/triage_result.py:52: __tablename__ = "triage_results"
+backend/app/models/triage_result.py:56: name="ck_triage_results_confidence_range",
+backend/app/models/triage_result.py:63: name="ck_triage_results_rules_reason_iff_triggered",
+backend/app/models/triage_result.py:67: name="ck_triage_results_rules_escalate_only",
+backend/app/models/triage_result.py:72: name="ck_triage_results_untriggered_keeps_model_urgency",
+backend/app/models/triage_result.py:80: unique=True,  # one triage result per report; enforced, not assumed
+backend/app/models/triage_result.py:91: # Whether the red-flag layer escalated this triage, and on which lexicon
+backend/app/models/triage_result.py:105: symptom_report: Mapped[SymptomReport] = relationship(back_populates="triage_result")
+backend/app/models/triage_result.py:107: back_populates="triage_result",
+backend/app/models/triage_result.py:114: return f"<TriageResult id={self.id} urgency={self.urgency_level.value}>"
 backend/app/repositories/__init__.py:9: from app.repositories.triage_repo import (
 backend/app/repositories/__init__.py:11: TriageRepository,
 backend/app/repositories/__init__.py:13: triage_repository,
@@ -329,34 +449,34 @@ backend/app/routes/v1/queue.py:107: patient = entry.triage_result.symptom_report
 backend/app/routes/v1/queue.py:146: This is a state change, not a deletion: the triage result and any
 backend/app/routes/v1/triage.py:1: """Triage endpoints. HTTP only — all rules live in `triage_service`."""
 backend/app/routes/v1/triage.py:10: from app.schemas.triage import TriageRequest, TriageResponse
-backend/app/routes/v1/triage.py:11: from app.services import patient_service, queue_service, triage_service
+backend/app/routes/v1/triage.py:11: from app.services import patient_service, queue_service, red_flags, triage_service
 backend/app/routes/v1/triage.py:14: from app.services.triage_service import SymptomClassifier
 backend/app/routes/v1/triage.py:16: router = APIRouter(prefix="/triage", tags=["Triage"])
 backend/app/routes/v1/triage.py:19: def get_triage_classifier() -> SymptomClassifier | None:
 backend/app/routes/v1/triage.py:20: """The loaded model, or None. `run_triage` fails closed on None.
 backend/app/routes/v1/triage.py:25: return triage_service.get_classifier()
-backend/app/routes/v1/triage.py:28: @router.post("", response_model=TriageResponse, status_code=status.HTTP_201_CREATED)
-backend/app/routes/v1/triage.py:29: def submit_triage(
-backend/app/routes/v1/triage.py:30: data: TriageRequest,
-backend/app/routes/v1/triage.py:34: classifier: SymptomClassifier | None = Depends(get_triage_classifier),
-backend/app/routes/v1/triage.py:35: ) -> TriageResponse:
-backend/app/routes/v1/triage.py:36: """Triage a symptom report and place the patient in the queue.
-backend/app/routes/v1/triage.py:45: The patient's SMS is queued as a background task after the triage has been
-backend/app/routes/v1/triage.py:47: failure cannot undo the triage.
-backend/app/routes/v1/triage.py:51: outcome = triage_service.run_triage(
-backend/app/routes/v1/triage.py:55: review = triage_service.review_status(outcome.result.confidence_score)
-backend/app/routes/v1/triage.py:62: return TriageResponse(
-backend/app/routes/v1/triage.py:63: triage_id=outcome.result.id,
-backend/app/routes/v1/triage.py:83: @router.get("/{triage_id}", response_model=TriageResponse)
-backend/app/routes/v1/triage.py:84: def get_triage(
-backend/app/routes/v1/triage.py:85: triage_id: int, user: CurrentUser, db: Session = Depends(get_db)
-backend/app/routes/v1/triage.py:86: ) -> TriageResponse:
-backend/app/routes/v1/triage.py:87: """Fetch a previous triage with its current queue position.
-backend/app/routes/v1/triage.py:89: Staff may read any triage; a patient only their own.
-backend/app/routes/v1/triage.py:91: result = triage_service.get_triage(db, triage_id)
-backend/app/routes/v1/triage.py:96: review = triage_service.review_status(result.confidence_score)
-backend/app/routes/v1/triage.py:98: return TriageResponse(
-backend/app/routes/v1/triage.py:99: triage_id=result.id,
+backend/app/routes/v1/triage.py:34: @router.post("", response_model=TriageResponse, status_code=status.HTTP_201_CREATED)
+backend/app/routes/v1/triage.py:35: def submit_triage(
+backend/app/routes/v1/triage.py:36: data: TriageRequest,
+backend/app/routes/v1/triage.py:40: classifier: SymptomClassifier | None = Depends(get_triage_classifier),
+backend/app/routes/v1/triage.py:42: ) -> TriageResponse:
+backend/app/routes/v1/triage.py:43: """Triage a symptom report and place the patient in the queue.
+backend/app/routes/v1/triage.py:52: The patient's SMS is queued as a background task after the triage has been
+backend/app/routes/v1/triage.py:54: failure cannot undo the triage.
+backend/app/routes/v1/triage.py:58: outcome = triage_service.run_triage(
+backend/app/routes/v1/triage.py:66: review = triage_service.review_status(outcome.result.confidence_score)
+backend/app/routes/v1/triage.py:73: return TriageResponse(
+backend/app/routes/v1/triage.py:74: triage_id=outcome.result.id,
+backend/app/routes/v1/triage.py:94: @router.get("/{triage_id}", response_model=TriageResponse)
+backend/app/routes/v1/triage.py:95: def get_triage(
+backend/app/routes/v1/triage.py:96: triage_id: int, user: CurrentUser, db: Session = Depends(get_db)
+backend/app/routes/v1/triage.py:97: ) -> TriageResponse:
+backend/app/routes/v1/triage.py:98: """Fetch a previous triage with its current queue position.
+backend/app/routes/v1/triage.py:100: Staff may read any triage; a patient only their own.
+backend/app/routes/v1/triage.py:102: result = triage_service.get_triage(db, triage_id)
+backend/app/routes/v1/triage.py:107: review = triage_service.review_status(result.confidence_score)
+backend/app/routes/v1/triage.py:109: return TriageResponse(
+backend/app/routes/v1/triage.py:110: triage_id=result.id,
 backend/app/schemas/__init__.py:30: from app.schemas.triage import TriageRequest, TriageResponse
 backend/app/schemas/__init__.py:55: "TriageRequest",
 backend/app/schemas/__init__.py:56: "TriageResponse",
@@ -392,15 +512,21 @@ backend/app/services/model_classifier.py:5: triage endpoint turns `None` into a 
 backend/app/services/model_classifier.py:13: direction is worse than no classifier, because nobody triages a patient the
 backend/app/services/model_classifier.py:14: system has already triaged. Absent model => no classification, everywhere.
 backend/app/services/model_classifier.py:20: everything except triage, which fails closed.
-backend/app/services/model_classifier.py:53: from app.models.triage_result import UrgencyLevel
-backend/app/services/model_classifier.py:54: from app.services.triage_service import Classification
-backend/app/services/model_classifier.py:133: """Log why triage will fail closed, and return the no-model outcome."""
-backend/app/services/model_classifier.py:135: "triage_model_unavailable",
-backend/app/services/model_classifier.py:137: action="triage endpoint will return 503; triage patients manually",
-backend/app/services/model_classifier.py:145: raw = settings.TRIAGE_MODEL_PATH
-backend/app/services/model_classifier.py:147: return _unavailable("TRIAGE_MODEL_PATH is unset")
-backend/app/services/model_classifier.py:157: threads=settings.TRIAGE_MODEL_THREADS,
-backend/app/services/model_classifier.py:168: logger.info("triage_model_loaded", path=str(path), warm_up_ms=round(warm_ms, 1))
+backend/app/services/model_classifier.py:75: from app.models.triage_result import UrgencyLevel
+backend/app/services/model_classifier.py:76: from app.services.triage_service import Classification
+backend/app/services/model_classifier.py:274: """No result within the timeout. Triage fails closed (503); nothing is written."""
+backend/app/services/model_classifier.py:311: `InferenceTimeoutError`. `triage_service._classify` turns both into a 503
+backend/app/services/model_classifier.py:333: target=self._run, name="triage-inference", daemon=True
+backend/app/services/model_classifier.py:469: max_batch_size=settings.TRIAGE_BATCH_MAX_SIZE,
+backend/app/services/model_classifier.py:470: max_wait_ms=settings.TRIAGE_BATCH_MAX_WAIT_MS,
+backend/app/services/model_classifier.py:471: timeout_s=settings.TRIAGE_INFERENCE_TIMEOUT_SECONDS,
+backend/app/services/model_classifier.py:509: """Log why triage will fail closed, and return the no-model outcome."""
+backend/app/services/model_classifier.py:511: "triage_model_unavailable",
+backend/app/services/model_classifier.py:513: action="triage endpoint will return 503; triage patients manually",
+backend/app/services/model_classifier.py:521: raw = settings.TRIAGE_MODEL_PATH
+backend/app/services/model_classifier.py:523: return _unavailable("TRIAGE_MODEL_PATH is unset")
+backend/app/services/model_classifier.py:540: threads=settings.TRIAGE_MODEL_THREADS,
+backend/app/services/model_classifier.py:552: "triage_model_loaded",
 backend/app/services/patient_service.py:55: their symptom reports, triage results, queue history and SMS log. A caller
 backend/app/services/queue_service.py:36: from app.models.triage_result import TriageResult
 backend/app/services/queue_service.py:66: def band_of(triage_result: TriageResult) -> QueueBand:
@@ -416,6 +542,10 @@ backend/app/services/queue_service.py:153: Does not commit by default: triage co
 backend/app/services/queue_service.py:156: priority = triage_result.urgency_level.priority
 backend/app/services/queue_service.py:157: band = band_of(triage_result)
 backend/app/services/queue_service.py:162: triage_result_id=triage_result.id,
+backend/app/services/red_flags.py:5: (STATE.md H10) the layer matches nothing, and triage behaves exactly as it did
+backend/app/services/red_flags.py:14: (`ck_triage_results_rules_escalate_only`).
+backend/app/services/red_flags.py:29: from app.models.triage_result import UrgencyLevel
+backend/app/services/red_flags.py:53: REASON_MAX_LENGTH = 200  # triage_results.rules_layer_reason is VARCHAR(200)
 backend/app/services/review.py:1: """Whether a triage needs a clinician's review, from its stored model confidence.
 backend/app/services/review.py:3: Separate from triage_service so the queue can use it without an import cycle:
 backend/app/services/review.py:17: """Whether a clinician must review this triage before relying on it."""
@@ -426,45 +556,44 @@ backend/app/services/sms_service.py:84: def build_triage_sms(
 backend/app/services/sms_service.py:134: Never raises: a carrier outage must not undo a completed triage. Failures
 backend/app/services/triage_service.py:1: """Symptom triage.
 backend/app/services/triage_service.py:5: `get_classifier()` returns that model or `None`; `run_triage()` refuses to
-backend/app/services/triage_service.py:25: from app.core.exceptions import TriageModelUnavailableError, TriageResultNotFoundError
-backend/app/services/triage_service.py:29: from app.models.triage_result import TriageResult, UrgencyLevel
-backend/app/services/triage_service.py:30: from app.repositories import symptom_report_repository, triage_repository
+backend/app/services/triage_service.py:24: from app.core.exceptions import TriageModelUnavailableError, TriageResultNotFoundError
+backend/app/services/triage_service.py:28: from app.models.triage_result import TriageResult, UrgencyLevel
+backend/app/services/triage_service.py:29: from app.repositories import symptom_report_repository, triage_repository
 backend/app/services/triage_service.py:53: class TriageOutcome:
 backend/app/services/triage_service.py:54: """Everything a triage produced, ready to be returned and notified on."""
 backend/app/services/triage_service.py:57: result: TriageResult
 backend/app/services/triage_service.py:64: """Maps a free-text symptom description to a triage decision."""
 backend/app/services/triage_service.py:67: """Return the triage decision for a free-text symptom description."""
-backend/app/services/triage_service.py:76: accent-free French and Kinyarwanda still triage correctly.
-backend/app/services/triage_service.py:236: error here; it is the fail-closed state, and `run_triage()` turns it into a
-backend/app/services/triage_service.py:248: def _fail_closed() -> TriageModelUnavailableError:
-backend/app/services/triage_service.py:249: return TriageModelUnavailableError(settings.TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS)
-backend/app/services/triage_service.py:261: "triage_inference_failed",
-backend/app/services/triage_service.py:263: action="returning 503; nothing written; triage manually",
-backend/app/services/triage_service.py:268: def run_triage(
-backend/app/services/triage_service.py:274: ) -> TriageOutcome:
-backend/app/services/triage_service.py:275: """Triage a symptom report and place the patient in the queue.
-backend/app/services/triage_service.py:278: None or raises, `TriageModelUnavailableError` (503) propagates and nothing
-backend/app/services/triage_service.py:281: The report, its triage result and the queue entry are written in a single
-backend/app/services/triage_service.py:282: transaction, so a failure can never leave a symptom report with no triage or
-backend/app/services/triage_service.py:283: a triage with no place in the queue.
-backend/app/services/triage_service.py:287: a completed triage.
-backend/app/services/triage_service.py:292: "triage_started",
-backend/app/services/triage_service.py:308: result = triage_repository.create(
-backend/app/services/triage_service.py:325: "triage_completed",
-backend/app/services/triage_service.py:327: triage_id=result.id,
-backend/app/services/triage_service.py:335: return TriageOutcome(
-backend/app/services/triage_service.py:347: def get_triage(db: Session, triage_id: int) -> TriageResult:
-backend/app/services/triage_service.py:348: """Load a triage result with its patient chain and queue entry, or raise."""
-backend/app/services/triage_service.py:349: result = triage_repository.get_with_relations(db, triage_id)
-backend/app/services/triage_service.py:351: raise TriageResultNotFoundError(triage_id)
+backend/app/services/triage_service.py:225: error here; it is the fail-closed state, and `run_triage()` turns it into a
+backend/app/services/triage_service.py:237: def _fail_closed() -> TriageModelUnavailableError:
+backend/app/services/triage_service.py:238: return TriageModelUnavailableError(settings.TRIAGE_UNAVAILABLE_RETRY_AFTER_SECONDS)
+backend/app/services/triage_service.py:250: "triage_inference_failed",
+backend/app/services/triage_service.py:252: action="returning 503; nothing written; triage manually",
+backend/app/services/triage_service.py:257: def run_triage(
+backend/app/services/triage_service.py:264: ) -> TriageOutcome:
+backend/app/services/triage_service.py:265: """Triage a symptom report and place the patient in the queue.
+backend/app/services/triage_service.py:268: None or raises, `TriageModelUnavailableError` (503) propagates and nothing
+backend/app/services/triage_service.py:271: The report, its triage result and the queue entry are written in a single
+backend/app/services/triage_service.py:272: transaction, so a failure can never leave a symptom report with no triage or
+backend/app/services/triage_service.py:273: a triage with no place in the queue.
+backend/app/services/triage_service.py:286: a completed triage.
+backend/app/services/triage_service.py:295: "triage_started",
+backend/app/services/triage_service.py:311: result = triage_repository.create(
+backend/app/services/triage_service.py:331: "triage_completed",
+backend/app/services/triage_service.py:333: triage_id=result.id,
+backend/app/services/triage_service.py:345: return TriageOutcome(
+backend/app/services/triage_service.py:357: def get_triage(db: Session, triage_id: int) -> TriageResult:
+backend/app/services/triage_service.py:358: """Load a triage result with its patient chain and queue entry, or raise."""
+backend/app/services/triage_service.py:359: result = triage_repository.get_with_relations(db, triage_id)
+backend/app/services/triage_service.py:361: raise TriageResultNotFoundError(triage_id)
 backend/main.py:45: # usable, and triage FAILS CLOSED with 503 until a model is loaded.
-backend/main.py:46: from app.services import triage_service
-backend/main.py:48: if triage_service.get_classifier() is None:
-backend/main.py:50: "triage_disabled",
-backend/main.py:51: reason=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
-backend/main.py:52: effect="POST /triage returns 503; triage patients manually",
-backend/main.py:57: classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
-backend/main.py:68: description="AI-powered multilingual medical triage for Kinyarwanda speakers.",
+backend/main.py:46: from app.services import red_flags, triage_service
+backend/main.py:58: if triage_service.get_classifier() is None:
+backend/main.py:60: "triage_disabled",
+backend/main.py:61: reason=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
+backend/main.py:62: effect="POST /triage returns 503; triage patients manually",
+backend/main.py:67: classifier=triage_service.ACTIVE_CLASSIFIER_DESCRIPTION,
+backend/main.py:78: description="AI-powered multilingual medical triage for Kinyarwanda speakers.",
 backend/scripts/gen_frontend_constants.py:43: * `app.models.triage_result.UrgencyLevel`, which is the single definition of
 backend/scripts/gen_frontend_constants.py:59: from app.models.triage_result import _URGENCY_PRIORITY, UrgencyLevel
 
@@ -529,6 +658,11 @@ backend/tests/integration/test_fail_closed.py:110: "/api/v1/triage",
 backend/tests/integration/test_fail_closed.py:115: assert response.json()["error"]["code"] == "TRIAGE_MODEL_UNAVAILABLE"
 backend/tests/integration/test_fail_closed.py:123: from app.services import model_classifier, triage_service
 backend/tests/integration/test_fail_closed.py:126: assert not hasattr(triage_service, name), f"{name} still exists"
+backend/tests/integration/test_fail_closed.py:134: a second error path: it surfaces as the same TRIAGE_MODEL_UNAVAILABLE 503 as a
+backend/tests/integration/test_fail_closed.py:139: from app.routes.v1.triage import get_triage_classifier
+backend/tests/integration/test_fail_closed.py:152: main.app.dependency_overrides[get_triage_classifier] = lambda: classifier
+backend/tests/integration/test_fail_closed.py:156: "/api/v1/triage",
+backend/tests/integration/test_fail_closed.py:164: assert response.json()["error"]["code"] == "TRIAGE_MODEL_UNAVAILABLE"
 backend/tests/integration/test_full_triage_path.py:14: def _triage(client, patient_id: int, text: str):
 backend/tests/integration/test_full_triage_path.py:16: "/api/v1/triage",
 backend/tests/integration/test_full_triage_path.py:26: body = _triage(client, patient["id"], "mfite umuriro mwinshi kandi ndakorora")
@@ -592,6 +726,44 @@ backend/tests/integration/test_queue_routes.py:84: from app.models.triage_result
 backend/tests/integration/test_queue_routes.py:89: assert db.query(TriageResult).count() == 1, (
 backend/tests/integration/test_queue_routes.py:90: "cancelling must not delete the triage record"
 backend/tests/integration/test_queue_routes.py:102: "/api/v1/triage",
+backend/tests/integration/test_red_flag_columns.py:1: """triage_results records the red-flag layer's decision, and PostgreSQL itself
+backend/tests/integration/test_red_flag_columns.py:40: db.execute(text(f"INSERT INTO triage_results ({names}) VALUES ({values})"), columns)
+backend/tests/integration/test_red_flag_columns.py:57: text("SELECT rules_layer_triggered, rules_layer_reason FROM triage_results")
+backend/tests/integration/test_red_flag_columns.py:71: with pytest.raises(IntegrityError, match="ck_triage_results_rules_escalate_only"):
+backend/tests/integration/test_red_flag_columns.py:83: IntegrityError, match="ck_triage_results_untriggered_keeps_model_urgency"
+backend/tests/integration/test_red_flag_columns.py:97: IntegrityError, match="ck_triage_results_rules_reason_iff_triggered"
+backend/tests/integration/test_red_flag_triage.py:1: """The red-flag layer wired into triage (docs/ENGINEERING_SPEC.md L2).
+backend/tests/integration/test_red_flag_triage.py:44: def triage(client, patient_factory):
+backend/tests/integration/test_red_flag_triage.py:47: from app.models.triage_result import UrgencyLevel
+backend/tests/integration/test_red_flag_triage.py:48: from app.routes.v1.triage import get_red_flag_lexicon, get_triage_classifier
+backend/tests/integration/test_red_flag_triage.py:49: from app.services.triage_service import Classification
+backend/tests/integration/test_red_flag_triage.py:60: main.app.dependency_overrides[get_triage_classifier] = lambda: _Scripted()
+backend/tests/integration/test_red_flag_triage.py:63: def _triage(text_: str, model: str, confidence: float = 0.9, lexicon=None):
+backend/tests/integration/test_red_flag_triage.py:77: "/api/v1/triage",
+backend/tests/integration/test_red_flag_triage.py:82: _triage.calls = calls
+backend/tests/integration/test_red_flag_triage.py:83: return _triage
+backend/tests/integration/test_red_flag_triage.py:86: def _stored(db, triage_id: int):
+backend/tests/integration/test_red_flag_triage.py:90: "rules_layer_reason FROM triage_results WHERE id = :id"
+backend/tests/integration/test_red_flag_triage.py:92: {"id": triage_id},
+backend/tests/integration/test_red_flag_triage.py:99: def test_with_the_shipped_empty_lexicon_triage_is_unchanged(
+backend/tests/integration/test_red_flag_triage.py:100: db, triage, model, confidence
+backend/tests/integration/test_red_flag_triage.py:102: response = triage(
+backend/tests/integration/test_red_flag_triage.py:108: assert _stored(db, body["triage_id"]) == (model, model, False, None)
+backend/tests/integration/test_red_flag_triage.py:114: db, triage, tmp_path, model
+backend/tests/integration/test_red_flag_triage.py:121: response = triage(
+backend/tests/integration/test_red_flag_triage.py:129: assert _stored(db, body["triage_id"]) == (
+backend/tests/integration/test_red_flag_triage.py:137: def test_the_rules_layer_runs_before_the_model(triage, tmp_path):
+backend/tests/integration/test_red_flag_triage.py:143: triage.calls.clear()
+backend/tests/integration/test_red_flag_triage.py:145: triage(f"{FICTIONAL} order check", "ROUTINE", lexicon=lexicon).status_code
+backend/tests/integration/test_red_flag_triage.py:148: assert triage.calls == ["rules", "model"]
+backend/tests/integration/test_red_flag_triage.py:155: from app.routes.v1.triage import get_red_flag_lexicon, get_triage_classifier
+backend/tests/integration/test_red_flag_triage.py:161: main.app.dependency_overrides[get_triage_classifier] = lambda: None
+backend/tests/integration/test_red_flag_triage.py:165: "/api/v1/triage",
+backend/tests/integration/test_red_flag_triage.py:169: assert db.execute(text("SELECT count(*) FROM triage_results")).scalar_one() == 0
+backend/tests/integration/test_red_flag_triage.py:172: def test_the_escalated_case_sorts_in_the_critical_band(client, triage, tmp_path):
+backend/tests/integration/test_red_flag_triage.py:178: triage("plain urgent case", "URGENT", lexicon=lexicon)
+backend/tests/integration/test_red_flag_triage.py:179: escalated = triage(f"{FICTIONAL} late arrival", "ROUTINE", lexicon=lexicon).json()
+backend/tests/integration/test_red_flag_triage.py:190: from app.models.triage_result import UrgencyLevel
 backend/tests/integration/test_review_threshold.py:4: Below it, the triage is flagged for a clinician, and the response says why.
 backend/tests/integration/test_review_threshold.py:14: """Serve every triage at a chosen confidence, urgency fixed at URGENT."""
 backend/tests/integration/test_review_threshold.py:16: from app.models.triage_result import UrgencyLevel
@@ -623,6 +795,21 @@ backend/tests/integration/test_triage_routes.py:77: def test_triage_records_the_
 backend/tests/integration/test_triage_routes.py:80: from app.models.triage_result import TriageResult
 backend/tests/integration/test_triage_routes.py:83: _triage(client, patient["id"], "mfite umuriro mwinshi")
 backend/tests/integration/test_triage_routes.py:86: assert db.query(TriageResult).count() == 1
+backend/tests/unit/test_batched_inference.py:100: """Every waiting caller sees the error, so triage fails closed (503) for each;
+backend/tests/unit/test_batched_inference.py:246: # ── Fail-closed through triage ────────────────────────────────────────────────
+backend/tests/unit/test_batched_inference.py:248: def test_a_batch_error_or_timeout_fails_triage_closed(failure):
+backend/tests/unit/test_batched_inference.py:249: """The classifier raises, `run_triage` turns it into a 503 before any write."""
+backend/tests/unit/test_batched_inference.py:250: from app.core.exceptions import TriageModelUnavailableError
+backend/tests/unit/test_batched_inference.py:251: from app.services import triage_service
+backend/tests/unit/test_batched_inference.py:262: with pytest.raises(TriageModelUnavailableError):
+backend/tests/unit/test_batched_inference.py:263: triage_service._classify(classifier, "text-9")
+backend/tests/unit/test_batched_inference.py:269: from app.models.triage_result import UrgencyLevel
+backend/tests/unit/test_decision_rule.py:24: from app.models.triage_result import UrgencyLevel
+backend/tests/unit/test_decision_rule.py:234: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(directory), raising=False)
+backend/tests/unit/test_decision_rule.py:242: from app.services import triage_service
+backend/tests/unit/test_decision_rule.py:246: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(directory), raising=False)
+backend/tests/unit/test_decision_rule.py:248: triage_service.get_classifier.cache_clear()
+backend/tests/unit/test_decision_rule.py:253: triage_service.get_classifier.cache_clear()
 backend/tests/unit/test_frontend_constants.py:49: from app.models.triage_result import UrgencyLevel
 backend/tests/unit/test_language_detector.py:6: from app.services.triage_service import LANGUAGE_MARKERS, detect_language
 backend/tests/unit/test_language_detector.py:28: from app.services.triage_service import SUPPORTED_LANGUAGES
@@ -630,9 +817,10 @@ backend/tests/unit/test_model_classifier.py:4: model yields `None` and a reason,
 backend/tests/unit/test_model_classifier.py:19: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", "", raising=False)
 backend/tests/unit/test_model_classifier.py:24: assert "TRIAGE_MODEL_PATH" in reason
 backend/tests/unit/test_model_classifier.py:33: mc.settings, "TRIAGE_MODEL_PATH", "/nonexistent/model", raising=False
-backend/tests/unit/test_model_classifier.py:44: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
-backend/tests/unit/test_model_classifier.py:53: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
+backend/tests/unit/test_model_classifier.py:46: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
+backend/tests/unit/test_model_classifier.py:57: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(tmp_path), raising=False)
 backend/tests/unit/test_queue_service.py:8: from app.models.triage_result import UrgencyLevel
+backend/tests/unit/test_red_flags.py:14: from app.models.triage_result import UrgencyLevel
 backend/tests/unit/test_sms_service.py:10: build_triage_sms,
 backend/tests/unit/test_sms_service.py:38: build_triage_sms("Uwimana", urgency, 12, wait=20, language="english") == ""
 backend/tests/unit/test_sms_service.py:51: message = build_triage_sms("Nyiraneza Marie Claire", urgency, 12, wait=20)
@@ -640,6 +828,11 @@ backend/tests/unit/test_sms_service.py:69: message = build_triage_sms("Uwimana",
 backend/tests/unit/test_sms_service.py:92: message = build_triage_sms("Uwimana", "CRITICAL", 12, wait=40)
 backend/tests/unit/test_sms_service.py:105: message = build_triage_sms("Uwimana", "ROUTINE", 12, wait=None)
 backend/tests/unit/test_sms_service.py:112: message = build_triage_sms("Nyirahabimana", urgency, 999, wait=30)
+backend/tests/unit/test_training_length.py:63: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(directory), raising=False)
+backend/tests/unit/test_training_length.py:71: from app.services import triage_service
+backend/tests/unit/test_training_length.py:75: monkeypatch.setattr(mc.settings, "TRIAGE_MODEL_PATH", str(directory), raising=False)
+backend/tests/unit/test_training_length.py:77: triage_service.get_classifier.cache_clear()
+backend/tests/unit/test_training_length.py:82: triage_service.get_classifier.cache_clear()
 backend/tests/unit/test_triage_unavailable_contract.py:3: The Playwright test that proves a nurse sees the manual-triage instruction
 backend/tests/unit/test_triage_unavailable_contract.py:15: from app.core.exceptions import TriageModelUnavailableError
 backend/tests/unit/test_triage_unavailable_contract.py:18: FIXTURE = FRONTEND / "e2e" / "fixtures" / "triage-model-unavailable.json"
@@ -779,23 +972,25 @@ ml_model/dataset/vocabulary.py:650: # kept precisely because rarity is not inval
 ml_model/dataset/vocabulary.py:684: # CRITICAL, the cell where under-triage kills someone, it weakens exactly what
 ml_model/dataset/vocabulary_v1.py:548: # kept precisely because rarity is not invalidity and under-triage is the failure
 ml_model/dataset/vocabulary_v1.py:577: # CRITICAL, the cell where under-triage kills someone, it weakens exactly what
-ml_model/tests/test_gate_evaluate.py:375: triage_gate,
+ml_model/reproduce.py:67: "triage wording inventory (reports/measurements/triage_wording_inventory.txt)",
+ml_model/tests/test_gate_evaluate.py:691: triage_gate,
 ml_model/tests/test_label_parity.py:26: / "triage_result.py"
-ml_model/training/evaluate.py:67: triage_gate,
-ml_model/training/holdout_eval.py:44: # THE TRIAGE GATE
-ml_model/training/holdout_eval.py:49: # rows were predicted CRITICAL. It cleared the gate BECAUSE it over-triaged.
-ml_model/training/holdout_eval.py:61: # that matters". It is CONSISTENT with the trauma field-triage convention of
-ml_model/training/holdout_eval.py:62: # holding under-triage at or below 5%, which would give recall >= 0.95 — but
-ml_model/training/holdout_eval.py:96: # model must sit is a question about tolerable over-triage in a real waiting
-ml_model/training/holdout_eval.py:111: def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list[str]]:
-ml_model/training/holdout_eval.py:115: under-triage, G2 proves no class was abandoned, and G3 proves the CRITICAL
-ml_model/training/holdout_eval.py:256: "\\caption{Triage performance on the frozen %s holdout "  # noqa: UP031
-ml_model/training/holdout_eval.py:335: "\\caption{Triage performance of the reported model on the frozen "
-ml_model/training/holdout_eval.py:386: passed, _ = triage_gate(pc, run["macro_f1"])
-ml_model/training/holdout_eval.py:451: "field-triage convention of holding under-triage at or below 5\\%, but "
-ml_model/training/holdout_eval.py:484: "must sit is a question about tolerable over-triage in a clinic, it is a "
-ml_model/training/holdout_eval.py:511: "over-triaged, and the gate contained no term that could observe this.\n\n"
-ml_model/training/holdout_eval.py:794: passed, lines = triage_gate(reported["per_class"], reported["macro_f1"])
+ml_model/training/cost_loss.py:25: # and over-triage ROUTINE -> CRITICAL costs 1.
+ml_model/training/evaluate.py:68: triage_gate,
+ml_model/training/holdout_eval.py:45: # THE TRIAGE GATE
+ml_model/training/holdout_eval.py:50: # rows were predicted CRITICAL. It cleared the gate BECAUSE it over-triaged.
+ml_model/training/holdout_eval.py:62: # that matters". It is CONSISTENT with the trauma field-triage convention of
+ml_model/training/holdout_eval.py:63: # holding under-triage at or below 5%, which would give recall >= 0.95 — but
+ml_model/training/holdout_eval.py:97: # model must sit is a question about tolerable over-triage in a real waiting
+ml_model/training/holdout_eval.py:112: def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list[str]]:
+ml_model/training/holdout_eval.py:116: under-triage, G2 proves no class was abandoned, and G3 proves the CRITICAL
+ml_model/training/holdout_eval.py:257: "\\caption{Triage performance on the frozen %s holdout "  # noqa: UP031
+ml_model/training/holdout_eval.py:336: "\\caption{Triage performance of the reported model on the frozen "
+ml_model/training/holdout_eval.py:387: passed, _ = triage_gate(pc, run["macro_f1"])
+ml_model/training/holdout_eval.py:452: "field-triage convention of holding under-triage at or below 5\\%, but "
+ml_model/training/holdout_eval.py:485: "must sit is a question about tolerable over-triage in a clinic, it is a "
+ml_model/training/holdout_eval.py:512: "over-triaged, and the gate contained no term that could observe this.\n\n"
+ml_model/training/holdout_eval.py:795: passed, lines = triage_gate(reported["per_class"], reported["macro_f1"])
 ml_model/training/latency.py:9: BATCH 1, because that is the deployment shape. A triage endpoint classifies one
 ml_model/training/run_records/kinyamed-train.service:2: Description=kinyamed triage training run (CPU, resumable)
 ml_model/training/run_records/protocol.json:195: "under_triage_cells": "113 CRITICAL predicted ROUTINE and 792 URGENT predicted ROUTINE. These are the unsafe direction. 2,080 URGENT predicted CRITICAL is over-triage and is the safe direction.",
@@ -830,12 +1025,12 @@ ml_model/docs/protocols/d2-clinician-review-pack.md:84: 1. **Does fetal demise b
 ml_model/docs/protocols/d4-nurse-baseline-design.md:36: - **Over-triage is not symmetric with under-triage** and the analysis must not
 ml_model/docs/protocols/d6-deployment-runbook.md:29: 2. Set `TRIAGE_MODEL_PATH` and install the ML extras.
 ml_model/docs/protocols/d6-deployment-runbook.md:38: Unset `TRIAGE_MODEL_PATH` and restart. Rollback means taking the service out of
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:59: | Label | Source category (e.g. ETAT) | Document in `docs/clinical/`, section, page | Definition text (verbatim or approved paraphrase) | Approved by (code), date |
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:66: - **B1** — the WHO ETAT document in the edition used in Rwanda.
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:67: - **B2** — the Rwanda MoH / RBC triage protocol with its mapping of categories to these three labels.
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:68: - **B3** — the adult triage tool, if not ETAT.
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:71: **Question for the lead clinician before anything else:** does ETAT cover adult presentations as used in Rwandan
-ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:72: facilities? If not, which document defines adult triage categories?
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:62: | Label | Source category (e.g. ETAT) | Document in `docs/clinical/`, section, page | Definition text (verbatim or approved paraphrase) | Approved by (code), date |
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:69: - **B1** — the WHO ETAT document in the edition used in Rwanda.
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:70: - **B2** — the Rwanda MoH / RBC triage protocol with its mapping of categories to these three labels.
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:71: - **B3** — the adult triage tool, if not ETAT.
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:74: **Question for the lead clinician before anything else:** does ETAT cover adult presentations as used in Rwandan
+ml_model/docs/protocols/d7-eval-set-annotation-protocol.md:75: facilities? If not, which document defines adult triage categories?
 ml_model/docs/roadmap.md:8: ## Phase 1 (current) — a leakage-controlled triage classifier
 ml_model/docs/session-state.md:268: disease are uncommon but real, and under-triage is the failure that matters.
 ml_model/docs/session-state.md:2295: the presentation **where triage still helps** — a mother who notices less movement can be
@@ -847,6 +1042,8 @@ ml_model/docs/vocabulary-expansion.md:30: the presentations where under-triage i
 
 ## other
 
+data/lexicon/README.md:4: and no terms. With it empty, the layer is a no-op and triage behaves exactly as it did without it.
+data/lexicon/README.md:13: (`ck_triage_results_rules_escalate_only`).
 frontend/playwright.config.ts:7: * backend tests (see `backend/tests/unit/test_triage_unavailable_contract.py`).
 frontend/tailwind.config.js:1: /** Design tokens for a clinical triage tool.
 
@@ -882,11 +1079,9 @@ ml_model/paper/sections/system.tex:45: The triage endpoint accepts a free-text s
 
 ## readme
 
-../README.md:8: - **KinyaMed** *(in progress)* — AI-powered medical triage and patient queue system
-../README.md:24: - **API.** Triage endpoint, urgency-ordered queue, doctor assignment, SMS
-../README.md:26: - **Frontend.** Triage intake, live queue, doctor dashboard, wired to the real
-../README.md:134: Under-triage (missing a CRITICAL case) is the failure that matters, which is why the
-../README.md:252: kinyamed/backend/               FastAPI triage service (in development)
+../README.md:32: examined.** The only clinical instrument present, the WHO ETAT participant manual (2005), defines its categories
+../README.md:36: Earlier versions of this README called the project "AI-powered medical triage". That claim is withdrawn.
+../README.md:39: - Code and API names still say "triage" (for example `POST /api/v1/triage`). Every such use is listed in
 
 ## speaker- and clinician-facing briefs
 
@@ -913,41 +1108,22 @@ ml_model/review/speaker_brief_kinyarwanda_v2.csv:203: OB13,obstetric,URGENT,redu
 ml_model/review/speaker_brief_swahili_v2.csv:186: OB06,obstetric,CRITICAL,fetal demise - the baby has died in the womb,first,"First person is the pregnant woman herself. Third person is someone else reporting for her — her husband, her mother, a neig
 ml_model/review/speaker_brief_swahili_v2.csv:187: OB06,obstetric,CRITICAL,fetal demise - the baby has died in the womb,third,"First person is the pregnant woman herself. Third person is someone else reporting for her — her husband, her mother, a neig
 
-## spec: CLAUDE.md (local, git-ignored)
+## spec: docs/ENGINEERING_SPEC.md
 
-CLAUDE.md:2: ### HealthGuard AI · Medical Triage & Patient Queue System · Marius Bayizere · Kigali, Rwanda
-CLAUDE.md:14: 2. Also place `docs/KinyaMed_SRS_v2_0.docx` and `docs/clinical/` (Rwanda MoH / RBC / WHO ETAT materials) in the repo.
-CLAUDE.md:47: - **L1** KinyaMed performs **triage prioritisation only**. Never diagnoses, never prescribes, never discourages care. Every patient-facing output ends with an escalation instruction in the patient's l
-CLAUDE.md:51: - **L5** Emergency numbers, referral pathways, and triage taxonomy come from `docs/clinical/` (Rwanda MoH / RBC / WHO ETAT). **Never hardcode them from model memory.** If the document is absent, stop 
-CLAUDE.md:102: - `triage_results`: four `ai_response_*` NOT NULL; probabilities JSONB sums to 1.0 — enforced where?
-CLAUDE.md:156: - **Frontend**: `tsc --noEmit` clean under strict; count every `any` and `@ts-ignore`; Lighthouse under 3G throttle (FCP < 1.5s, TTI < 3.0s); gzipped bundle vs 200KB budget with MUI tree-shaking verif
-CLAUDE.md:177: | Physician shortage | 1 doctor per ~14,000 patients (WHO minimum 1:1,000) | Manual triage causes ~47-minute delay before urgency assessed |
-CLAUDE.md:189: | Business Logic | Service layer + Repository pattern (BaseRepository) + Pydantic v2 | Triage orchestration, queue management, SMS dispatch, analytics aggregation |
-CLAUDE.md:196: ### 4.3 Triage data flow with latency budget (p95 end-to-end < 250ms)
-CLAUDE.md:202: | 3 | Auth middleware | Validates JWT (or allows anonymous on the triage endpoint) | < 3ms |
-CLAUDE.md:205: | 6 | Triage service | SymptomReport + TriageResult + QueueEntry in **one atomic transaction** | < 20ms |
-CLAUDE.md:243: | FR-01-05 | Patient submits symptom text in any of 10 language combinations as free-form input | M | Triage result within 250ms p95 under 50 concurrent users |
-CLAUDE.md:252: | FR-01-14 | Complete triage flow achievable via SMS alone, no web interface | S | SMS-only integration test passes with 3-exchange protocol on Africa's Talking sandbox |
-CLAUDE.md:262: | FR-02-03 | Dashboard updates in real time via WebSocket; new patients appear without refresh | M | New card visible on all connected dashboards within 1s of triage submission |
-CLAUDE.md:285: | FR-03-07 | Configurable triage confidence threshold for the human-review flag | S | Change effective within 60s; no API restart; audit log records who changed it |
-CLAUDE.md:301: | FR-04-09 | Multilingual response generated in all 4 pure languages for every triage result regardless of input language | M | All 4 fields non-empty in integration tests across all urgency classes a
-CLAUDE.md:319: | FR-05-07 | Anonymous symptom submission: triage endpoint accepts patients without JWT, identified by phone | M | `POST /api/v1/triage/` callable with no Authorization header; patient retrieved or cr
-CLAUDE.md:335: | Triage API response | p50 < 200ms · p95 < 350ms · p99 < 500ms | Prometheus histogram under 50-concurrent Locust load |
-CLAUDE.md:365: | ML model not loaded | `ModelNotLoadedError`; triage marked PENDING | 503 with Retry-After; doctor notified; manual triage mode enabled | Unit: fallback when `is_ready=False` |
-CLAUDE.md:379: | Keyboard navigation | All interactive elements Tab-reachable; focus ring always visible; no keyboard trap | Keyboard-only session completes full patient triage + doctor queue update without a mouse 
-CLAUDE.md:561: - Relationships: `patient_id → patients.id`; 1:1 `triage_results`
-CLAUDE.md:564: **`triage_results`**
-CLAUDE.md:571: - Fields: `id, triage_result_id (FK), doctor_id (FK nullable), queue_number (int), queue_position (int), status ENUM(WAITING/IN_PROGRESS/DONE), estimated_wait_minutes (int), checked_in_at (timestamp n
-CLAUDE.md:572: - Relationships: `triage_result_id → triage_results.id`; `doctor_id → users.id`; 1:1 `consultations`
-CLAUDE.md:603: - Fields: `id, user_id (FK nullable — null for anonymous triage), user_first_name, user_last_name, user_role (varchar), action (varchar, e.g. 'CREATE_CONSULTATION'), table_name (varchar), record_id (i
-CLAUDE.md:677: | **T1 — Gold / authoritative** | **Digital Umuganda** (the primary trusted Kinyarwanda authority: Mozilla Common Voice Kinyarwanda validated corpus, parallel corpora, terminology work); Rwanda MoH / 
-CLAUDE.md:697: | **T1 — terminology and taxonomy** | WHO ETAT; ICD-11; SNOMED CT and UMLS (check licensing before any redistribution); Rwandan MoH English protocols; for French, HAS / CISMeF terminology resources |
-CLAUDE.md:748: - **Atomic triage write path**: `SymptomReport + TriageResult + QueueEntry + AuditLog` in one transaction, or full rollback. Write the rollback test first.
-CLAUDE.md:793: | Structured logs | structlog JSON + aggregation | Every request (method, path, status, duration); every triage decision (patient_id, urgency, confidence, language, model_version); every error with st
-CLAUDE.md:807: | Unit: Services | pytest | 100% of service methods | Triage all 3 urgency paths; queue: CRITICAL sorts first even when ROUTINE arrived earlier; SMS in all 4 languages; language detector on all 10 com
-CLAUDE.md:811: | Integration: API | pytest + FastAPI TestClient | All endpoints | Full auth flows password + OAuth; triage creates 4 records atomically; 403 on wrong role for all 30+ protected endpoints; 429 at rate
-CLAUDE.md:813: | Integration: Kafka + WebSocket | pytest-asyncio + kafka-python | Event pipeline end to end | CRITICAL triage → Kafka → consumer → WebSocket received by client within 1s; no message lost on consumer 
-CLAUDE.md:814: | Performance: Load | Locust | 50 concurrent users | All triage within latency SLA; error rate < 0.1%; no memory leak over a 10-minute run; country selector renders 249 countries < 100ms |
-CLAUDE.md:833: | KinyaMed-Triage dataset (1M+ examples) | CSV (text, language, label) + Parquet | CC BY 4.0 | HuggingFace Datasets Hub (primary); Zenodo (archival DOI) |
-CLAUDE.md:902: | ETAT | Emergency Triage Assessment and Treatment; WHO framework used in Rwandan health centres; basis for the 3-class taxonomy |
-CLAUDE.md:907: | KinyaMed-Triage | The multilingual medical symptom dataset introduced by this project; primary research contribution |
+docs/ENGINEERING_SPEC.md:1: # KinyaMed engineering specification — medical triage and patient queue system
+docs/ENGINEERING_SPEC.md:38: - **L1** The system performs **triage prioritisation only**. It never diagnoses, never prescribes and never
+docs/ENGINEERING_SPEC.md:43: term table until terms are clinically validated; a ruling of 2026-09-15 keeps triage fail-closed when the model
+docs/ENGINEERING_SPEC.md:50: - **L5** Emergency numbers, referral pathways and the triage taxonomy come from documents in `docs/clinical/`
+docs/ENGINEERING_SPEC.md:132: | Physician shortage | 1 doctor per ~14,000 patients (WHO minimum 1:1,000) **[unsourced in the repository]** | Manual triage causes a ~47-minute delay before urgency is assessed **[unsourced]** |
+docs/ENGINEERING_SPEC.md:144: | Business logic | Service layer, repository pattern, Pydantic v2 | Triage orchestration, queue, SMS, analytics |
+docs/ENGINEERING_SPEC.md:151: ### §4.3 Triage data flow and latency budget, as specified
+docs/ENGINEERING_SPEC.md:154: detection < 10 ms; model < 150 ms; one atomic transaction writing the symptom report, triage result, queue entry and
+docs/ENGINEERING_SPEC.md:168: | FR-01-05 | A patient submits symptom text in any of the ten language combinations as free-form input | Triage result within 250 ms p95 under 50 concurrent users **[unsourced]** |
+docs/ENGINEERING_SPEC.md:186: | Triage API response | p50 < 200 ms · p95 < 350 ms · p99 < 500 ms **[unsourced]** | Server histogram under 50-concurrent load |
+docs/ENGINEERING_SPEC.md:203: | ML model not loaded | Triage is not assigned by the system; 503 with Retry-After; clinicians notified; manual triage mode |
+docs/ENGINEERING_SPEC.md:240: - **`triage_results`**: urgency (CRITICAL / URGENT / ROUTINE), confidence in [0, 1], per-class probabilities summing
+docs/ENGINEERING_SPEC.md:310: | T1, authoritative | Digital Umuganda (validated corpora and terminology work); Rwanda MoH / RBC clinical materials; WHO ETAT materials; native Kinyarwanda-speaking clinicians and nurses | Gold label
+docs/ENGINEERING_SPEC.md:326: T1 for terminology and taxonomy: WHO ETAT, ICD-11, SNOMED CT and UMLS (licensing checked before redistribution),
+docs/ENGINEERING_SPEC.md:388: Planned artefacts: the **KinyaMed-Triage** dataset (CSV and Parquet, CC BY 4.0) with a datasheet; the fine-tuned
+docs/ENGINEERING_SPEC.md:431: | ETAT | Emergency Triage Assessment and Treatment; specified as the WHO framework used in Rwandan health centres and the basis of the three-class taxonomy. **Contradicted by the ETAT manual itself on
+docs/ENGINEERING_SPEC.md:434: | KinyaMed-Triage | The multilingual medical symptom dataset introduced by this project. |

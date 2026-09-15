@@ -16,7 +16,7 @@ report was received, their place in the queue, and a generic escalation line.
 ENGLISH ONLY, AND THAT IS A KNOWN GAP
 -------------------------------------
 This sentence has not been translated. Kinyarwanda, French and Swahili versions
-need a speaker (CLAUDE.md §10.2); a machine translation would put unreviewed
+need a speaker (docs/ENGINEERING_SPEC.md §10.2); a machine translation would put unreviewed
 text in front of a patient. Until then a patient who does not read English gets
 the receipt in a language they may not read, which is a usability gap, not an
 instruction that could harm them.

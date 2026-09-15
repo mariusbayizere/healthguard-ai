@@ -272,7 +272,7 @@ def run_triage(
     transaction, so a failure can never leave a symptom report with no triage or
     a triage with no place in the queue.
 
-    RED-FLAG LAYER (CLAUDE.md L2). The lexicon is matched BEFORE the model is
+    RED-FLAG LAYER (docs/ENGINEERING_SPEC.md L2). The lexicon is matched BEFORE the model is
     called. A match forces CRITICAL whatever the model says; nothing lowers
     urgency, and PostgreSQL rejects any row that would. The model's own urgency
     is stored as `model_urgency_raw`. A match does not bypass fail-closed: with no

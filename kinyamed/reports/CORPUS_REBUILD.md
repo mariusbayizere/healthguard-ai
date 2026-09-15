@@ -2,7 +2,7 @@
 
 ## 1. Why the v2 corpus is replaced
 
-> Marked 2026-09-15 (CLAUDE.md L6). The row-level provenance figures below (180,272 / 54.6%; 99,136 / 36.6% / 55.0%; 81,136) and the frame-contradiction union (45,232 / 13.7%) are **NOT REPRODUCIBLE**: no script in the repository, committed now or in its history, prints these row counts. `review/provenance.py` prints phrase-level categories only, and `reports/measurements/grammatical_person.py` does not print them. The computation was never committed. Not re-derived. What **is** reproducible: 330,000 rows from 165 phrases, so about 2,000 rows per phrase (`grammatical_person.py`), and the two frame counts separately, 21,651 and 25,670 (same script).
+> Marked 2026-09-15 (docs/ENGINEERING_SPEC.md L6). The row-level provenance figures below (180,272 / 54.6%; 99,136 / 36.6% / 55.0%; 81,136) and the frame-contradiction union (45,232 / 13.7%) are **NOT REPRODUCIBLE**: no script in the repository, committed now or in its history, prints these row counts. `review/provenance.py` prints phrase-level categories only, and `reports/measurements/grammatical_person.py` does not print them. The computation was never committed. Not re-derived. What **is** reproducible: 330,000 rows from 165 phrases, so about 2,000 rows per phrase (`grammatical_person.py`), and the two frame counts separately, 21,651 and 25,670 (same script).
 
 - **Effective size is 165 authored phrases.** 330,000 rows are those phrases × relations × frames: about 2,000
   rows per phrase (DATASET_AUDIT; TAXONOMY_SCOPE §8).
@@ -11,7 +11,7 @@
   - Of those, 99,136 transform a **machine-drafted** phrase: 36.6% of all third-person rows, 55.0% of the
     transformed rows.
   - The other 81,136 transform a speaker-authored phrase (definitions: `ml_model/review/provenance.py`).
-- **This does not meet CLAUDE.md §10.2.** Machine output may enter only as a draft that a native reviewer
+- **This does not meet docs/ENGINEERING_SPEC.md §10.2.** Machine output may enter only as a draft that a native reviewer
   accepts, with `validated_by` recorded. No row records `validated_by`.
 - **Not publishable as it stands.** No per-row provenance or validator; frames carry no provenance; 45,232 rows
   (13.7%) have a frame that contradicts the clause on age; the anchor licences are unresolved (DATASET_AUDIT).
@@ -116,7 +116,7 @@ age group: roughly 780 frames across 10 combinations, about 26–39 author-hours
 
 ### 5.3 A constraint that cannot be computed yet
 
-§9.1 caps near-duplicates below 2% (CLAUDE.md also requires MinHash Jaccard ≥ 0.85 to be reported). Rows built
+§9.1 caps near-duplicates below 2% (docs/ENGINEERING_SPEC.md also requires MinHash Jaccard ≥ 0.85 to be reported). Rows built
 from one seed with different frames are the likeliest near-duplicates. Whether 28–42 frame variants per seed
 pass depends on frame length and variety, and no native frames exist to measure.
 

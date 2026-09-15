@@ -4,7 +4,7 @@ Revision ID: a7c3e9f1d2b4
 Revises: e77159c3482a
 Create Date: 2026-09-15
 
-SQL approved as written on 2026-09-15 (CLAUDE.md L14, STATE.md). Executed verbatim
+SQL approved as written on 2026-09-15 (docs/ENGINEERING_SPEC.md L14, STATE.md). Executed verbatim
 rather than rebuilt from Alembic operations, so the statements that run are the
 statements that were approved.
 

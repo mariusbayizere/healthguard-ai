@@ -36,7 +36,7 @@ coordinator on paper or in a separate file that never enters the repository.
 1. **Invented, not remembered.** Items describe a plausible patient's own words. **No real patient's words, no
    record extracts, no names, phone numbers, places or dates that identify anyone** (L9, L10). The import step
    rejects phone- and email-shaped text automatically; the rest is the author's responsibility.
-2. **Written natively in the item's language.** Never translated from an English draft (CLAUDE.md §10.2). For a
+2. **Written natively in the item's language.** Never translated from an English draft (docs/ENGINEERING_SPEC.md §10.2). For a
    mixed pair, written by a speaker of both languages as people actually mix them; record the matrix language.
 3. **One scenario, one test item.** Paraphrases of the same scenario may appear only in the calibration split
    (spec §8). Every item carries a `scenario_id`.

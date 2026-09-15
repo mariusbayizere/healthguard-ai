@@ -1,6 +1,6 @@
 # Blocked — questions only a person can answer
 
-Per `CLAUDE.md` §4. Each entry names the question, the rows it gates, and what
+Per `docs/ENGINEERING_SPEC.md` L16. Each entry names the question, the rows it gates, and what
 was already checked. The maintainer answers in batches.
 
 ---

@@ -1,4 +1,4 @@
-"""CLAUDE.md §13 PII leak test: logs and API error bodies carry no phone or full name.
+"""docs/ENGINEERING_SPEC.md §13 PII leak test: logs and API error bodies carry no phone or full name.
 
 Drives the paths that have leaked or could: patient creation, self-registration,
 triage (which composes an SMS), the queue, a phone search, validation and

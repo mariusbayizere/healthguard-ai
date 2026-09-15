@@ -1,7 +1,7 @@
 # KinyaMed — Phase 0 audit report
 
 **Date** 2026-09-14 · **Branch** `audit-p0-p1-and-frontend` @ `7ef50c0` + uncommitted working tree ·
-**Auditor** Claude (Opus 5) acting under CLAUDE.md §3 · **Mode** read-and-measure; no feature code touched.
+**Auditor** Claude (Opus 5) acting under docs/ENGINEERING_SPEC.md §3 · **Mode** read-and-measure; no feature code touched.
 
 Companion reports: [REQUIREMENTS_MATRIX](REQUIREMENTS_MATRIX.md) · [MODEL_AUDIT](MODEL_AUDIT.md) ·
 [DATASET_AUDIT](DATASET_AUDIT.md) · [REMEDIATION_PLAN](REMEDIATION_PLAN.md) · [STATE](STATE.md)
@@ -61,8 +61,8 @@ many distinct, clinician-labelled sentences per language do.
 
 ### 3. The specification and the repository describe two different products, under conflicting rules
 
-The code was built to an earlier charter, `ml_model/CLAUDE.md`. It is **deleted in the working tree and not
-committed**. CLAUDE.md v2.0 contradicts that charter's standing rules in at least nine places (REMEDIATION_PLAN
+The code was built to an earlier charter, the ml_model charter file. It is **deleted in the working tree and not
+committed**. The engineering specification v2.0 (`docs/ENGINEERING_SPEC.md`) contradicts that charter's standing rules in at least nine places (REMEDIATION_PLAN
 D1), for example:
 
 - **Response text:** "patient-facing text is speaker-authored or absent" vs "all 4 responses non-null".
@@ -168,7 +168,7 @@ not, to leave the evidence inspectable.
 
 **Git.** 146 commits. Branches: `main`, `audit-p0-p1-and-frontend` (3 commits ahead of `main`, in sync with origin),
 `rbc-attestation-corpus`. `main` = `origin/main`. **Working tree at audit start: 19 modified, 1 deleted
-(`kinyamed/ml_model/CLAUDE.md`), 21 untracked** — including a new migration `f1a2b3c4d5e6`, 3 new test files, 6 new
+(the ml_model charter file), 21 untracked** — including a new migration `f1a2b3c4d5e6`, 3 new test files, 6 new
 routes and CI changes. Every measurement in this audit is of the working tree, not of HEAD.
 
 **LOC (tracked source, excluding generated data):**
@@ -347,7 +347,7 @@ DATASET_AUDIT in full. S2:
   3-condition gate did correctly reject v2c.
 - No security, Docker, staging or deploy stages. `mypy` is not in CI.
 
-### B.10 Contradictions inside CLAUDE.md v2.0 (you asked me to call these out)
+### B.10 Contradictions inside the engineering specification v2.0 (`docs/ENGINEERING_SPEC.md`) (you asked me to call these out)
 
 1. **Accuracy:** 87% (FR-01-07) vs 82% (§9.2 gate). Proposal: keep 87% as the target and 82% as the floor, as
    you already suggest.

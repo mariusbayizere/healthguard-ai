@@ -1,7 +1,7 @@
 # Protocols for the six claims that need people
 
-`CLAUDE.md` §1 lists six claims in the project document that engineering cannot
-produce. They are **records of events** — assertions that specific people did
+Six claims in the project document cannot be produced by engineering (listed in the
+table below). They are **records of events** — assertions that specific people did
 specific things. No amount of code makes them true.
 
 For each, this directory holds **the instrument, not the result**: the thing a
