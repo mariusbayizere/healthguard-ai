@@ -1,0 +1,29 @@
+{
+  "base_model": "Davlan/afro-xlmr-mini",
+  "max_length": 96,
+  "epochs": 1,
+  "batch_size": 16,
+  "learning_rate": 1e-05,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.06,
+  "threads": 2,
+  "cost_weight": 1.0,
+  "cost_matrix": [
+    [
+      0.0,
+      1.0,
+      10.0
+    ],
+    [
+      1.0,
+      0.0,
+      1.0
+    ],
+    [
+      1.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "predict_batch_size": 64
+}
