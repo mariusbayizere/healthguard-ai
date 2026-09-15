@@ -8,7 +8,7 @@ ML := kinyamed/ml_model
 PY := python3
 
 .DEFAULT_GOAL := help
-.PHONY: help install install-dev test test-clean check-attribution install-hooks verify verify-full sample dataset splits freeze clean
+.PHONY: help install install-dev test test-clean check-attribution install-hooks verify verify-full reproduce sample dataset splits freeze clean
 
 help:  ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -71,6 +71,9 @@ verify:  ## Re-derive the committed sample and its splits from seed 42 (seconds)
 
 verify-full:  ## Regenerate all 1M rows and check every frozen digest (~1 min, ~1GB scratch)
 	cd $(ML) && $(PY) verify.py --scope full
+
+reproduce:  ## Re-derive every committed offline result and refusal; diff each (~minutes, ~1GB scratch)
+	cd $(ML) && $(PY) reproduce.py
 
 sample:  ## Regenerate the committed 1,000-row sample
 	cd $(ML) && $(PY) dataset/generate_large_dataset.py \
