@@ -1,0 +1,14 @@
+{
+  "max_length": 96,
+  "temperature": 1.25,
+  "thresholds": {
+    "rule": "CRITICAL if p_C >= critical; URGENT if p_C + p_U >= urgent; else ROUTINE",
+    "critical": 0.2,
+    "urgent": 0.55
+  },
+  "cost_matrix": [[0.0, 1.0, 10.0], [1.0, 0.0, 1.0], [1.0, 1.0, 0.0]],
+  "labels": ["CRITICAL", "URGENT", "ROUTINE"],
+  "base_model": "Davlan/afro-xlmr-mini",
+  "seed": 42,
+  "source": "training/pipeline.py"
+}

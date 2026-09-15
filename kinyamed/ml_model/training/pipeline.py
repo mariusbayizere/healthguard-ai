@@ -432,6 +432,34 @@ class TransformersPredictor:
         return np.vstack(out) if out else np.zeros((0, 3))
 
 
+def training_metadata(
+    *,
+    max_length: int,
+    temperature: float,
+    tuned: th.Thresholds,
+    config: Mapping[str, Any],
+    seed: int,
+) -> dict[str, Any]:
+    """`<model dir>/kinyamed_training.json`. The service applies max_length, temperature and
+    thresholds exactly, or refuses to start (backend model_classifier.read_decision_rule);
+    the other keys are provenance. Its shape is pinned by
+    tests/fixtures/pipeline_training_metadata.json on both sides."""
+    return {
+        "max_length": max_length,
+        "temperature": temperature,
+        "thresholds": {
+            "rule": th.RULE,
+            "critical": tuned.critical,
+            "urgent": tuned.urgent,
+        },
+        "cost_matrix": [list(map(float, row)) for row in config["cost_matrix"]],
+        "labels": list(spec.CLASSES),
+        "base_model": config["base_model"],
+        "seed": seed,
+        "source": "training/pipeline.py",
+    }
+
+
 # ── The run ───────────────────────────────────────────────────────────────────
 def _write_predictions(
     path: Path, item_ids: Iterable[str], probs: np.ndarray, decided: np.ndarray
@@ -606,20 +634,13 @@ def run_pipeline(
     metadata_path = model_dir / TRAINING_METADATA
     atomic_write_json(
         metadata_path,
-        {
-            "max_length": max_length,
-            "temperature": temperature,
-            "thresholds": {
-                "rule": tuned.as_record()["rule"],
-                "critical": tuned.critical,
-                "urgent": tuned.urgent,
-            },
-            "cost_matrix": [list(map(float, row)) for row in config["cost_matrix"]],
-            "labels": list(spec.CLASSES),
-            "base_model": config["base_model"],
-            "seed": seed,
-            "source": "training/pipeline.py",
-        },
+        training_metadata(
+            max_length=max_length,
+            temperature=temperature,
+            tuned=tuned,
+            config=config,
+            seed=seed,
+        ),
     )
     ece_before = cal.ece_with_interval(
         cal.softmax(cal_logits), cal_labels, calibration.scenarios

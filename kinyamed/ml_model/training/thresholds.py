@@ -36,6 +36,9 @@ import numpy as np
 from training import eval_spec as spec
 
 C, U, R = 0, 1, 2
+# The rule `decide` implements, as recorded in model metadata. The service refuses a
+# model whose recorded rule text differs (backend model_classifier.THRESHOLD_RULE).
+RULE = "CRITICAL if p_C >= critical; URGENT if p_C + p_U >= urgent; else ROUTINE"
 GRID_STEPS = 101  # thresholds 0.00, 0.01, ..., 1.00
 
 
@@ -135,7 +138,7 @@ class Thresholds:
 
     def as_record(self) -> dict[str, object]:
         return {
-            "rule": "CRITICAL if p_C >= critical; URGENT if p_C + p_U >= urgent; else ROUTINE",
+            "rule": RULE,
             "critical": self.critical,
             "urgent": self.urgent,
             "expected_cost": self.expected_cost,

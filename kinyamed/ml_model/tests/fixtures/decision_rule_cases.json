@@ -1,0 +1,169 @@
+{
+  "generated_by": "tests/fixtures/make_decision_rule_cases.py",
+  "decision_order": [
+    "CRITICAL",
+    "URGENT",
+    "ROUTINE"
+  ],
+  "cases": [
+    {
+      "name": "argmax picks CRITICAL",
+      "logits": [
+        2.0,
+        1.0,
+        0.0
+      ],
+      "temperature": 1.0,
+      "thresholds": null,
+      "probabilities": [
+        0.6652409557748218,
+        0.24472847105479764,
+        0.09003057317038046
+      ],
+      "decision": 0
+    },
+    {
+      "name": "argmax picks ROUTINE",
+      "logits": [
+        0.0,
+        0.5,
+        2.0
+      ],
+      "temperature": 1.0,
+      "thresholds": null,
+      "probabilities": [
+        0.09962364806231833,
+        0.16425162762508783,
+        0.7361247243125939
+      ],
+      "decision": 2
+    },
+    {
+      "name": "argmax tie goes to the more urgent class",
+      "logits": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "temperature": 1.0,
+      "thresholds": null,
+      "probabilities": [
+        0.4223187982515182,
+        0.4223187982515182,
+        0.15536240349696362
+      ],
+      "decision": 0
+    },
+    {
+      "name": "argmax after a temperature",
+      "logits": [
+        3.0,
+        0.0,
+        -1.0
+      ],
+      "temperature": 2.0,
+      "thresholds": null,
+      "probabilities": [
+        0.7361247243125938,
+        0.1642516276250878,
+        0.09962364806231831
+      ],
+      "decision": 0
+    },
+    {
+      "name": "thresholds serve CRITICAL where argmax says ROUTINE",
+      "logits": [
+        -1.3862943611198906,
+        -1.8971199848858813,
+        -0.5108256237659907
+      ],
+      "temperature": 1.0,
+      "thresholds": [
+        0.2,
+        0.55
+      ],
+      "probabilities": [
+        0.25,
+        0.15,
+        0.6
+      ],
+      "decision": 0
+    },
+    {
+      "name": "thresholds serve URGENT",
+      "logits": [
+        -2.3025850929940455,
+        -0.6931471805599453,
+        -0.916290731874155
+      ],
+      "temperature": 1.0,
+      "thresholds": [
+        0.2,
+        0.55
+      ],
+      "probabilities": [
+        0.10000000000000003,
+        0.5,
+        0.4
+      ],
+      "decision": 1
+    },
+    {
+      "name": "thresholds serve ROUTINE",
+      "logits": [
+        -2.3025850929940455,
+        -1.2039728043259361,
+        -0.5108256237659907
+      ],
+      "temperature": 1.0,
+      "thresholds": [
+        0.2,
+        0.55
+      ],
+      "probabilities": [
+        0.10000000000000003,
+        0.3,
+        0.6000000000000001
+      ],
+      "decision": 2
+    },
+    {
+      "name": "the temperature alone turns ROUTINE into CRITICAL",
+      "logits": [
+        0.5,
+        0.0,
+        2.5
+      ],
+      "temperature": 3.0,
+      "thresholds": [
+        0.2,
+        0.55
+      ],
+      "probabilities": [
+        0.2635590756264912,
+        0.22309794094688806,
+        0.5133429834266207
+      ],
+      "decision": 0
+    },
+    {
+      "name": "a sharpening temperature below 1",
+      "logits": [
+        1.0,
+        0.8,
+        0.0
+      ],
+      "temperature": 0.5,
+      "thresholds": [
+        0.5,
+        0.9
+      ],
+      "probabilities": [
+        0.5538155503924651,
+        0.37123366523433016,
+        0.07495078437320482
+      ],
+      "decision": 0
+    }
+  ]
+}
