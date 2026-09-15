@@ -1,0 +1,27 @@
+Target rows (FR-04-07): 1,000,000
+Effective rows-per-seed cap (G1): min(50, 0.1% of rows) = 50
+Rows per pure language at 12.5%: 125,000
+Rows per mixed pair at 50% / 6:  83,333
+G1 alone: 20,000 distinct seeds. G2 alone: 10 x 3,000 = 30,000 (if each mixed pair counts as a language).
+
+Cells per combination                                            seeds/comb seeds total rows/seed pure rows/seed pair max rows at cap    author-hours  h/author @40  h/author @100
+cells <= 100 (G2's 3,000 binds)                                       3,000      30,000           41.7           27.8       1,500,000     1,250-1,875         31-47          12-19
+9 placeholder domains x 3 urgency x 3 reporter x 2 age groups         4,860      48,600           25.7           17.1       2,430,000     2,025-3,038         51-76          20-30
+80 domains (§9.1) x 3 urgency x 3 reporter x 1 age group             21,600     216,000            5.8            3.9      10,800,000    9,000-13,500       225-338         90-135
+80 domains x 3 urgency x 3 reporter x 2 age groups                   43,200     432,000            2.9            1.9      21,600,000   18,000-27,000       450-675        180-270
+
+If the row-level near-duplicate standard (§9.1) forces fewer frame variants per seed:
+  50 rows/seed ->    20,000 seeds ->     833-  1,250 author-hours
+  20 rows/seed ->    50,000 seeds ->   2,083-  3,125 author-hours
+  10 rows/seed ->   100,000 seeds ->   4,167-  6,250 author-hours
+   5 rows/seed ->   200,000 seeds ->   8,333- 12,500 author-hours
+   1 rows/seed -> 1,000,000 seeds ->  41,667- 62,500 author-hours
+
+Largest defensible size for a given authoring capacity (at the G1 cap):
+    500 h ->   8,000- 12,000 seeds -> at most   400,000-  600,000 rows; G2's 3,000-seed floor met for 2 of 10 combinations at the slower rate -> NOT §9.1-compliant (language balance fails)
+  1,000 h ->  16,000- 24,000 seeds -> at most   800,000-1,200,000 rows; G2's 3,000-seed floor met for 5 of 10 combinations at the slower rate -> NOT §9.1-compliant (language balance fails)
+  2,000 h ->  32,000- 48,000 seeds -> at most 1,600,000-2,400,000 rows; G2's 3,000-seed floor met for 10 of 10 combinations at the slower rate
+  4,000 h ->  64,000- 96,000 seeds -> at most 3,200,000-4,800,000 rows; G2's 3,000-seed floor met for 10 of 10 combinations at the slower rate
+  8,000 h -> 128,000-192,000 seeds -> at most 6,400,000-9,600,000 rows; G2's 3,000-seed floor met for 10 of 10 combinations at the slower rate
+
+Authors: >= 10 per combination (CORPUS_REBUILD §2) and <= 20% each per language x domain (G8), so >= 5 per language x domain. Across 10 combinations that is 40-100 people, depending on how many bilingual authors also write in a pure language.

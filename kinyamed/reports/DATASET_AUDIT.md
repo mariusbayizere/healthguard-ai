@@ -174,3 +174,36 @@ What can be measured without a speaker, and was:
    appears.
 5. Replace the README's stale v1 narrative; write a Gebru et al. datasheet.
 6. Do not raise rows-per-phrase to reach 1M; report the largest defensible size (§10.7).
+
+## 10. The evaluation set shows the same template collapse (added 2026-09-15)
+
+**The only held-out reporting set is 17,942 rows from 9 distinct source sentences:** about 1,994 rows per
+sentence. It is the same slot-filling collapse as the training corpus (§5), and it gives n = 9 of information.
+
+Rebuilt with the training code's own splitter: `split_eval_by_group` over `eval_manifest_phrase_v2.json`
+(digests verified), 3 stopping groups, seed 42, as the v2d run. Written to the git-ignored
+`dataset/processed/gate_n9_gold.csv` (SHA-256 prefix `636b7727e428`) by `scripts/gate_on_current_holdout.py`.
+
+| Population | Rows | Distinct source sentences |
+|---|---|---|
+| All items | 17,942 | 9 |
+| Gold CRITICAL | 8,962 | 4 |
+| Gold URGENT | 7,793 | 4 |
+| Gold ROUTINE | 1,187 | **1** |
+| English, French, Swahili, any mixed pair | 0 | 0 |
+
+**Consequences**
+- **0 of 45 gate cells can be measured.**
+  `python training/evaluate.py --gold dataset/processed/gate_n9_gold.csv --check-gold` gives 38 INSUFFICIENT
+  DATA and 5 NOT KNOWN (the CRITICAL precision rows, whose population the model sets). Output:
+  `reports/measurements/gate_n9_check_gold.txt`.
+  Example: `CRITICAL recall [kinyarwanda]: INSUFFICIENT DATA (8,962 rows from 4 distinct source sentences; need
+  365 distinct)`.
+- **The ROUTINE class is one sentence.** Any F1 or macro average on this set rests on a single ROUTINE sentence.
+- **No inference was needed to show this.** `evaluate.py --model` now refuses before loading the model when no
+  cell is measurable.
+- **Row-level intervals on this set are wrong, and point estimates without intervals are worse.**
+  - The v2d run record and the paper tables (`train_holdout.py`, `holdout_eval.py`) carry no interval at all.
+  - MODEL_AUDIT §4.2's phrase-cluster intervals (e.g. CRITICAL recall 0.08–1.00) came from an uncommitted
+    Phase 0 script that is no longer on disk (MODEL_AUDIT §9), so they cannot be re-run (L6).
+  - The gate does resample clusters. It prints no interval here because 9 < every minimum.

@@ -72,3 +72,80 @@ native reviewer. The build decision rests on recorded authorship.
 
 - No clinical content: every clinical parameter above is a blank naming its source.
 - No retraining plan, and no reuse of v2 rows. v2 stays frozen for reproducing past results only.
+
+## 5. The arithmetic path to 1,000,000 rows (added 2026-09-15)
+
+**The target stands:** FR-04-07 (≥ 1,000,000 examples) and all nine §9.1 standards. Nothing below lowers a gate.
+Every figure is printed by `reports/measurements/corpus_1m_arithmetic.py` (output: `corpus_1m_arithmetic.txt`).
+The authoring rates are **CLINICIAN_BRIEF's stated assumptions, not measurements**: 2–3 min to write a seed and
+30–45 s for a T1 reviewer to validate it. The pilot replaces them.
+
+### 5.1 What binds
+
+- **G1** caps rows per seed at 50; at 1M, "no seed > 0.1%" allows 1,000, so 50 binds.
+  → **≥ 20,000 distinct native seeds.**
+- **G2** needs ≥ 3,000 seeds per language. If each of the 6 mixed pairs counts as a language (its authors,
+  raters and κ are separate), that is 10 × 3,000.
+  → **≥ 30,000 seeds, which binds over G1.**
+- **G2 also needs ≥ 30 seeds per non-empty cell** (domain × urgency × reporter × age group). The cell count is
+  **BLANK**: domains wait on H4 and age groups on E6. It is the largest single cost driver.
+- **§9.1 balance** at the midpoints: each pure language 12.5% (125,000 rows); mixed 50% (83,333 rows per pair).
+- **G5** bans machine person-transformation, so rows per seed can only come from natively authored frames. G6
+  makes each frame compatible with the seed's reporter and age group.
+
+### 5.2 Cost by cell scenario
+
+| Non-empty cells per combination | Seeds per combination | Seeds total | Rows per seed for 1M (pure / pair) | Author-hours (write + validate) | Hours per author at 40 / 100 authors |
+|---|---|---|---|---|---|
+| ≤ 100 (G2's 3,000 binds) | 3,000 | **30,000** | 41.7 / 27.8 | **1,250–1,875** | 31–47 / 12–19 |
+| 162 (the 9 placeholder domains × 3 × 3 × 2) | 4,860 | 48,600 | 25.7 / 17.1 | 2,025–3,038 | 51–76 / 20–30 |
+| 720 (80 domains per §9.1 × 3 × 3 × 1 age group) | 21,600 | 216,000 | 5.8 / 3.9 | 9,000–13,500 | 225–338 / 90–135 |
+| 1,440 (80 domains × 3 × 3 × 2 age groups) | 43,200 | 432,000 | 2.9 / 1.9 | 18,000–27,000 | 450–675 / 180–270 |
+
+In the last two rows the **cell floors, not 1M**, set the cost. They produce well over 1M rows at the cap.
+
+**Frames are a small cost.** About 42 variants per seed need, for example, 7 openers × 6 closers per reporter ×
+age group: roughly 780 frames across 10 combinations, about 26–39 author-hours at the same rate.
+
+**Authors:**
+- ≥ 10 per combination (§2), and no author above 20% of any language × domain (G8), so ≥ 5 per language × domain.
+- Across 10 combinations that is **40–100 distinct native or bilingual people**, depending on overlap.
+- Acute cells need clinician-authors (H7). Evaluation-set authors are additional and separate (EVAL_SET_SPEC).
+
+### 5.3 A constraint that cannot be computed yet
+
+§9.1 caps near-duplicates below 2% (CLAUDE.md also requires MinHash Jaccard ≥ 0.85 to be reported). Rows built
+from one seed with different frames are the likeliest near-duplicates. Whether 28–42 frame variants per seed
+pass depends on frame length and variety, and no native frames exist to measure.
+
+The v2 corpus is weak evidence only: ≥ 2.77% of rows had a ≥ 0.85 neighbour (a lower bound, DATASET_AUDIT) at
+~2,000 rows per phrase, under a different frame design. If the standard forces fewer variants, seeds rise:
+
+| Rows per seed | Seeds for 1M | Author-hours |
+|---|---|---|
+| 50 | 20,000 | 833–1,250 |
+| 20 | 50,000 | 2,083–3,125 |
+| 10 | 100,000 | 4,167–6,250 |
+| 5 | 200,000 | 8,333–12,500 |
+| 1 | 1,000,000 | 41,667–62,500 |
+
+### 5.4 Verdict
+
+- **Reachable under every gate** if non-empty cells per combination are ≤ about 160 and the near-duplicate
+  standard allows about 17–42 frame variants per seed. That means 30,000–48,600 native seeds from 40–100 authors,
+  about **1,250–3,040 author-hours** at the assumed rates.
+- **Not reachable at realistic cost** if §9.1's 80+ domains are crossed with reporter and age group (720–1,440
+  cells), or if the near-duplicate standard forces ≤ 5 variants per seed: **9,000–27,000 or more
+  author-hours**. Whether that many hours can be recruited is your call. I cannot judge it from here.
+- **Below full compliance, rows are not the measure.** Under about 1,875 author-hours (at the slower rate),
+  G2's floor cannot be met in all 10 combinations, so §9.1 language balance fails whatever the row count.
+  - Largest defensible size then = the combinations actually covered × 3,000 or more seeds × ≤ 50 rows per
+    seed. For example, Kinyarwanda alone: 150,000 rows from 3,000 seeds.
+  - Its quality profile: G1–G8 met in that combination; §9.1 language balance and FR-04-07 **not met**, stated
+    as such.
+  - That corpus must never be reported as meeting FR-04-07.
+- **Report seeds beside rows, always.** At 30,000 seeds, 1M rows carries 30,000 seeds' worth of linguistic
+  variety; G3 is computed on one row per seed for this reason.
+
+**Still BLANK, and each changes the answer:** the domain list (H4); age groups (E6); the pilot's measured authoring
+rate; the near-duplicate result on native frames; whether mixed pairs count as languages for G2 (assumed yes).
