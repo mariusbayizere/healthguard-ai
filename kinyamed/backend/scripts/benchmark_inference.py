@@ -206,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     from app.services.model_classifier import (
         BatchedInference,
         ModelClassifier,
+        read_decision_rule,
         resolve_max_length,
     )
 
@@ -231,7 +232,10 @@ def main(argv: list[str] | None = None) -> int:
     with _PeakRss() as load_rss:
         start = time.perf_counter()
         classifier = ModelClassifier(
-            args.model, max_length=args.max_length, threads=args.threads
+            args.model,
+            max_length=args.max_length,
+            rule=read_decision_rule(args.model),
+            threads=args.threads,
         )
         load_s = time.perf_counter() - start
         start = time.perf_counter()

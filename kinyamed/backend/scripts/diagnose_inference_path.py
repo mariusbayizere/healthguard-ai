@@ -48,7 +48,11 @@ def main(argv: list[str] | None = None) -> int:
 
     sys.path.insert(0, str(ROOT))
     import torch
-    from app.services.model_classifier import ModelClassifier, resolve_max_length
+    from app.services.model_classifier import (
+        ModelClassifier,
+        read_decision_rule,
+        resolve_max_length,
+    )
 
     args.max_length = resolve_max_length(args.model, args.max_length)
 
@@ -58,7 +62,10 @@ def main(argv: list[str] | None = None) -> int:
     texts = texts[: args.requests]
 
     classifier = ModelClassifier(
-        args.model, max_length=args.max_length, threads=args.threads
+        args.model,
+        max_length=args.max_length,
+        rule=read_decision_rule(args.model),
+        threads=args.threads,
     )
     for text in texts[:20]:
         classifier.classify(text)  # warm
