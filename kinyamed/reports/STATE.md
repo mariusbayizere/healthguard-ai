@@ -274,6 +274,49 @@ Full record: `reports/PRELIMINARY_RESULTS.md`. Nothing was waived, and the pipel
 - **Unchanged:** §16 gates UNMET; v2d NOT A BASELINE and not-for-deployment; the clinician gold-set path is still
   the only route to a publishable claim.
 
+## 2026-09-16 — render-path audit: the reading copy was short of the paper twice over
+
+**What I checked and what I found.** After `sections/appendix.tex` turned out never to have
+been in `render_plain.py`'s file list, I audited the whole path. A second, larger omission:
+the renderer did not expand `\input`, so two subsections the typeset paper carries were
+absent from every plain render and every artifact version v1-v7:
+
+| Missing from the render | Is in the LaTeX build via |
+|---|---|
+| The acceptance gate, and where each threshold comes from (6.4) | `sections/discussion.tex` -> `generated/gate_derivation.tex` |
+| A single-metric safety gate certified a model that had abandoned an urgency class | `sections/discussion.tex` -> `generated/finding_gate_degeneracy.tex` |
+
+A third, opposite defect: the renderer ignored the `\renewcommand{\subsection}[1]{}`
+inside a `\begingroup` in `sections/limitations.tex`, so it printed a second "Limitations"
+heading that the PDF does not have. All three fixed in `87e7113`.
+
+**Now enforced, not promised.** `tests/test_render_completeness.py`, 6 tests: every
+`\input` target reachable from `main.tex` is reachable from the renderer; the two heading
+sequences are identical; no unresolved reference; the committed render is current; no file
+in the build would typeset an em dash. One allowed omission,
+`generated/results_macros.tex`, named with its reason and verified to hold nothing but
+`\newcommand` lines.
+
+**Three generated files are not in the build at all**: `confusion_table.tex`,
+`results_table.tex`, `sweep_table.tex`. Nothing `\input`s them. They are emitter output
+that no longer has a home in the paper. Not deleted, and flagged here rather than acted on.
+
+## 2026-09-16 — em dashes: fixed at the emitter, zero reach the PDF
+
+`training/holdout_eval.py` is the single emitter for all seven generated `.tex` files. It
+wrote an em dash in two file headers and `---` (which LaTeX sets as an em dash) in the
+macro-average row of `results_table.tex`. Both now write ASCII; the cell reads `n/a`, which
+states what it means. **Measured across all 16 files the LaTeX build compiles, with
+comments excluded: zero em dashes, either spelling.** The `---` that existed was in
+`results_table.tex`, which nothing `\input`s, so it never reached the PDF.
+
+**REGENERATION NOT RUN, and this is the one open item.** The generated files still carry
+their 2026-09-08 bytes. Re-running `holdout_eval.py --writeup` needs the three sweep models
+at `~/kinyamed-runs` (466 MB each) and three inference passes over 17,942 rows. Available
+memory at the time of writing was 2.1 GiB with Chrome and Firefox running, and the standing
+lesson is to close browsers before an ML job and not retry after a kill. The emitter change
+takes effect on the next regeneration; nothing in the PDF depends on it.
+
 ## 2026-09-16 — paper length: six blocks moved to appendices, nothing deleted
 
 Main text **11,552 -> 10,083 words**; appendix **1,708 -> 3,639**. Moved, each leaving a
