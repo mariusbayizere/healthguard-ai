@@ -1,51 +1,55 @@
-% ABSTRACT — drafted 2026-09-08, last, from the written sections.
+% ABSTRACT — rewritten 2026-09-17 as a negative-results and methodology paper.
 %
-% EVERY FIGURE HERE APPEARS ELSEWHERE IN THE PAPER. Result figures are the
-% generated macros, so they cannot drift from the run that produced them.
-% Corpus figures are the ones established in Section~\ref{sec:method} and
-% checked against the repository on 2026-09-08:
+% BINDING: reports/PAPER_PLAN.md "What the paper must not claim".
+%   - no accuracy / recall / calibration / latency figure for any model;
+%   - no clinical validity for the three-class taxonomy;
+%   - the trained artefact is NOT A BASELINE.
 %
-%   330,000 rows / 165 phrases / 96 concepts   (NOT 111 concepts)
-%   82 of 165 (49.7%) source=speaker           (NOT "165 speaker-authored")
-%
-% No priority claim. "We are not aware of" only.
+% Every figure below is reproducible from the repository and cited in
+% Section~\ref{sec:results} with its script and its report:
+%   1,000,000 rows in 130 s   dataset/generate_large_dataset.py
+%   4 of 9 / 6 of 9 gates     dataset/corpus_gates.py
+%   165 seeds, 19,835 short   dataset/corpus_gates.py, reports/PRELIMINARY_RESULTS.md
+%   150 / 15 / 0 seeds        dataset/seed_provenance.py
+%   31.5% / 21.0% flips       training/probe.py, reports/MODEL_AUDIT.md §11
+% Removed 2026-09-17: macro F1 and every other model metric (they are measured
+% on nine sentences); "anchored to WHO guidance"; the concept count.
 
 \begin{abstract}
-Triage decides who is seen first, and the instruments in general use assume a
-shared clinical language between patient and assessor. In a Rwandan health
-centre the patient speaks Kinyarwanda. We present a dataset and a classifier
-for three-level urgency triage from patient-voice Kinyarwanda, and two
-evaluation failures we consider more useful than the classifier.
+Triage decides who is seen first. Building an urgency classifier for
+patient-voice Kinyarwanda, we found that the specification we were building to
+could be satisfied without producing anything it was meant to secure. We report
+that, and the instruments that detect it, instead of a classifier.
 
-The corpus is 330{,}000 rows generated from 165 distinct phrases across 96
-clinical concepts, anchored to WHO guidance where guidance exists. It is
-authored rather than translated: an earlier machine-generated corpus was judged
-unusable by a Kinyarwanda speaker not for accuracy but for register and
-grammatical form. Provenance is recorded per phrase and is mixed --- 82 of the
-165 phrases (49.7\%) are authored directly by the speaker --- and we report that
-split rather than describing the corpus as speaker-authored.
+Our corpus requirement asked for one million examples. Generation produced them
+in 130 seconds. Run against the nine corpus-quality gates written in the same
+specification, that corpus fails four as generated and six where its rows can be
+attributed to a source sentence. The binding gate counts distinct authored seed
+phrases, not rows, and the generator has 165 of them: at that inventory the
+largest corpus passing every gate is zero rows, at any row count. The distance to
+the target is 19{,}835 authored sentences, not 999{,}000 rows. Rows are produced
+by machine at roughly 7{,}700 per second; seeds are written by native-speaking
+clinicians. We argue the general form: a corpus requirement stated as a row count
+constrains the cheap quantity and leaves the expensive one free, so it does not
+constrain quality at all.
 
-Our first evaluation split never worked: its manifest recorded that every one of
-its 114{,}321 evaluation rows was built on a phrase also present in training,
-in a machine-readable field, in the commit that created it. The two fields being
-read were both honestly zero. Separately, a leakage guarantee that no
-string-similarity rule could produce was needed, because a concept's
-first-person and third-person phrasings share a prefix of zero characters by
-construction; without an explicit declaration, 60 of 61 concepts had their two
-phrasings on opposite sides of the holdout.
+Two further negatives follow from the same root. First, an evaluation set of
+17{,}942 rows built from nine distinct source sentences supports no verdict: our
+deployment gate, which counts distinct sentences rather than rows, refuses 38 of
+its cells and declines to report. Second, a model trained on a corpus with
+uniform surface form changes its predicted urgency under surface variation alone
+--- 31.5\% of inputs under capitalisation and 21.0\% under a single typo, while
+whitespace, which the tokenizer normalises, changes nothing.
 
-Our acceptance gate was a single condition, recall on the critical class. A
-model passed it at \DegenerateRunCriticalRecall\ while achieving
-\DegenerateRunUrgentRecall\ recall on the urgent class, and its critical-class
-precision of \DegenerateRunPrecision\ sat below the \DegenerateCeiling\ that
-merging the two classes earns for free on those rows. The gate certified the
-worse of two models. We replace it with three conditions, two derived and one
-declared unsourced.
+We also report a deployment failure mode that leaves every output-side signal
+healthy: a model directory shipped without its tokenizer loads without error,
+returns a five-token vocabulary, and answers its class prior on input it cannot
+read, with well-formed probabilities and deterministic predictions. We mistook
+it for single-class collapse in our own harness.
 
-The model we report reaches \ResultMacroFOne\ macro F1 and does not meet that
-gate. We are not aware of a prior patient-voice triage dataset for Kinyarwanda,
-though we have not searched systematically. The strongest constraint on every
-number here is that \ResultEvalRows\ evaluation rows are frame permutations of
-\ResultEvalPhrases\ distinct sentences, of which \ResultCriticalSentences\ carry
-the critical label, so per-class recall moves in steps of roughly one quarter.
+We report no accuracy, recall or calibration figure for any model. No evaluation
+set meeting our own specification exists, our gate refuses on the set that does,
+and the trained artefact is an audit artefact rather than a baseline. The
+contribution is the measurement apparatus and the negative results it produced,
+each reproducible from a clean clone with one command.
 \end{abstract}

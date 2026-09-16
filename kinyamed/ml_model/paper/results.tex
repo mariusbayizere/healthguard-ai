@@ -1,99 +1,173 @@
-% Results section.
+% Results — rewritten 2026-09-17 as negative results and methodology.
 %
-% EVERY NUMBER IN THIS FILE IS A MACRO OR A GENERATED TABLE. Nothing is typed
-% literally. The macros are defined in paper/generated/results_macros.tex and
-% the tables are emitted by:
-%
-%   python training/holdout_eval.py --manifest <manifest> \
-%       --writeup training/run_records/last_run_v2b_*.json \
-%                 training/run_records/last_run_v2c_*.json \
-%                 training/run_records/last_run_v2d_*.json \
-%       --trainable 3697923 10795779 7246851 \
-%       --confusion <matrix.json> --tex-out paper/generated
-%
-% If a figure here disagrees with a run record, the run record is right and
-% this file was edited by hand, which it must not be.
+% BINDING: reports/PAPER_PLAN.md "What the paper must not claim".
+% Every number below names the script that produced it and the report that
+% records it. Nothing here is a model quality figure; §\ref{sec:res:none} says so
+% explicitly. Figures whose script was never committed are cut, not restated:
+% the phrase-cluster confidence intervals from the Phase~0 audit
+% (scratchpad/ml_audit.py, never committed) are NOT REPRODUCIBLE and are not
+% used to carry any argument here.
 
 \section{Results}
 \label{sec:results}
 
-\subsection{Reported model}
+Each subsection states a finding, the measurement that establishes it, and the
+script and report it comes from. All of it re-derives from a clean clone with
+\texttt{make reproduce} (eight steps, verified on a machine with no prior state;
+\texttt{ml\_model/reproduce.py}).
 
-We report the configuration that trains the top four encoder layers at a peak
-learning rate of $1\times10^{-5}$. Early stopping on a held-out stopping set
-ended the run before its step ceiling and selected step \ResultSelectedStep;
-the ceiling and the stopping step are recorded in
-\texttt{training/run\_records/}. Table~\ref{tab:results} gives its
-performance on the reporting set, which no stopping decision has observed.
+\subsection{A corpus requirement stated in rows does not constrain quality}
+\label{sec:res:seeds}
 
-\input{generated/results_table}
+Our functional requirement asks for at least 1{,}000{,}000 unique examples.
+Generating them took 130 seconds and passed the generator's own quality targets
+(\texttt{dataset/generate\_large\_dataset.py}).
 
-Macro F1 is \ResultMacroFOne. CRITICAL recall is \ResultCriticalRecall\ at a
-precision of \ResultCriticalPrecision; URGENT recall is \ResultUrgentRecall.
-The model does not meet our acceptance gate: it fails the CRITICAL recall
-condition while satisfying both non-degeneracy conditions
-(Section~\ref{sec:gate}).
+We then ran that corpus against the nine corpus-quality gates written in the same
+specification (\texttt{dataset/corpus\_gates.py}, 19 tests;
+\texttt{reports/PRELIMINARY\_RESULTS.md}). No gate was waived, and a gate that
+cannot be computed from the data at hand is reported as such rather than as a
+pass. Table~\ref{tab:gates} gives the outcome.
 
-The support column should not be read as a sample size. The
-\ResultEvalRows\ reporting rows are frame permutations of
-\ResultEvalPhrases\ distinct phrases in \ResultEvalGroups\ phrase groups, and
-the rightmost column of Table~\ref{tab:results} gives the count that actually
-governs each recall figure. We return to this in
-Section~\ref{sec:limitations}, because it bounds what any of these numbers can
-mean.
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llp{0.46\linewidth}}
+\toprule
+Gate & What it constrains & Outcome on our corpus \\
+\midrule
+G1 & rows per seed ($\leq 50$; no seed above 0.1\%) & \textbf{FAIL} --- worst seed 8{,}975 rows, 26.07\% of the evaluation split \\
+G2 & distinct seeds per language ($\geq 3{,}000$) & \textbf{FAIL} --- 15 in the evaluation split, 150 in train, 165 in the whole inventory \\
+G3 & lexical diversity against the pilot's floor & not computable --- the pilot that defines the floor does not exist \\
+G4 & near-duplicate seeds ($\leq 2\%$ at Jaccard 0.85) & pass --- 0 of 15 \\
+G5 & machine person-transformation banned & \textbf{FAIL} --- no recorded origin per row \\
+G6 & frame consistent with reporter and age group & not computable --- neither is recorded \\
+G7 & per-row provenance complete & \textbf{FAIL} --- no seed, origin, author or validator fields \\
+G8 & author concentration ($\leq 20\%$ per cell) & \textbf{FAIL} --- the corpus has no authors \\
+G9 & surface variation (case, punctuation, spacing, typos) & \textbf{FAIL} --- 0 capitalised rows, 0 with stray spacing, no typos \\
+\bottomrule
+\end{tabular}
+\caption{The nine corpus gates against the generated corpus. Four fail as
+generated; six fail on the split whose rows can be attributed to a source
+sentence, which is where G1, G2 and G4 become computable.}
+\label{tab:gates}
+\end{table}
 
-\paragraph{Comparison against human practice: \PENDING{no nurse study has
-run}.} These figures are agreement with a label set, not with practice. What a
-nurse assigns given the same description has not been measured, so the model is
-unanchored against the thing it would assist. The study design --- case
-selection at the concept level, blinding, and per-class analysis with
-over-triage and under-triage reported separately rather than averaged --- is
-written and unexecuted.
+The binding gate, G2, counts \emph{distinct authored seed phrases} rather than
+rows. Our generator has 165. Table~\ref{tab:seeds} follows that constraint
+through.
 
-\subsection{Where the error is}
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{rrlr}
+\toprule
+Seeds available & Rows allowed by G1 & Passes G2? & Largest passing corpus \\
+\midrule
+\textbf{165 (ours)} & 8{,}250 & \textbf{no} (needs 3{,}000) & \textbf{0 rows} \\
+3{,}000 & 150{,}000 & yes & 150{,}000 \\
+20{,}000 & 1{,}000{,}000 & yes & 1{,}000{,}000 (the target) \\
+\bottomrule
+\end{tabular}
+\caption{At 165 seeds no corpus of any size passes, because the floor is on
+seeds and not on rows.}
+\label{tab:seeds}
+\end{table}
 
-\input{generated/confusion_table}
+\paragraph{The shortfall is 19{,}835 sentences, not 999{,}000 rows.} A row is a
+frame rendered around an existing phrase, produced at roughly 7{,}700 per second.
+A seed is a sentence a native-speaking clinician writes. Reaching the stated
+target requires 19{,}835 further seed phrases; at the authoring rates assumed in
+our clinician brief (two to three minutes per item, an assumption and not a
+measurement) that is on the order of 660 to 990 clinician-hours. Even at
+20{,}000 seeds the generated corpus would still fail G5, G7, G8 and G9, which
+constrain how a row is made --- its origin, its provenance, its author, its
+surface form --- rather than how many rows exist.
 
-Table~\ref{tab:confusion} locates the residual error precisely. ROUTINE is
-separated without error in both directions. Every misclassification the model
-makes lies on the CRITICAL/URGENT boundary, in both directions: CRITICAL
-presentations read as URGENT, and URGENT presentations read as CRITICAL. This
-was true of every configuration we trained, not only the reported one.
+\paragraph{The general claim.} Expansion is the cheap operation in any templated,
+augmented or model-expanded corpus, and a requirement written in rows constrains
+exactly that. The quantity that resists expansion, and that the model needs, is
+the number of independently authored source items. A specification that sets no
+floor on that number has not constrained quality, however large the row count it
+demands. The remedy is small: constrain seeds, and let the row count follow.
 
-\subsection{Configuration search}
+\subsection{Cluster structure, not row count, decides what a held-out set can show}
+\label{sec:res:eval}
 
-\input{generated/sweep_table}
+Our evaluation set is 17{,}942 rows built from nine distinct source sentences,
+four of them carrying the critical label (\texttt{reports/DATASET\_AUDIT.md}).
+Our deployment gate counts distinct source sentences rather than rows and
+computes its intervals by resampling sentences
+(\texttt{training/evaluate.py}). On this set it refuses 38 of its cells and
+reports no metric at all; the refusal is reproduced from a clean clone as step
+seven of \texttt{make reproduce}.
 
-Table~\ref{tab:sweep} reports three configurations evaluated on the same
-frozen holdout, the same split seed and the same reporting set, differing only
-in how much of the encoder was left trainable and in the peak learning rate.
-The table's caption gives the frozen embedding count, which is identical in
-every row, so the trainable column is the quantity that varies.
+The required sizes are derived rather than asserted
+(\texttt{training/eval\_spec.py}, whose power calculations are recomputed by a
+test): 710 distinct sentences for overall accuracy, 365 gold critical items per
+pure language for critical recall at the stated threshold, and 720 for the
+critical-to-routine rate. Nine sentences is not a small sample of the required
+set; it is three orders of magnitude below it on the axis that matters.
 
-Two observations, and we draw a different conclusion from each.
+\paragraph{Seed provenance, stated before any metric.} Train and test share no
+seed: 150 distinct source phrases and 295{,}575 rows against 15 and 34{,}425,
+with zero shared seeds and zero test rows built from a shared seed
+(\texttt{dataset/seed\_provenance.py}). Disjoint is not independent. Both splits
+come from one generator and one 165-phrase inventory, so any metric measured
+across them would describe generalisation within the generator's distribution.
+The largest single seed accounts for 26.07\% of the test split.
 
-The first is that trainable capacity governs \emph{when} the loss curve turns.
-Holding the learning rate fixed, the middle configuration's loss inflected
-several hundred steps earlier than the smallest one's, and the largest
-configuration's earlier still. The per-evaluation stopping-loss curves that
-show this are committed in \texttt{training/run\_records/}; we do not quote
-inflection steps here because we have no principled estimator for them, only
-a reading of the curves. The effect is what makes the smallest configuration
-expensive rather than wrong.
+\paragraph{The floor a number would have to clear.} A constant classifier that
+always answers the most frequent class scores 0.4995 on that evaluation set and
+0.3418 on the wider generated split (\texttt{reports/measurements/}
+\texttt{majority\_baseline.py}, labels only, no model). We record these so that
+any future number is read against them.
 
-The second is that capacity does not change \emph{what} the model gets wrong.
-Across a threefold range of trainable parameters and a $1.5\times$ range of
-learning rate, every configuration separated ROUTINE perfectly and none
-resolved the CRITICAL/URGENT boundary. We therefore stopped searching, and we
-report the search as inconclusive on that boundary rather than presenting the
-best row as a tuning result. Section~\ref{sec:limitations} gives the
-measurement-granularity argument for why continuing would not have been
-informative.
+\paragraph{A single-condition gate certifies the wrong model.} Our first
+acceptance gate was one condition, recall on the critical class. A configuration
+passed it at \DegenerateRunCriticalRecall\ while reaching
+\DegenerateRunUrgentRecall\ on the urgent class, with critical-class precision
+\DegenerateRunPrecision\ --- below the \DegenerateCeiling\ that merging the two
+classes earns for free on the same rows. We report this as a defect in gate
+design, not as a measurement of either model: both figures come from the
+nine-sentence set above and support no quality conclusion. The replacement gate
+carries three conditions, two derived and one declared unsourced.
 
-\subsection{A single-metric gate certified a model that had abandoned a class}
+\subsection{Two failure modes that leave every output-side signal healthy}
+\label{sec:res:silent}
 
-\input{generated/finding_gate_degeneracy}
+\paragraph{A model shipped without its tokenizer.} Loading a model directory that
+contains no tokenizer files does not raise. The loader returns a vocabulary of
+five tokens, every word becomes the unknown token, and the model answers its
+class prior on input it cannot read. Probabilities remain well formed, predictions
+remain deterministic, and the label order remains correct. We encountered this in
+our own probing harness and read it as single-class collapse until it contradicted
+a previously recorded confusion matrix. No metric computed from the model's own
+outputs distinguishes the two cases. Our probe now measures the vocabulary size
+and the unknown-token rate of the tokenizer it actually loaded and fails loudly
+(\texttt{training/probe.py}; \texttt{reports/MODEL\_AUDIT.md} §11.1).
 
-\subsection{The acceptance gate}
+\paragraph{Surface fragility, traced to the corpus.} The same probe measures
+whether the predicted class survives surface variation. On 200 sampled inputs,
+the predicted urgency changes for 31.5\% under capitalisation and 21.0\% under a
+single realistic typo, for 5.0\% when punctuation is removed, and for none under
+extra whitespace --- the one variant the tokenizer normalises away, which is what
+makes the other three a property of the training data rather than of the
+tokenizer. The corpus contains zero capitalised rows, zero rows with stray
+spacing and no typographical noise at all (Table~\ref{tab:gates}, G9). A patient
+typing in capitals or mistyping a word is not making a clinical statement. We
+record this as a corpus-health signal and not as a quality metric, and we do not
+propose normalising input at serving time: that would hide the fragility and
+discard information the tokenizer is case-sensitive to.
 
-\input{generated/gate_derivation}
+\subsection{What we do not report}
+\label{sec:res:none}
+
+We report no accuracy, recall, F1, calibration or latency figure for any model.
+No evaluation set meeting our specification exists; our gate refuses on the set
+that does; and no model has been trained through the pipeline that would produce
+a calibrated, threshold-tuned checkpoint --- when run, it refuses before reading
+the training corpus, for the reasons in §\ref{sec:res:eval}. The trained artefact
+that exists is an audit artefact used to exercise the serving path and the gate's
+refusal. It is not a baseline: we do not compare against it, and we do not plan to
+retrain it.
