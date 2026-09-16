@@ -9,44 +9,85 @@
 \section{Related work}
 \label{sec:related}
 
-\subsection{Triage instruments}
+\subsection{Why we make no comparison with a triage instrument}
+\label{sec:related:instruments}
 
-The two triage systems this work was originally scoped against are the two that
-could not be used, and the reason is licensing rather than clinical fit. The
-Emergency Severity Index carries a royalty-free grant to use the algorithm
-clinically, but reproduction of its descriptors requires written permission, so
-its text cannot be redistributed as corpus content. The Manchester Triage System
-is licensed intellectual property. We therefore built the urgency taxonomy from
-openly licensed clinical guidance instead, and cite the triage instruments
-without reproducing them.
+We compare against no established triage instrument, and the reason is not
+licensing. It is that every instrument we examined is defined on a different kind
+of input from the one this system receives, which makes a comparison not merely
+unavailable but ill-posed.
 
-\subsection{Clinical guidance used for concept anchoring}
+The instrument our own specification named as the basis for its three categories
+is the WHO Emergency Triage Assessment and Treatment (ETAT) manual for
+participants (WHO, 2005, ISBN 92\,4\,154687\,5). Reading it settled the question
+against us, and the details are worth stating because they are specific:
 
-Concepts are anchored to published WHO guidance where guidance for the
-presentation exists. Seventy of our 128 concepts carry an anchor, drawn from
-three documents with materially different licences:
+\begin{itemize}
+\item \textbf{It is defined on examination signs.} ``Triage is the process of
+  rapidly \emph{examining} all sick children when they first arrive in
+  hospital''; ``Triage of patients involves \emph{looking for signs} of serious
+  illness or injury'' (Module One, pp.~3--4). Each emergency sign is elicited by
+  hand or eye: taking the child's hand to judge warmth, pressing the nail bed and
+  timing capillary refill, pinching the abdominal skin, comparing the child's
+  palms with the assessor's own (Modules Three to Five, pp.~26, 35--36, 44).
+\item \textbf{It rules explicitly against history where history and observation
+  could conflict.} On convulsions: ``This assessment depends on your observation
+  of the child and not on the history from the parent \dots\ The child must be
+  seen to have a convulsion during the triage process or while waiting in the
+  outpatient department'' (p.~7). Where history is used --- whether the child has
+  diarrhoea, a history of choking, a referral note --- it is asked of the
+  caretaker in person, as an adjunct to an examination that still takes place.
+\item \textbf{It does not address remote or written assessment.} Triage happens
+  ``as soon as a sick child arrives in the hospital, well before any
+  administrative procedure such as registration'' (p.~5). Across all 83 pages of
+  the extracted text, the words \emph{telephone}, \emph{phone}, \emph{radio},
+  \emph{remote}, \emph{SMS} and \emph{mobile} do not occur once.
+\item \textbf{Its population is children.} ``a process of rapid triage for all
+  children presenting to hospital'' (p.~1); adults appear only as equipment sizes
+  (pp.~21, 46, 65). No upper age limit is stated anywhere in the document.
+\item \textbf{Its categories are its own}: EMERGENCY, PRIORITY and NON-URGENT
+  (p.~4; Chart~2, pp.~67--68), not the critical/urgent/routine triple our
+  specification uses, and not the Emergency Severity Index levels our
+  specification also cites in the same glossary entry.
+\end{itemize}
 
-\begin{center}\small
-\begin{tabular}{p{0.42\textwidth}lr}
-\toprule
-Source & Licence & Concepts \\
-\midrule
-WHO IMCI Chart Booklet, 2014 (ISBN 978 92 4 150682 3) & All rights reserved & 24 \\
-WHO--ICRC \emph{Basic Emergency Care}, 2018 & CC BY-NC-SA 3.0 IGO & 15 \\
-WHO \emph{Managing Complications in Pregnancy and Childbirth}, 2017 & CC BY-NC-SA 3.0 IGO & 11 \\
-Clinician-defined, no WHO anchor located & --- & 20 \\
-\bottomrule
-\end{tabular}
-\end{center}
+The Emergency Severity Index and the Manchester Triage System are bedside
+instruments of the same kind: a trained assessor observes a present patient. Our
+system receives text written by a patient or a relative who has not been
+examined, often before any contact with a health worker. An instrument defined on
+observed signs cannot be a reference standard for a system that never observes
+anything, and a number comparing the two would be measuring agreement between
+incommensurable procedures. Licensing is a real constraint on reproducing their
+descriptors --- the ESI grant covers clinical use of the algorithm but not
+redistribution of its text, and the MTS is proprietary --- but it is the second
+reason, not the first.
 
-The IMCI licence is the constraint that shapes how we use all three. The chart
-booklet is \emph{all rights reserved}, not open-licensed, so we reproduce no
-text from it. A clinical concept --- that chest indrawing indicates severe
-pneumonia, that an inability to drink is a general danger sign --- is a fact and
-is cited; the wording in which the booklet expresses it is not ours to copy. The
-BEC and MCPC material is CC BY-NC-SA 3.0 IGO and we treat it the same way, since
-mixing share-alike text into a released corpus would propagate that term to the
-corpus.
+\paragraph{The absence is the finding.} We could not locate any validated
+instrument for assigning urgency from a patient's own written description without
+examination, in any language. If one exists, it is the reference standard this
+work needs and we did not find it; if one does not, then the construct this
+system would measure has not been established by anyone, and that is the more
+important statement. We record it as an open question addressed to clinical
+readers rather than as a gap we have closed, and we treat every urgency label in
+our corpus as an unvalidated construct until a clinician rules otherwise.
+
+\subsection{Clinical guidance consulted, and what we reproduce from it}
+
+Where published guidance exists for a presentation, we consulted it while writing
+concepts: the WHO IMCI Chart Booklet (2014, ISBN 978\,92\,4\,150682\,3), the
+WHO--ICRC \emph{Basic Emergency Care} (2018, CC BY-NC-SA 3.0 IGO), and WHO
+\emph{Managing Complications in Pregnancy and Childbirth} (2017, CC BY-NC-SA 3.0
+IGO). We reproduce no text from any of them. The IMCI booklet is all rights
+reserved, and the two share-alike documents would propagate their licence term
+into a released corpus. A clinical fact may be cited; the wording in which a
+document expresses it is not ours to copy.
+
+We give no count of how many concepts carry such an anchor. Our own audit found
+the concept total recorded with several different values across the repository,
+and the anchor count with it, so any figure we quoted here would be one of
+several and not a measurement. Establishing that count against the source
+documents is outstanding work, and the honest position is to say so rather than
+to pick one.
 
 \subsection{Kinyarwanda language resources}
 
@@ -121,9 +162,13 @@ adopted could be inherited from any of them.
 %     source of small news-domain sets. If it is to be cited as a research
 %     collective rather than as a dataset, that needs its own reference and a
 %     sentence that says something specific -- do not cite it decoratively.
-%   - ESI and MTS. NEEDED: citable references. Recorded: ESI (c) Emergency
-%     Nurses Association, royalty-free for clinical use of the algorithm,
-%     reproduction requires written permission; MTS proprietary via ALSG.
+%   - ESI and MTS. NEEDED: citable references IF they are named in prose at all.
+%     Recorded: ESI (c) Emergency Nurses Association, royalty-free for clinical
+%     use of the algorithm, reproduction requires written permission; MTS
+%     proprietary via ALSG. No comparison is made against either (2026-09-17).
+%   - WHO ETAT manual for participants, 2005, ISBN 92 4 154687 5. Page
+%     references in sec:related:instruments are printed-page numbers verified
+%     in reports/TAXONOMY_SCOPE.md §2 against the PDF in docs/clinical/.
 %   - WHO IMCI 2014, WHO-ICRC BEC 2018, WHO MCPC 2017. NEEDED: full titles and
 %     WHO publication identifiers. IMCI's ISBN is recorded above.
 %   - The immunisation-only patient-facing collection and the Swahili health

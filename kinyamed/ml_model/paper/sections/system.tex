@@ -1,65 +1,93 @@
-% SYSTEM — drafted 2026-09-08 from measurements and from the service as built.
+% SYSTEM — rewritten 2026-09-17.
 %
-% Latency figures are macros emitted from training/latency_v2d.json. Corpus and
-% code-switching figures are typed for now (sections/ is exempt) and were
-% re-derived from disk, not recalled.
+% CUT 2026-09-17, per reports/PAPER_PLAN.md "What the paper must not claim":
+%   - the latency table and the claim that a sub-200 ms target is "met warm
+%     through the 99th percentile". The target is unsourced (SRS correction
+%     A29), the machine was not a named target machine (H15), and a latency
+%     figure is a model performance claim. The specification finding that
+%     replaces it is cited to a committed script.
+%   - the working-system framing. Nothing below is evidence that the system
+%     works; each property is a property of the apparatus when it does not.
 %
-% NO BASELINE COMPARISON APPEARS HERE. mBERT and AfriBERTa-large have not been
-% trained; training/run_records/ contains zero baseline runs. A comparison table
-% would be fabricated.
+% Behaviour described here is as recorded in reports/CURRENT_CAPABILITY.md and
+% enforced by tests named inline.
 
-\section{The system}
+\section{The apparatus}
 \label{sec:system}
 
-\subsection{Inference latency}
+This section describes what the system does today. None of it is evidence that
+the system works: no model has passed our gate, and the properties below are the
+ones we built so that a failing model fails safely rather than quietly. We state
+them because a reader assessing the negative results needs to know what the
+apparatus does when the model is wrong, absent, or unfit --- which is its normal
+condition at present.
 
-Measured on the reference machine --- an Intel i5-6200U with two threads
-allocated to torch --- over \LatencyRows\ rows drawn from the frozen evaluation
-split, at batch size one, which is the deployment shape:
+\subsection{Safety properties of the apparatus}
 
-\begin{center}
-\begin{tabular}{lrl}
-\toprule
-& latency & against a sub-200\,ms target \\
-\midrule
-Cold (first request, $n=1$) & \LatencyColdMs\,ms & exceeds \\
-Warm median & \LatencyWarmMedianMs\,ms & meets \\
-Warm p95 & \LatencyWarmPninetyfiveMs\,ms & meets \\
-Warm p99 & \LatencyWarmPninetynineMs\,ms & meets \\
-Warm maximum & \LatencyWarmMaxMs\,ms & exceeds \\
-\bottomrule
-\end{tabular}
-\end{center}
+\paragraph{It fails closed.} When no model is loaded, or the model cannot
+classify, or inference times out, the triage endpoint returns an error carrying a
+manual-triage instruction to staff, and \emph{nothing is written}: no symptom
+report, no urgency, no queue entry. An earlier build served a keyword matcher
+whenever no model was configured; measured on the frozen Kinyarwanda holdout it
+caught 5.7\% of critical cases and sent 94.3\% of them to the routine queue with
+a confident message. A classifier that is wrong in the dangerous direction is
+worse than no classifier, because nobody triages a patient the system has already
+triaged. The fallback was removed, and the absence of a model now produces a
+refusal rather than a guess.
 
-The target is met warm through the 99th percentile on a nine-year-old laptop
-CPU. It is not met in two conditions that are ordinary rather than exotic. The
-first request a process serves costs \LatencyColdMs\,ms, roughly twenty times
-the target, so any deployment that scales to zero or restarts a worker charges
-that to a live patient; we load and warm the model at start-up for this reason.
-And the warm tail reaches \LatencyWarmMaxMs\,ms, so a per-request service level
-written at 200\,ms would be violated occasionally even in steady state. The p99
-is the figure such a target should be written against.
+\paragraph{It never tells a patient their condition can wait.} Patient-facing
+text is identical in structure across all three urgency classes and ends with an
+escalation instruction in every case. No urgency class produces a reassuring
+message, because the label is a queue-ordering hint and not a clinical judgement,
+and a patient reading ``routine'' as ``safe to stay home'' is a harm the system
+would have caused. Patients receive a receipt, a queue position and that
+instruction, and nothing else.
 
-\subsection{Service}
+\paragraph{Cases the model could not classify sort above urgent and routine.}
+The queue is ordered critical first, then cases the model declined or answered
+below the review threshold, then urgent, then routine. An unclassifiable case is
+not a low-priority case: it is a case about which the system knows nothing, and
+placing it behind cases the system does have an opinion about would use absence
+of evidence as evidence of safety.
 
-The triage endpoint accepts a free-text symptom description, detects the
-language, classifies urgency, places the patient in a queue ordered by clinical
-priority, and returns the label. The model is selected by configuration and is
-not installed by default, because the ML dependencies are deliberately absent
-from the API image.
+\paragraph{A deterministic rules layer runs before the model, and can only
+escalate.} Terms in the layer force the critical label regardless of model
+output; the database rejects any row in which the layer lowered an urgency, so
+the escalate-only property is enforced by a constraint and not by convention.
+\textbf{The term table ships empty}, because no clinician has validated a term
+list, and an unvalidated rule creating critical queue entries would be a new
+unvalidated claim rather than a safety net. The layer therefore changes nothing
+today. We describe it because the empty table is the honest state of it, and
+because the enforcement is what makes filling it safe later.
 
-\paragraph{Deployment: \PENDING{not deployed}.} This system has not run in a
-health centre and has not been used with any patient. A runbook exists; its
-first precondition is that the model meet its own acceptance gate, which it does
-not. Equally \PENDING{no community health worker consultation occurred}: the
-corpus describes how one speaker believes patients present, and no observation
-of real presentations informed it.
+\paragraph{Configuration that would silently change the served decision is
+refused at start-up.} The service reads the length the model was fine-tuned at,
+the calibration temperature and the decision thresholds from the model directory,
+and applies them exactly; a record it cannot apply exactly --- half a rule, an
+unknown rule text, a different label order, a configured length that disagrees
+with the recorded one --- stops start-up rather than becoming a quiet error at a
+patient's request. This exists because the decision a model is tuned for, the
+decision a gate scores, and the decision a service serves are three separate
+things that can drift apart silently; we found two such gaps in our own system
+and closed both.
+
+\subsection{What the apparatus has not been shown to do}
+
+It has not run in a health centre and has not been used with any patient. No
+community health worker or clinician has been consulted about how patients
+present. The latency of the served model was measured, but on a laptop that is
+not a named target machine, against a target that our own audit records as
+specified with no stated source and no check that it was achievable on any named
+hardware; on the only machine we measured, the specified figure is roughly
+26 times beyond the throughput available at the stated concurrency. We therefore
+report no latency result, and treat the target itself as one of the unchecked
+numbers the paper is about.
 
 \subsection{Code-switching: none of the six combinations generates}
 
-The corpus design names six ordered language pairs. \textbf{None of them
-produces a row today}, and we state the position precisely because a corpus
-labelled bilingual that is not is worse than one that admits the gap.
+The corpus design names six ordered language pairs. \textbf{None of them produces
+a row today}, and we state the position precisely because a corpus labelled
+bilingual that is not is worse than one that admits the gap.
 
 A Kinyarwanda speaker ruled fifteen medical terms for insertion, giving for each
 whether it is genuinely switched or simply borrowed, its noun class, and the
