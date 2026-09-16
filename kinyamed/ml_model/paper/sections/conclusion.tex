@@ -1,0 +1,48 @@
+% CONCLUSION — written 2026-09-17.
+%
+% NO FORWARD-LOOKING CLAIM about what the system will do, will achieve, or will
+% enable. What was found, what the apparatus is, what remains. One sentence on
+% reproduction.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We set out to build an urgency classifier for patient-voice Kinyarwanda and
+report instead what we found while trying to build one honestly.
+
+A corpus requirement written as a row count constrained the quantity a machine
+produces for free and left unconstrained the quantity only a person can produce.
+We met the one-million-example target in 130 seconds with a corpus that fails
+four of the nine quality gates written beside it, and six where its rows can be
+attributed to a source sentence. The gate that binds counts distinct authored
+seed phrases: at our inventory of 165, the largest corpus passing every gate is
+zero rows at any row count, and the distance to the target is 19{,}835 authored
+sentences rather than 999{,}000 rows.
+
+An evaluation set of 17{,}942 rows built from nine distinct sentences supports no
+verdict, and our gate refuses on it rather than reporting a number. A model
+trained on a corpus of uniform surface form changed its predicted urgency for
+31.5\% of inputs under capitalisation alone and 21.0\% under a single typo, while
+the one variant the tokenizer normalises changed nothing --- which locates the
+cause in the training data rather than the tokenizer. A model directory shipped
+without its tokenizer loads without error and answers its class prior on input it
+cannot read, with well-formed probabilities, deterministic predictions and a
+correct label order; we mistook it for single-class collapse in our own harness
+until it contradicted a previously recorded confusion matrix.
+
+What exists is an apparatus, not a result: a generator, a corpus gate checker, a
+power derivation that fixes what a held-out set must contain, a deployment gate
+that refuses rather than reports when it cannot measure, a malfunction probe, a
+training pipeline that refuses to train below its evaluation-set minimum, and a
+service that fails closed, never reassures a patient, and refuses to start on a
+decision rule it cannot apply exactly. No model has passed the gate. The trained
+artefact is an audit artefact and not a baseline.
+
+What remains is not engineering. It is 19{,}835 sentences written by native
+speakers, a clinical lead to define and ratify what the categories mean, and a
+labelled evaluation set large enough in distinct sentences for a verdict to be
+possible. Until those exist, the honest output of this project is the apparatus
+and the negative results it produced.
+
+Every number in this paper re-derives from a clean clone of the repository with a
+single command.

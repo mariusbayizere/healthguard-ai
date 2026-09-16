@@ -1,19 +1,118 @@
-% LIMITATIONS — hand-written prose PLUS the generated statement.
+% LIMITATIONS — rewritten 2026-09-17.
 %
-% THE MEASUREMENT LIMITATION IS GENERATED, NOT WRITTEN. The distinct-sentence
-% counts and the recall granularity they imply are recomputed from the frozen
-% split every time the emitter runs, so they cannot drift. Do not restate those
-% numbers in prose here -- the \input below carries them.
+% The three that bound everything else lead the section, before any other
+% limitation, per reports/PAPER_PLAN.md. Nothing here is softened, and the
+% section applies the paper's own critique to the paper's own specification.
 %
-% Everything else was checked against the record on 2026-09-08 rather than
-% recalled. Two figures in the working summary did not survive that check and
-% are corrected in the prose: the evaluation base is 9 phrases in 5 groups for
-% the reporting set (15 phrases in 8 groups for the whole frozen eval), not
-% "15 phrase groups"; and the reported models were trained at train_fraction
-% 1.0, not 22% -- the 22% subsample belongs to an earlier run that was
-% abandoned mid-training and is not reported.
+% The generated statement below carries the distinct-sentence counts, recomputed
+% from the frozen split by the emitter. Do not restate those numbers in prose.
+
+\section{Limitations}
+\label{sec:limitations}
+
+\subsection{The three that bound everything else}
+
+\paragraph{1. The evaluation set is nine sentences.} Our held-out set contains
+17{,}942 rows built from \textbf{nine distinct source sentences}, four of which
+carry the critical label. Rows built from one sentence are frame permutations of
+each other, not independent observations, so the quantity governing every
+interval is nine and not 17{,}942. Our own gate, which counts distinct sentences,
+refuses 38 of its cells on this set and reports nothing. The sizes it requires are
+derived rather than asserted: 710 distinct sentences for overall accuracy, 365
+gold critical items per pure language for critical recall, 720 for the
+critical-to-routine rate. \textbf{No verdict on model quality is possible from
+this work, and none is offered.} Every figure we report is a property of a
+corpus, of a specification, or of an artefact's behaviour under perturbation ---
+never of a model's clinical performance.
 
 \input{generated/limitations}
+
+\paragraph{2. No validated instrument authorises the construct.} We could not
+locate any validated instrument for assigning urgency from a patient's own
+written description without examination
+(Section~\ref{sec:related:instruments}). The instrument our specification named,
+WHO ETAT, is defined on examination signs, addresses children, and rules
+explicitly against substituting a caretaker's history for observation.
+\textbf{Every urgency label in this work is therefore an unvalidated
+construct.} No clinician has ratified any category definition, any threshold, or
+any label in the corpus. The taxonomy names three classes; whether those classes
+are the right ones, whether they can be assigned from text at all, and what each
+would mean if they could, are open questions we are not qualified to settle.
+
+\paragraph{3. One author, no clinical collaborator, one language.} This is a
+single-author software project. No clinician has reviewed the corpus, the
+taxonomy, or any output. No community health worker has been consulted about how
+patients present. The corpus is Kinyarwanda only, and no second speaker has
+reviewed it, so inter-rater agreement on anything --- labels, naturalness,
+register --- is unmeasured because there is no second rater.
+
+\subsection{The paper's critique applies to the paper's own specification}
+
+We argue that a number in a specification needs a stated source and a derivation
+of what would make it measurable or achievable. \textbf{Our own specification
+fails that test on every number it sets.} Each of the following was written
+without a stated source, without a derivation, and without a check that it means
+anything:
+
+\begin{itemize}
+\item critical recall $\geq 0.91$ in each pure language;
+\item critical-to-routine rate $< 1.0\%$;
+\item inference latency p50 $< 150$\,ms and p95 $< 200$\,ms;
+\item a cost ratio of 10:1 for a missed critical against any other error, which
+  is the quantity that selects the served decision thresholds;
+\item the requirement of 1{,}000{,}000 examples, which is the case this paper
+  examines in detail.
+\end{itemize}
+
+We report this as one systemic failure with six instances rather than six
+unrelated slips, and we do not exempt ourselves from it. The first four were
+inherited from a requirements document written before any measurement; the fifth
+is an engineering default we chose; the sixth we met in 130 seconds while failing
+the quality gates written beside it. A reader is entitled to ask why we trust the
+gates if we do not trust the requirements, and the next subsection is that answer.
+
+\subsection{The gates are engineering defaults, not validated instruments}
+
+The nine corpus gates are our own construction. Two have a derivation we would
+defend --- G1's cap on rows per seed and G2's floor on distinct seeds follow from
+the cluster structure that governs an interval --- and the rest are defaults
+chosen by judgement. \textbf{G9's thresholds are placeholders}: the shares of
+capitalised, unpunctuated, mis-spaced and mistyped items it requires were set by
+us, not measured, and they should be replaced by the distribution a real pilot
+exhibits once one exists. The near-duplicate threshold, the author-concentration
+cap and the row cap are likewise conventions.
+
+We state this rather than defend it. A gate whose number has no derivation is
+open to exactly the criticism we level at the requirements, and the honest
+position is that our instrument is a better-documented version of the same
+species of artefact, not a validated one. What we would claim for it is narrower:
+the gates make the corpus's properties visible and falsifiable, and the finding
+that survives whatever thresholds are chosen is structural --- the binding
+quantity is authored seeds, and no row count substitutes for it.
+
+\subsection{One generator, one language, one project}
+
+Every measurement here comes from one generator, one language and one codebase.
+The seeds-not-rows argument is a claim about a class of corpora --- templated,
+augmented or model-expanded --- and we demonstrate it on a single member of that
+class. We argue the generalisation from the structure of the cost asymmetry:
+expansion is cheap and authoring is not, in any such pipeline. \textbf{We do not
+demonstrate it.} Whether other generators, other languages or other teams hit the
+same wall at the same place is untested, and a reader should treat the general
+form as an argument to be checked rather than a result we have established.
+
+\subsection{Figures that cannot be re-run}
+
+The Phase~0 audit measured model accuracy, per-class recall, phrase-cluster
+confidence intervals, calibration error and latency with scripts that were never
+committed and no longer exist. \textbf{Those figures are NOT REPRODUCIBLE} and we
+do not restate them in this paper, including the confidence intervals that would
+otherwise make the nine-sentence point most vividly. Where an argument needed
+them, we replaced them with something the repository can re-derive: the gate's
+refusal, the power derivation, and the majority-class floors. The affected
+sections of our own audit report carry the same mark.
+
+\subsection{Further limitations}
 
 \paragraph{One speaker, and no second-speaker review.} The Kinyarwanda
 phrasings are one person's judgement. A second-speaker protocol is designed and
@@ -27,10 +126,11 @@ consulted contacts informally, and one vocabulary question was still outstanding
 with those contacts at the time of writing.
 
 \paragraph{Provenance is mixed, and the corpus is not wholly speaker-authored.}
-As Section~\ref{sec:method} records, 82 of the 165 phrases (49.7\%) are
-authored directly by the speaker and 109 (66.1\%) are speaker-authored or
-speaker-derived; the remainder are machine drafts under speaker approval or
-machine-derived. Eight phrases carry an unresolved hold or a flag for clinician
+Roughly half the phrases are authored directly by the speaker and the remainder
+are machine drafts under that speaker's approval, recorded per phrase in the
+repository. We give no percentage: the per-phrase provenance is recorded, but no
+committed script prints the split, so any figure here would be \textbf{NOT
+REPRODUCIBLE}. Eight phrases carry an unresolved hold or a flag for clinician
 review and are nonetheless in the corpus.
 
 \paragraph{No clinician has signed off on anything.} Twenty-five rows are
@@ -59,10 +159,11 @@ other's evaluation set measures memorisation and nothing else --- 100.0\% of
 rows in both directions. Only one honest evaluation number exists per trained
 model, and it is the one we report.
 
-\paragraph{The acceptance gate is not met.} The reported model fails the
-CRITICAL recall condition. We report it because it satisfies both
-non-degeneracy conditions and is the best of the configurations trained, not
-because it is deployable. Nothing here is in use with any patient.
+\paragraph{No model meets the acceptance gate, and none has been trained
+through the pipeline that would produce a deployable one.} The artefact that
+exists does not meet the gate; the pipeline that would calibrate a model and tune
+its thresholds refuses before reading the training corpus, because the
+evaluation set is below its minimum. Nothing here is in use with any patient.
 
 \paragraph{One substantiation source sits in a repository that also ships
 GPT-4-generated text.} We name this first because a reader tracing our sources
