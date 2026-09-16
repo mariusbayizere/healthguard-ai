@@ -1,65 +1,123 @@
-% FUTURE WORK — drafted 2026-09-08. Prose numbers for now; macros later.
+% FUTURE WORK — rewritten 2026-09-17.
+%
+% NO promises about deployment, NO timelines, NO claim that the system will
+% work. What the apparatus makes possible once authored seeds and a clinical
+% lead exist, plus the open questions we cannot answer ourselves.
 
-\section{Future work}
+\section{What the apparatus makes possible, and what it cannot settle}
 \label{sec:future_work}
 
-\subsection{The other three languages}
+Nothing in this section is a plan with a date, and none of it asserts that the
+system will work. The apparatus is built and the corpus is not; what follows is
+what becomes measurable when authored seeds and a clinical lead exist, and what
+remains open even then.
 
-The corpus is Kinyarwanda only, and the three other languages are at three
-different stages. None of them contributes a row to any result in this paper.
+\subsection{What becomes possible once seeds exist}
 
-\paragraph{English and French are drafted but unverified.} Both exist as
-256-row review briefs on the same 128-concept spine, carrying candidate
-phrasings with per-row provenance and review verdicts. Every candidate is
-machine-drafted. No English speaker and no French speaker has ruled on them,
-and the French brief records explicitly that no French speaker has seen any of
-it. They are not a corpus and are not treated as one.
+The instruments in this paper are all written and tested against synthetic
+inputs. Each has a first real use that is currently blocked on the same scarce
+quantity.
 
-The two arms did produce a result worth keeping: built independently against
-the same spine, they lifted the same eleven Kinyarwanda holds on the same
-reasoning --- each being a block on a Kinyarwanda \emph{word} rather than on
-the concept --- and they added the same hold on a concept-level clinical
-question. Two arms agreeing independently is the strongest evidence available
-that those rulings are about concepts rather than about one language.
+\paragraph{The gates become a running constraint rather than a post-hoc audit.}
+The authoring sheet issued to an author already carries the fields the gates
+read --- seed, origin, author, validator, reporter, age group, and the surface
+variation the corpus lacks. Checking a returned sheet is seconds of compute, so
+an author learns that a cell has become too uniform, or that one author now holds
+too much of it, while there is still time to write differently. The gates were
+written against a finished corpus; their useful position is at the point of
+authoring.
 
-\paragraph{Swahili is out for authoring.} A Kiswahili speaker has agreed to
-author the arm, and the brief they received is an authoring brief rather than a
-review brief: it contains no Swahili at all. This is deliberate and follows the
-Kinyarwanda finding --- a fluent draft anchors a speaker to its errors, which is
-why the Kinyarwanda arm was re-authored from scratch rather than corrected. The
-brief carries the English gloss, the person split, the applicability and
-relation rulings and the open clinical questions, and an empty column for the
-speaker's own phrasing. A machine-translated Swahili corpus exists in the frozen
-v1 vocabulary and is deliberately withheld from the speaker; it can be compared
-against the authored phrases afterwards, which is the only order in which the
-comparison means anything.
+\paragraph{The evaluation-set specification becomes a quota sheet.} The power
+derivation fixes how many distinct sentences each gate cell needs. Those numbers
+are an authoring budget once someone is authoring: they say how many independent
+sentences per language and class must exist before any verdict is possible, and
+they are the only honest basis we know of for costing the work.
 
-Two gaps in the Swahili arm are recorded and not yet closed. No Swahili relation
-terms exist anywhere in the project, so every third-person placeholder currently
-has nothing to substitute; and the frame slots --- greetings, time expressions,
-closing lines --- have not been authored either.
+\paragraph{The pipeline runs, or refuses, for a reason that can be acted on.} It
+refuses today because the evaluation set is below its minimum. With a calibration
+split and a test split that meet the specification, the same refusal becomes a
+pass, and the artefacts it writes --- the run manifest, the calibrated
+temperature, the safety-tuned thresholds, the predictions carrying the served
+decision --- are the record a gate verdict would rest on.
 
-\subsection{The evaluation base}
+\paragraph{The probe acquires a comparison.} Our surface-invariance figures are a
+baseline taken on a model trained without surface variation. A model trained on a
+corpus that carries it should flip less often, and that comparison is a real
+result about the corpus rather than about either model. It is also the cheapest
+check we know of that authored diversity had the effect it was supposed to have.
 
-The limitation in Section~\ref{sec:limitations} is the one that most constrains
-what can be claimed, and it is a property of the corpus rather than of the
-model. Enlarging the number of distinct phrases per class, rather than the
-number of rows, is the only thing that would make a recall target of 0.95
-measurable at better than quarter granularity.
+\subsection{Open questions we cannot answer from this project}
 
-\subsection{The unresolved boundary}
+These are not tasks awaiting time. They are questions we are not positioned to
+settle, stated so that someone who is may take them up.
 
-Every configuration trained separated ROUTINE without error and none resolved
-the CRITICAL/URGENT boundary. The next diagnostic is per-sentence rather than
-per-configuration: which of the held-out CRITICAL sentences is read as URGENT,
-and whether it is the same sentence across models. That distinguishes an
-ambiguous concept from a mislabelled one from an artefact of the split, and it
-is one inference pass rather than another training run.
+\paragraph{What is ground truth for urgency assigned from patient-authored
+text?} Every instrument we examined defines its categories on signs a clinician
+observes in a present patient, and rules explicitly against substituting a
+relative's account for observation. A label assigned from a written description
+by someone who has not been examined is therefore not the same construct, even
+when it uses the same category names. Whether a defensible ground truth exists
+for it --- a clinician's judgement given the text alone, agreement between
+several such judgements, or the eventual disposition of the patient --- is a
+clinical and methodological question, not an engineering one. Until it is
+settled, a label in a corpus like ours records what an annotator would say, and
+the gap between that and what a patient needed is unmeasured.
 
-\subsection{Thresholds that are still not sourced}
+\paragraph{How should effective diversity be measured in a synthetic
+low-resource corpus?} We count distinct authored seeds because it is the quantity
+that resists expansion and can be counted without argument. It is a proxy. Two
+seeds may describe the same presentation in different words; one seed may carry
+several distinct clinical situations. A lexical diversity measure computed over
+one row per seed is the direction we chose, with a floor defined relative to a
+pilot that does not yet exist, and we can neither calibrate nor defend that floor
+today. What the right measure is --- and whether any single number can stand for
+diversity in a corpus assembled this way --- is open.
 
-Two numbers in the acceptance gate need an authority this project does not
-have. The CRITICAL recall threshold of 0.95 is inherited and its source is not
-verifiable in this repository. The margin by which CRITICAL precision must
-exceed the degenerate ceiling is a judgement about tolerable over-triage in a
-clinic, and no clinician has made it. Both are reported as placeholders.
+\paragraph{What does calibration mean when confidence never reaches the review
+threshold?} Our service refers any prediction below a confidence threshold to a
+clinician. The artefact we probed never exceeded 0.55 on the critical class, so
+under that rule every case would be referred: the threshold is not separating
+confident from unconfident predictions, it is refusing all of them. A calibration
+procedure fitted on such a model produces a temperature that is technically
+correct and practically inert, and a review threshold set above the model's whole
+confidence range is indistinguishable from having no model. Whether calibration
+should be reported at all in that regime, and what a useful review threshold
+would be when the distribution is that compressed, we do not know.
+
+\subsection{The other three languages, as they stand}
+
+The corpus is Kinyarwanda only, and none of the other three contributes a row to
+any result in this paper.
+
+\paragraph{English and French exist as review briefs, not corpora.} Both are
+machine-drafted candidate phrasings with per-row provenance and review verdicts
+against the same concept spine. No English speaker and no French speaker has
+ruled on them, and the French brief records explicitly that no French speaker has
+seen any of it. The two arms did produce one result worth keeping: built
+independently, they lifted the same eleven Kinyarwanda holds on the same
+reasoning --- each a block on a Kinyarwanda \emph{word} rather than on the
+concept --- and added the same hold on a concept-level clinical question. Two
+arms agreeing independently is the strongest evidence available that those
+rulings concern concepts rather than one language.
+
+\paragraph{Swahili is out for authoring, with no draft supplied.} The brief the
+speaker received contains no Swahili at all: it carries the English gloss, the
+person split, the applicability and relation rulings and the open clinical
+questions, and an empty column. This follows the Kinyarwanda finding that a
+fluent draft anchors a speaker to its errors, which is why that arm was
+re-authored from scratch rather than corrected. A machine-translated Swahili
+corpus exists in the frozen v1 vocabulary and is deliberately withheld until the
+authored phrases exist, which is the only order in which comparing them means
+anything. Two gaps are recorded and not closed: no Swahili relation terms exist
+anywhere in the project, so third-person placeholders have nothing to substitute,
+and the frame slots have not been authored.
+
+\subsection{The diagnostic that costs one inference pass}
+
+Every configuration trained separated the routine class without error and none
+resolved the critical/urgent boundary. The next diagnostic is per-sentence rather
+than per-configuration: which held-out sentences are read as the adjacent class,
+and whether they are the same sentences across configurations. That distinguishes
+an ambiguous concept from a mislabelled one from an artefact of the split. It is
+one inference pass rather than another training run, and it is blocked on nothing
+except a set large enough for the answer to mean something.

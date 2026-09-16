@@ -88,11 +88,13 @@ phrases, drawn without replacement from each phrase's frame combinations. It is
 a rebuild rather than a revision --- a v1 result and a v2 result are not the same
 experiment and do not belong in one table.
 
-\paragraph{Provenance of the phrases is recorded per phrase, and is mixed.} Of
-the 165 phrases in the corpus, 82 (49.7\%) are recorded as authored directly by
-the speaker; 27 (16.4\%) are speaker-derived; 32 (19.4\%) are machine drafts the
-speaker approved; 23 (13.9\%) are machine-derived; one is marked not applicable.
-Taking speaker and speaker-derived together gives 109 of 165 (66.1\%).
+\paragraph{Provenance of the phrases is recorded per phrase, and is mixed.}
+Roughly half the 165 phrases are recorded as authored directly by the speaker;
+the remainder are speaker-derived, machine drafts the speaker approved, or
+machine-derived, with the disposition recorded per phrase in the repository.
+\textbf{We state no percentage.} The per-phrase column exists, but no committed
+script aggregates it, so any split quoted here would be \textbf{NOT
+REPRODUCIBLE}; producing that aggregation is outstanding work.
 
 This matters more than a footnote. The project's own working rules require that
 speaker-authored and machine-drafted material stay distinguishable in the record
@@ -105,8 +107,22 @@ additionally carry an unresolved hold or a flag for clinician review.
 \subsection{Concept taxonomy and clinical anchoring}
 
 Phrases are organised under concepts, and concepts are anchored to published
-clinical guidance wherever guidance exists for the presentation. The concept
-spine holds 128 concepts, of which 70 carry an anchor:
+clinical guidance wherever guidance exists for the presentation.
+
+\paragraph{The concept total is not established, and we do not assert one.} Our
+own audit found the concept count recorded with \textbf{five different values}
+across this repository --- 68, 80, 126, 127 and 128 --- in documents that each
+describe the same spine. A paper cannot quote one of five and call it a
+measurement, so we quote none. Establishing the total against the authoring
+record is outstanding work, and until it is done every count below is stated as
+a count of \emph{anchor records}, which is what the anchor table actually
+enumerates.
+
+\paragraph{The anchored count in earlier drafts was wrong, by our own table.}
+Those drafts said seventy concepts carry an anchor. The table beneath the
+sentence lists 24 + 15 + 11 = \textbf{50 concepts with a document anchor}, and a
+fourth row of 20 that are \emph{clinician-defined with no anchor located} ---
+which the total of 70 silently absorbed. The corrected reading:
 
 \begin{center}
 \begin{tabular}{lr}
@@ -118,13 +134,19 @@ WHO--ICRC Basic Emergency Care 2018 (CC BY-NC-SA 3.0 IGO) & 15 \\
 WHO Managing Complications in Pregnancy and Childbirth 2017 & 11 \\
 Clinician-defined, no WHO anchor available & 20 \\
 \midrule
-Anchored concepts & 70 \\
-Unanchored (inherited v1 corpus positions) & 58 \\
+Concepts with a document anchor & 50 \\
+Clinician-defined, no anchor located & 20 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The 58 unanchored concepts are the positions inherited from the v1 corpus, which
+\textbf{These are counts of anchor records, not verified against the source
+documents.} No committed script aggregates them, and our own audit records the
+concept total with five different values, so the table states what the anchor
+record holds and nothing stronger. Verifying it against the guidance documents is
+outstanding work.
+
+The remaining spine positions are inherited from the v1 corpus, which
 was catalogued without recorded concepts. They have no clinical reference and no
 English gloss of their own; where this work needed a gloss for them it took the
 frozen v1 English string at the same corpus position, which describes a

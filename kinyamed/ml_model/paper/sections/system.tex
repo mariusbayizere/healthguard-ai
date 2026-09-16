@@ -28,9 +28,11 @@ condition at present.
 classify, or inference times out, the triage endpoint returns an error carrying a
 manual-triage instruction to staff, and \emph{nothing is written}: no symptom
 report, no urgency, no queue entry. An earlier build served a keyword matcher
-whenever no model was configured; measured on the frozen Kinyarwanda holdout it
-caught 5.7\% of critical cases and sent 94.3\% of them to the routine queue with
-a confident message. A classifier that is wrong in the dangerous direction is
+whenever no model was configured. Measured on the frozen Kinyarwanda holdout it
+caught a small minority of critical cases and sent the large majority of them to
+the routine queue with a confident message; the exact rates came from a Phase~0
+script that was never committed and are therefore \textbf{NOT REPRODUCIBLE}, so
+we state the direction and not the figures. A classifier that is wrong in the dangerous direction is
 worse than no classifier, because nobody triages a patient the system has already
 triaged. The fallback was removed, and the absence of a model now produces a
 refusal rather than a guess.
@@ -122,7 +124,9 @@ rather than two spellings.
 
 \paragraph{Why the generator refuses rather than approximating.} The earlier
 corpus produced mixed rows by swapping a whole phrase at one syntactic seam,
-which accounted for 48\% of its rows and added no distinct clinical content. The
+which accounted for nearly half its rows (recorded in
+\texttt{docs/language-resources.md}; no committed script aggregates it) and added
+no distinct clinical content. The
 model that replaces it inserts a single content morpheme into an intact matrix
 utterance and integrates it morphologically. That requires a noun class, and a
 noun class is a fact about a language that cannot be inferred from the corpus.

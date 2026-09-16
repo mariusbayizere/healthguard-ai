@@ -330,11 +330,13 @@ phrases, drawn without replacement from each phrase's frame combinations. It is
 a rebuild rather than a revision — a v1 result and a v2 result are not the same
 experiment and do not belong in one table.
 
-Provenance of the phrases is recorded per phrase, and is mixed. Of
-the 165 phrases in the corpus, 82 (49.7%) are recorded as authored directly by
-the speaker; 27 (16.4%) are speaker-derived; 32 (19.4%) are machine drafts the
-speaker approved; 23 (13.9%) are machine-derived; one is marked not applicable.
-Taking speaker and speaker-derived together gives 109 of 165 (66.1%).
+Provenance of the phrases is recorded per phrase, and is mixed.
+Roughly half the 165 phrases are recorded as authored directly by the speaker;
+the remainder are speaker-derived, machine drafts the speaker approved, or
+machine-derived, with the disposition recorded per phrase in the repository.
+We state no percentage. The per-phrase column exists, but no committed
+script aggregates it, so any split quoted here would be NOT
+REPRODUCIBLE; producing that aggregation is outstanding work.
 
 This matters more than a footnote. The project's own working rules require that
 speaker-authored and machine-drafted material stay distinguishable in the record
@@ -347,8 +349,22 @@ additionally carry an unresolved hold or a flag for clinician review.
 ## CONCEPT TAXONOMY AND CLINICAL ANCHORING
 
 Phrases are organised under concepts, and concepts are anchored to published
-clinical guidance wherever guidance exists for the presentation. The concept
-spine holds 128 concepts, of which 70 carry an anchor:
+clinical guidance wherever guidance exists for the presentation.
+
+The concept total is not established, and we do not assert one. Our
+own audit found the concept count recorded with five different values
+across this repository — 68, 80, 126, 127 and 128 — in documents that each
+describe the same spine. A paper cannot quote one of five and call it a
+measurement, so we quote none. Establishing the total against the authoring
+record is outstanding work, and until it is done every count below is stated as
+a count of anchor records, which is what the anchor table actually
+enumerates.
+
+The anchored count in earlier drafts was wrong, by our own table.
+Those drafts said seventy concepts carry an anchor. The table beneath the
+sentence lists 24 + 15 + 11 = 50 concepts with a document anchor, and a
+fourth row of 20 that are clinician-defined with no anchor located —
+which the total of 70 silently absorbed. The corrected reading:
 
 lr
 
@@ -359,10 +375,16 @@ WHO--ICRC Basic Emergency Care 2018 (CC BY-NC-SA 3.0 IGO)  |  15
 WHO Managing Complications in Pregnancy and Childbirth 2017  |  11 
 Clinician-defined, no WHO anchor available  |  20 
 
-Anchored concepts  |  70 
-Unanchored (inherited v1 corpus positions)  |  58 
+Concepts with a document anchor  |  50 
+Clinician-defined, no anchor located  |  20 
 
-The 58 unanchored concepts are the positions inherited from the v1 corpus, which
+These are counts of anchor records, not verified against the source
+documents. No committed script aggregates them, and our own audit records the
+concept total with five different values, so the table states what the anchor
+record holds and nothing stronger. Verifying it against the guidance documents is
+outstanding work.
+
+The remaining spine positions are inherited from the v1 corpus, which
 was catalogued without recorded concepts. They have no clinical reference and no
 English gloss of their own; where this work needed a gloss for them it took the
 frozen v1 English string at the same corpus position, which describes a
@@ -679,9 +701,11 @@ It fails closed. When no model is loaded, or the model cannot
 classify, or inference times out, the triage endpoint returns an error carrying a
 manual-triage instruction to staff, and nothing is written: no symptom
 report, no urgency, no queue entry. An earlier build served a keyword matcher
-whenever no model was configured; measured on the frozen Kinyarwanda holdout it
-caught 5.7% of critical cases and sent 94.3% of them to the routine queue with
-a confident message. A classifier that is wrong in the dangerous direction is
+whenever no model was configured. Measured on the frozen Kinyarwanda holdout it
+caught a small minority of critical cases and sent the large majority of them to
+the routine queue with a confident message; the exact rates came from a Phase 0
+script that was never committed and are therefore NOT REPRODUCIBLE, so
+we state the direction and not the figures. A classifier that is wrong in the dangerous direction is
 worse than no classifier, because nobody triages a patient the system has already
 triaged. The fallback was removed, and the absence of a model now produces a
 refusal rather than a guess.
@@ -769,7 +793,9 @@ rather than two spellings.
 
 Why the generator refuses rather than approximating. The earlier
 corpus produced mixed rows by swapping a whole phrase at one syntactic seam,
-which accounted for 48% of its rows and added no distinct clinical content. The
+which accounted for nearly half its rows (recorded in
+docs/language-resources.md; no committed script aggregates it) and added
+no distinct clinical content. The
 model that replaces it inserts a single content morpheme into an intact matrix
 utterance and integrates it morphologically. That requires a noun class, and a
 noun class is a fact about a language that cannot be inferred from the corpus.
@@ -785,9 +811,74 @@ shipped a four-noun inventory as a bilingual corpus.
 
 sec:discussion
 
+## WHY A ROW COUNT CANNOT CONSTRAIN A CORPUS
+
+The finding in Section sec:res:seeds is easy to read as a local accident of
+our own specification. It is not, and the reason is an asymmetry present in every
+pipeline of this kind.
+
+The two quantities have costs that differ by orders of magnitude. A
+row is produced by rendering a frame around an existing phrase: our generator
+emits roughly 7,700 per second, and the marginal cost of the millionth row is
+indistinguishable from the cost of the first. A seed is a sentence someone who
+speaks the language writes, at minutes each, and no amount of compute
+substitutes. A requirement that names the first quantity therefore constrains
+nothing that is scarce, and one that names the second constrains the thing that
+actually bounds what a model can learn.
+
+The substitution is invisible in every aggregate a reviewer normally
+sees. Row count, class balance, language balance, mean length and duplicate rate
+all look healthy on our corpus — the generator's own quality targets passed
+before any gate ran. What fails is a property no aggregate exposes: how many
+independent things the corpus says. A reader cannot see it without being told the
+distinct-seed count, which is why we state it at the head of every report and
+beside every figure.
+
+The general form. For any templated, augmented or model-expanded
+corpus, expansion is cheap and authoring is not; so a requirement written in the
+expanded unit is satisfiable without producing any of the scarce unit. The remedy
+is not a larger row target. It is to write the requirement in the scarce unit —
+distinct authored items, per language, per cell — and let the row count follow
+as a consequence. We would apply the same test to any corpus claim we read: ask
+what the expensive quantity is, and whether the stated requirement mentions it.
+
+## WHY CLUSTER STRUCTURE, NOT ROW COUNT, GOVERNS AN EVALUATION SET
+
+The same asymmetry decides what an evaluation set can establish, and here it has
+an exact statistical form rather than an economic one.
+
+Rows from one sentence are not independent observations. Our
+evaluation set holds 17,942 rows built from nine distinct sentences. Frame
+permutations of one sentence share its vocabulary, its syntax and its label;
+whatever the model has learned about that sentence, it applies to all of its
+permutations at once. The effective sample size is therefore governed by the
+number of clusters, not the number of rows, and the discrepancy here is three
+orders of magnitude.
+
+An interval computed over rows is not merely optimistic; it is
+answering a different question. Resampling rows estimates how the number would
+move if we drew more permutations of these nine sentences — a quantity nobody
+wants to know. Resampling sentences estimates how it would move on nine different
+sentences, which is the question a deployment decision asks. Our gate therefore
+counts distinct sentences per cell, resamples sentences for every interval, and
+refuses a cell whose distinct-sentence count falls below the size its threshold
+requires. On this set it refuses 38 cells and reports nothing, which is the
+correct output rather than a failure of the instrument.
+
+What this implies for low-resource evaluation generally. A test set
+assembled by expanding a small seed inventory can be made arbitrarily large and
+will not become more informative. Where a corpus is built this way — which in
+low-resource settings it very often is — the honest reporting unit is the
+distinct source count per cell, and a paper that reports only row counts has not
+told the reader what its numbers rest on. The cost of the guarantee is real and
+should be stated openly: unioning a concept's phrasings into one cluster, as
+Section sec:discussion describes below, reduces the number of independent
+evaluation units, and that reduction is the price of a leakage guarantee rather
+than an accident of it.
+
 generated/finding_gate_degeneracy
 
-## WHY THE GATE FAILURE GENERALISES
+## WHY A SINGLE-METRIC GATE FAILS ON AN ASYMMETRIC-COST TASK
 
 The specific failure is easy to dismiss as a badly chosen threshold. The general
 form is not particular to triage.
@@ -817,9 +908,12 @@ above the constant we had chosen. The lesson is not that the constant was too
 low but that it was a constant: the ceiling moves with the evaluation set's
 class composition.
 
-The gate certified the worse of two models. The rejected model was
-better on macro F1 and kept all three classes alive; the accepted one had
-abandoned an urgency class. Any process that trusted the gate — an automated
+The gate certified the worse of two configurations. The rejected
+configuration kept all three classes alive; the accepted one had abandoned an
+urgency class entirely. We make no claim about which would perform better
+clinically — both were scored on nine sentences — but a gate that prefers the
+one that has stopped discriminating is not measuring what it was written to
+protect. Any process that trusted the gate — an automated
 promotion step, a continuous-integration check, a tired reviewer — would have
 shipped the wrong model with a passing test to point at.
 
@@ -836,7 +930,10 @@ in a carer's. They describe the same presentation and carry the same label, so
 a holdout that puts one in training and the other in evaluation is not measuring
 generalisation to an unseen presentation. Measured on the authored inventory,
 60 of the 61 concepts with both persons authored had them in separate
-phrase groups.
+phrase groups — a count recorded in docs/phrase-group-closure.md when
+the closure was designed. No committed script recomputes it, so the figure is
+NOT REPRODUCIBLE as it stands; the mechanism it demonstrates does not
+depend on the exact count.
 
 No similarity rule could have caught this, and the reason is
 structural. A third-person phrase begins with the relation placeholder and a
@@ -887,6 +984,48 @@ leaving between 3.7 and 10.8 million trainable parameters. A budget of a few
 hundred optimisation steps is not a compromise forced by the hardware but the
 right size for the problem, and the run that preceded these was abandoned in
 part because it had been budgeted at roughly forty times what the task needed.
+
+## WHY THE TWO SILENT FAILURE MODES MATTER TO ANYONE DEPLOYING A
+LOW-RESOURCE CLINICAL MODEL
+
+Both failures in Section sec:res:silent share a property that makes them
+dangerous in exactly the settings this kind of system is built for: every signal
+an operator would normally check stays healthy.
+
+A mis-shipped tokenizer is a packaging failure, not a modelling one.
+A model directory is copied, renamed, repacked and moved far more often than it
+is retrained, and the tokenizer sits beside the weights rather than inside them.
+When it goes missing the loader does not raise: it returns a vocabulary of five
+tokens and the model answers its class prior on input it cannot read, with
+well-formed probabilities, deterministic outputs and a correct label order. In a
+clinic that failure looks like a working service. We mistook it for a collapsed
+model in our own harness, and we caught it only because it contradicted a
+confusion matrix we had recorded earlier — which is to say, we caught it by
+having an older measurement to disagree with, not by inspection. Any deployment
+of a model whose inputs are in a script or language the operators cannot read
+should verify the encoding at start-up: the vocabulary size and the
+unknown-token rate on a fixed probe string cost nothing to check and are
+decisive.
+
+Surface fragility is a property of the training data that the model
+inherits silently. A corpus generated to a template has uniform case,
+punctuation and spacing, and contains no typographical noise. A model trained on
+it can change its answer for a third of inputs on capitalisation alone, and no
+metric computed on that same corpus will show it, because the evaluation rows are
+as uniform as the training rows. The check is cheap — perturb the surface and
+count class changes — and the result is interpretable only against the corpus:
+the variant our tokenizer normalises away changed nothing, which is what
+localises the cause in the data. For low-resource clinical text, where patients
+type on phone keyboards in a language with agglutinative morphology and no
+autocorrect, surface variation is not an edge case but the ordinary condition of
+the input.
+
+Neither is visible from the model's own outputs. This is the common
+shape, and it is why we report both: a system can be wrong in a way that no
+confidence score, no probability distribution and no accuracy figure reveals.
+What detected each was a property check against something outside the model —
+the encoding of its own input, and the invariance of its answer under a
+transformation that should not matter.
 
 ## TWO FAILURES WITH ONE SHAPE
 
@@ -1155,70 +1294,124 @@ rows, no doubled spacing and no typographical noise whatsoever. We report both
 as deployment-relevant properties rather than as quality measurements: the
 evaluation set that would license a quality claim does not yet exist.
 
-## FUTURE WORK
+## WHAT THE APPARATUS MAKES POSSIBLE, AND WHAT IT CANNOT SETTLE
 
 sec:future_work
 
-## THE OTHER THREE LANGUAGES
+Nothing in this section is a plan with a date, and none of it asserts that the
+system will work. The apparatus is built and the corpus is not; what follows is
+what becomes measurable when authored seeds and a clinical lead exist, and what
+remains open even then.
 
-The corpus is Kinyarwanda only, and the three other languages are at three
-different stages. None of them contributes a row to any result in this paper.
+## WHAT BECOMES POSSIBLE ONCE SEEDS EXIST
 
-English and French are drafted but unverified. Both exist as
-256-row review briefs on the same 128-concept spine, carrying candidate
-phrasings with per-row provenance and review verdicts. Every candidate is
-machine-drafted. No English speaker and no French speaker has ruled on them,
-and the French brief records explicitly that no French speaker has seen any of
-it. They are not a corpus and are not treated as one.
+The instruments in this paper are all written and tested against synthetic
+inputs. Each has a first real use that is currently blocked on the same scarce
+quantity.
 
-The two arms did produce a result worth keeping: built independently against
-the same spine, they lifted the same eleven Kinyarwanda holds on the same
-reasoning — each being a block on a Kinyarwanda word rather than on
-the concept — and they added the same hold on a concept-level clinical
-question. Two arms agreeing independently is the strongest evidence available
-that those rulings are about concepts rather than about one language.
+The gates become a running constraint rather than a post-hoc audit.
+The authoring sheet issued to an author already carries the fields the gates
+read — seed, origin, author, validator, reporter, age group, and the surface
+variation the corpus lacks. Checking a returned sheet is seconds of compute, so
+an author learns that a cell has become too uniform, or that one author now holds
+too much of it, while there is still time to write differently. The gates were
+written against a finished corpus; their useful position is at the point of
+authoring.
 
-Swahili is out for authoring. A Kiswahili speaker has agreed to
-author the arm, and the brief they received is an authoring brief rather than a
-review brief: it contains no Swahili at all. This is deliberate and follows the
-Kinyarwanda finding — a fluent draft anchors a speaker to its errors, which is
-why the Kinyarwanda arm was re-authored from scratch rather than corrected. The
-brief carries the English gloss, the person split, the applicability and
-relation rulings and the open clinical questions, and an empty column for the
-speaker's own phrasing. A machine-translated Swahili corpus exists in the frozen
-v1 vocabulary and is deliberately withheld from the speaker; it can be compared
-against the authored phrases afterwards, which is the only order in which the
-comparison means anything.
+The evaluation-set specification becomes a quota sheet. The power
+derivation fixes how many distinct sentences each gate cell needs. Those numbers
+are an authoring budget once someone is authoring: they say how many independent
+sentences per language and class must exist before any verdict is possible, and
+they are the only honest basis we know of for costing the work.
 
-Two gaps in the Swahili arm are recorded and not yet closed. No Swahili relation
-terms exist anywhere in the project, so every third-person placeholder currently
-has nothing to substitute; and the frame slots — greetings, time expressions,
-closing lines — have not been authored either.
+The pipeline runs, or refuses, for a reason that can be acted on. It
+refuses today because the evaluation set is below its minimum. With a calibration
+split and a test split that meet the specification, the same refusal becomes a
+pass, and the artefacts it writes — the run manifest, the calibrated
+temperature, the safety-tuned thresholds, the predictions carrying the served
+decision — are the record a gate verdict would rest on.
 
-## THE EVALUATION BASE
+The probe acquires a comparison. Our surface-invariance figures are a
+baseline taken on a model trained without surface variation. A model trained on a
+corpus that carries it should flip less often, and that comparison is a real
+result about the corpus rather than about either model. It is also the cheapest
+check we know of that authored diversity had the effect it was supposed to have.
 
-The limitation in Section sec:limitations is the one that most constrains
-what can be claimed, and it is a property of the corpus rather than of the
-model. Enlarging the number of distinct phrases per class, rather than the
-number of rows, is the only thing that would make a recall target of 0.95
-measurable at better than quarter granularity.
+## OPEN QUESTIONS WE CANNOT ANSWER FROM THIS PROJECT
 
-## THE UNRESOLVED BOUNDARY
+These are not tasks awaiting time. They are questions we are not positioned to
+settle, stated so that someone who is may take them up.
 
-Every configuration trained separated ROUTINE without error and none resolved
-the CRITICAL/URGENT boundary. The next diagnostic is per-sentence rather than
-per-configuration: which of the held-out CRITICAL sentences is read as URGENT,
-and whether it is the same sentence across models. That distinguishes an
-ambiguous concept from a mislabelled one from an artefact of the split, and it
-is one inference pass rather than another training run.
+What is ground truth for urgency assigned from patient-authored
+text? Every instrument we examined defines its categories on signs a clinician
+observes in a present patient, and rules explicitly against substituting a
+relative's account for observation. A label assigned from a written description
+by someone who has not been examined is therefore not the same construct, even
+when it uses the same category names. Whether a defensible ground truth exists
+for it — a clinician's judgement given the text alone, agreement between
+several such judgements, or the eventual disposition of the patient — is a
+clinical and methodological question, not an engineering one. Until it is
+settled, a label in a corpus like ours records what an annotator would say, and
+the gap between that and what a patient needed is unmeasured.
 
-## THRESHOLDS THAT ARE STILL NOT SOURCED
+How should effective diversity be measured in a synthetic
+low-resource corpus? We count distinct authored seeds because it is the quantity
+that resists expansion and can be counted without argument. It is a proxy. Two
+seeds may describe the same presentation in different words; one seed may carry
+several distinct clinical situations. A lexical diversity measure computed over
+one row per seed is the direction we chose, with a floor defined relative to a
+pilot that does not yet exist, and we can neither calibrate nor defend that floor
+today. What the right measure is — and whether any single number can stand for
+diversity in a corpus assembled this way — is open.
 
-Two numbers in the acceptance gate need an authority this project does not
-have. The CRITICAL recall threshold of 0.95 is inherited and its source is not
-verifiable in this repository. The margin by which CRITICAL precision must
-exceed the degenerate ceiling is a judgement about tolerable over-triage in a
-clinic, and no clinician has made it. Both are reported as placeholders.
+What does calibration mean when confidence never reaches the review
+threshold? Our service refers any prediction below a confidence threshold to a
+clinician. The artefact we probed never exceeded 0.55 on the critical class, so
+under that rule every case would be referred: the threshold is not separating
+confident from unconfident predictions, it is refusing all of them. A calibration
+procedure fitted on such a model produces a temperature that is technically
+correct and practically inert, and a review threshold set above the model's whole
+confidence range is indistinguishable from having no model. Whether calibration
+should be reported at all in that regime, and what a useful review threshold
+would be when the distribution is that compressed, we do not know.
+
+## THE OTHER THREE LANGUAGES, AS THEY STAND
+
+The corpus is Kinyarwanda only, and none of the other three contributes a row to
+any result in this paper.
+
+English and French exist as review briefs, not corpora. Both are
+machine-drafted candidate phrasings with per-row provenance and review verdicts
+against the same concept spine. No English speaker and no French speaker has
+ruled on them, and the French brief records explicitly that no French speaker has
+seen any of it. The two arms did produce one result worth keeping: built
+independently, they lifted the same eleven Kinyarwanda holds on the same
+reasoning — each a block on a Kinyarwanda word rather than on the
+concept — and added the same hold on a concept-level clinical question. Two
+arms agreeing independently is the strongest evidence available that those
+rulings concern concepts rather than one language.
+
+Swahili is out for authoring, with no draft supplied. The brief the
+speaker received contains no Swahili at all: it carries the English gloss, the
+person split, the applicability and relation rulings and the open clinical
+questions, and an empty column. This follows the Kinyarwanda finding that a
+fluent draft anchors a speaker to its errors, which is why that arm was
+re-authored from scratch rather than corrected. A machine-translated Swahili
+corpus exists in the frozen v1 vocabulary and is deliberately withheld until the
+authored phrases exist, which is the only order in which comparing them means
+anything. Two gaps are recorded and not closed: no Swahili relation terms exist
+anywhere in the project, so third-person placeholders have nothing to substitute,
+and the frame slots have not been authored.
+
+## THE DIAGNOSTIC THAT COSTS ONE INFERENCE PASS
+
+Every configuration trained separated the routine class without error and none
+resolved the critical/urgent boundary. The next diagnostic is per-sentence rather
+than per-configuration: which held-out sentences are read as the adjacent class,
+and whether they are the same sentences across configurations. That distinguishes
+an ambiguous concept from a mislabelled one from an artefact of the split. It is
+one inference pass rather than another training run, and it is blocked on nothing
+except a set large enough for the answer to mean something.
 
 ## CONCLUSION
 
