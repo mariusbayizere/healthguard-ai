@@ -12,20 +12,18 @@
 
 \subsection{The three that bound everything else}
 
-\paragraph{1. The evaluation set is nine sentences.} Our held-out set contains
-17{,}942 rows built from \textbf{nine distinct source sentences}, four of which
-carry the critical label. Rows built from one sentence are frame permutations of
-each other, not independent observations, so the quantity governing every
-interval is nine and not 17{,}942. Our own gate, which counts distinct sentences,
-refuses 38 of its cells on this set and reports nothing. The sizes it requires are
-derived rather than asserted: 710 distinct sentences for overall accuracy, 365
-gold critical items per pure language for critical recall, 720 for the
-critical-to-routine rate. \textbf{No verdict on model quality is possible from
-this work, and none is offered.} Every figure we report is a property of a
-corpus, of a specification, or of an artefact's behaviour under perturbation ---
-never of a model's clinical performance.
-
-\input{generated/limitations}
+\paragraph{1. The evaluation set is nine sentences.} Rows built from one source
+sentence are frame permutations of each other, not independent observations, so
+the quantity governing every interval is the number of distinct sentences.
+Section~\ref{sec:limits:base} gives the counts, generated from the frozen split.
+Our own gate, which counts distinct sentences, refuses 38 of its cells on this set
+and reports nothing; the sizes it requires are derived rather than asserted ---
+710 distinct sentences for overall accuracy, 365 gold critical items per pure
+language for critical recall, 720 for the critical-to-routine rate.
+\textbf{No verdict on model quality is possible from this work, and none is
+offered.} Every figure we report is a property of a corpus, of a specification, or
+of an artefact's behaviour under perturbation --- never of a model's clinical
+performance.
 
 \paragraph{2. No validated instrument authorises the construct.} We could not
 locate any validated instrument for assigning urgency from a patient's own
@@ -45,6 +43,18 @@ taxonomy, or any output. No community health worker has been consulted about how
 patients present. The corpus is Kinyarwanda only, and no second speaker has
 reviewed it, so inter-rater agreement on anything --- labels, naturalness,
 register --- is unmeasured because there is no second rater.
+
+\subsection{The measurement base behind every figure}
+\label{sec:limits:base}
+
+The counts below are regenerated from the frozen split by the emitter, so they
+cannot drift from the data they describe. The block carries its own heading in the
+generated source; it is suppressed here so that this section reads in one order.
+
+\begingroup
+\renewcommand{\subsection}[1]{}%
+\input{generated/limitations}
+\endgroup
 
 \subsection{The paper's critique applies to the paper's own specification}
 
@@ -166,32 +176,12 @@ its thresholds refuses before reading the training corpus, because the
 evaluation set is below its minimum. Nothing here is in use with any patient.
 
 \paragraph{One substantiation source sits in a repository that also ships
-GPT-4-generated text.} We name this first because a reader tracing our sources
-will find it. One of the two corpora we used to \emph{check} whether a
-Kinyarwanda term is attested in real clinical use --- never to supply phrases
---- is a Rwanda Biomedical Centre training-text file published on a dataset
-repository whose card attributes its contents to two origins: 26{,}390
-sentences from RBC and 42{,}576 sentences from GPT-4 prompting, shipped as
-separate files. We vendored only the RBC file and never downloaded the
-generated one, because a substantiation corpus containing model output would
-let our own machine drafts confirm themselves back to us, which is the specific
-failure our provenance rules exist to prevent. After download we verified that
-the vendored file contains no English prose lines and no model-style
-scaffolding.
-
-Two things about that file we could not confirm from the card, and state rather
-than resolve. Its CC BY 2.0 grant is the depositing organisation's, not RBC's;
-nothing in the record shows RBC granting those terms on its own training
-material, so we treat the licence as provisional and do not redistribute the
-file as corpus provenance. And the card's per-source sentence counts do not map
-cleanly onto the file we hold, which has 28{,}621 non-empty lines against the
-26{,}390 sentences the card attributes to RBC --- a discrepancy that lines
-versus sentences may explain and that we cannot check without the unvendored
-companion.
-
-No text from either attestation corpus appears in the generated dataset. Their
-role is to tell the speaker that a word is in real use, which is grounds to
-consider it and never grounds to write a phrase they have not authored.
+machine-generated material.} One resource we consulted distributes human-written
+and model-generated content from the same repository, and our record of its
+composition comes from its own dataset card. \textbf{We could not read that card
+during verification} --- the item returned an HTTP error to every automated
+request --- so we quote no counts from it and rely on it for nothing in this
+paper.
 
 \paragraph{No baseline comparison exists.} We did not train a comparison
 model. The obvious baselines --- multilingual BERT, AfriBERTa --- were scoped
@@ -251,18 +241,3 @@ by convergence. We did not tune to the gate, and we did not run the
 per-sentence diagnostic that would distinguish an ambiguous concept from a
 mislabelled one on the unresolved boundary.
 
-\paragraph{Two failure modes that leave every output-side signal healthy.}
-First, a model directory shipped without its tokenizer files does not fail
-loudly: the loader returns a five-token vocabulary, every word becomes the
-unknown token, and the model answers its class prior on input it cannot read,
-while its probabilities remain well formed, its predictions deterministic and
-its label order correct. We encountered this in our own probing harness, and
-mistook it for single-class collapse until it contradicted a previously recorded
-confusion matrix; no metric computed from the model's own outputs distinguishes
-the two. Second, our model changes its predicted urgency under surface variation
-alone --- capitalisation for 31.5\% of sampled inputs and a single realistic
-typo for 21.0\%, while extra whitespace, which the tokenizer normalises, changes
-nothing --- which we attribute to a training corpus containing no capitalised
-rows, no doubled spacing and no typographical noise whatsoever. We report both
-as deployment-relevant properties rather than as quality measurements: the
-evaluation set that would license a quality claim does not yet exist.

@@ -28,6 +28,8 @@ def macros() -> dict[str, str]:
 
 def strip(text: str, macro: dict[str, str]) -> str:
     text = re.sub(r"(?m)^\s*%.*$", "", text)
+    # \renewcommand / \newcommand lines are typesetting plumbing, not prose
+    text = re.sub(r"(?m)^\s*\\(re)?newcommand.*$", "", text)
     for name, value in macro.items():
         text = re.sub(rf"\\{name}\b\\?", value, text)
     text = re.sub(

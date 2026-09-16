@@ -1,0 +1,29 @@
+We set out to build an urgency classifier for patient-voice Kinyarwanda, and report
+what we found instead.
+
+Our corpus requirement asked for one million examples. Generation produced them in
+130 seconds. Against the nine corpus-quality gates in the same specification, that
+corpus fails four as generated, and six where its rows can be attributed to a source
+sentence. The binding gate counts distinct authored seed phrases rather than rows,
+and our generator has 165: at that inventory the largest corpus passing every gate
+is zero rows, at any row count. The distance to the target is 19,835 authored
+sentences, not 999,000 rows. Expansion is the cheap operation in any templated or
+model-expanded corpus, so a requirement written in rows leaves unconstrained the one
+quantity that bounds what a model can learn.
+
+Two further negatives follow. An evaluation set of 17,942 rows built from nine
+distinct sentences supports no verdict: our gate, which counts distinct sentences
+and resamples them for every interval, refuses 38 of its cells and reports nothing.
+A model trained on a corpus of uniform surface form changes its predicted urgency
+under surface variation alone -- 31.5% of inputs under capitalisation, 21.0% under
+one typo -- while extra whitespace, which the tokenizer normalises, changes nothing.
+
+We also report a failure mode that leaves every output-side signal healthy: a model
+shipped without its tokenizer loads without error, returns a five-token vocabulary,
+and answers its class prior on unreadable input, with well-formed probabilities and
+deterministic predictions.
+
+We report no accuracy or calibration figure: no evaluation set meeting our
+specification exists, and the trained artefact is an audit artefact, not a baseline.
+The contribution is the apparatus and the negative results it produced, each
+reproducible from a clean clone with one command.

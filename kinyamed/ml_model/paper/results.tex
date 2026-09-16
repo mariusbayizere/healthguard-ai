@@ -124,14 +124,12 @@ always answers the most frequent class scores 0.4995 on that evaluation set and
 any future number is read against them.
 
 \paragraph{A single-condition gate certifies the wrong model.} Our first
-acceptance gate was one condition, recall on the critical class. A configuration
-passed it at \DegenerateRunCriticalRecall\ while reaching
-\DegenerateRunUrgentRecall\ on the urgent class, with critical-class precision
-\DegenerateRunPrecision\ --- below the \DegenerateCeiling\ that merging the two
-classes earns for free on the same rows. We report this as a defect in gate
-design, not as a measurement of either model: both figures come from the
-nine-sentence set above and support no quality conclusion. The replacement gate
-carries three conditions, two derived and one declared unsourced.
+acceptance gate was one condition, recall on the critical class, and a
+configuration passed it while abandoning the urgent class entirely --- scoring, on
+the protected class, below what merging the two classes earns for free on the same
+rows. The figures, their closed form and the three-condition gate that replaced
+them are in Section~\ref{sec:disc:gate}; they are a defect in gate design and
+support no quality conclusion about any configuration.
 
 \subsection{Two failure modes that leave every output-side signal healthy}
 \label{sec:res:silent}

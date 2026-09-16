@@ -215,14 +215,16 @@ source we cannot name would be inconsistent in a paper about provenance. The
 assessments are in the repository.
 
 Community health worker questions. The most useful Kinyarwanda
-clinical resource we found is a set of real community health worker questions
-with Kinyarwanda originals and clinician answers, released as a 524-question
-subset under CC BY 4.0 alongside a study of large language models for frontline
-healthcare support in low-resource settings. The full collection of 5,609
-questions is not released; the data availability statement names an access route
-rather than a download. We read the statement at source, and this is one of the
-cases where doing so mattered: the headline figure in the abstract is not the
-figure that was released.
+clinical resource we found is a set of real community health worker questions with
+Kinyarwanda originals and clinician answers, a subset of which is released
+alongside a study of large language models for frontline healthcare support in
+low-resource settings rutunda2026llm. We quote no counts and no
+licence for it. The deposited item returned an HTTP error to every automated
+request during verification, so the size of the released subset, the size of the
+full collection and the licence terms are recorded in our own audit notes and were
+never read from the item itself. What we can say without the item is what the
+study states: the released portion is a subset, and an access route rather than a
+download governs the rest.
 
 That resource is close to ours in setting and different in kind. It records what
 a health worker asks a clinician; we need what a patient says to a health worker.
@@ -380,9 +382,12 @@ We flag one design point in advance: agreement must be computed at the
 concept level, since rows are frame permutations and scoring them as
 independent items would inflate any figure obtained.
 
-IMCI is copyright ``all rights reserved'' and no text is reproduced from it.
-Clinical concepts are facts and are cited rather than copied. The BEC and MCPC
-material is CC BY-NC-SA 3.0 IGO.
+No text is reproduced from any guidance document consulted during construction:
+a clinical fact may be cited, the wording a document expresses it in may not be
+copied. We name no document and quote no licence here, for the reason given in
+Section sec:related: the assignments that would justify naming them have
+never been checked against the sources. The licence analysis that produced the
+no-reproduction rule is recorded in the repository.
 
 ## PERSON, AND THE RULINGS THAT REMOVE ROWS
 
@@ -609,14 +614,12 @@ majority_baseline.py, labels only, no model). We record these so that
 any future number is read against them.
 
 A single-condition gate certifies the wrong model. Our first
-acceptance gate was one condition, recall on the critical class. A configuration
-passed it at 0.9749 while reaching
-0.0083 on the urgent class, with critical-class precision
-0.5337 — below the 0.5349 that merging the two
-classes earns for free on the same rows. We report this as a defect in gate
-design, not as a measurement of either model: both figures come from the
-nine-sentence set above and support no quality conclusion. The replacement gate
-carries three conditions, two derived and one declared unsourced.
+acceptance gate was one condition, recall on the critical class, and a
+configuration passed it while abandoning the urgent class entirely — scoring, on
+the protected class, below what merging the two classes earns for free on the same
+rows. The figures, their closed form and the three-condition gate that replaced
+them are in Section sec:disc:gate; they are a defect in gate design and
+support no quality conclusion about any configuration.
 
 ## TWO FAILURE MODES THAT LEAVE EVERY OUTPUT-SIDE SIGNAL HEALTHY
 
@@ -847,11 +850,13 @@ low-resource settings it very often is — the honest reporting unit is the
 distinct source count per cell, and a paper that reports only row counts has not
 told the reader what its numbers rest on. The cost of the guarantee is real and
 should be stated openly: unioning a concept's phrasings into one cluster, as
-Section sec:discussion describes below, reduces the number of independent
+Section sec:disc:leakage describes, reduces the number of independent
 evaluation units, and that reduction is the price of a leakage guarantee rather
 than an accident of it.
 
-## THE ACCEPTANCE GATE THIS PROJECT REPLACED ITS FIRST ONE WITH
+## WHY A SINGLE-METRIC GATE FAILS, AND WHAT REPLACED OURS
+
+sec:disc:gate
 
 The gate below is the project's own acceptance gate, generated from the record
 that defines it. Two points about its numbers, since this paper is largely about
@@ -863,10 +868,7 @@ is a clinical judgement nobody has made. The gate states which is which, which i
 the property we would ask of any gate.
 
 generated/gate_derivation
-
 generated/finding_gate_degeneracy
-
-## WHY A SINGLE-METRIC GATE FAILS ON AN ASYMMETRIC-COST TASK
 
 The specific failure is easy to dismiss as a badly chosen threshold. The general
 form is not particular to triage.
@@ -907,6 +909,8 @@ shipped the wrong model with a passing test to point at.
 
 ## THE LEAKAGE GUARANTEE RESTS ON A DECLARATION, NOT ON A SIMILARITY
 RULE
+
+sec:disc:leakage
 
 Our phrase holdout closes over nesting: where one phrase is contained in
 another, or is an ordered subsequence of it, the two are inseparable. That
@@ -951,6 +955,15 @@ such corpora are usually published — would compute a closure that looks
 rigorous, report zero overlap honestly, and split 60 of 61 concepts across the
 holdout. We had already made exactly this class of mistake once, in an earlier
 split whose manifest recorded complete leakage in a field nobody read.
+
+The same shape, twice. The split manifest recorded complete leakage in a machine-readable field, in the
+commit that created it, and the two fields being read were both honestly zero. Our acceptance threshold existed as independent copies of one constant in
+two source files, so changing the safety threshold in one would silently not
+apply in the other.
+
+Neither is a measurement failure. Both are a fact recorded where the code path
+that needed it does not look, and a project accumulating rulings faster than it
+accumulates places to read them should expect more of them.
 
 ## THE SEARCH WAS SMALL ENOUGH TO STATE
 
@@ -1019,38 +1032,24 @@ What detected each was a property check against something outside the model —
 the encoding of its own input, and the invariance of its answer under a
 transformation that should not matter.
 
-## TWO FAILURES WITH ONE SHAPE
-
-The split manifest recorded complete leakage in a machine-readable field, in
-the commit that created it, and the two fields being read were both honestly
-zero. Our acceptance threshold existed as independent copies of one constant in
-two source files, so changing the safety threshold in one would silently not
-apply in the other.
-
-Neither is a measurement failure. Both are a fact recorded where the code path
-that needed it does not look, and a project accumulating rulings faster than it
-accumulates places to read them should expect more of them.
-
 ## LIMITATIONS
 
 sec:limitations
 
 ## THE THREE THAT BOUND EVERYTHING ELSE
 
-1. The evaluation set is nine sentences. Our held-out set contains
-17,942 rows built from nine distinct source sentences, four of which
-carry the critical label. Rows built from one sentence are frame permutations of
-each other, not independent observations, so the quantity governing every
-interval is nine and not 17,942. Our own gate, which counts distinct sentences,
-refuses 38 of its cells on this set and reports nothing. The sizes it requires are
-derived rather than asserted: 710 distinct sentences for overall accuracy, 365
-gold critical items per pure language for critical recall, 720 for the
-critical-to-routine rate. No verdict on model quality is possible from
-this work, and none is offered. Every figure we report is a property of a
-corpus, of a specification, or of an artefact's behaviour under perturbation —
-never of a model's clinical performance.
-
-generated/limitations
+1. The evaluation set is nine sentences. Rows built from one source
+sentence are frame permutations of each other, not independent observations, so
+the quantity governing every interval is the number of distinct sentences.
+Section sec:limits:base gives the counts, generated from the frozen split.
+Our own gate, which counts distinct sentences, refuses 38 of its cells on this set
+and reports nothing; the sizes it requires are derived rather than asserted —
+710 distinct sentences for overall accuracy, 365 gold critical items per pure
+language for critical recall, 720 for the critical-to-routine rate.
+No verdict on model quality is possible from this work, and none is
+offered. Every figure we report is a property of a corpus, of a specification, or
+of an artefact's behaviour under perturbation — never of a model's clinical
+performance.
 
 2. No validated instrument authorises the construct. We could not
 locate any validated instrument for assigning urgency from a patient's own
@@ -1070,6 +1069,16 @@ taxonomy, or any output. No community health worker has been consulted about how
 patients present. The corpus is Kinyarwanda only, and no second speaker has
 reviewed it, so inter-rater agreement on anything — labels, naturalness,
 register — is unmeasured because there is no second rater.
+
+## THE MEASUREMENT BASE BEHIND EVERY FIGURE
+
+sec:limits:base
+
+The counts below are regenerated from the frozen split by the emitter, so they
+cannot drift from the data they describe. The block carries its own heading in the
+generated source; it is suppressed here so that this section reads in one order.
+
+generated/limitations
 
 ## THE PAPER'S CRITIQUE APPLIES TO THE PAPER'S OWN SPECIFICATION
 
@@ -1189,32 +1198,12 @@ its thresholds refuses before reading the training corpus, because the
 evaluation set is below its minimum. Nothing here is in use with any patient.
 
 One substantiation source sits in a repository that also ships
-GPT-4-generated text. We name this first because a reader tracing our sources
-will find it. One of the two corpora we used to check whether a
-Kinyarwanda term is attested in real clinical use — never to supply phrases
-— is a Rwanda Biomedical Centre training-text file published on a dataset
-repository whose card attributes its contents to two origins: 26,390
-sentences from RBC and 42,576 sentences from GPT-4 prompting, shipped as
-separate files. We vendored only the RBC file and never downloaded the
-generated one, because a substantiation corpus containing model output would
-let our own machine drafts confirm themselves back to us, which is the specific
-failure our provenance rules exist to prevent. After download we verified that
-the vendored file contains no English prose lines and no model-style
-scaffolding.
-
-Two things about that file we could not confirm from the card, and state rather
-than resolve. Its CC BY 2.0 grant is the depositing organisation's, not RBC's;
-nothing in the record shows RBC granting those terms on its own training
-material, so we treat the licence as provisional and do not redistribute the
-file as corpus provenance. And the card's per-source sentence counts do not map
-cleanly onto the file we hold, which has 28,621 non-empty lines against the
-26,390 sentences the card attributes to RBC — a discrepancy that lines
-versus sentences may explain and that we cannot check without the unvendored
-companion.
-
-No text from either attestation corpus appears in the generated dataset. Their
-role is to tell the speaker that a word is in real use, which is grounds to
-consider it and never grounds to write a phrase they have not authored.
+machine-generated material. One resource we consulted distributes human-written
+and model-generated content from the same repository, and our record of its
+composition comes from its own dataset card. We could not read that card
+during verification — the item returned an HTTP error to every automated
+request — so we quote no counts from it and rely on it for nothing in this
+paper.
 
 No baseline comparison exists. We did not train a comparison
 model. The obvious baselines — multilingual BERT, AfriBERTa — were scoped
@@ -1269,22 +1258,6 @@ Three configurations were trained and the search was stopped by judgement, not
 by convergence. We did not tune to the gate, and we did not run the
 per-sentence diagnostic that would distinguish an ambiguous concept from a
 mislabelled one on the unresolved boundary.
-
-Two failure modes that leave every output-side signal healthy.
-First, a model directory shipped without its tokenizer files does not fail
-loudly: the loader returns a five-token vocabulary, every word becomes the
-unknown token, and the model answers its class prior on input it cannot read,
-while its probabilities remain well formed, its predictions deterministic and
-its label order correct. We encountered this in our own probing harness, and
-mistook it for single-class collapse until it contradicted a previously recorded
-confusion matrix; no metric computed from the model's own outputs distinguishes
-the two. Second, our model changes its predicted urgency under surface variation
-alone — capitalisation for 31.5% of sampled inputs and a single realistic
-typo for 21.0%, while extra whitespace, which the tokenizer normalises, changes
-nothing — which we attribute to a training corpus containing no capitalised
-rows, no doubled spacing and no typographical noise whatsoever. We report both
-as deployment-relevant properties rather than as quality measurements: the
-evaluation set that would license a quality claim does not yet exist.
 
 ## WHAT THE APPARATUS MAKES POSSIBLE, AND WHAT IT CANNOT SETTLE
 

@@ -74,11 +74,12 @@ low-resource settings it very often is --- the honest reporting unit is the
 distinct source count per cell, and a paper that reports only row counts has not
 told the reader what its numbers rest on. The cost of the guarantee is real and
 should be stated openly: unioning a concept's phrasings into one cluster, as
-Section~\ref{sec:discussion} describes below, reduces the number of independent
+Section~\ref{sec:disc:leakage} describes, reduces the number of independent
 evaluation units, and that reduction is the price of a leakage guarantee rather
 than an accident of it.
 
-\subsection{The acceptance gate this project replaced its first one with}
+\subsection{Why a single-metric gate fails, and what replaced ours}
+\label{sec:disc:gate}
 
 The gate below is the project's own acceptance gate, generated from the record
 that defines it. Two points about its numbers, since this paper is largely about
@@ -89,11 +90,12 @@ non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
 is a clinical judgement nobody has made. The gate states which is which, which is
 the property we would ask of any gate.
 
+\begingroup
+\renewcommand{\subsection}[1]{}% both generated blocks carry their own heading;
+\renewcommand{\subsubsection}[1]{}% suppressed so this subsection reads in one order
 \input{generated/gate_derivation}
-
 \input{generated/finding_gate_degeneracy}
-
-\subsection{Why a single-metric gate fails on an asymmetric-cost task}
+\endgroup
 
 The specific failure is easy to dismiss as a badly chosen threshold. The general
 form is not particular to triage.
@@ -134,6 +136,7 @@ shipped the wrong model with a passing test to point at.
 
 \subsection{The leakage guarantee rests on a declaration, not on a similarity
 rule}
+\label{sec:disc:leakage}
 
 Our phrase holdout closes over nesting: where one phrase is contained in
 another, or is an ordered subsequence of it, the two are inseparable. That
@@ -178,6 +181,15 @@ such corpora are usually published --- would compute a closure that looks
 rigorous, report zero overlap honestly, and split 60 of 61 concepts across the
 holdout. We had already made exactly this class of mistake once, in an earlier
 split whose manifest recorded complete leakage in a field nobody read.
+
+\paragraph{The same shape, twice.} The split manifest recorded complete leakage in a machine-readable field, in the
+commit that created it, and the two fields being read were both honestly zero. Our acceptance threshold existed as independent copies of one constant in
+two source files, so changing the safety threshold in one would silently not
+apply in the other.
+
+Neither is a measurement failure. Both are a fact recorded where the code path
+that needed it does not look, and a project accumulating rulings faster than it
+accumulates places to read them should expect more of them.
 
 \subsection{The search was small enough to state}
 
@@ -245,15 +257,3 @@ confidence score, no probability distribution and no accuracy figure reveals.
 What detected each was a property check against something outside the model ---
 the encoding of its own input, and the invariance of its answer under a
 transformation that should not matter.
-
-\subsection{Two failures with one shape}
-
-The split manifest recorded complete leakage in a machine-readable field, in
-the commit that created it, and the two fields being read were both honestly
-zero. Our acceptance threshold existed as independent copies of one constant in
-two source files, so changing the safety threshold in one would silently not
-apply in the other.
-
-Neither is a measurement failure. Both are a fact recorded where the code path
-that needed it does not look, and a project accumulating rulings faster than it
-accumulates places to read them should expect more of them.
