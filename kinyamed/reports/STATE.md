@@ -251,6 +251,29 @@ metric computed from the model's own outputs.
 planned, and it is not served to patients. What it is useful for: exercising the serving path, the gate's refusal,
 and this probe.
 
+## 2026-09-16 — the four-step synthetic-corpus plan: executed, and it stopped at step 3
+
+Full record: `reports/PRELIMINARY_RESULTS.md`. Nothing was waived, and the pipeline was not modified.
+
+- **Step 1, generation to 1,000,000 rows: done** (130 s, 96 MB peak; the generator's own targets passed). Run
+  through the CORPUS_REBUILD gates (`dataset/corpus_gates.py`, 19 tests): **4 FAIL** (G5, G7, G8, G9), 5 NOT
+  COMPUTABLE. On the phrase-attributed v2 split, **6 FAIL** (G1, G2, G5, G7, G8, G9), with one seed producing
+  8,975 rows — 26.07% of the split.
+- **The largest gate-passing corpus is 0 rows, at any size.** G2's floor is on **seeds** (≥ 3,000 per language)
+  and the generator has **165**. The shortfall to 1M is **19,835 seed phrases**, not rows. Rows are free; seeds
+  must be authored. G5, G7, G8 and G9 would fail at 165 seeds anyway: no authors, no per-row provenance, no
+  surface variation.
+- **Step 2, seed provenance** (`dataset/seed_provenance.py`, 5 tests): train **150** distinct seeds / 295,575
+  rows; test **15** / 34,425 rows; **0 shared seeds**; largest single seed **26.07%** of the test split. Disjoint
+  is not independent: one generator, one inventory. The banner now heads every report carrying a synthetic metric.
+- **Step 3, the pipeline: REFUSED**, exit 2 in 9.6 s, "Nothing was trained." 38 test-split cells INSUFFICIENT DATA
+  on the n=9 set, plus no calibration split. `reports/measurements/pipeline_refusal_1m_corpus.txt`.
+- **Steps 4 and 5: NOT PRODUCED**, because no checkpoint exists. Had the refusal been overridden, every cell would
+  have rested on **15 distinct source sentences**, whose intervals are already on record: accuracy [0.400, 0.914],
+  CRITICAL recall [0.08, 1.00].
+- **Unchanged:** §16 gates UNMET; v2d NOT A BASELINE and not-for-deployment; the clinician gold-set path is still
+  the only route to a publishable claim.
+
 ## Order agreed
 
 1 fail closed → 1b make the interlock visible → 2 threshold + remove patient reassurance → 3 logger-level phone

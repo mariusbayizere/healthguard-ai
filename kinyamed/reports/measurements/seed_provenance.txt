@@ -1,0 +1,17 @@
+SEED PROVENANCE — train 150 distinct source phrases (295,575 rows), test 15 (34,425 rows), shared seeds 0. Largest single seed is 26.1% of the test split. Both splits come from the same generator and the same seed inventory, so any metric measured across them describes generalisation WITHIN the generator's distribution, not clinical performance.
+
+train: dataset/processed/train_phrase_holdout.csv
+  rows                295,575
+  distinct seeds      150
+  max rows per seed   8,129
+  largest seed share  2.75%
+  seeds per language  {'kinyarwanda': 150}
+test: dataset/processed/eval_phrase_holdout.csv
+  rows                34,425
+  distinct seeds      15
+  max rows per seed   8,975
+  largest seed share  26.07%
+  seeds per language  {'kinyarwanda': 15}
+
+shared seeds: 0
+test rows built from a shared seed: 0

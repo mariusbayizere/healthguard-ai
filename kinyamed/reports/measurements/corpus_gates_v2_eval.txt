@@ -1,0 +1,20 @@
+CORPUS_REBUILD §3 gates on dataset/processed/eval_phrase_holdout.csv
+34,425 rows. No gate was waived, and NOT COMPUTABLE is never a pass.
+
+Gate  Verdict         Detail
+G1    FAIL            15 seed(s) above 50 rows, worst '{REL} ashaka inama ku mirire myiza.' at 8,975; 15 seed(s) above 0.1% of the corpus, worst '{REL} ashaka inama ku mirire myiza.' at 26.07%
+G2    FAIL            kinyarwanda 15 distinct seeds, needs 3,000. The per-cell floor is NOT COMPUTABLE: a cell is domain x urgency x reporter x age group, and the domain axis is unratified (H4) while the age axis awaits E6.
+G3    NOT COMPUTABLE  the floor is defined as a fraction of the pilot's own diversity, and no pilot exists yet
+G4    PASS            0/15 seeds (0.0%) near-duplicate, 0 exact
+G5    FAIL            the corpus carries no generation_method column, so the origin of every row is unknown. An unattributable row is refused, not assumed native
+G6    NOT COMPUTABLE  NOT COMPUTABLE: the corpus carries no reporter or patient_age_group per row, and the age axis awaits E6
+G7    FAIL            the corpus has no generation_method, author_code, validated_by column(s)
+G8    FAIL            the corpus has no author_code column: authorship is unrecorded
+G9    FAIL            0.0% not sentence-cased (needs 15%); 0 rows in capitals; 7.8% without terminal punctuation (needs 20%); 0 rows with stray spacing. Measured: capitals 0, not sentence-cased 0.0%, without terminal punctuation 7.8%, stray spacing 0. Typo share is NOT measurable from text alone and must come from the authoring metadata
+
+6 gate(s) FAIL: G1, G2, G5, G7, G8, G9
+2 gate(s) NOT COMPUTABLE: G3, G6
+
+Seed inventory: 165 distinct seed phrases.
+Largest corpus that passes every size-dependent gate: 0 rows.
+Binding gate: G2: 165 distinct seeds against a floor of 3,000 per language. No corpus of any size passes, because the floor is on seeds, not rows
