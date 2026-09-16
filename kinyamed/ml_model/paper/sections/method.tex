@@ -34,52 +34,10 @@ frame and into the phrase, and it is the reason the v2 inventory carries a
 first-person and a third-person row per concept.
 
 \paragraph{One of the two evaluation splits never worked, and the manifest
-recorded it from the first commit.} v1 was split two ways, by phrase and by
-family, and presented as two difficulty levels. The family holdout was not a
-holdout. Its own frozen manifest reports that every one of its 114{,}321
-evaluation rows was built on a phrase that also appears in training:
-
-\begin{center}\small
-\begin{tabular}{lr}
-\toprule
-\texttt{eval\_rows\_whose\_phrase\_appears\_in\_train} & 114{,}321 \\
-\texttt{eval\_rows\_leaked\_fraction} & 1.0 \\
-\texttt{phrase\_overlap} & 50 \\
-\texttt{substring\_violations} & 54 \\
-\midrule
-\texttt{exact\_text\_overlap} & 0 \\
-\texttt{family\_overlap} & 0 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The failure is not that the leakage went undetected. It was detected, measured
-and written into the manifest by the same commit that introduced the pipeline.
-It went unread. The two fields anyone looked at, exact text overlap and
-family overlap, were both zero, and they were zero honestly: no evaluation
-row appeared verbatim in training, and no family straddled the split. Holding
-out a \emph{family} does not hold out a \emph{phrase}, and it was the phrase
-that carried the label. A number that says the holdout is worthless can sit in
-a machine-readable artefact for as long as nobody reads that field.
-
-v1's phrase holdout, by contrast, was internally clean, as v2's is.
-
-\paragraph{A separate contamination, in the other direction.} Scoring a
-phrase-trained model on the family evaluation set was also invalid: 89.2\% of
-family-evaluation rows (101{,}945 of 114{,}321) appeared verbatim in
-phrase-split training. This is a \emph{cross}-split measurement and is not the
-same failure as the one above; conflating the two is a mistake this project
-made and corrected in its own records.
-
-We state plainly that the cross-split figure is \emph{worse} in v2, not
-better: it is 100.0\% in both directions (24{,}900 of 24{,}900 and 34{,}425 of
-34{,}425), because the two v2 evaluation sets are disjoint partitions of one
-corpus, so each trains on everything the other holds out. What v2 fixed is the
-within-split failure: family-evaluation against family-training is now
-0.0\%, where v1 was 100\%. The two splits swapped failure modes rather than
-one improving, and a table placing a v1 family result beside a v2 one would
-compare a wholly contaminated evaluation with an uncontaminated one and call
-the difference a model improvement.
+recorded it from the first commit.} v1's family holdout was not a holdout and its
+own frozen manifest said so, in a field nobody read; the manifest figures, the
+separate cross-split contamination, and why v2 is \emph{worse} on that second
+measure rather than better are in Appendix~\ref{app:v1leak}.
 
 \subsection{Corpus v2}
 
@@ -165,43 +123,10 @@ restrictions are in Appendix~\ref{app:person}.
 
 \subsection{The other three language arms, as built}
 
-The corpus reported here is Kinyarwanda. The remaining three arms exist at
-three different stages, and the distinction matters because their provenance
-differs by component rather than uniformly.
-
-\paragraph{Relation terms.} A third-person phrase carries a placeholder that
-expands to a set of relation words. For Swahili these are \emph{speaker
-authored}: a Kiswahili speaker supplied all twelve with regional variants and
-notes. For English and French they are not: their wording was taken from the
-v1 corpus's machine-drafted subject slot. In every arm the set \emph{membership}
-is the Kinyarwanda speaker's ruling mirrored one for one, so a Swahili
-third-person row carries speaker-authored wording under a mirrored membership
-decision, and the paper should not describe either half as the other.
-
-One Kinyarwanda relation has no Swahili counterpart and the slot is left empty
-rather than filled. Kinyarwanda's eighth relation denotes an elderly woman
-generally rather than the speaker's own grandmother; the returned Swahili terms
-are possessive and name a different referent, so they are recorded and not
-wired into a set that means something else.
-
-\paragraph{Authenticity of the Kinyarwanda: \PENDING{no rating session has
-run}.} Whether these phrases read as something a patient would say has not been
-measured. The instrument, a five-point scale whose middle band is
-deliberately ``understandable, but not how I would put it'', the state the v1
-corpus was in, is written and unexecuted.
-
-\paragraph{Phrases.} No phrase is authored in any of the three. English and
-French hold machine-drafted candidates on the same concept spine, unreviewed by
-any speaker of either language. Swahili holds none: its authoring brief contains
-no Swahili at all, deliberately, so that a fluent draft cannot anchor the
-speaker to its errors: the finding that caused the Kinyarwanda arm to be
-re-authored rather than corrected.
-
-\paragraph{Frame fragments.} The openers, time expressions, contexts and
-closing lines that wrap a phrase are authored for Kinyarwanda only. \textbf{No
-other language can generate a single row}, whatever its phrase count, and this
-rather than the phrase inventory is the binding constraint on a four-language
-corpus.
+The corpus reported here is Kinyarwanda; the frame fragments that wrap a phrase
+are authored for that language alone, so \textbf{no other arm can generate a
+single row}, and the component-by-component position is in
+Appendix~\ref{app:arms}.
 
 \subsection{Split and leakage control}
 

@@ -86,38 +86,12 @@ would be when the distribution is that compressed, we do not know.
 
 \subsection{The other three languages, as they stand}
 
-The corpus is Kinyarwanda only, and none of the other three contributes a row to
-any result in this paper.
-
-\paragraph{English and French exist as review briefs, not corpora.} Both are
-machine-drafted candidate phrasings with per-row provenance and review verdicts
-against the same concept spine. No English speaker and no French speaker has
-ruled on them, and the French brief records explicitly that no French speaker has
-seen any of it. The two arms did produce one result worth keeping: built
-independently, they lifted the same eleven Kinyarwanda holds on the same
-reasoning (each a block on a Kinyarwanda \emph{word} rather than on the
-concept), and added the same hold on a concept-level clinical question. Two
-arms agreeing independently is the strongest evidence available that those
-rulings concern concepts rather than one language.
-
-\paragraph{Swahili is out for authoring, with no draft supplied.} The brief the
-speaker received contains no Swahili at all: it carries the English gloss, the
-person split, the applicability and relation rulings and the open clinical
-questions, and an empty column. This follows the Kinyarwanda finding that a
-fluent draft anchors a speaker to its errors, which is why that arm was
-re-authored from scratch rather than corrected. A machine-translated Swahili
-corpus exists in the frozen v1 vocabulary and is deliberately withheld until the
-authored phrases exist, which is the only order in which comparing them means
-anything. Two gaps are recorded and not closed: no Swahili relation terms exist
-anywhere in the project, so third-person placeholders have nothing to substitute,
-and the frame slots have not been authored.
+None of the other three contributes a row to any result in this paper; their
+status, and the one result the English and French arms did produce, are in
+Appendix~\ref{app:arms}.
 
 \subsection{The diagnostic that costs one inference pass}
 
-Every configuration trained separated the routine class without error and none
-resolved the critical/urgent boundary. The next diagnostic is per-sentence rather
-than per-configuration: which held-out sentences are read as the adjacent class,
-and whether they are the same sentences across configurations. That distinguishes
-an ambiguous concept from a mislabelled one from an artefact of the split. It is
-one inference pass rather than another training run, and it is blocked on nothing
-except a set large enough for the answer to mean something.
+The next diagnostic is per-sentence rather than per-configuration and costs one
+inference pass rather than another training run; it is described in
+Appendix~\ref{app:diagnostic}.

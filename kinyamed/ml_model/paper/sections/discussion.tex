@@ -138,84 +138,17 @@ shipped the wrong model with a passing test to point at.
 rule}
 \label{sec:disc:leakage}
 
-Our phrase holdout closes over nesting: where one phrase is contained in
-another, or is an ordered subsequence of it, the two are inseparable. That
-closure is computed from the strings and needs no outside knowledge. It is also
-not sufficient.
+Phrase-group closure computed from the strings is not sufficient, and no
+similarity threshold could have made it so, so the guarantee rests on authoring
+metadata instead; the mechanism, its \textbf{NOT REPRODUCIBLE} supporting figure
+and the same shape recurring twice are in Appendix~\ref{app:leakage}.
 
-A concept in this corpus has two phrasings, one in the patient's voice and one
-in a carer's. They describe the same presentation and carry the same label, so
-a holdout that puts one in training and the other in evaluation is not measuring
-generalisation to an unseen presentation. Measured on the authored inventory,
-\textbf{60 of the 61 concepts with both persons authored had them in separate
-phrase groups}, a count recorded in \texttt{docs/phrase-group-closure.md} when
-the closure was designed. No committed script recomputes it, so the figure is
-\textbf{NOT REPRODUCIBLE} as it stands; the mechanism it demonstrates does not
-depend on the exact count.
+\subsection{The cost of the configuration search}
 
-\paragraph{No similarity rule could have caught this, and the reason is
-structural.} A third-person phrase begins with the relation placeholder and a
-first-person phrase begins with a letter, so wherever the placeholder leads the
-phrase the two share a prefix of zero characters: not a small overlap that a
-lower threshold would reach, but none, however low the threshold goes.
-Containment fails too, because the verb morphology differs between the persons
-rather than one string embedding the other. The single concept that escaped is
-the one that proves the mechanism: it places the placeholder mid-phrase, and its
-two persons share 42 characters.
-
-The fix is a declaration rather than a measurement. The authoring brief knows
-which phrases belong to which concept, so the splitter reads that mapping and
-unions every phrase of a concept into one group. Two properties of how it is
-implemented matter more than the union itself. First, a declaration naming a
-phrase that is not in the inventory is a fatal error rather than a no-op;
-silence there would leave the concept's other phrasings unjoined and reopen the
-leak with no signal. Second, the cost is paid openly: unioning concepts reduces
-the number of independent evaluation units, and that reduction is the price of
-the guarantee rather than an accident of it.
-
-\paragraph{The uncomfortable part.} This is a leakage guarantee that no amount
-of analysis of the corpus text could have produced. It depends on metadata
-about who is speaking, which exists only because the authoring process recorded
-it. A pipeline that received the same phrases as a flat list (which is how
-such corpora are usually published) would compute a closure that looks
-rigorous, report zero overlap honestly, and split 60 of 61 concepts across the
-holdout. We had already made exactly this class of mistake once, in an earlier
-split whose manifest recorded complete leakage in a field nobody read.
-
-\paragraph{The same shape, twice.} The split manifest recorded complete leakage in a machine-readable field, in the
-commit that created it, and the two fields being read were both honestly zero. Our acceptance threshold existed as independent copies of one constant in
-two source files, so changing the safety threshold in one would silently not
-apply in the other.
-
-Neither is a measurement failure. Both are a fact recorded where the code path
-that needed it does not look, and a project accumulating rulings faster than it
-accumulates places to read them should expect more of them.
-
-\subsection{The search was small enough to state}
-
-Three configurations were trained to completion, at 115, 70 and 95 minutes on
-two CPU cores. The whole search cost under five hours of compute on a laptop. We
-report no result from any of them: these are costs, recorded in the run records,
-and the artefact whose behaviour Section~\ref{sec:res:silent} probes is one of
-the three.
-
-We state this deliberately. Work of this kind is often reported without cost,
-which leaves a reader unable to tell an exhaustive sweep from three runs, and
-leaves anyone without a cluster unsure whether the method is available to them.
-It also bounds what the search establishes: three points do not characterise a
-response surface, and we describe the outcome as inconclusive on the
-CRITICAL/URGENT boundary rather than as a tuned result.
-
-The affordability follows from the corpus rather than from any efficiency
-technique, and it is the seeds-not-rows point from the training side: the task is
-\textbf{150 distinct training phrases} mapped to three labels, however many rows
-those phrases were expanded into. The model is a small multilingual encoder with
-its embedding table frozen, leaving between 3.7 and 10.8 million trainable
-parameters. A budget of a few hundred optimisation steps is not a compromise
-forced by the hardware but the right size for the problem, and the run that
-preceded these was abandoned in part because it had been budgeted at roughly
-forty times what the task needed.
-
+Three configurations were trained to completion at a total cost under five hours
+on two CPU cores; the cost, what it does and does not establish, and why a budget
+that small is the right size for 150 distinct training phrases are in
+Appendix~\ref{app:search}.
 \subsection{Why the two silent failure modes matter to anyone deploying a
 low-resource clinical model}
 
