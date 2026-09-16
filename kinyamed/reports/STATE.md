@@ -25,8 +25,8 @@ people, documents, or your decisions.
 | Suite | Result |
 |---|---|
 | Backend, clean clone with no `.env`, CI's variables only | **362 passed, 0 failed, 0 skipped**; 422 s; `mypy --strict` 0 issues in 64 files |
-| Frontend, Vitest | **NOT RE-RUN at HEAD** (memory; see note). Last full run: **146 passed** (14 files) at `16968ed`. Since then only `ci-backend-db.test.ts` was added; it ran with the other two CI guard files, 18 passed. |
-| ML with torch | **NOT MEASURED at HEAD.** The run at `a32a5b0` was **killed by the system for low memory** at about 25%, with no failure before the kill (Firefox and Chrome held about 3 GB, 2.0 GB available). Last full run: **324 passed, 0 failed, 3 skipped** at `16968ed`. Since then: `importorskip` guards (no effect with deps), docstring repointing, and the run-manifest test fix (17/17 with deps). |
+| Frontend, Vitest | **150 passed** (15 files), 0 failed; 65 s. Measured at HEAD `44dbefb` on 2026-09-16. |
+| ML with torch | **324 passed, 0 failed, 3 skipped**; 1,208 s, peak 591 MB. Measured at HEAD `44dbefb` on 2026-09-16. The 3 skips are the slow power recomputation and two paper-number placeholders. |
 | ML without dependencies (CI's dataset job, clean clone, pytest only) | Collection now succeeds. At `aca3e11`: **199 passed, 1 failed, 13 skipped**. The failure is fixed in `a32a5b0` (17/17 for that file in the same venv). `make verify` 6/6; attribution sweep 2 passed. |
 | Ruff | check and format clean (273 files) |
 
@@ -99,8 +99,8 @@ is correct; the commit is not one concern. It was left as is, because you said n
 
 ### Tomorrow's single next action
 
-**With browsers fully closed** (Firefox and Chrome kept about 3 GB after their windows were closed): re-run the ML
-suite and Vitest at HEAD, one at a time, and check CI for this push. Then send **H1** (ethics) and the **H6 / H6a / H6b** clinician questions.
+Done 2026-09-16: CI run #79 green on all 8 jobs at `44dbefb`; ML suite and Vitest re-run at HEAD, counts above.
+Next: the clinician and ethics questions (H1, H6/H6a/H6b), and the pilot authoring instrument below. Then send **H1** (ethics) and the **H6 / H6a / H6b** clinician questions.
 
 ---
 
