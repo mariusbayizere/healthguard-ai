@@ -142,6 +142,61 @@ undecided, so `patient_age_group` is issued as BLOCKED.**
 under a grid (G4 at 2%); (3) one author dominating a cell (G8); (4) paraphrase reuse, which is admissible only in
 the calibration split.
 
+## 2026-09-16 — items 2 and 3
+
+### Item 2 — AfriBERTa-large measured, shortlist closed with a decision rule (`a066608`)
+
+AfriBERTa-large was already measured on 2026-09-15 once `sentencepiece==0.2.2` was pinned (`7cc63f9`): Kinyarwanda
+**1.66 [1.64, 1.68]** tokens per word against XLM-R's 2.52, and French **2.40 [2.37, 2.43]**, the worst of any
+language and vocabulary measured. What remained was closing the table, now done in TOKENIZER_STUDY §4.
+
+- **The shortlist does not close to one on tokenization, and saying otherwise would be inventing evidence.**
+- **For the pilot's first training run: AfroXLMR-mini.** It is the only checkpoint whose CPU latency and memory
+  are measured anywhere (MODEL_AUDIT §3.3), it is the incumbent so results stay comparable, and the pilot run
+  exists to exercise the pipeline on real labels, not to select an encoder. Its weakness is stated: the highest
+  Kinyarwanda fertility measured.
+- **Production encoder: chosen by the gate, in a pre-registered order** — gate 5 per pure language, then gate 7,
+  then gates 14/15 on the named target CPU (H15), then gate 9, then cost. Each candidate has one named
+  measurement that eliminates it.
+
+### Item 3 — malfunction probe, NOT A GATE METRIC (`training/probe.py`)
+
+Built as a **malfunction probe, not an urgency probe.** Asserting that a given text is unambiguously CRITICAL is a
+clinical claim, so I did not author one. Six checks that need no clinical judgement: determinism, formatting
+invariance, class collapse, label order, probability validity, length robustness. 15 tests, red first.
+`data/probe/urgency_probe.csv` ships with a header and **no rows**; every row needs a cited source and a named
+validator, and even when filled the report prints the model's answer per item and **never a score**.
+`evaluate.py` does not import it, and a test enforces that.
+
+**v2d, probed on 200 texts sampled evenly from the v2 phrase-holdout eval split** (`reports/measurements/probe_v2d.txt`,
+63 s, peak 636 MB):
+
+| Check | Result |
+|---|---|
+| probability validity | 200/200 well formed |
+| determinism | 200/200 stable across two calls |
+| formatting invariance | 0 class changes from whitespace or case |
+| label order | `{0: CRITICAL, 1: URGENT, 2: ROUTINE}`, matches the dataset |
+| length robustness | a 120-word input handled |
+| **class collapse** | **ROUTINE 200, URGENT 0, CRITICAL 0 — SIGNAL** |
+| mean probability per class | CRITICAL 0.14, URGENT 0.18, **ROUTINE 0.68** |
+| highest p(CRITICAL) over the sample | **0.17** |
+
+**Is the model behaving sanely? No.** On this sample it answers ROUTINE for every input and never comes close to
+CRITICAL. The sample is not the cause: it is balanced by the generator's own template labels (67 CRITICAL, 68
+URGENT, 65 ROUTINE), so about a third of the texts are ones the corpus calls CRITICAL. The collapse is toward the
+one direction L3 names as the P0 incident class.
+
+- **This is not an accuracy claim and not a gate result.** Template labels are not gold, the set is not held out
+  under EVAL_SET_SPEC, and `evaluate.py` still refuses on the only held-out set that exists (n=9).
+- **What it does establish:** v2d must not be served to patients, and no amount of calibration or threshold tuning
+  fixes a model whose CRITICAL probability never exceeds 0.17.
+- **Mitigation already in place:** the confidence of every such prediction (max 0.68) is below the 0.75 review
+  threshold, so the service flags them for clinician review rather than silently assigning ROUTINE (FR-04-03, L4).
+- **Not yet diagnosed:** whether the saved v2d weights are the early-stopping step the run record describes
+  (it recorded CRITICAL recall 0.833 at step 900 on 3 stopping phrases), or a later, collapsed step. That is a
+  training-run question for the pilot, not a serving question.
+
 ## Order agreed
 
 1 fail closed → 1b make the interlock visible → 2 threshold + remove patient reassurance → 3 logger-level phone
