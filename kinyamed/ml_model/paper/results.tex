@@ -36,15 +36,15 @@ pass. Table~\ref{tab:gates} gives the outcome.
 \toprule
 Gate & What it constrains & Outcome on our corpus \\
 \midrule
-G1 & rows per seed ($\leq 50$; no seed above 0.1\%) & \textbf{FAIL} --- worst seed 8{,}975 rows, 26.07\% of the evaluation split \\
-G2 & distinct seeds per language ($\geq 3{,}000$) & \textbf{FAIL} --- 15 in the evaluation split, 150 in train, 165 in the whole inventory \\
-G3 & lexical diversity against the pilot's floor & not computable --- the pilot that defines the floor does not exist \\
-G4 & near-duplicate seeds ($\leq 2\%$ at Jaccard 0.85) & pass --- 0 of 15 \\
-G5 & machine person-transformation banned & \textbf{FAIL} --- no recorded origin per row \\
-G6 & frame consistent with reporter and age group & not computable --- neither is recorded \\
-G7 & per-row provenance complete & \textbf{FAIL} --- no seed, origin, author or validator fields \\
-G8 & author concentration ($\leq 20\%$ per cell) & \textbf{FAIL} --- the corpus has no authors \\
-G9 & surface variation (case, punctuation, spacing, typos) & \textbf{FAIL} --- 0 capitalised rows, 0 with stray spacing, no typos \\
+G1 & rows per seed ($\leq 50$; no seed above 0.1\%) & \textbf{FAIL}: worst seed 8{,}975 rows, 26.07\% of the evaluation split \\
+G2 & distinct seeds per language ($\geq 3{,}000$) & \textbf{FAIL}: 15 in the evaluation split, 150 in train, 165 in the whole inventory \\
+G3 & lexical diversity against the pilot's floor & not computable, because the pilot that defines the floor does not exist \\
+G4 & near-duplicate seeds ($\leq 2\%$ at Jaccard 0.85) & pass: 0 of 15 \\
+G5 & machine person-transformation banned & \textbf{FAIL}: no recorded origin per row \\
+G6 & frame consistent with reporter and age group & not computable: neither is recorded \\
+G7 & per-row provenance complete & \textbf{FAIL}: no seed, origin, author or validator fields \\
+G8 & author concentration ($\leq 20\%$ per cell) & \textbf{FAIL}: the corpus has no authors \\
+G9 & surface variation (case, punctuation, spacing, typos) & \textbf{FAIL}: 0 capitalised rows, 0 with stray spacing, no typos \\
 \bottomrule
 \end{tabular}
 \caption{The nine corpus gates against the generated corpus. Four fail as
@@ -81,8 +81,8 @@ target requires 19{,}835 further seed phrases; at the authoring rates assumed in
 our clinician brief (two to three minutes per item, an assumption and not a
 measurement) that is on the order of 660 to 990 clinician-hours. Even at
 20{,}000 seeds the generated corpus would still fail G5, G7, G8 and G9, which
-constrain how a row is made --- its origin, its provenance, its author, its
-surface form --- rather than how many rows exist.
+constrain how a row is made (its origin, its provenance, its author, its
+surface form) rather than how many rows exist.
 
 \paragraph{The general claim.} Expansion is the cheap operation in any templated,
 augmented or model-expanded corpus, and a requirement written in rows constrains
@@ -125,8 +125,8 @@ any future number is read against them.
 
 \paragraph{A single-condition gate certifies the wrong model.} Our first
 acceptance gate was one condition, recall on the critical class, and a
-configuration passed it while abandoning the urgent class entirely --- scoring, on
-the protected class, below what merging the two classes earns for free on the same
+configuration passed it while abandoning the urgent class entirely, scoring on
+the protected class below what merging the two classes earns for free on the same
 rows. The figures, their closed form and the three-condition gate that replaced
 them are in Section~\ref{sec:disc:gate}; they are a defect in gate design and
 support no quality conclusion about any configuration.
@@ -149,7 +149,7 @@ and the unknown-token rate of the tokenizer it actually loaded and fails loudly
 whether the predicted class survives surface variation. On 200 sampled inputs,
 the predicted urgency changes for 31.5\% under capitalisation and 21.0\% under a
 single realistic typo, for 5.0\% when punctuation is removed, and for none under
-extra whitespace --- the one variant the tokenizer normalises away, which is what
+extra whitespace, the one variant the tokenizer normalises away, which is what
 makes the other three a property of the training data rather than of the
 tokenizer. The corpus contains zero capitalised rows, zero rows with stray
 spacing and no typographical noise at all (Table~\ref{tab:gates}, G9). A patient
@@ -164,7 +164,7 @@ discard information the tokenizer is case-sensitive to.
 We report no accuracy, recall, F1, calibration or latency figure for any model.
 No evaluation set meeting our specification exists; our gate refuses on the set
 that does; and no model has been trained through the pipeline that would produce
-a calibrated, threshold-tuned checkpoint --- when run, it refuses before reading
+a calibrated, threshold-tuned checkpoint. When run, it refuses before reading
 the training corpus, for the reasons in §\ref{sec:res:eval}. The trained artefact
 that exists is an audit artefact used to exercise the serving path and the gate's
 refusal. It is not a baseline: we do not compare against it, and we do not plan to

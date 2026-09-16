@@ -17,12 +17,12 @@ sentence are frame permutations of each other, not independent observations, so
 the quantity governing every interval is the number of distinct sentences.
 Section~\ref{sec:limits:base} gives the counts, generated from the frozen split.
 Our own gate, which counts distinct sentences, refuses 38 of its cells on this set
-and reports nothing; the sizes it requires are derived rather than asserted ---
+and reports nothing; the sizes it requires are derived rather than asserted:
 710 distinct sentences for overall accuracy, 365 gold critical items per pure
 language for critical recall, 720 for the critical-to-routine rate.
 \textbf{No verdict on model quality is possible from this work, and none is
 offered.} Every figure we report is a property of a corpus, of a specification, or
-of an artefact's behaviour under perturbation --- never of a model's clinical
+of an artefact's behaviour under perturbation, never of a model's clinical
 performance.
 
 \paragraph{2. No validated instrument authorises the construct.} We could not
@@ -41,16 +41,17 @@ would mean if they could, are open questions we are not qualified to settle.
 single-author software project. No clinician has reviewed the corpus, the
 taxonomy, or any output. No community health worker has been consulted about how
 patients present. The corpus is Kinyarwanda only, and no second speaker has
-reviewed it, so inter-rater agreement on anything --- labels, naturalness,
-register --- is unmeasured because there is no second rater.
+reviewed it, so inter-rater agreement on anything (labels, naturalness,
+register) is unmeasured because there is no second rater.
 
-\subsection{The measurement base behind every figure}
+\subsection{How many distinct sentences each figure rests on}
 \label{sec:limits:base}
 
 The counts below are regenerated from the frozen split by the emitter, so they
-cannot drift from the data they describe. The block carries its own heading in the
-generated source; it is suppressed here so that this section reads in one order.
-
+cannot drift from the data they describe.
+%
+% The generated block carries its own \subsection heading; it is suppressed
+% inside the group so this subsection reads as one piece.
 \begingroup
 \renewcommand{\subsection}[1]{}%
 \input{generated/limitations}
@@ -84,8 +85,8 @@ gates if we do not trust the requirements, and the next subsection is that answe
 \subsection{The gates are engineering defaults, not validated instruments}
 
 The nine corpus gates are our own construction. Two have a derivation we would
-defend --- G1's cap on rows per seed and G2's floor on distinct seeds follow from
-the cluster structure that governs an interval --- and the rest are defaults
+defend (G1's cap on rows per seed and G2's floor on distinct seeds follow from
+the cluster structure that governs an interval), and the rest are defaults
 chosen by judgement. \textbf{G9's thresholds are placeholders}: the shares of
 capitalised, unpunctuated, mis-spaced and mistyped items it requires were set by
 us, not measured, and they should be replaced by the distribution a real pilot
@@ -97,14 +98,14 @@ open to exactly the criticism we level at the requirements, and the honest
 position is that our instrument is a better-documented version of the same
 species of artefact, not a validated one. What we would claim for it is narrower:
 the gates make the corpus's properties visible and falsifiable, and the finding
-that survives whatever thresholds are chosen is structural --- the binding
+that survives whatever thresholds are chosen is structural: the binding
 quantity is authored seeds, and no row count substitutes for it.
 
 \subsection{One generator, one language, one project}
 
 Every measurement here comes from one generator, one language and one codebase.
-The seeds-not-rows argument is a claim about a class of corpora --- templated,
-augmented or model-expanded --- and we demonstrate it on a single member of that
+The seeds-not-rows argument is a claim about a class of corpora (templated,
+augmented or model-expanded), and we demonstrate it on a single member of that
 class. We argue the generalisation from the structure of the cost asymmetry:
 expansion is cheap and authoring is not, in any such pipeline. \textbf{We do not
 demonstrate it.} Whether other generators, other languages or other teams hit the
@@ -126,9 +127,9 @@ sections of our own audit report carry the same mark.
 
 \paragraph{One speaker, and no second-speaker review.} The Kinyarwanda
 phrasings are one person's judgement. A second-speaker protocol is designed and
-documented --- a per-phrase rating scale to catch phrases that are wrong, and an
+documented (a per-phrase rating scale to catch phrases that are wrong, and an
 independent re-authoring pass to catch phrases that are merely not what someone
-else would say --- but it has not been run, and no ratings exist in the
+else would say), but it has not been run, and no ratings exist in the
 repository. What one speaker can establish is that the phrasings are
 consistently theirs; what makes them defensible is a second speaker agreeing
 independently, and that has not happened. Where the speaker was uncertain they
@@ -151,93 +152,9 @@ meaningfully confused, whether high fever with refusal to eat is urgent or
 critical, and which of two descriptions of lower chest indrawing is the right
 one. A clinician session is designed and has not been held. Two of the three
 thresholds in our acceptance gate also await a clinical judgement that has not
-been made --- see Section~\ref{sec:gate}.
+been made; see Section~\ref{sec:gate}.
 
-\paragraph{Monolingual.} The corpus is Kinyarwanda. English and French exist
-only as unverified machine-drafted review briefs, Swahili is out for authoring,
-and none of the three contributes a row to any result reported here. The system
-is therefore not evaluated on the multilingual setting it is ultimately
-intended for.
-
-\paragraph{The two holdouts have converged, so there is only one evaluation.}
-The corpus is split by phrase and by family, and it would be wrong to present
-these as two difficulty levels. Because v2 is monolingual, each phrase belongs
-to exactly one family, so holding out a family removes its phrases entirely: the
-two splits are one strictness at two sampling ratios. Worse, they are disjoint
-partitions of the same corpus, so scoring a model trained on one against the
-other's evaluation set measures memorisation and nothing else --- 100.0\% of
-rows in both directions. Only one honest evaluation number exists per trained
-model, and it is the one we report.
-
-\paragraph{No model meets the acceptance gate, and none has been trained
-through the pipeline that would produce a deployable one.} The artefact that
-exists does not meet the gate; the pipeline that would calibrate a model and tune
-its thresholds refuses before reading the training corpus, because the
-evaluation set is below its minimum. Nothing here is in use with any patient.
-
-\paragraph{One substantiation source sits in a repository that also ships
-machine-generated material.} One resource we consulted distributes human-written
-and model-generated content from the same repository, and our record of its
-composition comes from its own dataset card. \textbf{We could not read that card
-during verification} --- the item returned an HTTP error to every automated
-request --- so we quote no counts from it and rely on it for nothing in this
-paper.
-
-\paragraph{No baseline comparison exists.} We did not train a comparison
-model. The obvious baselines --- multilingual BERT, AfriBERTa --- were scoped
-and not run, so we report no comparison table and make no claim about how this
-model performs relative to alternatives. What we report is one model family
-across three configurations. A reader wanting to know whether a different
-pretrained encoder would do better on this corpus should read that question as
-open, not as answered in our favour.
-
-\paragraph{Six claims require studies that have not run.} The following are
-recorded as \PENDING{} throughout, and no value for any of them exists anywhere
-in our records:
-
-\begin{center}\small
-\begin{tabular}{lp{0.52\textwidth}}
-\toprule
-Claim & Status \\
-\midrule
-Inter-rater agreement ($\kappa$) & \PENDING{no second annotator} \\
-Taxonomy approved by a clinician & \PENDING{no clinician has reviewed it} \\
-Native-speaker authenticity ratings & \PENDING{no rating session has run} \\
-Human-nurse baseline & \PENDING{no nurse study has run} \\
-Community health worker consultation & \PENDING{did not occur} \\
-Deployment & \PENDING{not deployed} \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The protocol for each is written and ready to execute; what is missing is a
-person, not an instrument. We state them as pending rather than omitting them
-because a claim quietly dropped from a paper is indistinguishable, to a reader,
-from one that was never made.
-
-\paragraph{Patient-facing text exists in two of four languages.} The sentence a
-patient reads --- and the SMS they receive --- is speaker-authored or absent,
-and it is authored for Kinyarwanda and Swahili only. English and French return
-an explicit pending state. The system runs; it declines to say anything to a
-patient in a language no speaker has written for.
-
-\paragraph{The client requires connectivity, in a setting that does not have
-it.} The system is intended for health centres with intermittent connectivity,
-and neither half of it tolerates an outage. Classification is server-side --- a
-449\,MB encoder that will not run in a browser on the hardware these clinics
-have --- so a disconnected client cannot triage at all; it could at best capture
-symptoms for later. The queue view is worse than unavailable during an outage:
-it retains the last rows it successfully fetched and continues to render them
-without an age, so a board that is minutes stale reads as current, and a patient
-who arrived during the outage is simply absent from it. Submissions made while
-disconnected are lost rather than queued. We record this as a constraint rather
-than reporting a solution: an offline mode for this system is a capture-and-sync
-design needing server-side idempotency and a conflict rule for replayed triage,
-and neither exists. The full inventory is in \texttt{docs/frontend-limitations.md}.
-
-\paragraph{The configuration search is inconclusive rather than complete.}
-Three configurations were trained and the search was stopped by judgement, not
-by convergence. We did not tune to the gate, and we did not run the
-per-sentence diagnostic that would distinguish an ambiguous concept from a
-mislabelled one on the unresolved boundary.
-
+\paragraph{Further limitations are in Appendix~\ref{app:limits}.} Monolingual
+scope, the converged holdouts, the absent baseline comparison, the six claims that
+require studies nobody has run, the patient-facing text gap, the connectivity
+assumption and the inconclusive configuration search are all recorded there.

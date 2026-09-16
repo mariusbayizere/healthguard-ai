@@ -23,7 +23,7 @@ An evaluation set of 17{,}942 rows built from nine distinct sentences supports n
 verdict, and our gate refuses on it rather than reporting a number. A model
 trained on a corpus of uniform surface form changed its predicted urgency for
 31.5\% of inputs under capitalisation alone and 21.0\% under a single typo, while
-the one variant the tokenizer normalises changed nothing --- which locates the
+the one variant the tokenizer normalises changed nothing, which locates the
 cause in the training data rather than the tokenizer. A model directory shipped
 without its tokenizer loads without error and answers its class prior on input it
 cannot read, with well-formed probabilities, deterministic predictions and a

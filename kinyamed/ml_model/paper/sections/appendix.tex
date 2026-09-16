@@ -1,0 +1,214 @@
+% APPENDICES — moved out of the main text 2026-09-17 to keep the preprint short.
+% Each has a one-line pointer where it used to sit.
+
+\section{Person rulings, concept collapse and relation restrictions}
+\label{app:person}
+
+
+Each concept has a first-person row (the patient speaking) and a third-person row
+(someone speaking about them, with the relation carried by a placeholder). Not
+every concept supports both, and 50 of the 256 rows are ruled inapplicable. The
+rulings fall into three groups, and each was made by a named party rather than by
+default.
+
+\paragraph{Whole concepts collapsed into another (15 concepts, 30 rows).} Where
+two concepts turned out to name one sign, the speaker ruled them one concept and
+the absorbed identifier went out of generation. The collapses are:
+
+\begin{center}\small
+\begin{tabular}{llllll}
+\toprule
+Absorbed & Into & Absorbed & Into & Absorbed & Into \\
+\midrule
+EX17 & EX16 & HT06 & EX22 & NE04 & EX35 \\
+EX30 & CR07 & IF07 & EX29 & NE08 & EX36 \\
+EX42 & IF05 & NE01 & EX33 & PA01 & EX33 \\
+GI08 & EX16 & NE02 & EX32 & PA06 & IF05 \\
+HT01 & EX18 & NE03 & EX34 & PA10 & EX46 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A collapse was permitted only where the
+absorbing \emph{phrase} carried the whole sign; two proposed collapses were
+rejected on that test, one because the absorbing phrase conditioned a general
+danger sign on a temperature threshold and one because it covered only half of a
+disjunctive sign.
+
+\paragraph{First person removed (11 concepts).} Two grounds, both the speaker's.
+The first is capacity: a patient who is unconscious or convulsing cannot report
+it, which removes \texttt{EX32}, \texttt{EX33}, \texttt{PA02}, \texttt{PA03} and
+\texttt{PA04}. The second is that the sign is an examination finding rather than
+something the patient perceives (a skin pinch, sunken eyes, a growth chart)
+which removes \texttt{GI04}, \texttt{PA05} and \texttt{PA07}. A separate standing
+rule removes a paediatric first person that would merely duplicate an adult
+concept, since the patient's being a child lives only in the relation word and
+the first person has no slot for it; that removes \texttt{EX40}, \texttt{EX41}
+and \texttt{EX43}.
+
+\paragraph{Third person removed (9 concepts).} Nobody presents on another
+person's behalf to collect a repeat prescription, attend their own routine review
+or request their own screening test, so \texttt{CC08}, \texttt{CC09},
+\texttt{CC10}, \texttt{EX10}, \texttt{EX11}, \texttt{EX44}, \texttt{EX45},
+\texttt{PR06} and \texttt{PR07} have no third person.
+
+\paragraph{Relation restriction.} Where a third person exists, the set of
+relations it may be about is ruled per concept rather than defaulted: nine
+concepts take no relations, seven are restricted to children, five to adults,
+three to household members and one to the obstetric set. One concept is held
+pending a decision and one is out of generation pending a service-design question
+about whether men present for family-planning advice in this setting.
+
+\paragraph{Open at the time of writing.} Twenty-three rows are held and 25 carry
+a flag for clinician review. Held rows generate nothing. The flags are of two
+kinds and the distinction is maintained deliberately: some are clinical questions
+about the concept, which any language inherits, and some are doubts about a
+specific Kinyarwanda word, which no other language inherits.
+
+
+\section{Code-switching, pair by pair}
+\label{app:codeswitch}
+
+
+The corpus design names six ordered language pairs. \textbf{None of them produces
+a row today}, and we state the position precisely because a corpus labelled
+bilingual that is not is worse than one that admits the gap.
+
+A Kinyarwanda speaker ruled fifteen medical terms for insertion, giving for each
+whether it is genuinely switched or simply borrowed, its noun class, and the
+agreement it triggers. That yielded five borrowed terms with established
+Kinyarwanda forms, which belong in \emph{monolingual} rows rather than mixed
+ones, and four cleanly switched terms.
+
+\begin{center}
+\begin{tabular}{lp{0.62\textwidth}}
+\toprule
+pair & why it does not generate \\
+\midrule
+kw $\rightarrow$ en & four switched terms are ruled, all nouns. Enough to emit
+rows, not enough to be the mixed language the label claims. Pending a speaker's
+answer on ten further terms. \\
+kw $\rightarrow$ fr & no French-origin term is cleanly switched; all are
+borrowed or dual-disposition. \\
+en $\rightarrow$ kw, fr $\rightarrow$ kw & require the reverse insertion
+direction and English or French frame fragments, neither of which exists. \\
+sw $\rightarrow$ en, en $\rightarrow$ sw & require a Swahili-matrix worksheet.
+None exists; the noun classes ruled so far are Kinyarwanda's. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Five of the fifteen terms carry a dual disposition: the speaker's answer was
+that they are both switched and borrowed, which is a real linguistic answer
+rather than an incomplete one, but the two route a term to different places.
+Two carry two candidate noun classes, and for one of those the two competing
+forms sit in \emph{different} classes, so the choice is between two grammars
+rather than two spellings.
+
+\paragraph{Why the generator refuses rather than approximating.} The earlier
+corpus produced mixed rows by swapping a whole phrase at one syntactic seam,
+which accounted for nearly half its rows (recorded in
+\texttt{docs/language-resources.md}; no committed script aggregates it) and added
+no distinct clinical content. The
+model that replaces it inserts a single content morpheme into an intact matrix
+utterance and integrates it morphologically. That requires a noun class, and a
+noun class is a fact about a language that cannot be inferred from the corpus.
+The generator therefore declines to emit anything it cannot integrate, and
+declines a pair whose inventory is too thin to be what the label claims.
+
+Building the generator surfaced two errors it then prevented: an early version
+filtered only on the embedded language and would have inserted
+Kinyarwanda-classed terms into a Swahili frame, and a later one would have
+shipped a four-noun inventory as a bilingual corpus.
+
+\section{Further limitations}
+\label{app:limits}
+
+\paragraph{Monolingual.} The corpus is Kinyarwanda. English and French exist
+only as unverified machine-drafted review briefs, Swahili is out for authoring,
+and none of the three contributes a row to any result reported here. The system
+is therefore not evaluated on the multilingual setting it is ultimately
+intended for.
+
+\paragraph{The two holdouts have converged, so there is only one evaluation.}
+The corpus is split by phrase and by family, and it would be wrong to present
+these as two difficulty levels. Because v2 is monolingual, each phrase belongs
+to exactly one family, so holding out a family removes its phrases entirely: the
+two splits are one strictness at two sampling ratios. Worse, they are disjoint
+partitions of the same corpus, so scoring a model trained on one against the
+other's evaluation set measures memorisation and nothing else: 100.0\% of
+rows in both directions. Only one honest evaluation number exists per trained
+model, and it is the one we report.
+
+\paragraph{No model meets the acceptance gate, and none has been trained
+through the pipeline that would produce a deployable one.} The artefact that
+exists does not meet the gate; the pipeline that would calibrate a model and tune
+its thresholds refuses before reading the training corpus, because the
+evaluation set is below its minimum. Nothing here is in use with any patient.
+
+\paragraph{One substantiation source sits in a repository that also ships
+machine-generated material.} One resource we consulted distributes human-written
+and model-generated content from the same repository, and our record of its
+composition comes from its own dataset card. \textbf{We could not read that card
+during verification}: the item returned an HTTP error to every automated
+request, so we quote no counts from it and rely on it for nothing in this
+paper.
+
+\paragraph{No baseline comparison exists.} We did not train a comparison
+model. The obvious baselines (multilingual BERT, AfriBERTa) were scoped
+and not run, so we report no comparison table and make no claim about how this
+model performs relative to alternatives. What we report is one model family
+across three configurations. A reader wanting to know whether a different
+pretrained encoder would do better on this corpus should read that question as
+open, not as answered in our favour.
+
+\paragraph{Six claims require studies that have not run.} The following are
+recorded as \PENDING{} throughout, and no value for any of them exists anywhere
+in our records:
+
+\begin{center}\small
+\begin{tabular}{lp{0.52\textwidth}}
+\toprule
+Claim & Status \\
+\midrule
+Inter-rater agreement ($\kappa$) & \PENDING{no second annotator} \\
+Taxonomy approved by a clinician & \PENDING{no clinician has reviewed it} \\
+Native-speaker authenticity ratings & \PENDING{no rating session has run} \\
+Human-nurse baseline & \PENDING{no nurse study has run} \\
+Community health worker consultation & \PENDING{did not occur} \\
+Deployment & \PENDING{not deployed} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The protocol for each is written and ready to execute; what is missing is a
+person, not an instrument. We state them as pending rather than omitting them
+because a claim quietly dropped from a paper is indistinguishable, to a reader,
+from one that was never made.
+
+\paragraph{Patient-facing text exists in two of four languages.} The sentence a
+patient reads, and the SMS they receive, is speaker-authored or absent,
+and it is authored for Kinyarwanda and Swahili only. English and French return
+an explicit pending state. The system runs; it declines to say anything to a
+patient in a language no speaker has written for.
+
+\paragraph{The client requires connectivity, in a setting that does not have
+it.} The system is intended for health centres with intermittent connectivity,
+and neither half of it tolerates an outage. Classification is server-side: a
+449\,MB encoder that will not run in a browser on the hardware these clinics
+have, so a disconnected client cannot triage at all; it could at best capture
+symptoms for later. The queue view is worse than unavailable during an outage:
+it retains the last rows it successfully fetched and continues to render them
+without an age, so a board that is minutes stale reads as current, and a patient
+who arrived during the outage is simply absent from it. Submissions made while
+disconnected are lost rather than queued. We record this as a constraint rather
+than reporting a solution: an offline mode for this system is a capture-and-sync
+design needing server-side idempotency and a conflict rule for replayed triage,
+and neither exists. The full inventory is in \texttt{docs/frontend-limitations.md}.
+
+\paragraph{The configuration search is inconclusive rather than complete.}
+Three configurations were trained and the search was stopped by judgement, not
+by convergence. We did not tune to the gate, and we did not run the
+per-sentence diagnostic that would distinguish an ambiguous concept from a
+mislabelled one on the unresolved boundary.
+

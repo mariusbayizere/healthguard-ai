@@ -20,7 +20,7 @@ quantity.
 
 \paragraph{The gates become a running constraint rather than a post-hoc audit.}
 The authoring sheet issued to an author already carries the fields the gates
-read --- seed, origin, author, validator, reporter, age group, and the surface
+read: seed, origin, author, validator, reporter, age group, and the surface
 variation the corpus lacks. Checking a returned sheet is seconds of compute, so
 an author learns that a cell has become too uniform, or that one author now holds
 too much of it, while there is still time to write differently. The gates were
@@ -36,9 +36,9 @@ they are the only honest basis we know of for costing the work.
 \paragraph{The pipeline runs, or refuses, for a reason that can be acted on.} It
 refuses today because the evaluation set is below its minimum. With a calibration
 split and a test split that meet the specification, the same refusal becomes a
-pass, and the artefacts it writes --- the run manifest, the calibrated
+pass, and the artefacts it writes (the run manifest, the calibrated
 temperature, the safety-tuned thresholds, the predictions carrying the served
-decision --- are the record a gate verdict would rest on.
+decision) are the record a gate verdict would rest on.
 
 \paragraph{The probe acquires a comparison.} Our surface-invariance figures are a
 baseline taken on a model trained without surface variation. A model trained on a
@@ -57,8 +57,8 @@ observes in a present patient, and rules explicitly against substituting a
 relative's account for observation. A label assigned from a written description
 by someone who has not been examined is therefore not the same construct, even
 when it uses the same category names. Whether a defensible ground truth exists
-for it --- a clinician's judgement given the text alone, agreement between
-several such judgements, or the eventual disposition of the patient --- is a
+for it (a clinician's judgement given the text alone, agreement between
+several such judgements, or the eventual disposition of the patient) is a
 clinical and methodological question, not an engineering one. Until it is
 settled, a label in a corpus like ours records what an annotator would say, and
 the gap between that and what a patient needed is unmeasured.
@@ -70,8 +70,8 @@ seeds may describe the same presentation in different words; one seed may carry
 several distinct clinical situations. A lexical diversity measure computed over
 one row per seed is the direction we chose, with a floor defined relative to a
 pilot that does not yet exist, and we can neither calibrate nor defend that floor
-today. What the right measure is --- and whether any single number can stand for
-diversity in a corpus assembled this way --- is open.
+today. What the right measure is, and whether any single number can stand for
+diversity in a corpus assembled this way, is open.
 
 \paragraph{What does calibration mean when confidence never reaches the review
 threshold?} Our service refers any prediction below a confidence threshold to a
@@ -95,8 +95,8 @@ against the same concept spine. No English speaker and no French speaker has
 ruled on them, and the French brief records explicitly that no French speaker has
 seen any of it. The two arms did produce one result worth keeping: built
 independently, they lifted the same eleven Kinyarwanda holds on the same
-reasoning --- each a block on a Kinyarwanda \emph{word} rather than on the
-concept --- and added the same hold on a concept-level clinical question. Two
+reasoning (each a block on a Kinyarwanda \emph{word} rather than on the
+concept), and added the same hold on a concept-level clinical question. Two
 arms agreeing independently is the strongest evidence available that those
 rulings concern concepts rather than one language.
 

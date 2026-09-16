@@ -37,8 +37,8 @@ Two further negatives follow from the same root. First, an evaluation set of
 17{,}942 rows built from nine distinct source sentences supports no verdict: our
 deployment gate, which counts distinct sentences rather than rows, refuses 38 of
 its cells and declines to report. Second, a model trained on a corpus with
-uniform surface form changes its predicted urgency under surface variation alone
---- 31.5\% of inputs under capitalisation and 21.0\% under a single typo, while
+uniform surface form changes its predicted urgency under surface variation alone:
+31.5\% of inputs under capitalisation and 21.0\% under a single typo, while
 whitespace, which the tokenizer normalises, changes nothing.
 
 We also report a deployment failure mode that leaves every output-side signal

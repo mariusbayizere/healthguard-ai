@@ -93,12 +93,14 @@
 % quietly outlived its truth.
 \newcommand{\PENDING}[1]{\textbf{[PENDING: #1]}}
 
-\title{Seeds, not rows: what a corpus requirement written in the wrong unit\\fails to constrain}
+\title{KinyaMed: Seeds, Not Rows\\
+\large What a Corpus Requirement Written in the Wrong Unit Fails to Constrain%
+\thanks{Build fingerprint \texttt{\ResultFingerprint}. Every number in this paper
+re-derives from a clean clone of the repository with \texttt{make reproduce}.}}
 \author{Marius Bayizere\\
   Independent Researcher, Kigali, Rwanda\\
   \texttt{bayizeremarius119@gmail.com}}
-\date{Working draft, \today\\[2pt]
-  \small build fingerprint \texttt{\ResultFingerprint}}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -106,16 +108,10 @@
 \input{sections/abstract}
 
 \begin{center}
-\fbox{\parbox{0.9\textwidth}{\small\raggedright
-\textbf{Provenance of every number.} This paper reports no model quality figure.
-Each number in it is a property of a corpus, a specification, or an artefact's
-behaviour under perturbation, and \texttt{reports/PAPER\_NUMBERS.md} lists every
-one with the committed script or record that produces it. Figures whose script
-was never committed are marked NOT REPRODUCIBLE where they appear, or cut. The
-gate-degeneracy figures are generated macros written by
-\texttt{training/holdout\_eval.py -{}-writeup}; they carry the fingerprint of the
-weights, the evaluation data and the commit that produced them.
-}}
+\begin{minipage}{0.86\textwidth}
+\small\textbf{Keywords:} low-resource NLP, Kinyarwanda, clinical triage, dataset
+quality, negative results, evaluation methodology, reproducibility.
+\end{minipage}
 \end{center}
 
 \vspace{1em}
@@ -131,6 +127,9 @@ weights, the evaluation data and the commit that produced them.
 \input{sections/limitations}
 \input{sections/future_work}
 \input{sections/conclusion}
+
+\appendix
+\input{sections/appendix}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

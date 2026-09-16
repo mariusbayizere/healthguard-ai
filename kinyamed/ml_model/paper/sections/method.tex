@@ -13,8 +13,8 @@
 \subsection{Corpus v1, and why it was replaced}
 
 The first corpus was generated, not authored. A template generator combined a
-small inventory of symptom phrases with frame slots --- an opener, a subject, an
-onset, a context and a closer --- to produce 1{,}000{,}000 rows across four
+small inventory of symptom phrases with frame slots (an opener, a subject, an
+onset, a context and a closer) to produce 1{,}000{,}000 rows across four
 languages (Kinyarwanda, English, French, Swahili) from 184 template-drafted
 phrases. The phrases themselves were written by a non-speaker working from
 English clinical concepts.
@@ -27,8 +27,8 @@ not what a patient would say: syntax calqued from English structure, register
 drifted upward toward the clinical, borrowed words that speech uses freely
 (\emph{malaria}, \emph{pressure}, \emph{sugar}) avoided in favour of ``pure''
 constructions, and descriptions that were too complete for speech. The speaker
-also rejected the noun-phrase form the generator required --- phrases were
-written to slot in after \emph{I have} / \emph{my wife has} --- and rewrote the
+also rejected the noun-phrase form the generator required (phrases were
+written to slot in after \emph{I have} / \emph{my wife has}), and rewrote the
 existing phrases as full patient utterances. That change moved person out of the
 frame and into the phrase, and it is the reason the v2 inventory carries a
 first-person and a third-person row per concept.
@@ -55,8 +55,8 @@ evaluation rows was built on a phrase that also appears in training:
 
 The failure is not that the leakage went undetected. It was detected, measured
 and written into the manifest by the same commit that introduced the pipeline.
-It went unread. The two fields anyone looked at --- exact text overlap and
-family overlap --- were both zero, and they were zero honestly: no evaluation
+It went unread. The two fields anyone looked at, exact text overlap and
+family overlap, were both zero, and they were zero honestly: no evaluation
 row appeared verbatim in training, and no family straddled the split. Holding
 out a \emph{family} does not hold out a \emph{phrase}, and it was the phrase
 that carried the label. A number that says the holdout is worthless can sit in
@@ -75,7 +75,7 @@ We state plainly that the cross-split figure is \emph{worse} in v2, not
 better: it is 100.0\% in both directions (24{,}900 of 24{,}900 and 34{,}425 of
 34{,}425), because the two v2 evaluation sets are disjoint partitions of one
 corpus, so each trains on everything the other holds out. What v2 fixed is the
-within-split failure --- family-evaluation against family-training is now
+within-split failure: family-evaluation against family-training is now
 0.0\%, where v1 was 100\%. The two splits swapped failure modes rather than
 one improving, and a table placing a v1 family result beside a v2 one would
 compare a wholly contaminated evaluation with an uncontaminated one and call
@@ -85,7 +85,7 @@ the difference a model improvement.
 
 v2 is monolingual Kinyarwanda: 330{,}000 rows generated from 165 distinct
 phrases, drawn without replacement from each phrase's frame combinations. It is
-a rebuild rather than a revision --- a v1 result and a v2 result are not the same
+a rebuild rather than a revision: a v1 result and a v2 result are not the same
 experiment and do not belong in one table.
 
 \paragraph{Provenance of the phrases is recorded per phrase, and is mixed.}
@@ -111,7 +111,7 @@ clinical guidance wherever guidance exists for the presentation.
 
 \paragraph{The concept total is not established, and we do not assert one.} Our
 own audit found the concept count recorded with \textbf{five different values}
-across this repository --- 68, 80, 126, 127 and 128 --- in documents that each
+across this repository (68, 80, 126, 127 and 128) in documents that each
 describe the same spine. A paper cannot quote one of five and call it a
 measurement, so we quote none. Establishing the total against the authoring
 record is outstanding work, and until it is done every count below is stated as
@@ -123,8 +123,8 @@ were assigned anchors to published clinical guidance during corpus construction.
 \textbf{Those assignments have never been checked against the source documents,
 which this project does not hold}, so we give no count of anchored concepts, no
 breakdown by document, and no per-concept reference. Earlier drafts stated a
-count that its own table contradicted --- the total silently absorbed a row of
-concepts recorded as having \emph{no} anchor --- which is the error this decision
+count that its own table contradicted: the total silently absorbed a row of
+concepts recorded as having \emph{no} anchor, which is the error this decision
 removes. Verifying every assignment against the document and page it names is
 outstanding work, and until it is done the anchoring is a property of our
 construction process rather than a claim about clinical guidance.
@@ -143,7 +143,7 @@ open taxonomy questions and a sign-off sheet is written and unexecuted.
 
 \paragraph{Label agreement: \PENDING{no second annotator}.} Every urgency
 label in this corpus is one person's. No second annotator has labelled any
-part of it, so no inter-rater agreement statistic exists --- not a low one, none.
+part of it, so no inter-rater agreement statistic exists: not a low one, none.
 The annotation protocol, the boundary cases we expect disagreement to
 concentrate on, and the $\kappa$ computation are written and wait on a person.
 We flag one design point in advance: agreement must be computed at the
@@ -159,65 +159,9 @@ no-reproduction rule is recorded in the repository.
 
 \subsection{Person, and the rulings that remove rows}
 
-Each concept has a first-person row (the patient speaking) and a third-person row
-(someone speaking about them, with the relation carried by a placeholder). Not
-every concept supports both, and 50 of the 256 rows are ruled inapplicable. The
-rulings fall into three groups, and each was made by a named party rather than by
-default.
-
-\paragraph{Whole concepts collapsed into another (15 concepts, 30 rows).} Where
-two concepts turned out to name one sign, the speaker ruled them one concept and
-the absorbed identifier went out of generation. The collapses are:
-
-\begin{center}\small
-\begin{tabular}{llllll}
-\toprule
-Absorbed & Into & Absorbed & Into & Absorbed & Into \\
-\midrule
-EX17 & EX16 & HT06 & EX22 & NE04 & EX35 \\
-EX30 & CR07 & IF07 & EX29 & NE08 & EX36 \\
-EX42 & IF05 & NE01 & EX33 & PA01 & EX33 \\
-GI08 & EX16 & NE02 & EX32 & PA06 & IF05 \\
-HT01 & EX18 & NE03 & EX34 & PA10 & EX46 \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-A collapse was permitted only where the
-absorbing \emph{phrase} carried the whole sign; two proposed collapses were
-rejected on that test, one because the absorbing phrase conditioned a general
-danger sign on a temperature threshold and one because it covered only half of a
-disjunctive sign.
-
-\paragraph{First person removed (11 concepts).} Two grounds, both the speaker's.
-The first is capacity: a patient who is unconscious or convulsing cannot report
-it, which removes \texttt{EX32}, \texttt{EX33}, \texttt{PA02}, \texttt{PA03} and
-\texttt{PA04}. The second is that the sign is an examination finding rather than
-something the patient perceives --- a skin pinch, sunken eyes, a growth chart ---
-which removes \texttt{GI04}, \texttt{PA05} and \texttt{PA07}. A separate standing
-rule removes a paediatric first person that would merely duplicate an adult
-concept, since the patient's being a child lives only in the relation word and
-the first person has no slot for it; that removes \texttt{EX40}, \texttt{EX41}
-and \texttt{EX43}.
-
-\paragraph{Third person removed (9 concepts).} Nobody presents on another
-person's behalf to collect a repeat prescription, attend their own routine review
-or request their own screening test, so \texttt{CC08}, \texttt{CC09},
-\texttt{CC10}, \texttt{EX10}, \texttt{EX11}, \texttt{EX44}, \texttt{EX45},
-\texttt{PR06} and \texttt{PR07} have no third person.
-
-\paragraph{Relation restriction.} Where a third person exists, the set of
-relations it may be about is ruled per concept rather than defaulted: nine
-concepts take no relations, seven are restricted to children, five to adults,
-three to household members and one to the obstetric set. One concept is held
-pending a decision and one is out of generation pending a service-design question
-about whether men present for family-planning advice in this setting.
-
-\paragraph{Open at the time of writing.} Twenty-three rows are held and 25 carry
-a flag for clinician review. Held rows generate nothing. The flags are of two
-kinds and the distinction is maintained deliberately: some are clinical questions
-about the concept, which any language inherits, and some are doubts about a
-specific Kinyarwanda word, which no other language inherits.
+A speaker's rulings on grammatical person remove whole concepts and restrict which
+relations may appear. The rulings, the concept-collapse table and the relation
+restrictions are in Appendix~\ref{app:person}.
 
 \subsection{The other three language arms, as built}
 
@@ -228,7 +172,7 @@ differs by component rather than uniformly.
 \paragraph{Relation terms.} A third-person phrase carries a placeholder that
 expands to a set of relation words. For Swahili these are \emph{speaker
 authored}: a Kiswahili speaker supplied all twelve with regional variants and
-notes. For English and French they are not --- their wording was taken from the
+notes. For English and French they are not: their wording was taken from the
 v1 corpus's machine-drafted subject slot. In every arm the set \emph{membership}
 is the Kinyarwanda speaker's ruling mirrored one for one, so a Swahili
 third-person row carries speaker-authored wording under a mirrored membership
@@ -242,15 +186,15 @@ wired into a set that means something else.
 
 \paragraph{Authenticity of the Kinyarwanda: \PENDING{no rating session has
 run}.} Whether these phrases read as something a patient would say has not been
-measured. The instrument --- a five-point scale whose middle band is
+measured. The instrument, a five-point scale whose middle band is
 deliberately ``understandable, but not how I would put it'', the state the v1
-corpus was in --- is written and unexecuted.
+corpus was in, is written and unexecuted.
 
 \paragraph{Phrases.} No phrase is authored in any of the three. English and
 French hold machine-drafted candidates on the same concept spine, unreviewed by
 any speaker of either language. Swahili holds none: its authoring brief contains
 no Swahili at all, deliberately, so that a fluent draft cannot anchor the
-speaker to its errors --- the finding that caused the Kinyarwanda arm to be
+speaker to its errors: the finding that caused the Kinyarwanda arm to be
 re-authored rather than corrected.
 
 \paragraph{Frame fragments.} The openers, time expressions, contexts and
@@ -270,7 +214,7 @@ while an exact-match overlap check reports zero leakage.
 Three silent attribution failures were found and fixed while building this, each
 of which would have dropped rows out of the leakage analysis without raising an
 error: a case-sensitivity mismatch, a placeholder-deletion bug that welded a
-sentence's two halves together with a double space, and --- the largest --- a
+sentence's two halves together with a double space, and, the largest, a
 phrase authored as a complete sentence never matching its own rendering, because
 the generator removes the terminal stop before appending an onset. That last
 reached most of the corpus, 57 of the 100 authored phrases at the time ending in

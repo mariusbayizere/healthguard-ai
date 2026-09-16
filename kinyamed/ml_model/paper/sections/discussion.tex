@@ -30,7 +30,7 @@ actually bounds what a model can learn.
 
 \paragraph{The substitution is invisible in every aggregate a reviewer normally
 sees.} Row count, class balance, language balance, mean length and duplicate rate
-all look healthy on our corpus --- the generator's own quality targets passed
+all look healthy on our corpus: the generator's own quality targets passed
 before any gate ran. What fails is a property no aggregate exposes: how many
 independent things the corpus says. A reader cannot see it without being told the
 distinct-seed count, which is why we state it at the head of every report and
@@ -39,8 +39,8 @@ beside every figure.
 \paragraph{The general form.} For any templated, augmented or model-expanded
 corpus, expansion is cheap and authoring is not; so a requirement written in the
 expanded unit is satisfiable without producing any of the scarce unit. The remedy
-is not a larger row target. It is to write the requirement in the scarce unit ---
-distinct authored items, per language, per cell --- and let the row count follow
+is not a larger row target. It is to write the requirement in the scarce unit,
+distinct authored items per language and per cell, and let the row count follow
 as a consequence. We would apply the same test to any corpus claim we read: ask
 what the expensive quantity is, and whether the stated requirement mentions it.
 
@@ -59,7 +59,7 @@ orders of magnitude.
 
 \paragraph{An interval computed over rows is not merely optimistic; it is
 answering a different question.} Resampling rows estimates how the number would
-move if we drew more permutations of these nine sentences --- a quantity nobody
+move if we drew more permutations of these nine sentences, a quantity nobody
 wants to know. Resampling sentences estimates how it would move on nine different
 sentences, which is the question a deployment decision asks. Our gate therefore
 counts distinct sentences per cell, resamples sentences for every interval, and
@@ -69,8 +69,8 @@ correct output rather than a failure of the instrument.
 
 \paragraph{What this implies for low-resource evaluation generally.} A test set
 assembled by expanding a small seed inventory can be made arbitrarily large and
-will not become more informative. Where a corpus is built this way --- which in
-low-resource settings it very often is --- the honest reporting unit is the
+will not become more informative. Where a corpus is built this way (which in
+low-resource settings it very often is), the honest reporting unit is the
 distinct source count per cell, and a paper that reports only row counts has not
 told the reader what its numbers rest on. The cost of the guarantee is real and
 should be stated openly: unioning a concept's phrasings into one cluster, as
@@ -84,7 +84,7 @@ than an accident of it.
 The gate below is the project's own acceptance gate, generated from the record
 that defines it. Two points about its numbers, since this paper is largely about
 numbers without derivations. Its critical-recall threshold of 0.95 is
-\emph{inherited and unverified} --- a different figure from the 0.91 our
+\emph{inherited and unverified}: a different figure from the 0.91 our
 requirements document sets, and neither has a source we could trace. Its
 non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
 is a clinical judgement nobody has made. The gate states which is which, which is
@@ -111,7 +111,7 @@ term in which over-triage could be expressed.
 \paragraph{The degenerate baseline has a closed form and should be computed
 rather than guessed.} What made this diagnosable rather than arguable is that
 merging two classes and labelling the union with the protected class scores a
-predictable precision on any evaluation set --- the protected class's share of
+predictable precision on any evaluation set, namely the protected class's share of
 the merged support. We could therefore say not that the model \emph{resembled}
 the degenerate strategy but that it sat below that strategy's own ceiling on
 those exact rows. We would report this quantity beside any single-class recall
@@ -128,10 +128,10 @@ class composition.
 \paragraph{The gate certified the worse of two configurations.} The rejected
 configuration kept all three classes alive; the accepted one had abandoned an
 urgency class entirely. We make no claim about which would perform better
-clinically --- both were scored on nine sentences --- but a gate that prefers the
+clinically (both were scored on nine sentences), but a gate that prefers the
 one that has stopped discriminating is not measuring what it was written to
-protect. Any process that trusted the gate --- an automated
-promotion step, a continuous-integration check, a tired reviewer --- would have
+protect. Any process that trusted the gate (an automated
+promotion step, a continuous-integration check, a tired reviewer) would have
 shipped the wrong model with a passing test to point at.
 
 \subsection{The leakage guarantee rests on a declaration, not on a similarity
@@ -148,7 +148,7 @@ in a carer's. They describe the same presentation and carry the same label, so
 a holdout that puts one in training and the other in evaluation is not measuring
 generalisation to an unseen presentation. Measured on the authored inventory,
 \textbf{60 of the 61 concepts with both persons authored had them in separate
-phrase groups} --- a count recorded in \texttt{docs/phrase-group-closure.md} when
+phrase groups}, a count recorded in \texttt{docs/phrase-group-closure.md} when
 the closure was designed. No committed script recomputes it, so the figure is
 \textbf{NOT REPRODUCIBLE} as it stands; the mechanism it demonstrates does not
 depend on the exact count.
@@ -156,7 +156,7 @@ depend on the exact count.
 \paragraph{No similarity rule could have caught this, and the reason is
 structural.} A third-person phrase begins with the relation placeholder and a
 first-person phrase begins with a letter, so wherever the placeholder leads the
-phrase the two share a prefix of zero characters --- not a small overlap that a
+phrase the two share a prefix of zero characters: not a small overlap that a
 lower threshold would reach, but none, however low the threshold goes.
 Containment fails too, because the verb morphology differs between the persons
 rather than one string embedding the other. The single concept that escaped is
@@ -167,7 +167,7 @@ The fix is a declaration rather than a measurement. The authoring brief knows
 which phrases belong to which concept, so the splitter reads that mapping and
 unions every phrase of a concept into one group. Two properties of how it is
 implemented matter more than the union itself. First, a declaration naming a
-phrase that is not in the inventory is a fatal error rather than a no-op ---
+phrase that is not in the inventory is a fatal error rather than a no-op;
 silence there would leave the concept's other phrasings unjoined and reopen the
 leak with no signal. Second, the cost is paid openly: unioning concepts reduces
 the number of independent evaluation units, and that reduction is the price of
@@ -176,8 +176,8 @@ the guarantee rather than an accident of it.
 \paragraph{The uncomfortable part.} This is a leakage guarantee that no amount
 of analysis of the corpus text could have produced. It depends on metadata
 about who is speaking, which exists only because the authoring process recorded
-it. A pipeline that received the same phrases as a flat list --- which is how
-such corpora are usually published --- would compute a closure that looks
+it. A pipeline that received the same phrases as a flat list (which is how
+such corpora are usually published) would compute a closure that looks
 rigorous, report zero overlap honestly, and split 60 of 61 concepts across the
 holdout. We had already made exactly this class of mistake once, in an earlier
 split whose manifest recorded complete leakage in a field nobody read.
@@ -231,7 +231,7 @@ tokens and the model answers its class prior on input it cannot read, with
 well-formed probabilities, deterministic outputs and a correct label order. In a
 clinic that failure looks like a working service. We mistook it for a collapsed
 model in our own harness, and we caught it only because it contradicted a
-confusion matrix we had recorded earlier --- which is to say, we caught it by
+confusion matrix we had recorded earlier: we caught it by
 having an older measurement to disagree with, not by inspection. Any deployment
 of a model whose inputs are in a script or language the operators cannot read
 should verify the encoding at start-up: the vocabulary size and the
@@ -243,8 +243,8 @@ inherits silently.} A corpus generated to a template has uniform case,
 punctuation and spacing, and contains no typographical noise. A model trained on
 it can change its answer for a third of inputs on capitalisation alone, and no
 metric computed on that same corpus will show it, because the evaluation rows are
-as uniform as the training rows. The check is cheap --- perturb the surface and
-count class changes --- and the result is interpretable only against the corpus:
+as uniform as the training rows. The check is cheap (perturb the surface and
+count class changes) and the result is interpretable only against the corpus:
 the variant our tokenizer normalises away changed nothing, which is what
 localises the cause in the data. For low-resource clinical text, where patients
 type on phone keyboards in a language with agglutinative morphology and no
@@ -254,6 +254,6 @@ the input.
 \paragraph{Neither is visible from the model's own outputs.} This is the common
 shape, and it is why we report both: a system can be wrong in a way that no
 confidence score, no probability distribution and no accuracy figure reveals.
-What detected each was a property check against something outside the model ---
+What detected each was a property check against something outside the model:
 the encoding of its own input, and the invariance of its answer under a
 transformation that should not matter.
