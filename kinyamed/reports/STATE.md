@@ -274,6 +274,56 @@ Full record: `reports/PRELIMINARY_RESULTS.md`. Nothing was waived, and the pipel
 - **Unchanged:** §16 gates UNMET; v2d NOT A BASELINE and not-for-deployment; the clinician gold-set path is still
   the only route to a publishable claim.
 
+## 2026-09-16 — paper length: six blocks moved to appendices, nothing deleted
+
+Main text **11,552 -> 10,083 words**; appendix **1,708 -> 3,639**. Moved, each leaving a
+one-sentence pointer naming its appendix: the leakage-declaration and search-cost
+subsections (Discussion), the v1 leakage post-mortem and the three-language-arm status
+(Method), the language-arm status and the one-inference-pass diagnostic (Future work).
+Apparatus 5.3 code-switching was already three sentences plus a pointer (`22d36ee`).
+The three open questions stay in the main text. Appendices are now A-H; every
+cross-reference resolves (`75f31a1`).
+
+**No page count is claimed.** There is no LaTeX toolchain on this machine, so a page
+figure would be an estimate presented as a measurement. The word counts above are
+measured; the page count is whatever Overleaf reports on the next build.
+
+**A second defect found while doing it.** `sections/appendix.tex` was never in
+`render_plain.py`'s file list, so every plain-text render since the appendices were
+created was main text only, and so was the reading copy built from it. Fixed in `f621d96`,
+with four further renderer defects in `4644bd5` (references rendered as their own labels,
+headings split across source lines, labels leaking into prose, tables keeping their column
+specification and orphaning wrapped cells).
+
+## 2026-09-16 — CI was red for ten consecutive pushes, and I reported it green
+
+**The finding, stated against myself.** Ten runs on `audit-p0-p1-and-frontend` failed
+(`a7a8a9d`, `7ad6025`, `bdd3c5d`, `03a0bfe`, `ee89121`, `8c29a83`, `1cbc536`, `d4e3a50`,
+`cfb3a4b`, `1ab2214`) on **one job**: Lint, step `ruff format --check .`. The other seven
+jobs passed in every one of them. The cause was
+`reports/measurements/majority_baseline.py`, added unformatted in `a7a8a9d` — the first
+red run — so every commit after it inherited the failure. `1ab2214` touched only
+`paper/main.tex` and was red for a violation four commits older.
+
+**Not environmental, and that is the point.** Local ruff is 0.16.6, the version CI pins,
+and `required-version` in `pyproject.toml` enforces it. Re-running the check reproduces
+the failure identically. I had reported "all files formatted" several times; those reports
+were of a check that did not cover the file. The runner was correct for ten runs while I
+said it was not. Fixed in `acdde0a` by applying the formatter's output verbatim — no logic
+change, no check weakened. Run #93 green, all 8 jobs.
+
+**Standing rule now in force (the user's words):** after every push, check the CI result
+and report it before moving on. A green local suite is not a CI result.
+
+**Runs since:** #94 (`75f31a1`) green, #95 (`4644bd5`) green.
+
+**What this is an instance of.** It is the same shape as the two failures the paper is
+about: a fact was recorded correctly, in a machine-readable place, by a system built to
+record it, and the person who needed it did not read it. The split manifest recorded 100%
+leakage in a field nobody read. The CI run recorded a failing job in an API nobody queried.
+Adding a third: I reported a local result as if it were the remote one. The instrument was
+never the problem in any of the three.
+
 ## 2026-09-16 (later) — FR-04-07 is a row count with no seed floor, and that is the same defect as the other five
 
 Recorded as **SRS correction A30**, which now consolidates all six numbers (A28 and A29 are folded into it).
