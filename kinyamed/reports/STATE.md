@@ -104,6 +104,44 @@ Next: the clinician and ethics questions (H1, H6/H6a/H6b), and the pilot authori
 
 ---
 
+## 2026-09-16 — item 1: the pilot authoring instrument (no vignettes, no labels)
+
+**Built, not authored.** `annotation/authoring.py` + `tests/test_authoring.py` (18 tests; red observed with the
+module removed, and one fixture was wrong: 40 rows sharing one placeholder text, which G4 correctly refused as an
+exact duplicate).
+
+- The issued sheet has **no urgency column** (a label would anchor the annotator; `annotation/store.py` already
+  refuses one at import) and an **empty `text` column**: Kinyarwanda vignettes are written by native-speaker
+  clinicians (ENGINEERING_SPEC §10.2 T1; machine-authored or translated text is inadmissible). **I authored no
+  vignette.**
+- Columns: item_id, text, language, split, scenario_id, seed_id, reporter, patient_age_group, domain, voice,
+  length, negation, multiple_complaints, register, author_code, generation_method, validated_by (`PENDING`), date.
+- Gates enforced when a filled sheet comes back (`--check`): **G1** rows per seed, **G4** near-duplicate and exact
+  duplicate seeds, **G5** machine person-transformation (metadata, plus a first/third pair from one author),
+  **G7** provenance completeness, **G8** author concentration, and EVAL_SET_SPEC §8's one-item-per-scenario rule in
+  the test split. **G2** is corpus-scope only; **G3** cannot exist yet, since its floor is defined from this pilot.
+
+**Where the gates bind, for a 2,354-item Kinyarwanda pilot with 5 authors** (`python -m annotation.authoring`):
+
+| Gate | Binds at | Why |
+|---|---|---|
+| G8 author concentration | **25 items per language × domain** | 5 authors × 20% each. This binds first, and hardest: a 2,354-item pilot needs **≥ 5 authors per cell**, and more if one author writes most of a cell. |
+| G4 near-duplicate seeds | **50 items** | Above 50 items a single near-duplicate pair exceeds 2%. The likeliest real collapse: authors writing to a grid converge on phrasings. |
+| G1 rows per seed | does not bind | One item per scenario in the test split means each item is its own seed. It binds only for calibration variants (50 per seed; above 1,000 items the 0.1% share is tighter). |
+| G2 distinct seeds | 3,000 per language (corpus) | A 2,354-item pilot is below it by construction: G2 is a corpus gate, not a pilot gate. **Its per-cell floor (30 per non-empty cell) cannot be computed at all** — see below. |
+| G3, G5, G7 | per item, or not yet computable | G5 and G7 bind per item; G3's floor is this pilot's own MATTR. |
+
+**The blocking finding: the set size cannot be computed.** The number of non-empty cells is
+domain × urgency × reporter × age group, and **the domain axis is BLOCKED** (H4: the national triage protocol is
+not in the repository; the repo's 9 corpus domains are an unratified placeholder). Without it, G2's per-cell floor
+has no denominator, so the minimum viable pilot size is unknown. The other BLOCKED axes: the clinical presentation
+types (D2/D3) and the urgency definitions themselves (H6, protocol §3). **E6 (paediatric / adult / both) is also
+undecided, so `patient_age_group` is issued as BLOCKED.**
+
+**Collapse risk, in order:** (1) too few authors — with 5, no cell may exceed 25 items; (2) phrasing convergence
+under a grid (G4 at 2%); (3) one author dominating a cell (G8); (4) paraphrase reuse, which is admissible only in
+the calibration split.
+
 ## Order agreed
 
 1 fail closed → 1b make the interlock visible → 2 threshold + remove patient reassurance → 3 logger-level phone
