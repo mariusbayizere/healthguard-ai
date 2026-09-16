@@ -1,5 +1,8 @@
 # Model audit — Phase 0 (docs/ENGINEERING_SPEC.md §3.5)
 
+> **v2d IS NOT A BASELINE (2026-09-16).** It is an audit artefact: no future model is compared against it, no
+> retraining of it is planned, and it is not served to patients. See §11 for what it does and does not do.
+
 > **NOT REPRODUCIBLE — read this first** (marked 2026-09-15, docs/ENGINEERING_SPEC.md L6). The measurements in this report were produced by `scratchpad/ml_audit.py` and `scratchpad/latency_audit.py`. Neither was committed, and neither exists on disk (§9), so no measured figure below can be re-run. Each section says so. What the repository *can* reproduce today:
 > - token lengths: `reports/TOKENIZER_STUDY.md`, which supersedes §2.1;
 > - the reporting set's composition, 17,942 rows from 9 sentences: DATASET_AUDIT §10;
@@ -497,3 +500,87 @@ backend/venv/bin/python ml_audit.py <outdir>          # provenance, tokens, metr
 backend/venv/bin/python latency_audit.py <outdir> inproc
 backend/venv/bin/python latency_audit.py <outdir> http
 ```
+
+## 11. Malfunction probe of v2d (2026-09-16) — and a correction of a wrong finding
+
+**Script:** `ml_model/training/probe.py` (19 tests). **Output:** `reports/measurements/probe_v2d.txt`.
+**Baselines:** `reports/measurements/majority_baseline.py` → `majority_baseline.txt`.
+**NOT A GATE METRIC.** The gate is `training/evaluate.py`, and it still refuses on the only held-out set that
+exists. Nothing here is accuracy.
+
+### 11.1 A wrong finding, retracted the same day
+
+A first run of this probe reported **ROUTINE for 200 of 200 inputs, with p(CRITICAL) never above 0.17**, and it
+was nearly written up as single-class collapse. **It was a defect in the probe, not in the model.**
+
+- The probe called `AutoTokenizer.from_pretrained(<model dir>)`. That directory holds no tokenizer files: they
+  are in `<model dir>/tokenizer`, which `evaluate.py`, `holdout_eval.py` and the backend all resolve correctly.
+- **Transformers 5.8.1 did not raise.** It returned a tokenizer with **vocabulary size 5**, which encoded every
+  word as `<unk>` (id 3). The model was answering its prior on unreadable input.
+- What exposed it: the result contradicted this report's own recorded confusion matrix for v2d
+  (`[[7621,1341,0],[3869,3868,56],[0,0,1187]]`), which over-predicts CRITICAL and cannot be a ROUTINE collapse.
+- **The probe now checks its own input encoding** (vocabulary size and unknown-token rate) and fails loudly, so
+  this class of mis-load cannot be mistaken for model behaviour again. A model shipped without its tokenizer
+  would have produced exactly this signature in production.
+
+### 11.2 What the corrected probe measures
+
+200 texts sampled evenly from the v2 phrase-holdout eval split (34,425 rows, 15 distinct source sentences),
+serving length 96, 166 s, peak 1,012 MB.
+
+| Check | Result |
+|---|---|
+| input encoding | vocabulary 250,002 from `tokenizer/`, **0.0% unknown tokens** |
+| probability validity | 200/200 well formed |
+| determinism | 200/200 identical across two calls |
+| label order | `{0: CRITICAL, 1: URGENT, 2: ROUTINE}`, matches `dataset/labels.py` |
+| length robustness | a 120-word input handled |
+| predicted classes | **CRITICAL 102, URGENT 33, ROUTINE 65** — no single-class collapse |
+| mean probability per class | CRITICAL 0.36, URGENT 0.33, ROUTINE 0.31 |
+| highest p(CRITICAL) over the sample | **0.55** |
+| **formatting invariance** | **whitespace 0, capitalisation 63 of 200 — SIGNAL** |
+
+### 11.3 The two findings that stand
+
+1. **Capitalisation alone changes the predicted urgency for 31.5% of inputs** (63 of 200); surrounding whitespace
+   changes none. A patient typing in capitals is not making a clinical statement, and a triage decision must not
+   turn on it. This is a real robustness defect, and it is measured, not inferred.
+2. **The model is uniformly unconfident.** Mean probabilities sit near the uniform 0.33 (0.36 / 0.33 / 0.31) and
+   the highest CRITICAL probability anywhere in the sample is 0.55. Every such prediction is below the 0.75 review
+   threshold, so the service flags it for clinician review rather than assigning an urgency silently
+   (FR-04-03, L4). That is the fail-safe behaving as designed, not a model that is working.
+
+### 11.4 The majority-class floor, for reading 0.7065 honestly
+
+Labels only, no model (`majority_baseline.py`):
+
+| Split | Rows / distinct sentences | Class shares | Always-majority accuracy |
+|---|---|---|---|
+| v2 phrase-holdout eval | 34,425 / 15 | URGENT 34.18%, CRITICAL 33.12%, ROUTINE 32.70% | **0.3418** (always URGENT) |
+| the probe's 200-row sample | 200 / 15 | URGENT 34.0%, CRITICAL 33.5%, ROUTINE 32.5% | **0.3400** |
+| **n=9 gate gold set** (where 0.7065 was measured) | 17,942 / 9 | **CRITICAL 49.95%**, URGENT 43.43%, ROUTINE 6.62% | **0.4995** (always CRITICAL) |
+
+**Correction to a claim made in passing:** 0.7065 is **not** close to what always-predicting-ROUTINE yields.
+Always-ROUTINE on that split scores **0.0662**; the floor there is always-CRITICAL at **0.4995**. So 0.7065 is
+about 21 points above the floor. It remains a number that must not be used: it was computed on **9 distinct
+source sentences**, its phrase-cluster interval spans [0.400, 0.914] (§4.2), and the gate refuses to report it at
+all. Weak evidence, not absent evidence — and not evidence of deployability.
+
+### 11.5 Does the training record show the failure?
+
+`training/run_records/last_run_v2d_freeze8_lr1e-5.json`, `loss_history`, 46 points:
+
+- It **starts at the prior and stays there**: 1.0989 at step 25 against ln(3) = 1.0986, the loss of a classifier
+  that outputs the uniform distribution, and **within 0.003 of it through step 200** — the first 17% of the run.
+- It then descends: 1.0697 at step 300, 0.7845 at step 500, 0.7260 at step 700, 0.6105 at step 900 (the
+  early-stopping step that was restored and saved), 0.5294 at the final step 1150.
+- **So the run does not end at the prior**, and the training record shows no single-class collapse. The
+  prior-plateau is the first 200 steps only.
+- What the record does show: early stopping selected step 900 on **3 stopping phrases**, and the metrics beside it
+  (CRITICAL recall 0.833, accuracy 0.611 on 900 examples) were computed on that same tiny cluster count. Nothing in
+  the run can distinguish learning from memorising 15 sentences.
+- **Not checked, and not checkable without the artefact:** the trainer restores the best checkpoint before saving
+  (`train_holdout.py:888-898`), so the saved weights should be step 900. All three v2 runs wrote to the same
+  `save_path` (`~/kinyamed-runs/model_v2`), which no longer exists; the directories on disk are renamed copies,
+  and nothing in the repository ties a directory to a run record. **H16 should also cover which directory is which.**
+

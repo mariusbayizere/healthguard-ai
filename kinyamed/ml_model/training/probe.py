@@ -16,6 +16,8 @@ model grossly broken?":
   label order            the checkpoint's id2label is the dataset's order; an off-by-one
                          here maps CRITICAL to ROUTINE silently (ENGINEERING_SPEC §3.5)
   probability validity   three finite probabilities in [0, 1] summing to 1
+  input encoding         the tokenizer actually loaded has a real vocabulary and does not
+                         turn the text into unknown tokens
   length robustness      a long input neither crashes nor produces invalid output
 
 WHAT THIS IS NOT
@@ -63,6 +65,11 @@ URGENCY_PROBE_COLUMNS = (
 #: One class taking more than this share of a varied set is a collapse signal, not a
 #: quality judgement: it is the shape of a model that has stopped discriminating.
 COLLAPSE_SHARE = 0.95
+#: Above this share of unknown tokens the model is not reading the text at all. A model
+#: directory with no tokenizer files does NOT raise: transformers returns a vocabulary of
+#: 5 and every word becomes <unk>, which looks exactly like a collapsed model.
+MAX_UNKNOWN_RATE = 0.20
+MIN_VOCAB_SIZE = 1000
 LONG_INPUT_WORDS = 120
 
 Classifier = Callable[[Sequence[str]], Sequence[Sequence[float]]]
@@ -136,12 +143,19 @@ def load_urgency_probe(path: Path) -> list[dict[str, str]]:
     return rows
 
 
+def resolve_tokenizer_dir(model_dir: Path) -> Path:
+    """The tokenizer the service would load: `<model>/tokenizer` when it exists."""
+    subdirectory = Path(model_dir) / "tokenizer"
+    return subdirectory if subdirectory.exists() else Path(model_dir)
+
+
 def run(
     classify: Classifier,
     texts: Sequence[str],
     *,
     id2label: dict[int, str] | None = None,
     urgency_items: Sequence[dict[str, str]] | None = None,
+    encoding: dict[str, object] | None = None,
 ) -> Report:
     """Run every malfunction check. Never returns a quality number."""
     import numpy as np
@@ -180,21 +194,24 @@ def run(
 
     variants = [f" {t} " for t in texts] + [t.upper() for t in texts]
     varied = [list(map(float, row)) for row in classify(variants)]
-    flips = 0
+    flips = {"whitespace": 0, "capitalisation": 0}
     for k, base in enumerate(first):
         if not _valid(base):
             continue
-        for offset in (0, len(texts)):
+        for name, offset in (("whitespace", 0), ("capitalisation", len(texts))):
             other = varied[k + offset]
             if _valid(other) and _argmax(other) != _argmax(base):
-                flips += 1
-    if flips:
+                flips[name] += 1
+    total_flips = sum(flips.values())
+    if total_flips:
         report.failures.append(
-            f"formatting invariance: {flips} class changes caused by surrounding whitespace or "
-            "capitalisation alone"
+            f"formatting invariance: {total_flips} class changes from formatting alone "
+            f"(whitespace {flips['whitespace']}, capitalisation {flips['capitalisation']}, "
+            f"of {len(texts)} texts each)"
         )
     report.findings.append(
-        f"formatting invariance: {flips} class change(s) from whitespace or case"
+        f"formatting invariance: whitespace {flips['whitespace']}, "
+        f"capitalisation {flips['capitalisation']}, of {len(texts)} texts each"
     )
 
     classes = [_argmax(row) for row in first if _valid(row)]
@@ -220,6 +237,19 @@ def run(
         report.findings.append(
             f"highest p(CRITICAL) over the sample: {matrix[:, 0].max():.2f}"
         )
+
+    if encoding is not None:
+        vocab = int(encoding.get("vocab_size", 0))
+        unknown = float(encoding.get("unknown_rate", 0.0))
+        report.findings.append(
+            f"input encoding: vocabulary {vocab:,} from {encoding.get('source', '?')}, "
+            f"{unknown:.1%} unknown tokens"
+        )
+        if vocab < MIN_VOCAB_SIZE or unknown > MAX_UNKNOWN_RATE:
+            report.failures.append(
+                f"input encoding: vocabulary {vocab:,} with {unknown:.1%} unknown tokens. The "
+                "model is not reading the text; any class distribution below is meaningless"
+            )
 
     recorded = id2label if id2label is not None else ID_TO_LABEL
     if {int(k): str(v) for k, v in recorded.items()} != ID_TO_LABEL:
@@ -290,7 +320,8 @@ def main(argv: list[str] | None = None) -> int:
     import torch
     import transformers
 
-    tokenizer = transformers.AutoTokenizer.from_pretrained(str(args.model))
+    tokenizer_dir = resolve_tokenizer_dir(args.model)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(str(tokenizer_dir))
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         str(args.model)
     )
@@ -312,6 +343,21 @@ def main(argv: list[str] | None = None) -> int:
                 out.extend(torch.softmax(model(**encoded).logits, dim=-1).tolist())
         return out
 
+    sample = _texts_from_csv(args.texts, args.limit)
+    encoded = tokenizer(list(sample), truncation=True, max_length=args.max_length)[
+        "input_ids"
+    ]
+    flat = [i for row in encoded for i in row]
+    encoding = {
+        "vocab_size": tokenizer.vocab_size,
+        "unknown_rate": (
+            sum(1 for i in flat if i == tokenizer.unk_token_id) / len(flat)
+            if flat
+            else 1.0
+        ),
+        "source": tokenizer_dir.name,
+    }
+
     items = []
     try:
         items = load_urgency_probe(args.urgency_probe)
@@ -320,9 +366,10 @@ def main(argv: list[str] | None = None) -> int:
 
     report = run(
         classify,
-        _texts_from_csv(args.texts, args.limit),
+        sample,
         id2label=id2label,
         urgency_items=items,
+        encoding=encoding,
     )
     rendered = report.render()
     print(rendered)

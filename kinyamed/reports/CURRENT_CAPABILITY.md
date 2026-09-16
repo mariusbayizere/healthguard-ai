@@ -20,6 +20,19 @@ intervals cannot separate a safe model from a dangerous one.
   worse, **in English only**.
 - With no model loaded, triage is refused and staff are told to triage manually.
 
+## The model is an audit artefact, NOT A BASELINE (2026-09-16)
+
+Measured by `ml_model/training/probe.py` on 200 texts from the v2 eval split; no gold labels, **NOT A GATE
+METRIC** (MODEL_AUDIT §11):
+
+- **Capitalisation alone changes the predicted urgency for 31.5% of inputs** (63 of 200); whitespace changes none.
+- **Uniformly unconfident:** mean probabilities 0.36 / 0.33 / 0.31; the highest CRITICAL probability in the sample
+  is **0.55**, so every prediction falls under the 0.75 review threshold and is flagged for a clinician.
+- **No single-class collapse** (CRITICAL 102, URGENT 33, ROUTINE 65); deterministic; label order correct.
+- The majority-class floor on the n=9 set where 0.707 was measured is **0.4995**
+  (`reports/measurements/majority_baseline.py`). The 0.707 is weak evidence, not evidence of deployability.
+- **v2d is not a baseline.** No future model is compared against it and no retraining of it is planned.
+
 ## What it cannot do
 
 - † **93.4% of test-set predictions fall below 0.75** and are flagged for a clinician. **NOT REPRODUCIBLE** (`ml_audit.py`).

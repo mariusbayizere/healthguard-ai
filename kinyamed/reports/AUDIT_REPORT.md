@@ -41,7 +41,7 @@ v2d, re-run on the frozen held-out reporting set, reproduces its recorded number
 
 | Metric | Measured | Threshold |
 |---|---|---|
-| Accuracy | 0.7065 | 0.82 |
+| Accuracy | 0.7065 (majority-class floor on that split: **0.4995**) | 0.82 |
 | Macro F1 | 0.7724 | 0.80 |
 | CRITICAL recall | 0.8504 | 0.91 |
 | CRITICAL precision | 0.6633 | 0.88 |

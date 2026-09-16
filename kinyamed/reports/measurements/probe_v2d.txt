@@ -2,12 +2,13 @@ NOT A GATE METRIC. Malfunction probe: is the served model grossly broken?
 
   NOT A GATE METRIC: probability validity: 200/200 outputs well formed
   NOT A GATE METRIC: determinism: 200/200 texts stable across two calls
-  NOT A GATE METRIC: formatting invariance: 0 class change(s) from whitespace or case
-  NOT A GATE METRIC: class collapse: predicted classes over 200 texts — CRITICAL 0, URGENT 0, ROUTINE 200
-  NOT A GATE METRIC: mean probability per class: CRITICAL 0.14, URGENT 0.18, ROUTINE 0.68
-  NOT A GATE METRIC: highest p(CRITICAL) over the sample: 0.17
+  NOT A GATE METRIC: formatting invariance: whitespace 0, capitalisation 63, of 200 texts each
+  NOT A GATE METRIC: class collapse: predicted classes over 200 texts — CRITICAL 102, URGENT 33, ROUTINE 65
+  NOT A GATE METRIC: mean probability per class: CRITICAL 0.36, URGENT 0.33, ROUTINE 0.31
+  NOT A GATE METRIC: highest p(CRITICAL) over the sample: 0.55
+  NOT A GATE METRIC: input encoding: vocabulary 250,002 from tokenizer, 0.0% unknown tokens
   NOT A GATE METRIC: label order: {0: 'CRITICAL', 1: 'URGENT', 2: 'ROUTINE'}
   NOT A GATE METRIC: length robustness: 120-word input handled
 
 1 malfunction signal(s).
-  SIGNAL: class collapse: ROUTINE is 100% of predictions (above 95%)
+  SIGNAL: formatting invariance: 63 class changes from formatting alone (whitespace 0, capitalisation 63, of 200 texts each)

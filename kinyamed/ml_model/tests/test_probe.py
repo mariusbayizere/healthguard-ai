@@ -169,3 +169,47 @@ def test_the_report_states_the_mean_probability_per_class_and_the_highest_critic
     assert "mean probability" in text
     assert "0.05" in text and "0.80" in text
     assert "highest p(CRITICAL)" in text
+
+
+# ── Input encoding: the check that caught a real mis-load ────────────────────
+def test_a_degenerate_tokenizer_is_caught():
+    """A model directory without tokenizer files does not raise: transformers returned a
+    vocabulary of 5, every word became <unk>, and the model answered its prior. The probe
+    must name that, not report it as a model collapse."""
+    report = probe.run(
+        _fake(_spread),
+        TEXTS,
+        encoding={"vocab_size": 5, "unknown_rate": 0.97, "source": "model root"},
+    )
+    assert any(f.startswith("input encoding") for f in report.failures)
+
+
+def test_a_healthy_encoding_is_reported_without_a_signal():
+    report = probe.run(
+        _fake(_spread),
+        TEXTS,
+        encoding={"vocab_size": 250002, "unknown_rate": 0.0, "source": "tokenizer/"},
+    )
+    assert not any(f.startswith("input encoding") for f in report.failures)
+    assert any("input encoding" in f for f in report.findings)
+
+
+def test_the_tokenizer_directory_is_resolved_as_the_service_resolves_it(tmp_path):
+    model = tmp_path / "m"
+    (model / "tokenizer").mkdir(parents=True)
+    assert probe.resolve_tokenizer_dir(model) == model / "tokenizer"
+    bare = tmp_path / "bare"
+    bare.mkdir()
+    assert probe.resolve_tokenizer_dir(bare) == bare
+
+
+def test_whitespace_and_capitalisation_are_reported_separately():
+    """Surrounding spaces changing the class is a different fault from shouting doing so."""
+
+    def only_case(text):
+        return [0.7, 0.2, 0.1] if text.isupper() else [0.1, 0.2, 0.7]
+
+    report = probe.run(_fake(only_case), TEXTS)
+    finding = next(f for f in report.findings if f.startswith("formatting invariance"))
+    assert "whitespace 0" in finding
+    assert "capitalisation 60" in finding

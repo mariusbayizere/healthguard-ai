@@ -1,0 +1,26 @@
+Majority-class baselines. Labels only; no model is run. NOT A GATE METRIC.
+
+v2 phrase-holdout eval split
+  rows 34,425 from 15 distinct source sentences
+    URGENT     11,766  34.18%
+    CRITICAL   11,401  33.12%
+    ROUTINE    11,258  32.70%
+  majority class: URGENT
+  ALWAYS-URGENT accuracy on this split: 0.3418
+
+  -> the 200-row sample training/probe.py takes from it
+  rows 200 from 15 distinct source sentences
+    URGENT         68  34.00%
+    CRITICAL       67  33.50%
+    ROUTINE        65  32.50%
+  majority class: URGENT
+  ALWAYS-URGENT accuracy on this split: 0.3400
+
+n=9 gate gold set (the reporting subset)
+  rows 17,942 from 9 distinct source sentences
+    CRITICAL    8,962  49.95%
+    URGENT      7,793  43.43%
+    ROUTINE     1,187   6.62%
+  majority class: CRITICAL
+  ALWAYS-CRITICAL accuracy on this split: 0.4995
+

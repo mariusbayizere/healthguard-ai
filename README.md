@@ -26,6 +26,28 @@ on Kinyarwanda only, suggests CRITICAL, URGENT or ROUTINE with a confidence scor
 queue is ordered by that suggestion. Patients receive only a receipt and queue position, in English.
 ([CURRENT_CAPABILITY.md](kinyamed/reports/CURRENT_CAPABILITY.md))
 
+## The model in this repository is an audit artefact, not a baseline
+
+The trained model (**v2d**) exists to exercise the serving path and to be refused by the gate. **It is not a
+baseline: no future model is compared against it, and no retraining of it is planned.** Measured by a committed
+probe on 200 texts, with no gold labels involved
+([MODEL_AUDIT §11](kinyamed/reports/MODEL_AUDIT.md), `ml_model/training/probe.py`):
+
+- **Capitalisation alone changes the predicted urgency for 63 of 200 inputs (31.5%).** Surrounding whitespace
+  changes none.
+- **It is uniformly unconfident:** mean probabilities 0.36 / 0.33 / 0.31 across the three classes, and the highest
+  CRITICAL probability anywhere in the sample is 0.55 — below the 0.75 review threshold, so every such case is
+  flagged for a clinician rather than assigned silently.
+- It is **not** collapsed to one class (CRITICAL 102, URGENT 33, ROUTINE 65), it is deterministic, and its label
+  order is correct.
+- Its recorded accuracy of 0.7065 was measured on **9 distinct source sentences**. The majority-class floor on
+  that same split is **0.4995** (`reports/measurements/majority_baseline.py`), and the interval spans
+  [0.400, 0.914]. The gate refuses to report it.
+
+**Why it cannot be characterised:** the corpus it learned from was expanded from 165 seed phrases, and the
+held-out set is 9 sentences. Corpus, model and evaluation set are one failure, recorded as a single finding in
+[STATE.md](kinyamed/reports/STATE.md).
+
 ## No clinical basis yet
 
 **No document in this repository authorises assigning urgency from a written report about a patient nobody has

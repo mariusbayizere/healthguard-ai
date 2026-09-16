@@ -159,43 +159,61 @@ language and vocabulary measured. What remained was closing the table, now done 
   then gates 14/15 on the named target CPU (H15), then gate 9, then cost. Each candidate has one named
   measurement that eliminates it.
 
-### Item 3 — malfunction probe, NOT A GATE METRIC (`training/probe.py`)
+### Item 3 — malfunction probe, NOT A GATE METRIC (`training/probe.py`, 19 tests)
 
-Built as a **malfunction probe, not an urgency probe.** Asserting that a given text is unambiguously CRITICAL is a
-clinical claim, so I did not author one. Six checks that need no clinical judgement: determinism, formatting
-invariance, class collapse, label order, probability validity, length robustness. 15 tests, red first.
-`data/probe/urgency_probe.csv` ships with a header and **no rows**; every row needs a cited source and a named
-validator, and even when filled the report prints the model's answer per item and **never a score**.
-`evaluate.py` does not import it, and a test enforces that.
+Built as a **malfunction probe, not an urgency probe**: asserting that a text is unambiguously CRITICAL is a
+clinical claim, so none was authored. `data/probe/urgency_probe.csv` ships empty and needs a source and a named
+validator per row; even filled, the report prints the model's answer per item and never a score. `evaluate.py`
+does not import it, and a test enforces that.
 
-**v2d, probed on 200 texts sampled evenly from the v2 phrase-holdout eval split** (`reports/measurements/probe_v2d.txt`,
-63 s, peak 636 MB):
+**A finding I got wrong, and retracted the same day.** The first run reported ROUTINE for 200 of 200 inputs with
+p(CRITICAL) never above 0.17, and I was one step from writing "single-class collapse" into MODEL_AUDIT.
+- **It was my probe's defect.** It loaded the tokenizer from the model directory root, which holds no tokenizer
+  files. Transformers did not raise: it returned a **vocabulary of 5**, every word became `<unk>`, and the model
+  answered its prior on unreadable input.
+- **What caught it:** the result contradicted MODEL_AUDIT's own recorded confusion matrix for v2d, which
+  over-predicts CRITICAL and cannot be a ROUTINE collapse. The contradiction was checked before the claim was
+  recorded.
+- The probe now checks **input encoding** (vocabulary size, unknown-token rate) and fails loudly. A model shipped
+  without its tokenizer would show exactly this signature in production, so the check earns its place.
+- `evaluate.py`, `holdout_eval.py` and the backend all resolved the tokenizer correctly; only the probe did not.
 
-| Check | Result |
-|---|---|
-| probability validity | 200/200 well formed |
-| determinism | 200/200 stable across two calls |
-| formatting invariance | 0 class changes from whitespace or case |
-| label order | `{0: CRITICAL, 1: URGENT, 2: ROUTINE}`, matches the dataset |
-| length robustness | a 120-word input handled |
-| **class collapse** | **ROUTINE 200, URGENT 0, CRITICAL 0 — SIGNAL** |
-| mean probability per class | CRITICAL 0.14, URGENT 0.18, **ROUTINE 0.68** |
-| highest p(CRITICAL) over the sample | **0.17** |
+**What the corrected probe measured** (200 texts from the v2 eval split; MODEL_AUDIT §11):
+CRITICAL 102, URGENT 33, ROUTINE 65 — **no collapse**; encoding clean (0.0% unknown); determinism 200/200; label
+order correct; **capitalisation alone changes the class for 63 of 200 inputs (31.5%)**, whitespace for none; mean
+probabilities 0.36 / 0.33 / 0.31 and **highest p(CRITICAL) 0.55**.
 
-**Is the model behaving sanely? No.** On this sample it answers ROUTINE for every input and never comes close to
-CRITICAL. The sample is not the cause: it is balanced by the generator's own template labels (67 CRITICAL, 68
-URGENT, 65 ROUTINE), so about a third of the texts are ones the corpus calls CRITICAL. The collapse is toward the
-one direction L3 names as the P0 incident class.
+**Is v2d behaving sanely? Partly, and not well enough to matter.** It is not collapsed and it is deterministic,
+but it is fragile to capitalisation and uniformly unconfident: every prediction sits below the 0.75 review
+threshold, so the service flags it for clinician review (FR-04-03, L4) rather than assigning urgency silently.
 
-- **This is not an accuracy claim and not a gate result.** Template labels are not gold, the set is not held out
-  under EVAL_SET_SPEC, and `evaluate.py` still refuses on the only held-out set that exists (n=9).
-- **What it does establish:** v2d must not be served to patients, and no amount of calibration or threshold tuning
-  fixes a model whose CRITICAL probability never exceeds 0.17.
-- **Mitigation already in place:** the confidence of every such prediction (max 0.68) is below the 0.75 review
-  threshold, so the service flags them for clinician review rather than silently assigning ROUTINE (FR-04-03, L4).
-- **Not yet diagnosed:** whether the saved v2d weights are the early-stopping step the run record describes
-  (it recorded CRITICAL recall 0.833 at step 900 on 3 stopping phrases), or a later, collapsed step. That is a
-  training-run question for the pilot, not a serving question.
+## 2026-09-16 — ONE finding: the corpus, the model and the evaluation set are the same failure
+
+Recorded as a single causal chain, not three defects. Sources: DATASET_AUDIT §10 (corpus and eval-set collapse),
+MODEL_AUDIT §4, §11 (model behaviour and the probe), `reports/measurements/majority_baseline.txt`.
+
+1. **The corpus could not teach the task.** 330,000 rows expanded from **165 seed phrases**, with mechanical
+   person-transformation applied to 180,272 rows (54.6%) — CORPUS_REBUILD §1, marked NOT REPRODUCIBLE. Gates G1,
+   G2, G4, G5, G6, G7 and G8 all fail on it.
+2. **The model trained on it cannot be characterised.** v2d over-predicts CRITICAL on the reporting subset
+   (confusion matrix, §4), is uniformly unconfident (no CRITICAL probability above 0.55 anywhere in the probe
+   sample), and **changes its answer on capitalisation alone for 31.5% of inputs**. Its loss sat at the uniform
+   prior (ln 3 = 1.0986) for the first 200 of 1,150 steps before descending to 0.53.
+3. **The evaluation set could not reveal either.** The held-out set is **17,942 rows from 9 distinct source
+   sentences**; the gate refuses every one of its 45 cells on it. The reported 0.7065 accuracy has a
+   phrase-cluster interval of [0.400, 0.914].
+4. **The floor makes the number readable.** Always-majority on that split scores **0.4995** (always CRITICAL);
+   always-ROUTINE would score 0.0662. So 0.7065 is about 21 points above the floor — **weak evidence, not
+   evidence of nothing, and not evidence of deployability.** An earlier claim that 0.7065 was near the
+   always-ROUTINE value is corrected here.
+
+**The chain, in one line:** a corpus built from 165 phrases by machine transformation produced a model whose
+behaviour no one can characterise, and an evaluation set of 9 sentences could not have revealed it either way.
+Fixing any one of the three alone changes nothing.
+
+**v2d is NOT A BASELINE.** It is an audit artefact. No future model is compared against it, no retraining of it is
+planned, and it is not served to patients. What it is useful for: exercising the serving path, the gate's refusal,
+and this probe.
 
 ## Order agreed
 
