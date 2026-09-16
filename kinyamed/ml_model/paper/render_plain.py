@@ -70,6 +70,10 @@ def main() -> int:
         "sections/limitations.tex",
         "sections/future_work.tex",
         "sections/conclusion.tex",
+        # The appendices were absent from this list until 2026-09-16, so every
+        # rendered plain text before that date was main text only and silently
+        # short of the appendix material the pointers refer to.
+        "sections/appendix.tex",
     ]
     for name in order:
         path = HERE / name
