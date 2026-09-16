@@ -26,31 +26,139 @@ def macros() -> dict[str, str]:
     return out
 
 
-def strip(text: str, macro: dict[str, str]) -> str:
+ORDER = [
+    "sections/abstract.tex",
+    "sections/introduction.tex",
+    "sections/related_work.tex",
+    "sections/method.tex",
+    "results.tex",
+    "sections/system.tex",
+    "sections/discussion.tex",
+    "sections/limitations.tex",
+    "sections/future_work.tex",
+    "sections/conclusion.tex",
+    # The appendices were absent from this list until 2026-09-16, so every
+    # rendered plain text before that date was main text only and silently
+    # short of the appendix material the pointers refer to.
+    "sections/appendix.tex",
+]
+
+
+def _read(name: str) -> str:
+    path = HERE / (name if name.endswith(".tex") else name + ".tex")
+    return path.read_text() if path.exists() else ""
+
+
+def numbering() -> dict[str, str]:
+    """Map every \\label to the number LaTeX would print for it.
+
+    Without this a \\ref rendered as its own label ("Appendix app:leakage"),
+    which is the same class of defect as LaTeX printing "??": the reader is
+    shown the internal name instead of the pointer.
+    """
+    out: dict[str, str] = {}
+    section = 0
+    sub = 0
+    current = ""
+    for name in ORDER:
+        path = HERE / name
+        if not path.exists():
+            continue
+        appendix = name.endswith("appendix.tex")
+        body = re.sub(r"(?m)^\s*%.*$", "", path.read_text())
+        # \input-ed files carry labels too (the generated tables do), and a
+        # \ref to one of them renders "??" if they are not scanned here.
+        body = re.sub(
+            r"\\input\{([^}]*)\}",
+            lambda m: _read(m.group(1)),
+            body,
+        )
+        for kind, arg in re.findall(
+            r"\\(section|subsection|label)\*?\{(.*?)\}", body, re.S
+        ):
+            if kind == "section":
+                section = section + 1 if not appendix else section
+                if appendix:
+                    sub = 0
+                    current = chr(ord("A") + out.setdefault("__app__", 0))
+                    out["__app__"] += 1
+                else:
+                    sub = 0
+                    current = str(section)
+            elif kind == "subsection":
+                sub += 1
+                current = f"{current.split('.')[0]}.{sub}"
+            else:
+                out[arg.strip()] = current
+    out.pop("__app__", None)
+    return out
+
+
+def _tabular(body: str) -> str:
+    rows = []
+    for raw in re.split(r"\\\\", body):
+        raw = re.sub(r"\\(toprule|midrule|bottomrule)\b", "", raw)
+        cells = [" ".join(c.split()) for c in raw.split("&")]
+        if any(cells):
+            rows.append(" | ".join(cells))
+    return "\n\n" + "\n".join(rows) + "\n\n"
+
+
+def strip(
+    text: str, macro: dict[str, str], number: dict[str, str] | None = None
+) -> str:
     text = re.sub(r"(?m)^\s*%.*$", "", text)
     # \renewcommand / \newcommand lines are typesetting plumbing, not prose
     text = re.sub(r"(?m)^\s*\\(re)?newcommand.*$", "", text)
     for name, value in macro.items():
         text = re.sub(rf"\\{name}\b\\?", value, text)
     text = re.sub(
-        r"\\(section|subsection)\*?\{([^}]*)\}",
-        lambda m: f"\n\n## {m.group(2).upper()}\n",
+        r"\\(section|subsection)\*?\{(.*?)\}",
+        lambda m: f"\n\n## {' '.join(m.group(2).split()).upper()}\n",
+        text,
+        flags=re.S,
+    )
+    text = re.sub(
+        r"\\paragraph\{((?:[^{}]|\{[^{}]*\})*)\}",
+        lambda m: f"\n\n{m.group(1)}",
         text,
     )
-    text = re.sub(r"\\paragraph\{([^}]*)\}", lambda m: f"\n\n{m.group(1)}", text)
+    number = number or {}
     text = re.sub(
-        r"\\(textbf|emph|texttt|ref|label|input|cite\w*)\{([^}]*)\}", r"\2", text
+        r"\\ref\{([^}]*)\}", lambda m: number.get(m.group(1).strip(), "??"), text
     )
+    text = re.sub(r"\\label\{[^}]*\}", "", text)
+    text = re.sub(r"\\(textbf|emph|texttt|input|cite\w*)\{([^}]*)\}", r"\2", text)
+    # A tabular is flattened to one line per row. Doing it here, rather than by
+    # deleting \\begin/\\end and hoping, keeps two things right that the naive
+    # version got wrong: the column specification ({lp{0.62\\textwidth}}) is
+    # dropped instead of surfacing as "lp0.62", and a cell wrapped across source
+    # lines stays in its row instead of being orphaned into the prose after the
+    # table.
     text = re.sub(
-        r"\\begin\{(itemize|center|tabular|table|abstract)\}(\[[^]]*\])?", "", text
+        r"\\begin\{tabular\}\s*(\{(?:[^{}]|\{[^{}]*\})*\})?(.*?)\\end\{tabular\}",
+        lambda m: _tabular(m.group(2)),
+        text,
+        flags=re.S,
     )
-    text = re.sub(r"\\end\{(itemize|center|tabular|table|abstract)\}", "", text)
+    text = re.sub(r"\\begin\{(itemize|center|table|abstract)\}(\[[^]]*\])?", "", text)
+    text = re.sub(r"\\end\{(itemize|center|table|abstract)\}", "", text)
     text = text.replace(r"\item", "  -").replace(r"\\", "").replace("&", " | ")
     text = re.sub(
         r"\\(toprule|midrule|bottomrule|small|centering|newpage|noindent|par)\b",
         "",
         text,
     )
+    for tex, plain in (
+        (r"\rightarrow", "\u2192"),
+        (r"\leftarrow", "\u2190"),
+        (r"\,", "\u2009"),
+        (r"\ldots", "\u2026"),
+        (r"\times", "\u00d7"),
+        (r"\leq", "\u2264"),
+        (r"\geq", "\u2265"),
+    ):
+        text = text.replace(tex, plain)
     text = re.sub(r"\\[a-zA-Z]+\*?(\[[^]]*\])?", "", text)
     text = text.replace("{", "").replace("}", "").replace("~", " ").replace("---", "—")
     text = text.replace(r"\%", "%").replace("\\_", "_").replace("$", "")
@@ -59,27 +167,12 @@ def strip(text: str, macro: dict[str, str]) -> str:
 
 def main() -> int:
     macro = macros()
-    order = [
-        "sections/abstract.tex",
-        "sections/introduction.tex",
-        "sections/related_work.tex",
-        "sections/method.tex",
-        "results.tex",
-        "sections/system.tex",
-        "sections/discussion.tex",
-        "sections/limitations.tex",
-        "sections/future_work.tex",
-        "sections/conclusion.tex",
-        # The appendices were absent from this list until 2026-09-16, so every
-        # rendered plain text before that date was main text only and silently
-        # short of the appendix material the pointers refer to.
-        "sections/appendix.tex",
-    ]
-    for name in order:
+    number = numbering()
+    for name in ORDER:
         path = HERE / name
         if not path.exists():
             continue
-        print(strip(path.read_text(), macro).strip())
+        print(strip(path.read_text(), macro, number).strip())
         print()
     return 0
 
