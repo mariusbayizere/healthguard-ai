@@ -11,7 +11,6 @@ no LaTeX toolchain, and so that what is read is what the sources say: every
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -20,7 +19,9 @@ HERE = Path(__file__).resolve().parent
 def macros() -> dict[str, str]:
     out: dict[str, str] = {}
     for path in (HERE / "generated").glob("*.tex"):
-        for name, value in re.findall(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", path.read_text()):
+        for name, value in re.findall(
+            r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", path.read_text()
+        ):
             out[name] = value
     return out
 
@@ -29,13 +30,25 @@ def strip(text: str, macro: dict[str, str]) -> str:
     text = re.sub(r"(?m)^\s*%.*$", "", text)
     for name, value in macro.items():
         text = re.sub(rf"\\{name}\b\\?", value, text)
-    text = re.sub(r"\\(section|subsection)\*?\{([^}]*)\}", lambda m: f"\n\n## {m.group(2).upper()}\n", text)
+    text = re.sub(
+        r"\\(section|subsection)\*?\{([^}]*)\}",
+        lambda m: f"\n\n## {m.group(2).upper()}\n",
+        text,
+    )
     text = re.sub(r"\\paragraph\{([^}]*)\}", lambda m: f"\n\n{m.group(1)}", text)
-    text = re.sub(r"\\(textbf|emph|texttt|ref|label|input|cite\w*)\{([^}]*)\}", r"\2", text)
-    text = re.sub(r"\\begin\{(itemize|center|tabular|table|abstract)\}(\[[^]]*\])?", "", text)
+    text = re.sub(
+        r"\\(textbf|emph|texttt|ref|label|input|cite\w*)\{([^}]*)\}", r"\2", text
+    )
+    text = re.sub(
+        r"\\begin\{(itemize|center|tabular|table|abstract)\}(\[[^]]*\])?", "", text
+    )
     text = re.sub(r"\\end\{(itemize|center|tabular|table|abstract)\}", "", text)
     text = text.replace(r"\item", "  -").replace(r"\\", "").replace("&", " | ")
-    text = re.sub(r"\\(toprule|midrule|bottomrule|small|centering|newpage|noindent|par)\b", "", text)
+    text = re.sub(
+        r"\\(toprule|midrule|bottomrule|small|centering|newpage|noindent|par)\b",
+        "",
+        text,
+    )
     text = re.sub(r"\\[a-zA-Z]+\*?(\[[^]]*\])?", "", text)
     text = text.replace("{", "").replace("}", "").replace("~", " ").replace("---", "—")
     text = text.replace(r"\%", "%").replace("\\_", "_").replace("$", "")
@@ -45,10 +58,16 @@ def strip(text: str, macro: dict[str, str]) -> str:
 def main() -> int:
     macro = macros()
     order = [
-        "sections/abstract.tex", "sections/introduction.tex", "sections/related_work.tex",
-        "sections/method.tex", "results.tex", "sections/system.tex",
-        "sections/discussion.tex", "sections/limitations.tex",
-        "sections/future_work.tex", "sections/conclusion.tex",
+        "sections/abstract.tex",
+        "sections/introduction.tex",
+        "sections/related_work.tex",
+        "sections/method.tex",
+        "results.tex",
+        "sections/system.tex",
+        "sections/discussion.tex",
+        "sections/limitations.tex",
+        "sections/future_work.tex",
+        "sections/conclusion.tex",
     ]
     for name in order:
         path = HERE / name
