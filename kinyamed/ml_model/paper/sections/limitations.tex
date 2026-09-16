@@ -149,3 +149,19 @@ Three configurations were trained and the search was stopped by judgement, not
 by convergence. We did not tune to the gate, and we did not run the
 per-sentence diagnostic that would distinguish an ambiguous concept from a
 mislabelled one on the unresolved boundary.
+
+\paragraph{Two failure modes that leave every output-side signal healthy.}
+First, a model directory shipped without its tokenizer files does not fail
+loudly: the loader returns a five-token vocabulary, every word becomes the
+unknown token, and the model answers its class prior on input it cannot read,
+while its probabilities remain well formed, its predictions deterministic and
+its label order correct. We encountered this in our own probing harness, and
+mistook it for single-class collapse until it contradicted a previously recorded
+confusion matrix; no metric computed from the model's own outputs distinguishes
+the two. Second, our model changes its predicted urgency under surface variation
+alone --- capitalisation for 31.5\% of sampled inputs and a single realistic
+typo for 21.0\%, while extra whitespace, which the tokenizer normalises, changes
+nothing --- which we attribute to a training corpus containing no capitalised
+rows, no doubled spacing and no typographical noise whatsoever. We report both
+as deployment-relevant properties rather than as quality measurements: the
+evaluation set that would license a quality claim does not yet exist.

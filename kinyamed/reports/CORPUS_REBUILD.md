@@ -65,10 +65,43 @@ Kinyarwanda first (§10.2, E5). Paraphrases count as separate seeds only when wr
 | G6 | Frame consistency | a frame incompatible with the item's `reporter` / `patient_age_group` fails the build | 45,232 rows — **fails** |
 | G7 | Provenance completeness | 100% of seeds and frames carry all §2 metadata | 0% per-row — **fails** |
 | G8 | Author concentration | no `author_code` > 20% of any language × domain | not recorded — **fails** |
+| G9 | **Surface variation** | Within each language, across the authored items: **≥ 15% not sentence-cased** (including capitalised and all-lower items), **≥ 20% without terminal punctuation**, **≥ 10% carrying a realistic typo**, and stray internal spacing present at all. Counted over seeds, not rows. | v2: **0 of 34,425 rows in capitals**, **0 with double spacing**, no typos by construction; 134 of 165 seeds end in terminal punctuation — **fails** |
 
 **Why G5 is enforced by metadata, not by a detector.** A Kinyarwanda concord classifier was 8.7–18.9% wrong on
 this corpus's clauses (TAXONOMY_SCOPE §8.1), so it cannot be the gate. It may flag suspected transforms for a
 native reviewer. The build decision rests on recorded authorship.
+
+### 3.1 Why G9 exists (added 2026-09-16)
+
+**Real patients do not type like a generator.** They type in capitals, without punctuation, with doubled spaces and
+with typos. The v2 corpus contains none of that, measured:
+
+- **0 of 34,425 rows are in capitals**, and **0 contain a double space**.
+- The generator has **no typo or noise step**, so every row is orthographically perfect.
+- Of the 165 seed phrases: 63 sentence case, 29 all lower, 73 beginning with a `{REL}` placeholder; **none
+  capitalised**; 134 of 165 end in terminal punctuation; 17 contain a comma.
+
+**The measured consequence.** The model trained on it changes its predicted urgency under surface variation alone
+(`training/probe.py`, MODEL_AUDIT §11; 200 texts):
+
+| Surface variant | Flip rate |
+|---|---|
+| capitalisation | **31.5%** |
+| typos | **21.0%** |
+| punctuation removed | 5.0% |
+| extra whitespace | 0.0% |
+
+Whitespace is the one the tokenizer normalises away, and it is the one with no effect — which is what makes the
+other three a corpus signal rather than a tokenizer artefact.
+
+**Authors must therefore produce surface variation deliberately**, and the authoring instrument records it:
+a share of items in capitals and in lower case, a share without terminal punctuation, a share with the typos a
+phone keyboard produces, and occasional stray spacing. The shares above are **engineering defaults, not clinical
+or measured requirements**; a speaker or clinician may rule they are wrong, and the pilot's own measured
+distribution should replace them.
+
+**What is explicitly NOT the fix:** lowercasing or normalising input at serving time. That hides the fragility,
+discards information the tokenizer is case-sensitive to, and leaves the model no more robust than it was.
 
 ## 4. Not in scope of this document
 

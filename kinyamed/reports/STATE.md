@@ -207,9 +207,45 @@ MODEL_AUDIT §4, §11 (model behaviour and the probe), `reports/measurements/maj
    evidence of nothing, and not evidence of deployability.** An earlier claim that 0.7065 was near the
    always-ROUTINE value is corrected here.
 
-**The chain, in one line:** a corpus built from 165 phrases by machine transformation produced a model whose
-behaviour no one can characterise, and an evaluation set of 9 sentences could not have revealed it either way.
-Fixing any one of the three alone changes nothing.
+5. **A fourth symptom of the same root cause: no surface variation.** The corpus contains **0 of 34,425 rows in
+   capitals**, **0 with double spacing**, and no typos at all (the generator has no noise step); 134 of its 165
+   seeds end in terminal punctuation. The model trained on it flips its predicted urgency under
+   **capitalisation 31.5%**, **typos 21.0%**, **punctuation 5.0%**, **whitespace 0.0%** (MODEL_AUDIT §11). Real
+   patients type in all of these. Recorded as **gate G9** in CORPUS_REBUILD §3 and §3.1, to be produced by authors
+   deliberately. **The fix is not to lowercase input at serving time:** that hides the fragility and discards
+   information the tokenizer is case-sensitive to.
+
+**The chain, in one line:** a corpus built from 165 phrases by machine transformation, with no surface variation,
+produced a model whose behaviour no one can characterise, and an evaluation set of 9 sentences could not have
+revealed it either way. **One root cause, four symptoms** — few seeds, mechanical transforms, absent surface
+diversity, and an evaluation set too small to show any of it. Fixing any one alone changes nothing.
+
+## 2026-09-16 — production risk: a model shipped without its tokenizer fails silently
+
+Recorded in its own right, separately from the probe finding it caused (MODEL_AUDIT §11.1).
+
+**The failure mode.** `AutoTokenizer.from_pretrained(<directory with no tokenizer files>)` **does not raise** in
+transformers 5.8.1. It returns a tokenizer with **vocabulary size 5**; every word becomes `<unk>`; the model then
+answers its class prior on unreadable input. Nothing in the output looks wrong: probabilities are well formed,
+the model is deterministic, and the predictions are plausible. It presents exactly as a model that has collapsed
+to one class.
+
+**Why it matters in deployment.** A model directory is copied, renamed or repacked far more often than it is
+retrained. Tokenizer files sit in a subdirectory here, so any packaging step that flattens or drops it produces a
+service that looks healthy and reads nothing.
+
+**Where this repository stands today:**
+- `backend/app/services/model_classifier.py`, `training/evaluate.py` and `training/holdout_eval.py` all resolve
+  `<model>/tokenizer` before falling back, so none of them is affected.
+- `training/probe.py` now measures its own **input encoding** (vocabulary size and unknown-token rate) and fails
+  loudly; it caught this defect in my own harness on 2026-09-16.
+- **Not yet done:** the service does not check the encoding of a loaded model. A start-up check — tokenize a fixed
+  string and refuse a vocabulary below a floor or an unknown-token rate above one — is the obvious next guard, and
+  is the same contract as `max_length` and the decision rule.
+
+**For the paper.** Worth one sentence in the limitations or deployment section: a silent tokenizer mis-load makes a
+model answer its prior on unreadable input while every surface signal stays healthy, and it is invisible to any
+metric computed from the model's own outputs.
 
 **v2d is NOT A BASELINE.** It is an audit artefact. No future model is compared against it, no retraining of it is
 planned, and it is not served to patients. What it is useful for: exercising the serving path, the gate's refusal,

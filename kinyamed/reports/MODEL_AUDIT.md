@@ -538,13 +538,18 @@ serving length 96, 166 s, peak 1,012 MB.
 | predicted classes | **CRITICAL 102, URGENT 33, ROUTINE 65** — no single-class collapse |
 | mean probability per class | CRITICAL 0.36, URGENT 0.33, ROUTINE 0.31 |
 | highest p(CRITICAL) over the sample | **0.55** |
-| **formatting invariance** | **whitespace 0, capitalisation 63 of 200 — SIGNAL** |
+| **surface invariance** (flip rate by variant) | **capitalisation 31.5%, typos 21.0%, punctuation 5.0%, whitespace 0.0% — SIGNAL** |
 
 ### 11.3 The two findings that stand
 
-1. **Capitalisation alone changes the predicted urgency for 31.5% of inputs** (63 of 200); surrounding whitespace
-   changes none. A patient typing in capitals is not making a clinical statement, and a triage decision must not
-   turn on it. This is a real robustness defect, and it is measured, not inferred.
+1. **Surface variation alone changes the predicted urgency**: capitalisation for **31.5%** of inputs, a realistic
+   typo for **21.0%**, removing punctuation for **5.0%**; extra whitespace for **none** (the tokenizer normalises
+   it, which is what makes the other three a corpus signal rather than a tokenizer artefact). A patient typing in
+   capitals or mistyping a word is not making a clinical statement, and a triage decision must not turn on it.
+   **This is a corpus-health signal, NOT A GATE METRIC**, and its cause is the corpus: 0 of 34,425 rows are in
+   capitals, none contains a double space, and the generator has no typo step (CORPUS_REBUILD §3.1, gate G9).
+   **The fix is authoring variation, not normalising input at serving time**, which would hide the fragility and
+   discard information the tokenizer is case-sensitive to.
 2. **The model is uniformly unconfident.** Mean probabilities sit near the uniform 0.33 (0.36 / 0.33 / 0.31) and
    the highest CRITICAL probability anywhere in the sample is 0.55. Every such prediction is below the 0.75 review
    threshold, so the service flags it for clinician review rather than assigning an urgency silently

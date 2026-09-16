@@ -22,7 +22,12 @@ np = pytest.importorskip("numpy", reason="the probe summarises with numpy")
 
 from training import probe  # noqa: E402
 
-TEXTS = [f"placeholder token{k} filler{k}" for k in range(60)]
+# Varying word counts, so a classifier keyed on word count spreads over all three
+# classes: word count survives capitalisation, punctuation, spacing and typos alike.
+TEXTS = [
+    " ".join(f"placeholder{k} token{k} filler{k} extra{k} more{k}".split()[: 3 + k % 3])
+    for k in range(60)
+]
 
 
 def _fake(probabilities):
@@ -35,8 +40,8 @@ def _fake(probabilities):
 
 
 def _spread(text):
-    """Keyed on the text's content, not its length: whitespace and case must not matter."""
-    k = sum(ord(c) for c in text.strip().lower()) % 3
+    """Keyed on word count: invariant to case, punctuation, spacing and typos alike."""
+    k = len(text.split()) % 3
     base = [0.2, 0.2, 0.2]
     base[k] = 0.6
     return base
@@ -83,7 +88,7 @@ def test_a_model_that_is_not_deterministic_is_caught():
     assert any(f.startswith("determinism") for f in report.failures)
 
 
-def test_a_model_that_changes_its_answer_on_whitespace_or_case_is_caught():
+def test_a_model_that_changes_its_answer_on_surface_variation_is_caught():
     def fragile(text):
         return (
             [0.7, 0.2, 0.1]
@@ -92,7 +97,7 @@ def test_a_model_that_changes_its_answer_on_whitespace_or_case_is_caught():
         )
 
     report = probe.run(_fake(fragile), TEXTS)
-    assert any(f.startswith("formatting invariance") for f in report.failures)
+    assert any(f.startswith("surface invariance") for f in report.failures)
 
 
 def test_a_model_that_answers_one_class_for_everything_is_caught():
@@ -203,13 +208,56 @@ def test_the_tokenizer_directory_is_resolved_as_the_service_resolves_it(tmp_path
     assert probe.resolve_tokenizer_dir(bare) == bare
 
 
-def test_whitespace_and_capitalisation_are_reported_separately():
-    """Surrounding spaces changing the class is a different fault from shouting doing so."""
+def test_each_surface_variant_is_reported_with_its_own_flip_rate():
+    """Shouting changing the class is a different fault from a stray space doing so."""
 
     def only_case(text):
         return [0.7, 0.2, 0.1] if text.isupper() else [0.1, 0.2, 0.7]
 
     report = probe.run(_fake(only_case), TEXTS)
-    finding = next(f for f in report.findings if f.startswith("formatting invariance"))
-    assert "whitespace 0" in finding
-    assert "capitalisation 60" in finding
+    finding = next(
+        f for f in report.findings if f.startswith("surface invariance (flip rate")
+    )
+    assert "capitalisation 100.0%" in finding
+    assert "whitespace 0.0%" in finding
+
+
+# ── Surface invariance: a corpus-health signal, never a quality claim ─────────
+def test_every_surface_variant_is_deterministic_and_changes_the_text():
+    text = "umwana wanjye, arwaye cyane kuva ejo."
+    for name, transform in probe.SURFACE_VARIANTS.items():
+        once, twice = transform(text), transform(text)
+        assert once == twice, f"{name} is not deterministic"
+        assert once != text, f"{name} did not change the text"
+
+
+def test_the_typo_variant_keeps_the_words_recognisable():
+    """A typo, not a rewrite: one edit per word at most, and the word count is unchanged."""
+    text = "mfite umuriro mwinshi cyane kandi ndababara"
+    typo = probe.SURFACE_VARIANTS["typos"](text)
+    assert len(typo.split()) == len(text.split())
+    assert sum(a != b for a, b in zip(text.split(), typo.split(), strict=True)) <= len(
+        text.split()
+    )
+
+
+def test_the_flip_rate_is_reported_per_surface_variant():
+    report = probe.run(_fake(_spread), TEXTS)
+    finding = next(f for f in report.findings if f.startswith("surface invariance"))
+    for name in probe.SURFACE_VARIANTS:
+        assert name in finding
+
+
+def test_a_model_fragile_to_one_variant_raises_a_signal_naming_it():
+    def shouting(text):
+        return [0.7, 0.2, 0.1] if text.isupper() else [0.1, 0.2, 0.7]
+
+    report = probe.run(_fake(shouting), TEXTS)
+    signal = next(f for f in report.failures if f.startswith("surface invariance"))
+    assert "capitalisation" in signal
+
+
+def test_surface_invariance_says_it_is_a_corpus_health_signal_not_a_gate():
+    text = probe.run(_fake(_spread), TEXTS).render()
+    assert probe.NOT_A_GATE in text
+    assert "corpus" in probe.SURFACE_NOTE.lower()

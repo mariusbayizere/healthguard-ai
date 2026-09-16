@@ -10,8 +10,8 @@ Six checks that need no clinical judgement and no gold labels, each answering "i
 model grossly broken?":
 
   determinism            the same text twice gives the same probabilities
-  formatting invariance  leading space, trailing space and capitalisation do not change
-                         the predicted class
+  surface invariance     capitalisation, punctuation, spacing and typos do not change the
+                         predicted class (a corpus-health signal, never a quality claim)
   class collapse         the model does not answer one class for everything
   label order            the checkpoint's id2label is the dataset's order; an off-by-one
                          here maps CRITICAL to ROUTINE silently (ENGINEERING_SPEC §3.5)
@@ -65,6 +65,46 @@ URGENCY_PROBE_COLUMNS = (
 #: One class taking more than this share of a varied set is a collapse signal, not a
 #: quality judgement: it is the shape of a model that has stopped discriminating.
 COLLAPSE_SHARE = 0.95
+#: Real patients type in mixed case, with and without punctuation, with stray spaces and
+#: with typos. Each variant below is a deterministic, content-preserving perturbation of
+#: the surface only. The flip rate under them is a CORPUS-HEALTH signal.
+SURFACE_NOTE = (
+    "a corpus-health signal, not a quality claim: a model that changes its answer under "
+    "surface variation has learned the corpus's uniform surface, not the task"
+)
+#: Engineering default, not a clinical or gate threshold, and never used to pass anything.
+SURFACE_FLIP_SIGNAL = 0.05
+PUNCTUATION = ",.;:!?"
+
+
+def _strip_punctuation(text: str) -> str:
+    return "".join(c for c in text if c not in PUNCTUATION)
+
+
+def _loosen_whitespace(text: str) -> str:
+    return "  " + "  ".join(text.split()) + " "
+
+
+def _typo(text: str) -> str:
+    """One edit in every third word: adjacent-character swap, or a doubled first letter."""
+    words = text.split()
+    out = []
+    for index, word in enumerate(words):
+        if index % 3 == 2 and len(word) >= 4:
+            out.append(word[0] + word[2] + word[1] + word[3:])
+        elif index % 3 == 2:
+            out.append(word[0] + word)
+        else:
+            out.append(word)
+    return " ".join(out)
+
+
+SURFACE_VARIANTS: dict[str, Callable[[str], str]] = {
+    "capitalisation": str.upper,
+    "punctuation": _strip_punctuation,
+    "whitespace": _loosen_whitespace,
+    "typos": _typo,
+}
 #: Above this share of unknown tokens the model is not reading the text at all. A model
 #: directory with no tokenizer files does NOT raise: transformers returns a vocabulary of
 #: 5 and every word becomes <unk>, which looks exactly like a collapsed model.
@@ -192,27 +232,30 @@ def run(
         f"determinism: {len(texts) - len(drift)}/{len(texts)} texts stable across two calls"
     )
 
-    variants = [f" {t} " for t in texts] + [t.upper() for t in texts]
-    varied = [list(map(float, row)) for row in classify(variants)]
-    flips = {"whitespace": 0, "capitalisation": 0}
-    for k, base in enumerate(first):
-        if not _valid(base):
-            continue
-        for name, offset in (("whitespace", 0), ("capitalisation", len(texts))):
-            other = varied[k + offset]
-            if _valid(other) and _argmax(other) != _argmax(base):
-                flips[name] += 1
-    total_flips = sum(flips.values())
-    if total_flips:
-        report.failures.append(
-            f"formatting invariance: {total_flips} class changes from formatting alone "
-            f"(whitespace {flips['whitespace']}, capitalisation {flips['capitalisation']}, "
-            f"of {len(texts)} texts each)"
+    surface_rates: dict[str, float] = {}
+    for name, transform in SURFACE_VARIANTS.items():
+        altered = [
+            list(map(float, row)) for row in classify([transform(t) for t in texts])
+        ]
+        flips = sum(
+            1
+            for base, other in zip(first, altered, strict=True)
+            if _valid(base) and _valid(other) and _argmax(other) != _argmax(base)
         )
+        surface_rates[name] = flips / len(texts)
     report.findings.append(
-        f"formatting invariance: whitespace {flips['whitespace']}, "
-        f"capitalisation {flips['capitalisation']}, of {len(texts)} texts each"
+        "surface invariance (flip rate by variant): "
+        + ", ".join(f"{name} {rate:.1%}" for name, rate in surface_rates.items())
     )
+    report.findings.append(f"surface invariance: {SURFACE_NOTE}")
+    fragile = {n: r for n, r in surface_rates.items() if r >= SURFACE_FLIP_SIGNAL}
+    if fragile:
+        report.failures.append(
+            "surface invariance: the predicted class changes under "
+            + ", ".join(f"{n} ({r:.1%})" for n, r in fragile.items())
+            + f", above the {SURFACE_FLIP_SIGNAL:.0%} engineering default. A corpus-health signal "
+            "(CORPUS_REBUILD §3 G9), NOT a quality claim"
+        )
 
     classes = [_argmax(row) for row in first if _valid(row)]
     if classes:

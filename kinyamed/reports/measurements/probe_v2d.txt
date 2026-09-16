@@ -2,7 +2,8 @@ NOT A GATE METRIC. Malfunction probe: is the served model grossly broken?
 
   NOT A GATE METRIC: probability validity: 200/200 outputs well formed
   NOT A GATE METRIC: determinism: 200/200 texts stable across two calls
-  NOT A GATE METRIC: formatting invariance: whitespace 0, capitalisation 63, of 200 texts each
+  NOT A GATE METRIC: surface invariance (flip rate by variant): capitalisation 31.5%, punctuation 5.0%, whitespace 0.0%, typos 21.0%
+  NOT A GATE METRIC: surface invariance: a corpus-health signal, not a quality claim: a model that changes its answer under surface variation has learned the corpus's uniform surface, not the task
   NOT A GATE METRIC: class collapse: predicted classes over 200 texts — CRITICAL 102, URGENT 33, ROUTINE 65
   NOT A GATE METRIC: mean probability per class: CRITICAL 0.36, URGENT 0.33, ROUTINE 0.31
   NOT A GATE METRIC: highest p(CRITICAL) over the sample: 0.55
@@ -11,4 +12,4 @@ NOT A GATE METRIC. Malfunction probe: is the served model grossly broken?
   NOT A GATE METRIC: length robustness: 120-word input handled
 
 1 malfunction signal(s).
-  SIGNAL: formatting invariance: 63 class changes from formatting alone (whitespace 0, capitalisation 63, of 200 texts each)
+  SIGNAL: surface invariance: the predicted class changes under capitalisation (31.5%), punctuation (5.0%), typos (21.0%), above the 5% engineering default. A corpus-health signal (CORPUS_REBUILD §3 G9), NOT a quality claim

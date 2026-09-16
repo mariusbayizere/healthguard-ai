@@ -25,7 +25,7 @@ intervals cannot separate a safe model from a dangerous one.
 Measured by `ml_model/training/probe.py` on 200 texts from the v2 eval split; no gold labels, **NOT A GATE
 METRIC** (MODEL_AUDIT §11):
 
-- **Capitalisation alone changes the predicted urgency for 31.5% of inputs** (63 of 200); whitespace changes none.
+- **Surface variation alone changes the predicted urgency:** capitalisation **31.5%**, a realistic typo **21.0%**, punctuation removed **5.0%**, extra whitespace **0.0%**. Cause: the corpus has 0 capitalised rows, 0 double spaces and no typos (CORPUS_REBUILD §3.1, gate G9). Not fixed by normalising input.
 - **Uniformly unconfident:** mean probabilities 0.36 / 0.33 / 0.31; the highest CRITICAL probability in the sample
   is **0.55**, so every prediction falls under the 0.75 review threshold and is flagged for a clinician.
 - **No single-class collapse** (CRITICAL 102, URGENT 33, ROUTINE 65); deterministic; label order correct.
