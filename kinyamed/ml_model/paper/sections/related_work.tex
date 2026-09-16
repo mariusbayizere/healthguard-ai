@@ -19,7 +19,7 @@ unavailable but ill-posed.
 
 The instrument our own specification named as the basis for its three categories
 is the WHO Emergency Triage Assessment and Treatment (ETAT) manual for
-participants (WHO, 2005, ISBN 92\,4\,154687\,5). Reading it settled the question
+participants~\cite{who2005etat}. Reading it settled the question
 against us, and the details are worth stating because they are specific:
 
 \begin{itemize}
@@ -51,16 +51,13 @@ against us, and the details are worth stating because they are specific:
   specification also cites in the same glossary entry.
 \end{itemize}
 
-The Emergency Severity Index and the Manchester Triage System are bedside
-instruments of the same kind: a trained assessor observes a present patient. Our
+The point generalises beyond ETAT. Bedside triage instruments share the property
+that matters here: a trained assessor observes a patient who is present. Our
 system receives text written by a patient or a relative who has not been
 examined, often before any contact with a health worker. An instrument defined on
 observed signs cannot be a reference standard for a system that never observes
-anything, and a number comparing the two would be measuring agreement between
-incommensurable procedures. Licensing is a real constraint on reproducing their
-descriptors --- the ESI grant covers clinical use of the algorithm but not
-redistribution of its text, and the MTS is proprietary --- but it is the second
-reason, not the first.
+anything, and a number comparing the two would measure agreement between
+incommensurable procedures.
 
 \paragraph{The absence is the finding.} We could not locate any validated
 instrument for assigning urgency from a patient's own written description without
@@ -71,23 +68,15 @@ important statement. We record it as an open question addressed to clinical
 readers rather than as a gap we have closed, and we treat every urgency label in
 our corpus as an unvalidated construct until a clinician rules otherwise.
 
-\subsection{Clinical guidance consulted, and what we reproduce from it}
+\subsection{Clinical guidance consulted during construction}
 
-Where published guidance exists for a presentation, we consulted it while writing
-concepts: the WHO IMCI Chart Booklet (2014, ISBN 978\,92\,4\,150682\,3), the
-WHO--ICRC \emph{Basic Emergency Care} (2018, CC BY-NC-SA 3.0 IGO), and WHO
-\emph{Managing Complications in Pregnancy and Childbirth} (2017, CC BY-NC-SA 3.0
-IGO). We reproduce no text from any of them. The IMCI booklet is all rights
-reserved, and the two share-alike documents would propagate their licence term
-into a released corpus. A clinical fact may be cited; the wording in which a
-document expresses it is not ours to copy.
-
-We give no count of how many concepts carry such an anchor. Our own audit found
-the concept total recorded with several different values across the repository,
-and the anchor count with it, so any figure we quoted here would be one of
-several and not a measurement. Establishing that count against the source
-documents is outstanding work, and the honest position is to say so rather than
-to pick one.
+Where published guidance existed for a presentation, it was consulted while
+concepts were written, and no text was reproduced from any of it: a clinical fact
+may be cited, the wording a document expresses it in is not ours to copy. We name
+no document here and cite none, because the assignments that would justify naming
+them have never been checked against the sources (Section~\ref{sec:method}). The
+licensing analysis that governed the no-reproduction rule is recorded in the
+repository.
 
 \subsection{Kinyarwanda language resources}
 
@@ -95,21 +84,20 @@ Kinyarwanda NLP has usable encoders and retrievers and very little else, and
 almost nothing in a patient's voice. The resources we assessed fall into three
 groups.
 
-\paragraph{News-domain corpora.} KINNEWS and KIRNEWS provide 3{,}449 Kinyarwanda
-news articles collected from a single news site. MasakhaNER 1.0 and 2.0 provide
-named-entity-annotated Kinyarwanda and Swahili text, also news. Both are useful
+\paragraph{News-domain corpora.} KINNEWS and KIRNEWS~\cite{niyongabo2020kinnews} provide 3{,}449 Kinyarwanda
+news articles collected from a single news site. MasakhaNER~\cite{adelani2021masakhaner}
+and MasakhaNER 2.0~\cite{adelani2022masakhaner2} provide named-entity-annotated
+Kinyarwanda and Swahili text, also news. Both are useful
 for pretraining and neither contains clinical language or patient speech. We use
 neither: MasakhaNER is non-commercial share-alike, and the KINNEWS licence is not
 stated in its repository at all, which we treat as unusable until confirmed
 rather than as permissive by default.
 
-\paragraph{Patient-facing health text.} We located one collection of genuine
-patient-facing Kinyarwanda health material, and it covers immunisation and
-nothing else, so it maps to a single domain of our taxonomy. A Swahili health
-corpus with an open licence exists and, measured directly rather than assumed,
-contains institutional text --- ministerial press releases, parliamentary
-addresses --- with zero lines combining a first-person marker and a symptom
-word. Register, not volume, is the binding constraint on this task.
+\paragraph{Patient-facing health text.} We assessed further candidate resources
+and use none of them. Two that we measured directly are omitted here rather than
+described: we could not establish a citable identity for either, and describing a
+source we cannot name would be inconsistent in a paper about provenance. The
+assessments are in the repository.
 
 \paragraph{Community health worker questions.} The most useful Kinyarwanda
 clinical resource we found is a set of real community health worker questions

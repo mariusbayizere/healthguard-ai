@@ -30,6 +30,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{booktabs}   % \toprule \midrule \bottomrule, used by every table
 \usepackage{amsmath}    % \[ \] and \frac, used by the gate derivation
+\usepackage[numbers,sort&compress]{natbib}
 \usepackage{hyperref}
 
 % ---------------------------------------------------------------------------
@@ -92,9 +93,9 @@
 % quietly outlived its truth.
 \newcommand{\PENDING}[1]{\textbf{[PENDING: #1]}}
 
-\title{Kinyarwanda triage classification: results}
+\title{Seeds, not rows: what a corpus requirement written in the wrong unit\\fails to constrain}
 \author{}
-\date{Generated build --- run fingerprint \texttt{\ResultFingerprint}}
+\date{Working draft --- build fingerprint \texttt{\ResultFingerprint}}
 
 \begin{document}
 \maketitle
@@ -103,11 +104,14 @@
 
 \begin{center}
 \fbox{\parbox{0.9\textwidth}{\small\raggedright
-\textbf{Generated document.} Every figure below is a macro or a table written
-by \texttt{training/holdout\_eval.py -{}-writeup} from one inference pass over the
-frozen holdout, and each table carries the fingerprint of the weights, the
-evaluation data and the commit that produced it. No number in this document was
-typed by hand. If one disagrees with a run record, the run record is right.
+\textbf{Provenance of every number.} This paper reports no model quality figure.
+Each number in it is a property of a corpus, a specification, or an artefact's
+behaviour under perturbation, and \texttt{reports/PAPER\_NUMBERS.md} lists every
+one with the committed script or record that produces it. Figures whose script
+was never committed are marked NOT REPRODUCIBLE where they appear, or cut. The
+gate-degeneracy figures are generated macros written by
+\texttt{training/holdout\_eval.py -{}-writeup}; they carry the fingerprint of the
+weights, the evaluation data and the commit that produced them.
 }}
 \end{center}
 
@@ -124,5 +128,8 @@ typed by hand. If one disagrees with a run record, the run record is right.
 \input{sections/limitations}
 \input{sections/future_work}
 \input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
 
 \end{document}

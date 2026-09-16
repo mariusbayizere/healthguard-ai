@@ -136,7 +136,7 @@ unavailable but ill-posed.
 
 The instrument our own specification named as the basis for its three categories
 is the WHO Emergency Triage Assessment and Treatment (ETAT) manual for
-participants (WHO, 2005, ISBN 92\,4\,154687\,5). Reading it settled the question
+participants who2005etat. Reading it settled the question
 against us, and the details are worth stating because they are specific:
 
   - It is defined on examination signs. ``Triage is the process of
@@ -166,16 +166,13 @@ against us, and the details are worth stating because they are specific:
   specification uses, and not the Emergency Severity Index levels our
   specification also cites in the same glossary entry.
 
-The Emergency Severity Index and the Manchester Triage System are bedside
-instruments of the same kind: a trained assessor observes a present patient. Our
+The point generalises beyond ETAT. Bedside triage instruments share the property
+that matters here: a trained assessor observes a patient who is present. Our
 system receives text written by a patient or a relative who has not been
 examined, often before any contact with a health worker. An instrument defined on
 observed signs cannot be a reference standard for a system that never observes
-anything, and a number comparing the two would be measuring agreement between
-incommensurable procedures. Licensing is a real constraint on reproducing their
-descriptors — the ESI grant covers clinical use of the algorithm but not
-redistribution of its text, and the MTS is proprietary — but it is the second
-reason, not the first.
+anything, and a number comparing the two would measure agreement between
+incommensurable procedures.
 
 The absence is the finding. We could not locate any validated
 instrument for assigning urgency from a patient's own written description without
@@ -186,23 +183,15 @@ important statement. We record it as an open question addressed to clinical
 readers rather than as a gap we have closed, and we treat every urgency label in
 our corpus as an unvalidated construct until a clinician rules otherwise.
 
-## CLINICAL GUIDANCE CONSULTED, AND WHAT WE REPRODUCE FROM IT
+## CLINICAL GUIDANCE CONSULTED DURING CONSTRUCTION
 
-Where published guidance exists for a presentation, we consulted it while writing
-concepts: the WHO IMCI Chart Booklet (2014, ISBN 978\,92\,4\,150682\,3), the
-WHO--ICRC Basic Emergency Care (2018, CC BY-NC-SA 3.0 IGO), and WHO
-Managing Complications in Pregnancy and Childbirth (2017, CC BY-NC-SA 3.0
-IGO). We reproduce no text from any of them. The IMCI booklet is all rights
-reserved, and the two share-alike documents would propagate their licence term
-into a released corpus. A clinical fact may be cited; the wording in which a
-document expresses it is not ours to copy.
-
-We give no count of how many concepts carry such an anchor. Our own audit found
-the concept total recorded with several different values across the repository,
-and the anchor count with it, so any figure we quoted here would be one of
-several and not a measurement. Establishing that count against the source
-documents is outstanding work, and the honest position is to say so rather than
-to pick one.
+Where published guidance existed for a presentation, it was consulted while
+concepts were written, and no text was reproduced from any of it: a clinical fact
+may be cited, the wording a document expresses it in is not ours to copy. We name
+no document here and cite none, because the assignments that would justify naming
+them have never been checked against the sources (Section sec:method). The
+licensing analysis that governed the no-reproduction rule is recorded in the
+repository.
 
 ## KINYARWANDA LANGUAGE RESOURCES
 
@@ -210,21 +199,20 @@ Kinyarwanda NLP has usable encoders and retrievers and very little else, and
 almost nothing in a patient's voice. The resources we assessed fall into three
 groups.
 
-News-domain corpora. KINNEWS and KIRNEWS provide 3,449 Kinyarwanda
-news articles collected from a single news site. MasakhaNER 1.0 and 2.0 provide
-named-entity-annotated Kinyarwanda and Swahili text, also news. Both are useful
+News-domain corpora. KINNEWS and KIRNEWS niyongabo2020kinnews provide 3,449 Kinyarwanda
+news articles collected from a single news site. MasakhaNER adelani2021masakhaner
+and MasakhaNER 2.0 adelani2022masakhaner2 provide named-entity-annotated
+Kinyarwanda and Swahili text, also news. Both are useful
 for pretraining and neither contains clinical language or patient speech. We use
 neither: MasakhaNER is non-commercial share-alike, and the KINNEWS licence is not
 stated in its repository at all, which we treat as unusable until confirmed
 rather than as permissive by default.
 
-Patient-facing health text. We located one collection of genuine
-patient-facing Kinyarwanda health material, and it covers immunisation and
-nothing else, so it maps to a single domain of our taxonomy. A Swahili health
-corpus with an open licence exists and, measured directly rather than assumed,
-contains institutional text — ministerial press releases, parliamentary
-addresses — with zero lines combining a first-person marker and a symptom
-word. Register, not volume, is the binding constraint on this task.
+Patient-facing health text. We assessed further candidate resources
+and use none of them. Two that we measured directly are omitted here rather than
+described: we could not establish a citable identity for either, and describing a
+source we cannot name would be inconsistent in a paper about provenance. The
+assessments are in the repository.
 
 Community health worker questions. The most useful Kinyarwanda
 clinical resource we found is a set of real community health worker questions
@@ -360,29 +348,16 @@ record is outstanding work, and until it is done every count below is stated as
 a count of anchor records, which is what the anchor table actually
 enumerates.
 
-The anchored count in earlier drafts was wrong, by our own table.
-Those drafts said seventy concepts carry an anchor. The table beneath the
-sentence lists 24 + 15 + 11 = 50 concepts with a document anchor, and a
-fourth row of 20 that are clinician-defined with no anchor located —
-which the total of 70 silently absorbed. The corrected reading:
-
-lr
-
-Anchor source  |  Concepts 
-
-WHO IMCI 2014 (Integrated Management of Childhood Illness)  |  24 
-WHO--ICRC Basic Emergency Care 2018 (CC BY-NC-SA 3.0 IGO)  |  15 
-WHO Managing Complications in Pregnancy and Childbirth 2017  |  11 
-Clinician-defined, no WHO anchor available  |  20 
-
-Concepts with a document anchor  |  50 
-Clinician-defined, no anchor located  |  20 
-
-These are counts of anchor records, not verified against the source
-documents. No committed script aggregates them, and our own audit records the
-concept total with five different values, so the table states what the anchor
-record holds and nothing stronger. Verifying it against the guidance documents is
-outstanding work.
+Anchor assignments are unverified, and we report no counts. Concepts
+were assigned anchors to published clinical guidance during corpus construction.
+Those assignments have never been checked against the source documents,
+which this project does not hold, so we give no count of anchored concepts, no
+breakdown by document, and no per-concept reference. Earlier drafts stated a
+count that its own table contradicted — the total silently absorbed a row of
+concepts recorded as having no anchor — which is the error this decision
+removes. Verifying every assignment against the document and page it names is
+outstanding work, and until it is done the anchoring is a property of our
+construction process rather than a claim about clinical guidance.
 
 The remaining spine positions are inherited from the v1 corpus, which
 was catalogued without recorded concepts. They have no clinical reference and no
@@ -876,6 +851,19 @@ Section sec:discussion describes below, reduces the number of independent
 evaluation units, and that reduction is the price of a leakage guarantee rather
 than an accident of it.
 
+## THE ACCEPTANCE GATE THIS PROJECT REPLACED ITS FIRST ONE WITH
+
+The gate below is the project's own acceptance gate, generated from the record
+that defines it. Two points about its numbers, since this paper is largely about
+numbers without derivations. Its critical-recall threshold of 0.95 is
+inherited and unverified — a different figure from the 0.91 our
+requirements document sets, and neither has a source we could trace. Its
+non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
+is a clinical judgement nobody has made. The gate states which is which, which is
+the property we would ask of any gate.
+
+generated/gate_derivation
+
 generated/finding_gate_degeneracy
 
 ## WHY A SINGLE-METRIC GATE FAILS ON AN ASYMMETRIC-COST TASK
@@ -967,8 +955,10 @@ split whose manifest recorded complete leakage in a field nobody read.
 ## THE SEARCH WAS SMALL ENOUGH TO STATE
 
 Three configurations were trained to completion, at 115, 70 and 95 minutes on
-two CPU cores, with two of them either side of the one we report. The whole
-search cost under five hours of compute on a laptop.
+two CPU cores. The whole search cost under five hours of compute on a laptop. We
+report no result from any of them: these are costs, recorded in the run records,
+and the artefact whose behaviour Section sec:res:silent probes is one of
+the three.
 
 We state this deliberately. Work of this kind is often reported without cost,
 which leaves a reader unable to tell an exhaustive sweep from three runs, and
@@ -978,12 +968,14 @@ response surface, and we describe the outcome as inconclusive on the
 CRITICAL/URGENT boundary rather than as a tuned result.
 
 The affordability follows from the corpus rather than from any efficiency
-technique. The task is 150 distinct training phrases mapped to three labels;
-the model is a small multilingual encoder with its embedding table frozen,
-leaving between 3.7 and 10.8 million trainable parameters. A budget of a few
-hundred optimisation steps is not a compromise forced by the hardware but the
-right size for the problem, and the run that preceded these was abandoned in
-part because it had been budgeted at roughly forty times what the task needed.
+technique, and it is the seeds-not-rows point from the training side: the task is
+150 distinct training phrases mapped to three labels, however many rows
+those phrases were expanded into. The model is a small multilingual encoder with
+its embedding table frozen, leaving between 3.7 and 10.8 million trainable
+parameters. A budget of a few hundred optimisation steps is not a compromise
+forced by the hardware but the right size for the problem, and the run that
+preceded these was abandoned in part because it had been budgeted at roughly
+forty times what the task needed.
 
 ## WHY THE TWO SILENT FAILURE MODES MATTER TO ANYONE DEPLOYING A
 LOW-RESOURCE CLINICAL MODEL

@@ -78,6 +78,19 @@ Section~\ref{sec:discussion} describes below, reduces the number of independent
 evaluation units, and that reduction is the price of a leakage guarantee rather
 than an accident of it.
 
+\subsection{The acceptance gate this project replaced its first one with}
+
+The gate below is the project's own acceptance gate, generated from the record
+that defines it. Two points about its numbers, since this paper is largely about
+numbers without derivations. Its critical-recall threshold of 0.95 is
+\emph{inherited and unverified} --- a different figure from the 0.91 our
+requirements document sets, and neither has a source we could trace. Its
+non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
+is a clinical judgement nobody has made. The gate states which is which, which is
+the property we would ask of any gate.
+
+\input{generated/gate_derivation}
+
 \input{generated/finding_gate_degeneracy}
 
 \subsection{Why a single-metric gate fails on an asymmetric-cost task}
@@ -169,8 +182,10 @@ split whose manifest recorded complete leakage in a field nobody read.
 \subsection{The search was small enough to state}
 
 Three configurations were trained to completion, at 115, 70 and 95 minutes on
-two CPU cores, with two of them either side of the one we report. The whole
-search cost under five hours of compute on a laptop.
+two CPU cores. The whole search cost under five hours of compute on a laptop. We
+report no result from any of them: these are costs, recorded in the run records,
+and the artefact whose behaviour Section~\ref{sec:res:silent} probes is one of
+the three.
 
 We state this deliberately. Work of this kind is often reported without cost,
 which leaves a reader unable to tell an exhaustive sweep from three runs, and
@@ -180,12 +195,14 @@ response surface, and we describe the outcome as inconclusive on the
 CRITICAL/URGENT boundary rather than as a tuned result.
 
 The affordability follows from the corpus rather than from any efficiency
-technique. The task is 150 distinct training phrases mapped to three labels;
-the model is a small multilingual encoder with its embedding table frozen,
-leaving between 3.7 and 10.8 million trainable parameters. A budget of a few
-hundred optimisation steps is not a compromise forced by the hardware but the
-right size for the problem, and the run that preceded these was abandoned in
-part because it had been budgeted at roughly forty times what the task needed.
+technique, and it is the seeds-not-rows point from the training side: the task is
+\textbf{150 distinct training phrases} mapped to three labels, however many rows
+those phrases were expanded into. The model is a small multilingual encoder with
+its embedding table frozen, leaving between 3.7 and 10.8 million trainable
+parameters. A budget of a few hundred optimisation steps is not a compromise
+forced by the hardware but the right size for the problem, and the run that
+preceded these was abandoned in part because it had been budgeted at roughly
+forty times what the task needed.
 
 \subsection{Why the two silent failure modes matter to anyone deploying a
 low-resource clinical model}

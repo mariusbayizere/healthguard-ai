@@ -99,16 +99,16 @@
   urldate   = {2026-09-17}
 }
 
-% --- Verified from the Europe PMC bibliographic record (the Nature page is
-%     behind an authentication redirect; PMC is behind a CAPTCHA). Author names
-%     are as Europe PMC records them, i.e. initials rather than given names:
-%     expand them only from the article PDF itself. ---
+% --- Verified from Europe PMC: the bibliographic record for the metadata, and
+%     the full-text XML for the author given names. (The Nature page redirects to
+%     authentication and the PMC HTML serves a CAPTCHA; the REST API serves both.) ---
 @article{rutunda2026llm,
   title   = {Large language models for frontline healthcare support in low-resource settings},
-  author  = {Rutunda, S. and Williams, G. and Kabanda, K. and Nkurunziza, F. and
-             Uwiduhaye, S. and Rugegamanzi, E. and Nshimiyimana, C. and Menon, V. and
-             Emmanuel-Fabula, M. and Denniston, A. K. and Liu, X. and Hezagira, E. and
-             Mateen, B. A.},
+  author  = {Rutunda, Samuel and Williams, Gwydion and Kabanda, Kleber and
+             Nkurunziza, Francis and Uwiduhaye, Solange and Rugegamanzi, Eulade and
+             Nshimiyimana, Cyprien and Menon, Vaishnavi and Emmanuel-Fabula, Mira and
+             Denniston, Alastair K. and Liu, Xiaoxuan and Hezagira, Emery and
+             Mateen, Bilal A.},
   journal = {Nature Health},
   year    = {2026},
   volume  = {1},
@@ -116,39 +116,14 @@
   pages   = {191--197},
   doi     = {10.1038/s44360-025-00038-1},
   note    = {PMCID PMC12880909; CC BY. Bibliographic record verified via the
-             Europe PMC REST API on 2026-09-17. Given names NOT yet expanded from
-             the article itself.},
+             Europe PMC REST API on 2026-09-17; given names read from the article
+             front matter via the Europe PMC full-text XML the same day.},
   urldate = {2026-09-17}
 }
 
-% --- Verified from the WHO publications catalogue item page ---
-@book{who2018bec,
-  title     = {{WHO--ICRC} Basic Emergency Care: approach to the acutely ill and injured},
-  author    = {{World Health Organization} and {International Committee of the Red Cross}},
-  year      = {2018},
-  month     = oct,
-  publisher = {World Health Organization},
-  address   = {Geneva},
-  isbn      = {978-92-4-151308-1},
-  note      = {Licence CC BY-NC-SA 3.0 IGO. Verified from
-               \url{https://www.who.int/publications/i/item/9789241513081}.},
-  urldate   = {2026-09-17}
-}
-
-% --- Verified from the WHO publications catalogue listing (ISBN carried in the
-%     catalogue URL). The item page itself returned 403 to an automated fetch. ---
-@book{who2017mcpc,
-  title     = {Managing complications in pregnancy and childbirth: a guide for midwives and doctors},
-  author    = {{World Health Organization}},
-  edition   = {2nd},
-  year      = {2017},
-  publisher = {World Health Organization},
-  address   = {Geneva},
-  isbn      = {978-92-4-156549-3},
-  note      = {Licence CC BY-NC-SA 3.0 IGO as recorded in \texttt{docs/licensing.md}.
-               ISBN verified from the WHO publications catalogue
-               (\url{https://www.who.int/publications/i/item/9789241565493});
-               the item page returned 403 to an automated fetch, so the page was
-               not read directly.},
-  urldate   = {2026-09-17}
-}
+% REMOVED 2026-09-17: WHO IMCI 2014, WHO-ICRC BEC 2018 and WHO MCPC 2017.
+% The anchor table they supported was cut (method.tex) because not one
+% assignment could be checked against the documents, which this project does not
+% hold. Nothing cites them now, so they are not carried here. The IMCI ISBN was
+% additionally ambiguous between two WHO catalogue items — see
+% reports/PAPER_CITATIONS.md.
