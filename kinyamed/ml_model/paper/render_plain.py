@@ -104,10 +104,42 @@ def _tabular(body: str) -> str:
     return "\n\n" + "\n".join(rows) + "\n\n"
 
 
+def expand(text: str, depth: int = 0) -> str:
+    """Splice in every \\input target, as the LaTeX build does.
+
+    Without this the render silently omits whatever a section \\inputs. Three
+    generated files carry prose and two of them are whole subsections, so the
+    reading copy was short of them while the typeset paper was not: the same
+    defect as sections/appendix.tex missing from the file list, one level down.
+    """
+    if depth > 8:
+        return text
+    return re.sub(
+        r"\\input\{([^}]*)\}",
+        lambda m: expand(_read(m.group(1)), depth + 1),
+        text,
+    )
+
+
 def strip(
     text: str, macro: dict[str, str], number: dict[str, str] | None = None
 ) -> str:
+    text = expand(text)
     text = re.sub(r"(?m)^\s*%.*$", "", text)
+    # \begingroup ... \renewcommand{\subsection}[1]{} ... \endgroup suppresses
+    # the heading of an \input-ed block in the typeset paper. Honouring it here
+    # keeps the two builds saying the same thing; ignoring it printed a second
+    # "Limitations" heading that the PDF does not have.
+    text = re.sub(
+        r"\\begingroup(.*?)\\endgroup",
+        lambda m: (
+            re.sub(r"\\subsection\*?\{.*?\}", "", m.group(1), flags=re.S)
+            if re.search(r"\\renewcommand\{\\subsection\}", m.group(1))
+            else m.group(1)
+        ),
+        text,
+        flags=re.S,
+    )
     # \renewcommand / \newcommand lines are typesetting plumbing, not prose
     text = re.sub(r"(?m)^\s*\\(re)?newcommand.*$", "", text)
     for name, value in macro.items():

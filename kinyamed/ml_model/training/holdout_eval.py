@@ -223,7 +223,7 @@ def write_macros(
 ) -> None:
     """Define every number the prose quotes, so none can be typed by hand."""
     with atomic_write(path, "w", encoding="utf-8") as handle:
-        handle.write("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
+        handle.write("% GENERATED FILE - DO NOT EDIT BY HAND.\n")
         handle.write("% Written by training/holdout_eval.py from a verified run.\n")
         handle.write(
             "% Editing this file to change a reported number is fabrication;\n"
@@ -245,7 +245,7 @@ def write_table(
 ) -> None:
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
-        w("% GENERATED FILE — DO NOT EDIT BY HAND.\n")
+        w("% GENERATED FILE - DO NOT EDIT BY HAND.\n")
         w("% Written by training/holdout_eval.py from a verified run.\n%\n")
         for key, val in provenance.items():
             w(f"% {key}: {val}\n")
@@ -353,8 +353,11 @@ def write_result_table(
                 "\\\\\n"
             )
         w("\\midrule\n")
+        # "n/a", not "---": LaTeX sets --- as an em dash, and the paper carries
+        # none. The cell means the emitter does not compute a macro precision or
+        # recall, not that either is zero or undefined.
         w(
-            f"Macro avg & --- & --- & {run['macro_f1']:.4f} & "
+            f"Macro avg & n/a & n/a & {run['macro_f1']:.4f} & "
             f"{rows:,} & {phrases} \\\\\n"
         )
         w("\\bottomrule\n\\end{tabular}\n")

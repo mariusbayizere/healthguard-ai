@@ -683,8 +683,21 @@ non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
 is a clinical judgement nobody has made. The gate states which is which, which is
 the property we would ask of any gate.
 
-generated/gate_derivation
-generated/finding_gate_degeneracy
+A model is accepted only if all three conditions hold. They are not traded off against one another.
+
+G1: CRITICAL recall ≥ 0.95. Inherited; source not verified. This threshold predates the current record and carries only the note that missing a critical case is the failure that matters. It is consistent with the trauma field-triage convention of holding under-triage at or below 5%, but we have not verified that attribution against a source and do not claim it. We keep the value because loosening a safety threshold on no evidence is worse than retaining an unsourced one.
+
+G2: macro F1 ≥ 2/3. Derived exactly. Macro F1 is the unweighted mean of three per-class F1 scores. If any one class is abandoned its F1 is zero, so macro F1 ≤ (1+1+0)/3 = 0.6667 even when the other two classes are perfect. Requiring macro F1 above 2/3 is therefore a guarantee that no class has been abandoned, and it is the tightest such guarantee obtainable from a single scalar. This is a floor of non-degeneracy, not of quality.
+
+G3: CRITICAL precision ≥ the degenerate ceiling plus a margin. Floor derived and measured per evaluation set; margin not derived. A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
+\[ support(CRITICAL)support(CRITICAL) + support(URGENT) = 0.5349 \]
+on this reporting set. That is what the degenerate strategy is paid for free, so any informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. The margin above that floor (0.10) is not derived. How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
+
+Our acceptance gate was initially a single condition, CRITICAL recall ≥ 0.95, on the reasoning that missing a critical presentation is the failure that matters. One configuration passed it with a CRITICAL recall of 0.9749 while achieving an URGENT recall of 0.0083: it assigned the CRITICAL label to 7,793 URGENT rows almost without exception. It passed the safety gate because it over-triaged, and the gate contained no term that could observe this.
+
+The degeneracy is measurable rather than interpretive. A model that merges CRITICAL and URGENT earns a CRITICAL precision of 0.5349 on this set by construction. The model scored 0.5337, which is 0.0012 below its own set's degenerate ceiling. Within a thousandth, it did not approximate the merge strategy; it was the merge strategy.
+
+Two further observations. First, the gate certified this model while rejecting a better one: a configuration with macro F1 0.7724 and all three classes alive failed the same gate on recall alone. Second, our own automated degeneracy check, written for exactly this failure, used the test recall ≥ 0.9  precision < 0.5 and did not fire, because 0.5337 sits above a hardcoded 0.5 while the true degenerate ceiling for this set was 0.5349. The lesson is not that the constant was too low: it is that the ceiling is a property of the evaluation set and must be computed against it.
 
 The specific failure is easy to dismiss as a badly chosen threshold. The general
 form is not particular to triage.
@@ -819,7 +832,16 @@ register) is unmeasured because there is no second rater.
 The counts below are regenerated from the frozen split by the emitter, so they
 cannot drift from the data they describe.
 
-generated/limitations
+The reporting set is nine sentences, not eighteen thousand rows. The held-out evaluation reports 17,942 rows, but those rows are frame permutations of only 9 distinct phrases in 5 phrase groups, and the row count is therefore not an independent sample size. Per class the position is starker:
+
+Class | Distinct sentences | One sentence is
+CRITICAL | 4 | 0.25 of recall
+URGENT | 4 | 0.25 of recall
+ROUTINE | 1 | 1.00 of recall
+
+CRITICAL and URGENT recall therefore move in steps of approximately one quarter: a single sentence being read systematically as the neighbouring class costs about 25 percentage points, and no choice of optimiser or learning rate can recover it. ROUTINE is a single sentence, so its reported recall of 1.0 means that one sentence was classified correctly and should not be read as a class-level result. A CRITICAL recall target of 0.95 over four sentences requires essentially all frames of all four to be correct, and the distance between our result and that target is smaller than the granularity of the measurement.
+
+Consequences for the sweep. Three configurations spanning a threefold range of trainable parameters and a 1.5× range of learning rate all left the same residual error, on the CRITICAL/URGENT boundary, while separating ROUTINE perfectly. We stopped searching on the grounds that the remaining error is a property of the corpus and the split rather than of the optimisation, and we report the configuration search as inconclusive on that boundary rather than as a tuning result.
 
 ## THE PAPER'S CRITIQUE APPLIES TO THE PAPER'S OWN SPECIFICATION
 
