@@ -156,8 +156,8 @@ Generated from `results.json`. The XLM-R family rows are those of `Davlan/afro-x
 - **Condition:** re-measure on the natively authored pilot items before freezing. If more than 1% of pilot items
   (upper 95% bound) exceed 128, raise it to the smallest value that clears.
 
-**Shortlist, pending 5b** (latency and memory) **and a label-dependent evaluation that cannot run until the
-evaluation set exists:**
+**Shortlist** (closed 2026-09-16 with a decision rule, below; latency, memory and any label-dependent
+evaluation remain **NOT MEASURED** for every candidate except the incumbent):
 
 | Encoder | Why on the list | Open question |
 |---|---|---|
@@ -171,9 +171,44 @@ evaluation set exists:**
   XLM-R-vocabulary model is used, AfroXLMR at the same size is preferred on stated coverage alone.
 - **AfroXLMR-large:** deferred to 5b; its vocabulary gives no advantage over base.
 
-**The shortlist is four for now, not three.** Tokenization cannot separate AfriBERTa-large from LaBSE, and it
-cannot separate the AfroXLMR sizes from each other. 5b (latency and memory on the target CPU, once named) and a
-label-dependent evaluation on the real evaluation set decide it. Neither is a tokenizer question.
+### Closing the shortlist (2026-09-16)
+
+**The shortlist stays at four, and tokenization closes no further.** It cannot separate AfriBERTa-large from
+LaBSE, nor the AfroXLMR sizes from each other. Choosing one on tokenization alone would be choosing on a statistic
+that does not predict classification quality (§5). What follows is therefore a **decision rule fixed in advance**,
+not a winner.
+
+**Recommendation 1 — the encoder for the pilot's first training run: `Davlan/afro-xlmr-mini`.**
+- It is the only checkpoint whose CPU latency and memory are measured on any machine at all (MODEL_AUDIT §3.3;
+  the others are **NOT MEASURED**, and a 2 GB memory ceiling with 1.8 GB free here forbids downloading and timing
+  a large checkpoint today, H16).
+- It is the incumbent (v2d), so the pilot's first run stays comparable with everything already recorded.
+- The pilot run's purpose is to exercise the pipeline end to end on real labels, **not** to select an encoder.
+- Its known weakness is stated: **the highest Kinyarwanda fertility measured (2.52 tokens per word, 19.4% of words
+  kept whole)**, and a model card that lists no languages.
+
+**Recommendation 2 — the production encoder is chosen by the gate, in this order.** Pre-registered so no
+number can be chosen after seeing the results:
+
+| Rank | Criterion | Source | Eliminates a candidate when |
+|---|---|---|---|
+| 1 | **CRITICAL recall ≥ 0.91 in each pure language** (gate 5, hard) | `evaluate.py` on the pilot test split | its lower interval bound is below 0.91 in any pure language |
+| 2 | **CRITICAL → ROUTINE < 1.0%** (gate 7, hard) | same | its upper bound reaches 1% |
+| 3 | **Latency p50/p95 and memory** (gates 14, 15) on the **named target CPU** | `benchmark_inference.py`, once H15 names the machine | it misses the arrival-rate target there |
+| 4 | **Kinyarwanda accuracy** (gate 9) | same run | it is the lowest of the survivors |
+| 5 | Cost: embedding-matrix size and cold start | measured alongside 3 | tie-break only |
+
+**What would eliminate each candidate, specifically:**
+
+| Encoder | The one measurement that settles it |
+|---|---|
+| AfroXLMR-mini | gate 5 on Kinyarwanda: if the 2.52 fertility costs per-language CRITICAL recall, it is out despite being cheapest |
+| AfroXLMR-base | gates 14/15 on the target CPU: it is the mini's tokenization at several times the compute |
+| AfriBERTa-large | gate 11 (French accuracy) and gate 5 (French): its French fertility of 2.40 is the worst measured |
+| LaBSE | gates 14/15 memory: a 501k-token embedding matrix against a 2 GB ceiling, and its fitness as a fine-tuned classifier is unmeasured |
+
+**Neither recommendation is a model choice on quality.** No accuracy number exists for any candidate, because no
+evaluation set exists (EVAL_SET_SPEC). Both are decisions about *what to run first* and *what will decide*.
 
 ## 5. What this study cannot establish
 
