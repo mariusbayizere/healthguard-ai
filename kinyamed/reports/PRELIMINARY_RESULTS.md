@@ -6,6 +6,27 @@
 > clinical performance.**
 > (`ml_model/dataset/seed_provenance.py` → `measurements/seed_provenance.txt`)
 
+## The finding: the shortfall is 19,835 authored seed phrases, not 999,000 rows
+
+FR-04-07 asks for 1,000,000 examples. **Generating them took 130 seconds.** They pass none of the quality gates in
+the same specification, and no quantity of further generation would change that, because the binding gate counts
+**distinct authored seed phrases**, not rows:
+
+| Seeds available | Rows allowed by G1 (50/seed) | Passes G2? | Largest passing corpus |
+|---|---|---|---|
+| **165 (today)** | 8,250 | **No** (needs 3,000) | **0 rows** |
+| 3,000 | 150,000 | Yes | 150,000 |
+| 20,000 | 1,000,000 | Yes | **1,000,000 — the FR-04-07 target** |
+
+**Rows are free. Seeds are not.** A row is a frame rendered around an existing phrase, produced by machine at
+7,700 per second. A seed is a sentence a native-speaking clinician writes, at 2–3 minutes each. The distance
+between today's corpus and FR-04-07 is therefore **19,835 seed phrases — roughly 660 to 990 clinician-hours of
+authoring** — and not the 999,000 rows the requirement appears to ask for.
+
+**Even at 20,000 seeds the corpus would still fail four gates** as generated: G5 (no recorded origin per row),
+G7 (no provenance), G8 (no authors at all) and G9 (no surface variation). Those are properties of *how* rows are
+made, not how many.
+
 **Outcome in one line: no preliminary numbers exist, because no model was trained. The pipeline refused, and the
 refusal is the result.**
 
@@ -126,3 +147,12 @@ with stray spacing and no typos at all (step 1, G9).
 - **What would let step 3 run:** a calibration split, and a test split meeting EVAL_SET_SPEC. Both come from the
   pilot. The same bottleneck — native-authored seeds — also governs whether a synthetic corpus could ever pass
   G2.
+
+---
+
+## Confirmation
+
+**Nothing was trained. No checkpoint exists. No preliminary number was produced or estimated** — not from the
+pipeline, not from a shortcut around it, and not by inference from any earlier run. Every number in this document
+is either a property of the corpus (rows, seeds, gate verdicts), a property of the labels (majority-class floors),
+or a measurement of the pre-existing v2d artefact, each with its script named.
