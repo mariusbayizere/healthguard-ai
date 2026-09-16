@@ -169,3 +169,66 @@ def test_no_em_dash_reaches_the_pdf() -> None:
         if hits:
             offenders.append(f"{name} ({hits})")
     assert not offenders, f"em dashes would be typeset in: {offenders}"
+
+
+def test_hyperref_draws_no_visible_border() -> None:
+    """hidelinks is set after hyperref loads, and nothing re-enables borders.
+
+    This is a source-level assertion, not a check of a rendered PDF. It cannot
+    see the PDF; it can see that the only setting in the build is the one that
+    removes the border, and that no later \\hypersetup or package option puts a
+    coloured frame back.
+    """
+    files = ["main.tex", *sorted(reached("main.tex"))]
+    body = "\n".join(re.sub(r"(?m)(?<!\\)%.*$", "", read(n)) for n in files)
+
+    main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
+    load = main.find("\\usepackage{hyperref}")
+    hide = main.find("\\hypersetup{hidelinks}")
+    assert load != -1, "hyperref is not loaded"
+    assert hide != -1, "\\hypersetup{hidelinks} is missing"
+    assert hide > load, "hidelinks is set before hyperref loads, so it is ignored"
+
+    for option in (
+        "colorlinks",
+        "linkbordercolor",
+        "citebordercolor",
+        "urlbordercolor",
+        "pdfborder",
+    ):
+        assert option not in body, (
+            f"{option} would override hidelinks and draw or colour a link border"
+        )
+
+    extra = re.findall(r"\\hypersetup\{([^}]*)\}", body)
+    assert extra == ["hidelinks"], (
+        f"more than one \\hypersetup in the build; borders may return: {extra}"
+    )
+
+
+def test_title_is_bold_and_subtitle_is_not() -> None:
+    """The title line is bold, the subtitle stays \\large and unbolded."""
+    main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
+    title = re.search(r"\\title\{(.*?)\n\\author", main, flags=re.S)
+    assert title, "no \\title block found"
+    first, _, rest = title.group(1).partition("\\\\")
+    assert "\\textbf{" in first, "the title line is not bold"
+    assert "\\large" in rest, "the subtitle is not set at \\large"
+    subtitle = rest.split("\\thanks")[0]
+    assert "\\textbf" not in subtitle, "the subtitle is bold; it should not be"
+
+
+def test_title_page_carries_the_repository_and_its_branch() -> None:
+    """A reader is told where the code is, and which branch to clone.
+
+    `main` does not carry this work. A bare repository URL would send a reader
+    to a branch with none of it, which is a provenance claim that does not hold.
+    """
+    main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
+    assert "\\url{https://github.com/mariusbayizere/healthguard-ai}" in main, (
+        "the title page does not carry the repository URL"
+    )
+    assert "audit-p0-p1-and-frontend" in main or "\\texttt{main}" in main, (
+        "no branch is named, so a reader cloning the default branch gets a tree "
+        "without this work"
+    )

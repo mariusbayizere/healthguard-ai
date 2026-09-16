@@ -32,6 +32,11 @@
 \usepackage{amsmath}    % \[ \] and \frac, used by the gate derivation
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{hyperref}
+% hyperref's defaults draw a coloured border around every link: red for an
+% internal reference, green for a citation. They render as boxes in the PDF and
+% are printed by some viewers. hidelinks removes the border and the colour while
+% leaving the link live, which is what a preprint wants.
+\hypersetup{hidelinks}
 
 % ---------------------------------------------------------------------------
 % FAIL LOUDLY ON A MISSING NUMBER.
@@ -93,13 +98,17 @@
 % quietly outlived its truth.
 \newcommand{\PENDING}[1]{\textbf{[PENDING: #1]}}
 
-\title{KinyaMed: Seeds, Not Rows\\
+% The title is bold and the subtitle is not, so the two lines read as title
+% and subtitle rather than as one wrapped heading.
+\title{\textbf{KinyaMed: Seeds, Not Rows}\\
 \large What a Corpus Requirement Written in the Wrong Unit Fails to Constrain%
 \thanks{Build fingerprint \texttt{\ResultFingerprint}. Every number in this paper
-re-derives from a clean clone of the repository with \texttt{make reproduce}.}}
+re-derives from a clean clone of the repository with \texttt{make reproduce}, on
+branch \texttt{audit-p0-p1-and-frontend}.}}
 \author{Marius Bayizere\\
   Independent Researcher, Kigali, Rwanda\\
-  \texttt{bayizeremarius119@gmail.com}}
+  \texttt{bayizeremarius119@gmail.com}\\
+  \url{https://github.com/mariusbayizere/healthguard-ai}}
 \date{\today}
 
 \begin{document}
