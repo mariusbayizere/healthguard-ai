@@ -338,6 +338,61 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## 2026-09-17 — item 0: audit_logs, the precondition the other four items needed
+
+**Sequencing call I made, and why.** The order given was FR-05 auth, OAuth, Kafka, admin.
+I inserted an item 0 first: the cross-cutting rule "every state-changing operation writes
+an audit_logs row, proven by a row-counting test" was unsatisfiable, and all four items add
+state-changing endpoints. Building them first would mean retrofitting audit writes into
+every one, with the completeness test written last against code shaped without it.
+
+**What the audit found before anything was written** (four parallel surveys, all verified):
+
+| Area | Reality at `340abcc` |
+|---|---|
+| FR-05 auth | 1 of 10 DONE-VERIFIED (FR-05-01 RBAC). HS256 not RS256; no OTP; no `family_id`; no Redis blocklist; global 120/60s rate limit, not 10/15min on login; SameSite `lax`; no password complexity rules |
+| FR-05-03/04 OAuth | Nothing. No route, JWKS, columns or tests, on any branch. `hashed_password NOT NULL` actively blocks it |
+| Kafka + WebSocket | Nothing. One unread config constant. The frontend polls every 5 s instead |
+| FR-03 admin | FR-03-02 DONE-VERIFIED; FR-03-04/05/06/09 MISSING; FR-03-07 INCORRECT (restart-only env var); no admin frontend at all |
+| audit_logs | MISSING entirely |
+| PII invariant | **DONE-VERIFIED** and genuinely strong |
+
+**Two stale rows in our own reports, corrected.** `REQUIREMENTS_MATRIX.md:71` cites
+`routes/Dashboard.tsx` and `components/charts.tsx` as FR-03-03 evidence; neither file
+exists. `:75` says the confidence threshold is referenced by 0 lines of app code; it is
+live and evaluated on read (`services/review.py:31,39`) with 6 passing tests.
+
+**Built (`df93491`).** `audit_logs` table, `app/services/audit.py`, `AuditContext`
+dependency, and writes in all 23 state-changing endpoints.
+
+- The completeness test enumerates the app's own route table. A new POST/PATCH/PUT/DELETE
+  must be exercised or exempted with a written reason; none are exempt. It asserts
+  **exactly one** row, so a duplicated write fails too.
+- The row is written by the service, inside the change's transaction (`commit=False` on
+  the repository call, one commit after). A rejected write leaves no row: asserted.
+- Where one operation performs another as a step (assigning a doctor also starts the
+  consultation; deactivating an account also ends its sessions) only the outer operation
+  writes. One act, one row.
+- Payloads are scrubbed through the same `_scrub` the log processors use, so a key masked
+  in a log line is masked in an audit row. `hashed_password`, `password`, `jti`, `token`
+  are never copied. The triage payload carries identifiers and the decision, **never the
+  symptom text**.
+
+**391 backend tests pass.** Migration is additive; its downgrade was exercised. CI green on
+`main`, run #103, all 8 jobs.
+
+**Not done, and not claimed:** no endpoint reads the audit log yet (FR-03-09's "searchable
+by date, user, action" view is unbuilt), and failed logins are logged but not audited — they
+change no state, and an unauthenticated caller must not be able to append rows at will.
+
+**Flagged, not fixed:** `backend/.env` holds `SECRET_KEY=kinyamed_secret_key_2026`, which is
+on the app's own placeholder blocklist. Gitignored and untracked, so nothing leaked, but
+every HS256 token on that machine is signed with a known string. Moot once RS256 lands.
+
+**Next action:** item 1, FR-05 auth. RS256 first, because it is a design change (no key
+settings exist, so `jwt.encode` would fail with a raw secret) and every other FR-05 item
+sits downstream of the token format.
+
 ## 2026-09-16 — CI was red for ten consecutive pushes, and I reported it green
 
 **The finding, stated against myself.** Ten runs on `audit-p0-p1-and-frontend` failed
