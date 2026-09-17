@@ -41,13 +41,28 @@ def _register(client) -> str:
 
 @pytest.fixture
 def with_redis(monkeypatch):
-    """A real Redis, flushed, or skip: this path cannot be faked usefully."""
+    """A real Redis, flushed. Skipped locally, REQUIRED on the runner.
+
+    Skipping is a reasonable courtesy on a developer machine with no Redis. It
+    is not reasonable in CI: the job would go green having run none of these
+    cases, and "CI is green" would then say nothing about whether logout
+    withdraws a token. The runner sets CI=true, so there the absence is a
+    failure and names the service that is missing.
+    """
+    import os
+
     from app.core import token_blocklist
 
     monkeypatch.setattr(settings, "BLOCKLIST_ENABLED", True)
     token_blocklist.reset_client()
     client = token_blocklist.get_client()
     if client is None:
+        if os.environ.get("CI"):
+            pytest.fail(
+                "Redis is unreachable on the runner, so the blocklist cases "
+                "would have skipped and the job would have gone green without "
+                "running them. Check the redis service in .github/workflows/ci.yml."
+            )
         pytest.skip("Redis is not reachable; the fallback cases still run")
     client.flushdb()
     yield client
