@@ -159,7 +159,6 @@ jobs:
       # A throwaway database on the runner. None of these is a secret: they exist
       # only for the lifetime of the job, and SMS is off.
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-      SECRET_KEY: ci-only-test-signing-key-not-used-anywhere-else
       SMS_API_KEY: ci-only-placeholder
       SMS_ENABLED: "false"
     defaults:

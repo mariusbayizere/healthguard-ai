@@ -38,7 +38,9 @@ describe("CI gives the backend suite the database its conftest needs", () => {
   });
 
   it("sets every Settings field that has no default, with values that are not secrets", () => {
-    expect(backend).toMatch(/SECRET_KEY:\s*\S+/);
+    // SECRET_KEY was removed from Settings on 2026-09-17 (tokens are RS256 and
+    // nothing read it). CI must not set it again, or the trap comes back.
+    expect(backend).not.toMatch(/SECRET_KEY:/);
     expect(backend).toMatch(/SMS_API_KEY:\s*\S+/);
     expect(backend).toMatch(/SMS_ENABLED:\s*"?false"?/);
     expect(backend).not.toMatch(/\$\{\{\s*secrets\./);

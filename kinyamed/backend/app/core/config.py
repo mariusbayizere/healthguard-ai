@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 Environment = Literal["development", "staging", "production"]
 
 # Placeholder values that must never reach a deployed environment.
-_INSECURE_SECRETS = {"", "changeme", "secret", "kinyamed_secret_key_2026"}
 
 
 class Settings(BaseSettings):
@@ -53,7 +52,11 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
 
     # --- Security --------------------------------------------------------
-    SECRET_KEY: SecretStr
+    # SECRET_KEY was removed 2026-09-17. It signed tokens under HS256; once
+    # tokens became RS256 nothing read it, and a required variable that nothing
+    # reads is a trap: it gets rotated during an incident in the belief that
+    # doing so invalidates sessions. A future CSRF token or signed URL should
+    # introduce its own purpose-named secret rather than reviving this one.
     # Comma-separated list; use `cors_origins` for the parsed value.
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
@@ -180,12 +183,6 @@ class Settings(BaseSettings):
     def _enforce_production_hardening(self) -> Settings:
         """Refuse to boot a production process with development-grade secrets."""
         if self.ENVIRONMENT != "production":
-            if self.SECRET_KEY.get_secret_value() in _INSECURE_SECRETS:
-                logger.warning(
-                    "SECRET_KEY is a known placeholder value. This is tolerated in "
-                    "%s but will block start-up in production.",
-                    self.ENVIRONMENT,
-                )
             return self
 
         problems = self.hardening_problems()
@@ -231,11 +228,6 @@ class Settings(BaseSettings):
         raises on import.
         """
         problems: list[str] = []
-        secret = self.SECRET_KEY.get_secret_value()
-        if secret in _INSECURE_SECRETS:
-            problems.append("SECRET_KEY is a known placeholder value")
-        if len(secret) < 32:
-            problems.append("SECRET_KEY must be at least 32 characters")
         if "*" in self.cors_origins:
             problems.append("CORS_ORIGINS must not be '*'")
         if self.DB_ECHO:

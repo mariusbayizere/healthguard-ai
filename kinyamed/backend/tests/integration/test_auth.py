@@ -270,7 +270,6 @@ def test_production_requires_a_strong_bcrypt_cost():
         Settings(
             ENVIRONMENT="production",
             DATABASE_URL="postgresql://u:p@localhost:5432/db",
-            SECRET_KEY="x" * 48,
             SMS_API_KEY="k",
             BCRYPT_ROUNDS=4,
             CORS_ORIGINS="https://kinyamed.rw",

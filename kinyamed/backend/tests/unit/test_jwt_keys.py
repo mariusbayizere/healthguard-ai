@@ -246,7 +246,6 @@ def test_production_refuses_to_start_without_a_configured_signing_key() -> None:
         Settings(
             ENVIRONMENT="production",
             DATABASE_URL="postgresql://u:p@localhost:5432/db",
-            SECRET_KEY="a-long-enough-non-placeholder-secret-value-here",
             SMS_API_KEY="x",
             JWT_PRIVATE_KEY=None,
         )
@@ -260,7 +259,6 @@ def test_a_development_configuration_still_reports_the_missing_key() -> None:
     development = Settings(
         ENVIRONMENT="development",
         DATABASE_URL="postgresql://u:p@localhost:5432/db",
-        SECRET_KEY="a-long-enough-non-placeholder-secret-value-here",
         SMS_API_KEY="x",
         JWT_PRIVATE_KEY=None,
     )
@@ -274,3 +272,47 @@ def test_an_ephemeral_key_is_announced_rather_than_silent(caplog) -> None:
     assert (
         security.using_ephemeral_key() is True or settings.JWT_PRIVATE_KEY is not None
     )
+
+
+# ── SECRET_KEY is gone ───────────────────────────────────────────────────
+
+
+def test_settings_has_no_secret_key_field() -> None:
+    """Removed 2026-09-17: nothing read it once tokens became RS256.
+
+    A required variable that nothing reads is a trap. Someone rotates it during
+    an incident believing it invalidates sessions, and it does nothing. If a
+    CSRF token or a signed URL ever needs a shared secret, it should get a
+    purpose-named setting rather than reviving this one.
+    """
+    from app.core.config import Settings
+
+    assert "SECRET_KEY" not in Settings.model_fields
+
+
+def test_a_stray_secret_key_in_the_environment_is_ignored() -> None:
+    """A leftover line in someone's .env must not resurrect it."""
+    from app.core.config import Settings
+
+    settings_with_stray = Settings(
+        ENVIRONMENT="development",
+        DATABASE_URL="postgresql://u:p@localhost:5432/db",
+        SMS_API_KEY="x",
+        SECRET_KEY="this-should-be-ignored-entirely",
+    )
+    assert not hasattr(settings_with_stray, "SECRET_KEY")
+
+
+def test_no_application_code_reads_a_secret_key() -> None:
+    """The grep that makes the removal real rather than nominal."""
+    from pathlib import Path
+
+    app_dir = Path(__file__).resolve().parents[2] / "app"
+    # Comments are allowed to say why it is gone; code is not allowed to use it.
+    offenders = [
+        f"{path.relative_to(app_dir)}:{number}"
+        for path in app_dir.rglob("*.py")
+        for number, line in enumerate(path.read_text().splitlines(), 1)
+        if "SECRET_KEY" in line and not line.lstrip().startswith("#")
+    ]
+    assert not offenders, f"SECRET_KEY is referenced again in: {offenders}"
