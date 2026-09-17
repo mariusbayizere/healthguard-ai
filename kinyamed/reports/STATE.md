@@ -452,6 +452,78 @@ gap.
 **Next:** item 2, Google OAuth. FR-05-02 and FR-05-06 are left open deliberately and should
 be picked up with it, since all three touch the same registration and cookie surface.
 
+## 2026-09-17 — item 2: Google sign-in, plus FR-05-02 and FR-05-06 (`0444c7c`, `4e4c995`)
+
+### The verification, and the seven mutations
+
+A Google ID token is a JWT: anyone can read one and anyone can write one. What makes it
+evidence is the signature against Google's published keys, plus the claims saying who it was
+issued **for** and **by**. An implementation that decodes it and trusts the `email` inside
+authenticates whoever can type JSON, and **from the outside that is indistinguishable from a
+correct one**, because both sign the user in. Hence more forgery tests than happy paths.
+
+Checks: signature against the key the `kid` names; `aud` equal to our client id; `iss`;
+`exp`; and `email_verified`. **The algorithm is pinned and the header's `alg` is never
+consulted** — trusting it reopens the confusion attack the RS256 work closed, one layer up.
+
+**Mutation results, as instructed.** Each check was broken in turn and its guard test had to
+fail:
+
+| Mutation | Guard | Round 1 | Round 2 |
+|---|---|---|---|
+| `aud` not verified | token for another application | invalid mutation* | CAUGHT |
+| `iss` check removed | wrong issuer | CAUGHT | CAUGHT |
+| algorithm unpinned | HMAC with the public key | CAUGHT | CAUGHT |
+| `email_verified` removed | unverified address | CAUGHT | CAUGHT |
+| signature verification off | stranger-signed token | **SURVIVED** | CAUGHT |
+| expiry not enforced | expired token | CAUGHT | CAUGHT |
+| unknown `kid` tolerated | wrong `kid` | **SURVIVED** | CAUGHT |
+
+\* Removing `audience=` makes PyJWT *stricter*, not weaker: with an `aud` claim present and
+no expected audience it raises. The mutation was wrong, not the test. Redone as
+`verify_aud: False`.
+
+**The two survivors were real and worth the exercise.** My stranger-signed token carried the
+stranger's **own** `kid`, so it was rejected as an unknown key and proved nothing about
+signatures — with signature verification disabled it still passed. It is now three tests: an
+unknown `kid`; a token signed by a stranger **under Google's `kid`**, which only a signature
+check can refuse; and a token signed by Google's real key **under a wrong `kid`**, which only
+the `kid` lookup can refuse. Source verified byte-identical to the pre-mutation backup.
+
+**This is the second time in two features that mutation testing found a test passing for the
+wrong reason** (the first was the reset-timing test). Treat "it passed first try" as a
+prompt to break the code, not as good news.
+
+### FR-05-02 and FR-05-06, done with it
+
+`full_name` split; `last_name` NULLABLE on purpose, because a one-word legacy row has no
+last name to recover and writing `''` would be inventing data. `confirm_password` compared
+and discarded. **Phone validation moved into the schema: a malformed number was returning
+500, which pages somebody and tells the user nothing; it is now a 422 naming the field.**
+`users.phone` also closes the staff reset-delivery gap. Cookie is `SameSite=strict` (a test
+pins the configured default, not this environment's value). Refresh token hashed at rest
+with **SHA-256, not bcrypt** — bcrypt truncates past 72 bytes and a JWT is longer, so it
+would hash a prefix; the token is high-entropy, so the slow-hash argument does not apply.
+
+### Schema
+
+One migration (`f4c81d5a9e27`): names, phone, avatar, `oauth_provider`/`oauth_id` with a
+UNIQUE over the pair, `hashed_password` relaxed to NULL behind a CHECK that every row has a
+password **or** an OAuth identity. Without that CHECK, relaxing the column permits an
+account nobody can authenticate as. The downgrade refuses loudly if OAuth-only rows exist
+rather than writing a placeholder digest that would look like a credential. `DROP COLUMN
+full_name` is the only destructive statement written in this project; it is backfilled in
+the same transaction and the SQL was shown before it ran.
+
+**507 backend tests pass**; CI green on `main` runs #131 and #133.
+
+### Still open
+
+- Google **revocation** on logout is not called (§12.2). Sessions end locally; Google's own
+  grant is untouched.
+- No frontend sign-in button: the backend accepts a token nothing yet sends.
+- `patients.name` is still a single field. The spec splits it too; only `users` was done.
+
 ## STANDING RULE (2026-09-17) — never point a schema command at the developer's database
 
 **Never run `alembic`, `psql`, or any migration or DDL command in a way that inherits
