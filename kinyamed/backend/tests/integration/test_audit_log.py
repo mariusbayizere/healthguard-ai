@@ -107,6 +107,43 @@ class Ctx:
         assert response.status_code in (200, 201), response.text
         return email
 
+    def a_google_token(self) -> str:
+        """A verifiable Google ID token, against a mocked key set.
+
+        The fixture stands up a fake Google rather than reaching the real one:
+        an audit test must not depend on a third party being up.
+        """
+        import time
+
+        import jwt
+        from app.core import google_identity
+        from app.core.config import settings
+        from app.core.jwt_keys import generate_key_pair
+
+        pair = generate_key_pair()
+        settings.GOOGLE_CLIENT_ID = "kinyamed.apps.googleusercontent.com"
+        google_identity.reset_cache()
+        google_identity._fetch_jwks = lambda: {pair.kid: pair.public_pem}
+        self._google_patched = True
+
+        now = int(time.time())
+        return jwt.encode(
+            {
+                "iss": "https://accounts.google.com",
+                "aud": settings.GOOGLE_CLIENT_ID,
+                "sub": "audited-google-subject",
+                "email": "audited.google@gmail.com",
+                "email_verified": True,
+                "given_name": "Audited",
+                "family_name": "Google",
+                "iat": now,
+                "exp": now + 600,
+            },
+            pair.private_pem,
+            algorithm="RS256",
+            headers={"kid": pair.kid},
+        )
+
     def a_reset_code(self) -> tuple[str, str]:
         """An address with a live reset code, and the code itself."""
         from app.services import password_reset
@@ -249,6 +286,11 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
     ),
     "POST /api/v1/auth/logout-all": lambda c: (
         lambda cl=c.a_signed_in_client(): cl.post("/api/v1/auth/logout-all")
+    ),
+    "POST /api/v1/auth/google": lambda c: (
+        lambda token=c.a_google_token(): c.anon_client.post(
+            "/api/v1/auth/google", json={"id_token": token}
+        )
     ),
     "POST /api/v1/auth/password-reset/request": lambda c: (
         lambda email=c.a_registered_email(): c.anon_client.post(

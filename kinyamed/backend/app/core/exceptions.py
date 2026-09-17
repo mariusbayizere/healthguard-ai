@@ -226,6 +226,30 @@ class AuthenticationError(HealthGuardBaseError):
         super().__init__(message=message, code=code)
 
 
+class GoogleSignInUnavailableError(HealthGuardBaseError):
+    """Google's key set could not be reached, so nothing could be verified.
+
+    503 rather than 401, because the token may well be fine: refusing it as
+    invalid would tell the user to check credentials that are not the problem.
+    Password sign-in is unaffected (ENGINEERING_SPEC §6.3).
+    """
+
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+
+    # Short: a JWKS outage is usually brief, and the caller has a working
+    # alternative in the meantime.
+    RETRY_AFTER_SECONDS = 30
+
+    def __init__(self) -> None:
+        super().__init__(
+            message="Google sign-in is temporarily unavailable. "
+            "Sign in with your password, or try again shortly.",
+            code="GOOGLE_SIGN_IN_UNAVAILABLE",
+            details={},
+        )
+        self.headers = {"Retry-After": str(self.RETRY_AFTER_SECONDS)}
+
+
 class InvalidResetCodeError(HealthGuardBaseError):
     """A reset code could not be used.
 

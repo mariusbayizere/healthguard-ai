@@ -204,3 +204,14 @@ class PasswordResetConfirm(BaseModel):
     @classmethod
     def _normalise_email(cls, value: str) -> str:
         return value.strip().lower()
+
+
+class GoogleSignIn(BaseModel):
+    """The ID token the browser received from Google.
+
+    Nothing else is accepted from the client: the email, the name and the
+    picture all come from inside the verified token. Taking any of them as a
+    request field would mean trusting the caller for the thing being proved.
+    """
+
+    id_token: Annotated[str, Field(min_length=1, max_length=8192)]

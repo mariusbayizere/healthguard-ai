@@ -12,14 +12,19 @@ from typing import Annotated
 from fastapi import APIRouter, Cookie, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
-from app.core import token_blocklist
+from app.core import google_identity, token_blocklist
 from app.core.audit_context import AuditCtx
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import AuthenticatedUser, CurrentUser, get_client_user_agent
-from app.core.exceptions import InvalidResetCodeError
+from app.core.exceptions import (
+    GoogleSignInUnavailableError,
+    InvalidResetCodeError,
+    InvalidTokenError,
+)
 from app.core.security import ACCESS_TOKEN, TokenError, decode_token
 from app.schemas.auth import (
+    GoogleSignIn,
     LoginRequest,
     PasswordChangeRequest,
     PasswordResetConfirm,
@@ -263,3 +268,39 @@ def confirm_password_reset(
     ):
         raise InvalidResetCodeError()
     return Message(message="Password changed. Please sign in.")
+
+
+@router.post("/google", response_model=TokenResponse)
+def sign_in_with_google(
+    data: GoogleSignIn,
+    response: Response,
+    request: Request,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
+) -> TokenResponse:
+    """Exchange a verified Google ID token for a session (FR-05-03, FR-05-04).
+
+    The token is VERIFIED against Google's published keys, with `aud`, `iss`
+    and `exp` checked and the algorithm pinned. It is never merely decoded: a
+    decoded token is a claim by whoever sent it, not evidence.
+
+    A failure to reach Google is 503 with Retry-After, distinct from 401, so a
+    client can tell "try again" from "that token is not good". Password sign-in
+    is unaffected either way.
+    """
+    try:
+        identity = google_identity.verify(data.id_token)
+    except google_identity.GoogleUnavailableError as error:
+        raise GoogleSignInUnavailableError() from error
+    except google_identity.GoogleIdentityError as error:
+        # One error for every reason the token failed. Saying which check it
+        # was would help an attacker shape the next attempt.
+        raise InvalidTokenError("Google sign-in failed") from error
+
+    session = auth_service.sign_in_with_google(
+        db,
+        identity,
+        user_agent=get_client_user_agent(request),
+        audit=audit,
+    )
+    return _token_response(response, session)

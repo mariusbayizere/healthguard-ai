@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     # When false the SMS provider is stubbed and messages are only logged.
     SMS_ENABLED: bool = False
 
+    # --- Google sign-in (FR-05-03) ---
+    # The audience every ID token must carry. Unset disables Google sign-in
+    # entirely: without a client id there is nothing to check `aud` against,
+    # and a verification that skips `aud` accepts a real Google token issued to
+    # any other application.
+    GOOGLE_CLIENT_ID: str | None = None
+
     # --- Authentication ---
     # RS256, not HS256: under a symmetric algorithm anything able to verify a
     # token is also able to mint one. Changed 2026-09-17 as a clean break, with

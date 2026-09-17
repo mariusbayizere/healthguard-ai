@@ -29,6 +29,7 @@ from app.core.exceptions import (
     InvalidTokenError,
     RefreshTokenReusedError,
 )
+from app.core.google_identity import GoogleIdentity
 from app.core.security import (
     REFRESH_TOKEN,
     TokenError,
@@ -200,6 +201,77 @@ def create_user(db: Session, data: UserCreate, *, audit: AuditContext) -> User:
     db.refresh(user)
     logger.info("user_created", user_id=user.id, role=user.role.value)
     return user
+
+
+def sign_in_with_google(
+    db: Session,
+    identity: GoogleIdentity,
+    *,
+    user_agent: str | None,
+    audit: AuditContext | None = None,
+) -> IssuedSession:
+    """Start a session for a verified Google identity (FR-05-04).
+
+    LINKING IS BY VERIFIED EMAIL, and only verified: `google_identity.verify`
+    refuses a token whose `email_verified` is not true, because linking on an
+    unverified address would let anyone who can register that address with
+    Google claim the matching account here.
+
+    An existing password account gains the OAuth identity and KEEPS its
+    password. Removing it would silently take away a sign-in method the person
+    was using, and would strand them if they later unlinked Google.
+    """
+    user = user_repository.get_by_email(db, identity.email)
+
+    if user is None:
+        user = user_repository.create(
+            db,
+            commit=False,
+            email=identity.email,
+            # No password: the CHECK constraint is satisfied by oauth_provider.
+            hashed_password=None,
+            first_name=identity.first_name,
+            last_name=identity.last_name,
+            avatar_url=identity.picture,
+            oauth_provider="google",
+            oauth_id=identity.subject,
+            role=UserRole.PATIENT,
+        )
+        action = "GOOGLE_SIGN_UP"
+    else:
+        if not user.is_active:
+            raise InactiveUserError()
+        if user.oauth_provider is None:
+            user_repository.update(
+                db,
+                user,
+                commit=False,
+                oauth_provider="google",
+                oauth_id=identity.subject,
+                avatar_url=user.avatar_url or identity.picture,
+            )
+            action = "LINK_GOOGLE_ACCOUNT"
+        else:
+            action = "GOOGLE_SIGN_IN"
+
+    if not user.is_active:
+        raise InactiveUserError()
+
+    user_repository.update(db, user, commit=False, last_login_at=_now())
+    if audit is not None:
+        audit_record(
+            db,
+            action=action,
+            table_name="users",
+            record_id=user.id,
+            after={"user_id": user.id, "oauth_provider": "google"},
+            actor=user,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
+    session = _issue_session(db, user, user_agent=user_agent)
+    logger.info("google_sign_in", user_id=user.id, action=action)
+    return session
 
 
 def authenticate(
