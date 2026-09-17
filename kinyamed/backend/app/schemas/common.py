@@ -109,6 +109,10 @@ class ReadinessResponse(BaseModel):
 
     status: str
     database: str
+    # "ok", "degraded" or "disabled". Degraded means logout can no longer
+    # withdraw an access token early, so one stays valid until it expires.
+    # It does NOT gate `status`: a cache outage must not stop triage.
+    redis: str = "disabled"
     # True only when the trained model is loaded. False means POST /triage
     # fails closed with 503 and patients must be triaged manually.
     model: bool

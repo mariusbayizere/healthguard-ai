@@ -15,6 +15,7 @@ from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.core import token_blocklist
 from app.core.database import get_db
 from app.core.exceptions import (
     ForbiddenError,
@@ -45,6 +46,11 @@ def get_current_user(
         claims = decode_token(credentials.credentials, expected_type=ACCESS_TOKEN)
     except TokenError as exc:
         raise InvalidTokenError(str(exc)) from exc
+
+    if token_blocklist.is_blocked(claims.jti):
+        # Withdrawn by a logout. Same error as any other invalid token: which
+        # tokens have been withdrawn is not a caller's business.
+        raise InvalidTokenError("Token is no longer valid")
 
     user = user_repository.get_by_id(db, claims.subject)
     if user is None:

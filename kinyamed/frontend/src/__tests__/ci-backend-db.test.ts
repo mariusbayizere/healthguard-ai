@@ -32,6 +32,15 @@ describe("CI gives the backend suite the database its conftest needs", () => {
     expect(backend).toMatch(/-\s*5432:5432/);
   });
 
+  it("runs a Redis, so the logout blocklist tests do not silently skip", () => {
+    // FR-05-10. The blocklist fixture skips when Redis is unreachable, and a
+    // skipped test is a test nobody is running. The degraded path needs no
+    // service: it points the client at a closed port on purpose.
+    expect(backend).toMatch(/redis:\s*\n\s+image:\s*redis:7\b/);
+    expect(backend).toMatch(/--health-cmd[= ]"?redis-cli ping/);
+    expect(backend).toMatch(/-\s*6379:6379/);
+  });
+
   it("sets DATABASE_URL, which conftest refuses to run without", () => {
     expect(conftest).toMatch(/DATABASE_URL must be set/);
     expect(backend).toMatch(/DATABASE_URL:\s*postgresql:\/\/\S+@localhost:5432\/\S+/);

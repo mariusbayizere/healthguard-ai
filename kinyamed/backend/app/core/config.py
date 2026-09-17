@@ -50,6 +50,14 @@ class Settings(BaseSettings):
 
     # --- Redis -----------------------------------------------------------
     REDIS_URL: str = "redis://localhost:6379"
+    # Logout withdraws an access token before it expires (FR-05-10). Redis is a
+    # cache in front of a safety property, never a dependency of the request
+    # path: if it is unreachable the service degrades to the pre-blocklist
+    # behaviour rather than failing (ENGINEERING_SPEC §6.3).
+    BLOCKLIST_ENABLED: bool = True
+    # Short on purpose. This timeout sits on the request path, so a hung Redis
+    # must cost milliseconds, not seconds.
+    REDIS_TIMEOUT_SECONDS: float = Field(default=0.25, gt=0, le=5)
 
     # --- Security --------------------------------------------------------
     # SECRET_KEY was removed 2026-09-17. It signed tokens under HS256; once

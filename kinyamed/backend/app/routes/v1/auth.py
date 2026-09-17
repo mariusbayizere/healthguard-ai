@@ -12,10 +12,12 @@ from typing import Annotated
 from fastapi import APIRouter, Cookie, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
+from app.core import token_blocklist
 from app.core.audit_context import AuditCtx
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import AuthenticatedUser, CurrentUser, get_client_user_agent
+from app.core.security import ACCESS_TOKEN, TokenError, decode_token
 from app.schemas.auth import (
     LoginRequest,
     PasswordChangeRequest,
@@ -127,9 +129,28 @@ def refresh(
     return _token_response(response, session)
 
 
+def _withdraw_access_token(request: Request) -> None:
+    """Add the bearer token of this request to the blocklist, if there is one.
+
+    Best effort by design: an unparseable or absent header is not an error
+    here, because logging out must always succeed.
+    """
+    header = request.headers.get("Authorization", "")
+    if not header.lower().startswith("bearer "):
+        return
+    try:
+        claims = decode_token(
+            header.split(" ", 1)[1].strip(), expected_type=ACCESS_TOKEN
+        )
+    except TokenError:
+        return
+    token_blocklist.block(claims.jti, claims.expires_at)
+
+
 @router.post("/logout", response_model=Message)
 def logout(
     response: Response,
+    request: Request,
     audit: AuditCtx,
     db: Session = Depends(get_db),
     refresh_token: Annotated[
@@ -138,9 +159,12 @@ def logout(
 ) -> Message:
     """End the current session and clear the refresh cookie.
 
-    Succeeds even without a valid cookie, so a client can always clear state.
+    Succeeds even without a valid cookie, so a client can always clear state,
+    and succeeds when the blocklist is unreachable: the refresh token is
+    revoked in the database either way, so the session cannot be extended.
     """
     auth_service.logout(db, refresh_token, audit=audit)
+    _withdraw_access_token(request)
     _clear_refresh_cookie(response)
     return Message(message="Signed out")
 
@@ -149,10 +173,17 @@ def logout(
 def logout_all(
     user: AuthenticatedUser,
     response: Response,
+    request: Request,
     audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> Message:
-    """End every session for the current account, on every device."""
+    """End every session for the current account, on every device.
+
+    Only the calling token is withdrawn from the blocklist; the others are not
+    in this request to be read. Their refresh tokens are revoked, so they
+    cannot be extended, and they expire within the access-token lifetime.
+    """
+    _withdraw_access_token(request)
     ended = auth_service.logout_everywhere(db, user, audit=audit.acting_as(user))
     _clear_refresh_cookie(response)
     return Message(message=f"Ended {ended} session(s)")

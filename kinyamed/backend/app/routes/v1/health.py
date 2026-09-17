@@ -11,6 +11,7 @@ import structlog
 from fastapi import APIRouter, Response, status
 from sqlalchemy import text
 
+from app.core import token_blocklist
 from app.core.config import settings
 from app.core.database import engine
 from app.schemas.common import HealthResponse, ReadinessResponse
@@ -59,6 +60,11 @@ def ready(response: Response) -> ReadinessResponse:
     reports it instead. `/ready` is kept as an alias for existing probes.
     """
     database = "ok" if _database_ok() else "unreachable"
+    # Redis does NOT gate readiness. The blocklist degrading is a reduced
+    # safety property, not an inability to serve; taking the pod out of
+    # rotation for it would turn a cache outage into a triage outage. It is
+    # reported so an operator can see the degradation instead of guessing.
+    redis = token_blocklist.status()
     is_ready = database == "ok"
 
     if not is_ready:
@@ -66,5 +72,6 @@ def ready(response: Response) -> ReadinessResponse:
     return ReadinessResponse(
         status="ready" if is_ready else "not_ready",
         database=database,
+        redis=redis,
         model=_model_loaded(),
     )
