@@ -44,9 +44,15 @@ describe("CI gives the backend suite the database its conftest needs", () => {
   it("runs a Kafka, so the real-broker consumer tests do not silently skip", () => {
     // The in-process fake proves our offset logic; only a broker proves the
     // same code survives a consumer restart, which is the §13 requirement.
-    expect(backend).toMatch(/kafka:\s*\n\s+image:\s*bitnami\/kafka/);
-    expect(backend).toMatch(/-\s*9092:9092/);
+    //
+    // Started as a STEP, not a service container: a service that fails to come
+    // up reports only "Initialize containers: failure" and its logs need admin
+    // rights to download, which made the first attempt undebuggable. A step
+    // prints the broker's own logs when the wait fails.
+    expect(backend).toMatch(/docker run -d --name kafka/);
+    expect(backend).toMatch(/-p 9092:9092/);
     expect(backend).toMatch(/KAFKA_BOOTSTRAP_SERVERS:\s*\S+/);
+    expect(backend).toMatch(/docker logs kafka/);
   });
 
   it("sets DATABASE_URL, which conftest refuses to run without", () => {
