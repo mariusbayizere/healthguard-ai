@@ -4,6 +4,7 @@ Importing this package registers every mapper, which SQLAlchemy needs before
 relationships can be resolved and which Alembic's autogenerate relies on.
 """
 
+from app.models.alert_ack import QueueAlertAcknowledgement
 from app.models.analytics import Analytics
 from app.models.audit_log import AuditLog
 from app.models.base import TimestampedModel
@@ -32,6 +33,7 @@ __all__ = [
     "PasswordResetCode",
     "Patient",
     "Queue",
+    "QueueAlertAcknowledgement",
     "QueueStatus",
     "RefreshToken",
     "SMSLog",
