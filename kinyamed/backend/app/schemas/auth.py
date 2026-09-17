@@ -148,3 +148,28 @@ class SessionResponse(ORMModel):
     created_at: datetime
     expires_at: datetime
     user_agent: str | None
+
+
+class PasswordResetRequest(BaseModel):
+    """Ask for a reset code. Answered identically whether or not the account exists."""
+
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def _normalise_email(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class PasswordResetConfirm(BaseModel):
+    """Spend a code and set a new password."""
+
+    email: EmailStr
+    # Not PasswordStr: this is a six-digit code, not a password.
+    code: Annotated[str, Field(min_length=6, max_length=6, pattern=r"^\d{6}$")]
+    new_password: PasswordStr
+
+    @field_validator("email")
+    @classmethod
+    def _normalise_email(cls, value: str) -> str:
+        return value.strip().lower()

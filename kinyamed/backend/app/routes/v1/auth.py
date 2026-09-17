@@ -17,17 +17,20 @@ from app.core.audit_context import AuditCtx
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import AuthenticatedUser, CurrentUser, get_client_user_agent
+from app.core.exceptions import InvalidResetCodeError
 from app.core.security import ACCESS_TOKEN, TokenError, decode_token
 from app.schemas.auth import (
     LoginRequest,
     PasswordChangeRequest,
+    PasswordResetConfirm,
+    PasswordResetRequest,
     RegisterRequest,
     SessionResponse,
     TokenResponse,
     UserResponse,
 )
 from app.schemas.common import Message
-from app.services import auth_service
+from app.services import auth_service, password_reset
 from app.services.auth_service import IssuedSession
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -224,3 +227,39 @@ def change_password(
     )
     _clear_refresh_cookie(response)
     return Message(message="Password changed. Please sign in again.")
+
+
+@router.post(
+    "/password-reset/request",
+    response_model=Message,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def request_password_reset(
+    data: PasswordResetRequest, audit: AuditCtx, db: Session = Depends(get_db)
+) -> Message:
+    """Send a reset code to the account's phone, if the account exists.
+
+    ALWAYS 202 with the same body. Whether the address is known, unknown or has
+    asked too often is not a caller's business: any difference here is an
+    account oracle, and the service is the wrong place to learn who has one.
+    """
+    password_reset.request(db, data.email, audit=audit)
+    return Message(
+        message="If that account exists, a reset code has been sent to its phone."
+    )
+
+
+@router.post("/password-reset/confirm", response_model=Message)
+def confirm_password_reset(
+    data: PasswordResetConfirm, audit: AuditCtx, db: Session = Depends(get_db)
+) -> Message:
+    """Spend a code and set the new password, ending every session."""
+    if not password_reset.consume(
+        db,
+        email=data.email,
+        code=data.code,
+        new_password=data.new_password,
+        audit=audit,
+    ):
+        raise InvalidResetCodeError()
+    return Message(message="Password changed. Please sign in.")

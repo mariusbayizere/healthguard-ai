@@ -103,6 +103,17 @@ class Ctx:
         assert response.status_code in (200, 201), response.text
         return email
 
+    def a_reset_code(self) -> tuple[str, str]:
+        """An address with a live reset code, and the code itself."""
+        from app.services import password_reset
+
+        email = self.a_registered_email()
+        response = self.anon_client.post(
+            "/api/v1/auth/password-reset/request", json={"email": email}
+        )
+        assert response.status_code == 202, response.text
+        return email, password_reset.LAST_DELIVERED[email]
+
     def a_signed_in_client(self):
         """A client holding a live session: the counted call is the only change."""
         email = self.a_registered_email()
@@ -230,6 +241,21 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
     ),
     "POST /api/v1/auth/logout-all": lambda c: (
         lambda cl=c.a_signed_in_client(): cl.post("/api/v1/auth/logout-all")
+    ),
+    "POST /api/v1/auth/password-reset/request": lambda c: (
+        lambda email=c.a_registered_email(): c.anon_client.post(
+            "/api/v1/auth/password-reset/request", json={"email": email}
+        )
+    ),
+    "POST /api/v1/auth/password-reset/confirm": lambda c: (
+        lambda pair=c.a_reset_code(): c.anon_client.post(
+            "/api/v1/auth/password-reset/confirm",
+            json={
+                "email": pair[0],
+                "code": pair[1],
+                "new_password": "Reset-Horse9-New",
+            },
+        )
     ),
     "POST /api/v1/auth/change-password": lambda c: (
         lambda: c.client.post(

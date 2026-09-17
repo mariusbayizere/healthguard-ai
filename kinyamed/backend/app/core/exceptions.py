@@ -226,6 +226,25 @@ class AuthenticationError(HealthGuardBaseError):
         super().__init__(message=message, code=code)
 
 
+class InvalidResetCodeError(HealthGuardBaseError):
+    """A reset code could not be used.
+
+    ONE error for every cause -- unknown address, wrong code, expired, already
+    spent, too many attempts. Distinguishing them tells a caller which part
+    they got right, which is how a six-digit code becomes guessable and how the
+    endpoint becomes an account oracle.
+    """
+
+    status_code = status.HTTP_400_BAD_REQUEST
+
+    def __init__(self) -> None:
+        super().__init__(
+            message="That reset code is not valid. Request a new one.",
+            code="INVALID_RESET_CODE",
+            details={},
+        )
+
+
 class InvalidCredentialsError(AuthenticationError):
     def __init__(self) -> None:
         # Deliberately does not say whether the email exists: distinguishing

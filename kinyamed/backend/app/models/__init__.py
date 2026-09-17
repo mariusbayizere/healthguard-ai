@@ -9,6 +9,7 @@ from app.models.audit_log import AuditLog
 from app.models.base import TimestampedModel
 from app.models.consultation import Consultation
 from app.models.doctor import Doctor
+from app.models.password_reset import PasswordResetCode
 from app.models.patient import Patient
 from app.models.queue import (
     ACTIVE_STATUSES,
@@ -28,6 +29,7 @@ __all__ = [
     "AuditLog",
     "Consultation",
     "Doctor",
+    "PasswordResetCode",
     "Patient",
     "Queue",
     "QueueStatus",
