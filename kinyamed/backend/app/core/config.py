@@ -97,7 +97,12 @@ class Settings(BaseSettings):
     REFRESH_COOKIE_NAME: str = "kinyamed_refresh"
     # Cookies are sent over HTTPS only outside development.
     REFRESH_COOKIE_SECURE: bool = True
-    REFRESH_COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    # strict since 2026-09-17 (FR-05-06). Under `lax` the cookie rides along
+    # with a top-level GET from another site, so a link in an email can carry a
+    # live refresh credential to a page the user did not mean to visit. The
+    # cost is that a link into the app arrives without the cookie and the user
+    # signs in again; for a clinical system that is the right side of the trade.
+    REFRESH_COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "strict"
 
     # --- Rate limiting ---
     RATE_LIMIT_ENABLED: bool = True

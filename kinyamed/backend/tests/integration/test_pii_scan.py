@@ -66,7 +66,9 @@ def test_no_phone_or_name_leaks_into_logs_or_error_bodies(
         json={
             "email": EMAIL,
             "password": "A-Long-Enough-Password9",
-            "full_name": NAME,
+            "confirm_password": "A-Long-Enough-Password9",
+            "first_name": NAME.split()[0],
+            "last_name": NAME.split()[1],
             "phone": "0788555124",
         },
     )
@@ -81,7 +83,9 @@ def test_no_phone_or_name_leaks_into_logs_or_error_bodies(
             json={
                 "email": EMAIL,
                 "password": "A-Long-Enough-Password9",
-                "full_name": NAME,
+                "confirm_password": "A-Long-Enough-Password9",
+                "first_name": NAME.split()[0],
+                "last_name": NAME.split()[1],
                 "phone": PHONE_LOCAL,
             },
         ),
@@ -156,8 +160,10 @@ def test_a_validation_error_never_echoes_the_submitted_value(anon_client):
         "/api/v1/auth/register",
         json={
             "email": "leak@kinyamed.rw",
-            "password": "weakpassword",  # fails composition, triggers a 422
-            "full_name": NAME,
+            "password": "weakpassword",
+            "confirm_password": "weakpassword",  # fails composition, triggers a 422
+            "first_name": NAME.split()[0],
+            "last_name": NAME.split()[1],
             "phone": PHONE_LOCAL,
         },
     )

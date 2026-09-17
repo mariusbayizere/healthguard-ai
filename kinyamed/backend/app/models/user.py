@@ -49,9 +49,21 @@ class User(TimestampedModel):
     email: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True
     )
-    # bcrypt digest; the plaintext password never leaves the request that set it.
-    hashed_password: Mapped[str] = mapped_column(String(128), nullable=False)
-    full_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # bcrypt digest; the plaintext password never leaves the request that set
+    # it. NULLABLE since 2026-09-17: a Google account has no password. The
+    # ck_users_has_a_credential CHECK stops that becoming an account nobody can
+    # authenticate as.
+    hashed_password: Mapped[str | None] = mapped_column(String(128))
+    first_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    # Nullable for rows recorded before the split, where no last name exists to
+    # recover. New registrations require it; see migration f4c81d5a9e27.
+    last_name: Mapped[str | None] = mapped_column(String(50))
+    # E.164. Staff had no phone anywhere, so a reset code could not reach them.
+    phone: Mapped[str | None] = mapped_column(String(20))
+    avatar_url: Mapped[str | None] = mapped_column(String(512))
+    # Set together, unique together: one Google subject maps to one account.
+    oauth_provider: Mapped[str | None] = mapped_column(String(32))
+    oauth_id: Mapped[str | None] = mapped_column(String(255))
     role: Mapped[UserRole] = mapped_column(
         SAEnum(UserRole, name="userrole", validate_strings=True),
         nullable=False,
@@ -81,6 +93,18 @@ class User(TimestampedModel):
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
+    @property
+    def display_name(self) -> str:
+        """First and last where both exist, first alone otherwise.
+
+        Used where one string is wanted (an audit actor, an SMS greeting). It
+        is not a stored column: composing on read means the two fields stay the
+        single source of truth.
+        """
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.first_name
+
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r} role={self.role.value}>"
 
@@ -98,6 +122,12 @@ class RefreshToken(TimestampedModel):
     jti: Mapped[str] = mapped_column(
         String(36), unique=True, nullable=False, index=True
     )
+    # A digest of the token itself, so a read of this table yields nothing
+    # usable. The jti is the lookup key and is not the credential; this is.
+    # Nullable for rows written before 2026-09-17, which have no digest to
+    # recover; verification treats a missing digest as "cannot confirm" rather
+    # than as a pass.
+    token_hash: Mapped[str | None] = mapped_column(String(128))
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )

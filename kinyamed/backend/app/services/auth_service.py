@@ -11,6 +11,8 @@ ended rather than just refusing the one request.
 
 from __future__ import annotations
 
+import hashlib
+import secrets
 import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
@@ -43,7 +45,6 @@ from app.repositories import (
     user_repository,
 )
 from app.schemas.auth import RegisterRequest, UserCreate
-from app.schemas.patient import normalise_phone
 from app.services.audit import record as audit_record
 from app.services.audit import snapshot
 
@@ -66,6 +67,17 @@ class IssuedSession:
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+def _token_digest(token: str) -> str:
+    """SHA-256 of a refresh token.
+
+    Not bcrypt: bcrypt truncates silently past 72 bytes and a JWT is longer, so
+    it would hash a prefix. A refresh token is high-entropy and not guessable,
+    so the slow-hash argument for passwords does not apply; the goal is that a
+    read of refresh_tokens yields nothing usable.
+    """
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def _issue_session(
@@ -92,6 +104,7 @@ def _issue_session(
         db,
         commit=False,
         jti=refresh_claims.jti,
+        token_hash=_token_digest(refresh_token),
         user_id=user.id,
         family_id=family_id or str(uuid.uuid4()),
         expires_at=refresh_claims.expires_at,
@@ -122,8 +135,10 @@ def register_patient(
     patient = patient_repository.create(
         db,
         commit=False,
-        name=data.full_name,
-        phone=normalise_phone(data.phone),
+        name=f"{data.first_name} {data.last_name}".strip(),
+        # Already E.164: the schema normalised it, so a bad number was a 422
+        # before any of this ran.
+        phone=data.phone,
         age=data.age,
         gender=data.gender,
         location=data.location,
@@ -133,7 +148,9 @@ def register_patient(
         commit=False,
         email=data.email,
         hashed_password=hash_password(data.password),
-        full_name=data.full_name,
+        first_name=data.first_name,
+        last_name=data.last_name,
+        phone=data.phone,
         role=UserRole.PATIENT,
         patient_id=patient.id,
     )
@@ -162,7 +179,9 @@ def create_user(db: Session, data: UserCreate, *, audit: AuditContext) -> User:
         commit=False,
         email=data.email,
         hashed_password=hash_password(data.password),
-        full_name=data.full_name,
+        first_name=data.first_name,
+        last_name=data.last_name,
+        phone=data.phone,
         role=data.role,
         doctor_id=data.doctor_id if data.role is UserRole.DOCTOR else None,
         patient_id=data.patient_id if data.role is UserRole.PATIENT else None,
@@ -264,6 +283,15 @@ def refresh_session(
 
     if record.expires_at <= _now():
         raise InvalidTokenError("Refresh token has expired")
+
+    # The jti identifies the row; the digest proves the presented token is the
+    # one that row was issued for. A row written before the digest column
+    # existed has None, which cannot confirm anything and so is refused rather
+    # than waved through.
+    if record.token_hash is None or not secrets.compare_digest(
+        record.token_hash, _token_digest(token)
+    ):
+        raise InvalidTokenError("Refresh token is not recognised")
 
     user = user_repository.get_by_id(db, record.user_id)
     if user is None:

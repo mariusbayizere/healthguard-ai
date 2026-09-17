@@ -227,7 +227,8 @@ def user_factory(db):
         user = User(
             email=extra.pop("email", f"{role.value.lower()}{counter['n']}@kinyamed.rw"),
             hashed_password=hash_password(password),
-            full_name=extra.pop("full_name", f"Test {role.value.title()}"),
+            first_name=extra.pop("first_name", "Test"),
+            last_name=extra.pop("last_name", role.value.title()),
             role=role,
             **extra,
         )

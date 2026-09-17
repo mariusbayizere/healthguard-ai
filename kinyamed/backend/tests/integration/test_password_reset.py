@@ -36,7 +36,9 @@ CONFIRM = "/api/v1/auth/password-reset/confirm"
 KNOWN = {
     "email": "resetme@kinyamed.rw",
     "password": "Correct-Horse9-battery",
-    "full_name": "Reset Me",
+    "confirm_password": "Correct-Horse9-battery",
+    "first_name": "Reset",
+    "last_name": "Me",
     "phone": "0788125222",
 }
 UNKNOWN_EMAIL = "nobody-at-all@kinyamed.rw"

@@ -9,7 +9,9 @@ from app.models.user import UserRole
 REGISTRATION = {
     "email": "uwimana@example.rw",
     "password": "Correct-Horse9-battery",
-    "full_name": "Uwimana Jean",
+    "confirm_password": "Correct-Horse9-battery",
+    "first_name": "Uwimana",
+    "last_name": "Jean",
     "phone": "0788123456",
     "age": 34,
 }

@@ -26,7 +26,9 @@ def _register(password: str) -> None:
     RegisterRequest(
         email="someone@kinyamed.rw",
         password=password,
-        full_name="Some One",
+        confirm_password=password,
+        first_name="Some",
+        last_name="One",
         phone="0788123456",
     )
 
@@ -97,7 +99,8 @@ def test_an_administrator_cannot_create_an_account_with_a_weak_password() -> Non
         UserCreate(
             email="staff@kinyamed.rw",
             password="aaaaaaaaaaaa",
-            full_name="Staff Member",
+            first_name="Staff",
+            last_name="Member",
             role="DOCTOR",
         )
 

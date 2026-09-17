@@ -26,7 +26,9 @@ from app.core.config import settings
 REGISTRATION = {
     "email": "blocked@kinyamed.rw",
     "password": "Correct-Horse9-battery",
-    "full_name": "Block Listed",
+    "confirm_password": "Correct-Horse9-battery",
+    "first_name": "Block",
+    "last_name": "Listed",
     "phone": "0788124111",
 }
 

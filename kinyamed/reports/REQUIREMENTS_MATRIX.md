@@ -96,21 +96,47 @@ Priority column: M/S/C from the spec; `L` = law-derived mandatory addition.
 
 ## 5. FR-05 — Authentication and authorisation
 
+**Rewritten 2026-09-17.** Every row below was re-derived from the code and a test run. The
+previous version had drifted badly: the FR-05-12 row described a 32-byte URL-safe SMS token
+at `auth_service.py:273` with 16 tests, and **none of that existed** — there was no
+password-reset code in the repository at all until `662a5e3`. A matrix row that invents an
+implementation is worse than one that says MISSING, because it stops anyone looking.
+
 | Req ID | Requirement | Pri | Status | Evidence | Gap | Risk |
 |---|---|---|---|---|---|---|
-| FR-05-01 | PATIENT/DOCTOR/ADMIN at API; 403 on wrong role; no self-elevation | M | DONE-VERIFIED | `core/dependencies.py:63`; `test_authorization.py` 29 tests (ran, pass) incl. `test_patient_cannot_read_the_queue`, `test_role_link_consistency_is_enforced_by_the_database`; `PATCH /auth/me` rejects role (`test_password_reset.py` ran) | Not "all 30+ endpoints × roles" exhaustively | Low |
-| FR-05-02 | Email+password registration with first/last/phone/confirm | M | PARTIAL | See FR-01-01/02 | — | Low |
-| FR-05-03 | Google ID token verified against JWKS | M | MISSING | — | — | Med |
-| FR-05-04 | OAuth link by email | M | MISSING | — | — | Med |
-| FR-05-05 | Access JWT 15 min, **RS256**, claims id/role/first name/email | M | INCORRECT | `core/config.py:66` `JWT_ALGORITHM="HS256"`; claims sub/role/type/jti/iat/exp (`core/security.py:89`); expiry 15 min; tests `test_a_tampered_token_is_rejected`, `test_a_refresh_token_is_not_accepted_as_an_access_token` (ran) | HS256 shared secret; no first name/email claim; no key rotation | Med |
-| FR-05-06 | Refresh 7 d, **bcrypt-hashed**, httpOnly **SameSite=Strict** | M | INCORRECT | 7 d ✓; httpOnly ✓ (`test_refresh_token_is_httponly_and_scoped` ran); stored by **`jti` (the token itself is a JWT), not a hash** (`models/user.py:98`); `REFRESH_COOKIE_SAMESITE` default **"lax"** (`config.py:76`) | SameSite and storage differ | Med |
-| FR-05-07 | Anonymous triage without JWT, patient by phone | M | INCORRECT | `routes/v1/triage.py:26` `user: CurrentUser`; probe `POST /api/v1/triage` without header → **401** (AUDIT §B.2); test `test_every_data_endpoint_requires_authentication[POST-/api/v1/triage]` asserts the opposite of the spec | Conflicts with the design | Med — needs ruling (anonymous endpoint + rate limit + abuse) |
-| FR-05-08 | PATIENT JWT → 403 on queue/consultations/doctors/analytics | M | DONE-VERIFIED | `test_patient_cannot_read_the_queue`, `test_patient_cannot_read_analytics`, `test_patient_cannot_manage_doctors` (ran, pass) | `/consultations/` does not exist | Low |
-| FR-05-09 | Login 10 / 15 min per IP, 429 + Retry-After | M | INCORRECT | One global limiter 120 req / 60 s (`config.py:80`), no auth-specific bucket; probe: keyed on client-supplied **`X-Forwarded-For`** → 30/30 requests accepted after exhaustion by rotating the header (AUDIT §B.6); in-memory per process | Bypassable; wrong thresholds | **High** |
-| FR-05-10 | Logout via Redis blocklist; Google revoke | M | PARTIAL | DB revocation (`auth_service.py:211`); `test_logout_revokes_the_session` (ran) | No Redis (Redis configured but unused anywhere: grep `redis` in `app/` → config only) | Low — DB revocation is sound |
-| FR-05-11 | 8 chars + classes; bcrypt cost 12 | M | PARTIAL | Cost 12 default, enforced in production (`config.py:151`, `test_production_requires_a_strong_bcrypt_cost` ran); policy length-only min 12 | Character classes absent; no timing test | Low |
-| FR-05-12 | 6-digit email OTP, 10 min | S | INCORRECT | `auth_service.py:273` 32-byte URL-safe token, **SMS**, **30 min**, hash stored, single use; `test_password_reset.py` 16 tests (ran) | Different channel/format/TTL | Low — current design is arguably stronger; SMS body contains token (not logged) |
-| FR-05-13 | Refresh rotation + reuse detection revokes family | L | DONE-VERIFIED | `auth_service.py:185` reuse → `revoke_all_for_user`; tests `test_refresh_rotates_the_token`, `test_reusing_a_rotated_refresh_token_ends_every_session` (ran, pass) | Revokes *all user sessions*, not a family (stricter); no `family_id` column | Low |
+| FR-05-01 | PATIENT/DOCTOR/ADMIN at API; 403 on wrong role; no self-elevation | M | DONE-VERIFIED | `core/dependencies.py:63`; `test_authorization.py` 29 cases (ran, pass) | Not exhaustive over every endpoint × role | Low |
+| FR-05-02 | Email+password registration with first/last/phone/confirm | M | **INCORRECT** | `schemas/auth.py`: single `full_name`, no `confirm_password`; `normalise_phone` raises a bare `ValueError` with no handler, so a malformed phone returns **500, not 422** | Being fixed in item 2 | Med |
+| FR-05-03 | Google ID token verified against JWKS | M | MISSING | No route, no JWKS fetch, no columns, nothing in git history on any branch | Item 2 | Med |
+| FR-05-04 | OAuth link by verified email | M | MISSING | `users.hashed_password` is NOT NULL, so a passwordless account cannot be stored | Needs a migration first | Med |
+| FR-05-05 | Access JWT 15 min, RS256 | M | **DONE-VERIFIED** | `9d9765e`: RS256 with derived `kid`, algorithm pinned on the verifier, retired-key ring; `test_jwt_keys.py` 20 cases incl. a hand-assembled HS256 forgery and `alg=none` | Claims still omit email/first name | Low |
+| FR-05-06 | Refresh 7 d, hashed at rest, httpOnly SameSite=Strict | M | **PARTIAL** | 7 d and httpOnly hold; `REFRESH_COOKIE_SAMESITE` default is `lax`; only the `jti` is stored, not a digest | Being fixed in item 2 | Med |
+| FR-05-07 | Anonymous triage without JWT, patient by phone | M | INCORRECT | `routes/v1/triage.py` requires `CurrentUser`; a test asserts the opposite of the spec | Needs a ruling: anonymous endpoint, rate limit, abuse | Med |
+| FR-05-08 | PATIENT JWT → 403 on staff routes | M | DONE-VERIFIED | `test_authorization.py` (ran, pass) | `/consultations/` does not exist | Low |
+| FR-05-09 | Login 10 / 15 min per IP, 429 + Retry-After | M | **DONE-VERIFIED** | `dc6c1fc`: a separate auth bucket, counted apart from the general one in both directions; `Retry-After` reports the exhausted window; X-Forwarded-For attribution pinned by a unit test on `client_ip` | Per-IP only; see the NAT recommendation in STATE.md | Low |
+| FR-05-10 | Logout blocklist | M | **DONE-VERIFIED** | `186564f`: Redis blocklist closes the access-token window; four tests run with Redis at a closed port for the §6.3 fallback; `6f423c2` makes a missing Redis fail the runner rather than skip | Google revoke not called (no OAuth yet) | Low |
+| FR-05-11 | Length + character classes; bcrypt cost 12 | M | **DONE-VERIFIED** | `8a3e19e`: all four classes, every failing rule named at once; `4d9c487`: cost 12 exercised by digest inspection **and** timing | Floor is 12, not the spec's 8, deliberately | Low |
+| FR-05-12 | 6-digit OTP, 10 min | S | **DONE-VERIFIED (amended, see below)** | `662a5e3`: six digits, 10 minutes, single use, bcrypt digest at rest, 3/hour per account, enumeration-resistant in body, status and timing | Undeliverable to staff accounts until `users.phone` lands in item 2 | Low |
+| FR-05-13 | Refresh rotation + reuse detection revokes the family | L | **DONE-VERIFIED** | `17df027`: `family_id`; reuse ends one lineage, logout-all and deactivation still end every family | — | Low |
+
+### SPEC AMENDMENT — FR-05-12 delivers by SMS, not email
+
+**Ruled 2026-09-17.** FR-05-12 says "password reset via 6-digit email OTP". The
+implementation sends the code **by SMS** and the requirement is amended to match, rather
+than the implementation changed to match the requirement.
+
+**Reasoning.** This project has an SMS provider already integrated, used for triage
+receipts, with delivery logging and a masked-recipient policy. It has **no mail transport at
+all**. Adding one for a single endpoint would mean a new external dependency, new
+credentials, new failure modes and a new PII exit point, all to reach users who were reached
+better by the channel already in place: the product's own §4.1 names feature-phone users
+with no reliable data connection as a population to serve, and those users have a phone
+number and often no email.
+
+**What the amendment does not excuse.** The channel changed; the properties did not. Six
+digits, ten minutes, single use, hashed at rest and enumeration-resistant are all held and
+tested. A staff account has no phone on record today, so its code reaches nobody — that is
+a real gap, logged as `password_reset_undeliverable`, and it closes when `users.phone` lands
+in item 2 rather than by adding a mail sender.
 
 ## 6. Non-functional requirements
 

@@ -205,7 +205,9 @@ def test_admin_can_create_a_clinician_account(client, db):
         json={
             "email": "mukamana.login@kinyamed.rw",
             "password": "Clinician-Pass9",
-            "full_name": "Dr Mukamana",
+            "confirm_password": "Clinician-Pass9",
+            "first_name": "Dr",
+            "last_name": "Mukamana",
             "role": "DOCTOR",
             "doctor_id": doctor["id"],
         },
@@ -221,7 +223,9 @@ def test_deactivating_an_account_revokes_its_access(anon_client, client):
         json={
             "email": "temp.staff@kinyamed.rw",
             "password": "Temporary-Pass9",
-            "full_name": "Temp Staff",
+            "confirm_password": "Temporary-Pass9",
+            "first_name": "Temp",
+            "last_name": "Staff",
             "role": "DOCTOR",
         },
     ).json()
@@ -257,7 +261,8 @@ def test_role_link_consistency_is_enforced_by_the_database(db):
         User(
             email="wrong.link@kinyamed.rw",
             hashed_password="x",
-            full_name="Wrong Link",
+            first_name="Wrong",
+            last_name="Link",
             role=UserRole.DOCTOR,
             patient_id=patient.id,
         )

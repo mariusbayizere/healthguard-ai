@@ -76,7 +76,9 @@ class Ctx:
             json={
                 "email": f"audited.user{self._made}@kinyamed.rw",
                 "password": "Correct-Horse9-battery",
-                "full_name": "Audited User",
+                "confirm_password": "Correct-Horse9-battery",
+                "first_name": "Audited",
+                "last_name": "User",
                 "role": "DOCTOR",
             },
         )
@@ -96,7 +98,9 @@ class Ctx:
             json={
                 "email": email,
                 "password": "Correct-Horse9-battery",
-                "full_name": "Sign Er",
+                "confirm_password": "Correct-Horse9-battery",
+                "first_name": "Sign",
+                "last_name": "Er",
                 "phone": f"07889911{self._made:02d}",
             },
         )
@@ -194,7 +198,9 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
             json={
                 "email": "made@kinyamed.rw",
                 "password": "Correct-Horse9-battery",
-                "full_name": "Made Staff",
+                "confirm_password": "Correct-Horse9-battery",
+                "first_name": "Made",
+                "last_name": "Staff",
                 "role": "DOCTOR",
             },
         )
@@ -222,7 +228,9 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
             json={
                 "email": "newcomer@kinyamed.rw",
                 "password": "Correct-Horse9-battery",
-                "full_name": "New Comer",
+                "confirm_password": "Correct-Horse9-battery",
+                "first_name": "New",
+                "last_name": "Comer",
                 "phone": "0788990022",
             },
         )

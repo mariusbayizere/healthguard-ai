@@ -27,7 +27,9 @@ from app.core.config import settings
 REGISTRATION = {
     "email": "family@kinyamed.rw",
     "password": "Correct-Horse9-battery",
-    "full_name": "Fam Ily",
+    "confirm_password": "Correct-Horse9-battery",
+    "first_name": "Fam",
+    "last_name": "Ily",
     "phone": "0788123999",
 }
 

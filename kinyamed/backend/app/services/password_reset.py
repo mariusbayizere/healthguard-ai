@@ -141,22 +141,21 @@ def _deliver(db: Session, user: User, code: str) -> None:
     a real gap and it is recorded rather than papered over, because inventing a
     delivery channel would be worse than naming the one that is missing.
     """
-    if user.patient_id is None:
+    # The account's own phone first: staff have one since f4c81d5a9e27, and it
+    # is what closed the gap where a staff reset code reached nobody.
+    phone = user.phone or (user.patient.phone if user.patient else None)
+    if not phone:
         logger.warning(
             "password_reset_undeliverable",
             user_id=user.id,
-            reason="account has no phone on record",
+            reason="no phone on the account or its patient record",
             effect="the code was issued and cannot reach anyone",
         )
         return
-    patient = user.patient
-    if patient is None or not patient.phone:
-        logger.warning("password_reset_undeliverable", user_id=user.id)
-        return
     sms_service.send_sms(
         db,
-        patient_id=patient.id,
-        phone=patient.phone,
+        patient_id=user.patient_id or 0,
+        phone=phone,
         message=(
             f"KinyaMed: your password reset code is {code}. "
             f"It expires in {CODE_LIFETIME_MINUTES} minutes. "

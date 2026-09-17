@@ -64,7 +64,7 @@ def record(
     """
     entry = AuditLog(
         user_id=actor.id if actor else None,
-        user_name=actor.full_name if actor else None,
+        user_name=actor.display_name if actor else None,
         user_role=actor.role.value if actor else None,
         action=action,
         table_name=table_name,
