@@ -392,6 +392,66 @@ running with `CI=true` against a closed port: four errors, four fallback cases s
 
 The password-reset OTP (FR-05-12): six digits, ten-minute expiry, single use. Not started.
 
+## 2026-09-17 — item 1b part 6: password reset by code (`662a5e3`). **FR-05 item 1b complete.**
+
+Four properties, each of which fails quietly if only assumed.
+
+**Enumeration.** Same status, same body, same elapsed time for a known and an unknown
+address. Hitting the per-account cap is silent for the same reason: a visible refusal would
+confirm the address exists. Every failure on confirm returns one error, because
+distinguishing unknown address from wrong code from expired tells a caller which part they
+got right.
+
+**The timing test was vacuous when first written, and mutation caught it.** With the
+equalising hash deleted from the unknown path it still passed: the suite hashes at cost 4,
+about two milliseconds, which HTTP overhead swamps. Rewritten to run at cost 12, where the
+hash dominates, it fails against the mutation with a **55x** difference and passes with the
+equaliser restored. Recorded because the lesson generalises: **a test written at a
+convenience setting can measure nothing while looking thorough**, and the only way to know
+is to break the code and watch it fail.
+
+**Single use.** `consumed_at` is set when a code is spent, so a replay inside the window is
+refused. Attempts capped at five, so a six-digit code cannot be walked.
+
+**Stored as a hash.** A bcrypt digest, never the code. The threat is a read of the table (a
+backup, a query log, a support export) becoming takeover for every reset in flight. A test
+scans every column of every row for the plaintext.
+
+**Per-account cap**, three per hour. The IP limiter does not cover this: an attacker rotates
+addresses and the victim is chosen by email. Without it, anyone who knows an address can
+make this service send unlimited SMS to that phone at the project's expense.
+
+**The audit completeness test caught both new endpoints before I did**, which is what it is
+for. The request is recorded with **no actor**: the endpoint needs no credentials, so the
+requester is not known to be the account holder, and attributing it would log an attacker as
+the victim. The confirmation is attributed, because possession of the code was proved.
+
+**KNOWN GAP, not papered over.** Delivery is by SMS to the patient record's phone, so a
+**staff account has no phone here and gets a code that cannot reach anyone**. Logged as
+`password_reset_undeliverable`. Closing it needs either an email sender or a phone on
+`users`, and inventing one would have been worse than naming it. FR-05-12 says "email OTP";
+this project has an SMS provider and no mail transport, which is the discrepancy behind the
+gap.
+
+**469 backend tests pass**; CI green on `main` run #127.
+
+### FR-05 status after item 1b
+
+| FR | Status |
+|---|---|
+| FR-05-01 roles, RBAC | DONE-VERIFIED (was already) |
+| FR-05-05 RS256, 15 min | DONE-VERIFIED (`9d9765e`) |
+| FR-05-09 10 per 15 min on auth routes | DONE-VERIFIED (`dc6c1fc`) |
+| FR-05-10 logout blocklist, with fallback | DONE-VERIFIED (`186564f`, `6f423c2`) |
+| FR-05-11 composition rules, bcrypt 12 measured | DONE-VERIFIED (`8a3e19e`, `4d9c487`) |
+| FR-05-12 reset code | DONE-VERIFIED for patients; **undeliverable for staff** |
+| FR-05-13 family-scoped reuse detection | DONE-VERIFIED (`17df027`) |
+| FR-05-02 registration fields | **still INCORRECT**: `full_name` not first/last, no `confirm_password`, and a malformed phone still returns 500 rather than 422 (the `ValueError` from `normalise_phone` has no handler) |
+| FR-05-06 refresh cookie | **PARTIAL**: SameSite is `lax`, not `strict`; the token is not hashed at rest |
+
+**Next:** item 2, Google OAuth. FR-05-02 and FR-05-06 are left open deliberately and should
+be picked up with it, since all three touch the same registration and cookie surface.
+
 ## STANDING RULE (2026-09-17) — never point a schema command at the developer's database
 
 **Never run `alembic`, `psql`, or any migration or DDL command in a way that inherits
