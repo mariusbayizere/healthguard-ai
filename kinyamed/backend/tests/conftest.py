@@ -83,6 +83,22 @@ def _database() -> Iterator[None]:
     engine.dispose()
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter() -> Iterator[None]:
+    """Clear the limiter between tests.
+
+    Its counters moved to module scope on 2026-09-17 so that rebuilding the app
+    no longer silently hands a test an empty limiter. That made leakage between
+    tests possible for the first time, so it is cleared explicitly here rather
+    than relying on a side effect.
+    """
+    from app.core.middleware import reset_rate_limit_state
+
+    reset_rate_limit_state()
+    yield
+    reset_rate_limit_state()
+
+
 @pytest.fixture
 def db() -> Iterator[Session]:  # noqa: F821 - imported lazily below
     """A session that is rolled back and whose tables are cleared after the test."""

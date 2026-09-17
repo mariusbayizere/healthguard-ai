@@ -89,30 +89,62 @@ def client_ip(request: Request) -> str:
     return hops[0] if hops else peer
 
 
+# Buckets live at module scope rather than on the middleware instance so that a
+# test which rebuilds the app does not silently get a fresh, empty limiter --
+# and so `reset_rate_limit_state` can clear them between cases.
+_HITS: dict[str, deque[float]] = defaultdict(deque)
+_HITS_LOCK = Lock()
+
+
+def reset_rate_limit_state() -> None:
+    """Forget every counted request. For tests and for nothing else."""
+    with _HITS_LOCK:
+        _HITS.clear()
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Fixed-capacity sliding-window rate limiter, keyed by client IP.
+
+    TWO BUDGETS, not one. Authentication endpoints are the brute-force surface
+    and get FR-05-09's ten-per-fifteen-minutes; everything else keeps the
+    general allowance. They are counted separately in both directions: ordinary
+    traffic cannot exhaust the login budget, and an exhausted login budget does
+    not lock a clinician out of the queue.
 
     State is per-process and in-memory: with several uvicorn workers the
     effective limit is `RATE_LIMIT_REQUESTS * workers`. That is an accepted
     trade-off for a single-node deployment; a multi-node deployment must move
     this counter to Redis, which is why the limit is configuration, not a
     constant.
+
+    OPERATIONAL NOTE. The key is an IP, as the requirement states. Every client
+    behind one NAT shares a budget, so a clinic whose staff share a public
+    address shares ten attempts per fifteen minutes between all of them. That is
+    tolerable for the brute-force threat this addresses and intolerable at shift
+    change; when it bites, the fix is a per-account counter alongside this one,
+    not a larger number here.
     """
 
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
-        self._hits: dict[str, deque[float]] = defaultdict(deque)
-        self._lock = Lock()
+
+    def _policy(self, request: Request) -> tuple[str, int, int]:
+        """(bucket prefix, limit, window) for this request."""
+        if request.url.path in settings.auth_rate_limit_paths:
+            return (
+                "auth",
+                settings.AUTH_RATE_LIMIT_REQUESTS,
+                settings.AUTH_RATE_LIMIT_WINDOW_SECONDS,
+            )
+        return "all", settings.RATE_LIMIT_REQUESTS, settings.RATE_LIMIT_WINDOW_SECONDS
 
     def _client_key(self, request: Request) -> str:
         return client_ip(request)
 
-    def _is_allowed(self, key: str) -> bool:
-        window = settings.RATE_LIMIT_WINDOW_SECONDS
-        limit = settings.RATE_LIMIT_REQUESTS
+    def _is_allowed(self, key: str, limit: int, window: int) -> bool:
         now = time.monotonic()
-        with self._lock:
-            hits = self._hits[key]
+        with _HITS_LOCK:
+            hits = _HITS[key]
             while hits and now - hits[0] > window:
                 hits.popleft()
             if len(hits) >= limit:
@@ -129,16 +161,18 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ):
             return await call_next(request)
 
-        key = self._client_key(request)
-        if not self._is_allowed(key):
-            error = RateLimitExceededError(
-                settings.RATE_LIMIT_REQUESTS, settings.RATE_LIMIT_WINDOW_SECONDS
-            )
-            logger.warning("rate_limit_exceeded", client=key)
+        bucket, limit, window = self._policy(request)
+        key = f"{bucket}:{self._client_key(request)}"
+        if not self._is_allowed(key, limit, window):
+            error = RateLimitExceededError(limit, window)
+            logger.warning("rate_limit_exceeded", client=key, bucket=bucket)
             response = error_response(
                 error.status_code, error.message, error.code, error.details
             )
-            response.headers["Retry-After"] = str(settings.RATE_LIMIT_WINDOW_SECONDS)
+            # The window of the budget that was actually exhausted, not the
+            # general one: a Retry-After that under-reports invites an
+            # immediate retry that is refused again.
+            response.headers["Retry-After"] = str(window)
             return response
 
         return await call_next(request)

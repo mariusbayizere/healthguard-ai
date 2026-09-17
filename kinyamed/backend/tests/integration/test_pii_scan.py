@@ -65,7 +65,7 @@ def test_no_phone_or_name_leaks_into_logs_or_error_bodies(
         "/api/v1/auth/register",
         json={
             "email": EMAIL,
-            "password": "a-long-enough-password",
+            "password": "A-Long-Enough-Password9",
             "full_name": NAME,
             "phone": "0788555124",
         },
@@ -80,7 +80,7 @@ def test_no_phone_or_name_leaks_into_logs_or_error_bodies(
             "/api/v1/auth/register",
             json={
                 "email": EMAIL,
-                "password": "a-long-enough-password",
+                "password": "A-Long-Enough-Password9",
                 "full_name": NAME,
                 "phone": PHONE_LOCAL,
             },
@@ -141,3 +141,33 @@ def test_a_database_error_does_not_log_the_offending_row(capsys):
     assert response.status_code == 409
     captured = capsys.readouterr()
     assert _scan(captured.out + captured.err + response.text) == []
+
+
+def test_a_validation_error_never_echoes_the_submitted_value(anon_client):
+    """A 422 must describe the rule, not repeat the input.
+
+    Pydantic carries the offending value in its error objects, and a handler
+    that serialises them wholesale turns every rejected registration into a
+    disclosure: the phone, the name and the password the caller just typed,
+    reflected back in the response body and thence into any log that records
+    error bodies. The handler strips it today; this keeps it stripped.
+    """
+    rejected = anon_client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "leak@kinyamed.rw",
+            "password": "weakpassword",  # fails composition, triggers a 422
+            "full_name": NAME,
+            "phone": PHONE_LOCAL,
+        },
+    )
+    assert rejected.status_code == 422, rejected.text
+
+    body = rejected.text
+    assert PHONE_LOCAL not in body, "a rejected registration echoed the phone number"
+    assert NAME not in body, "a rejected registration echoed the patient's name"
+    assert "weakpassword" not in body, "a rejected registration echoed the password"
+    assert '"input"' not in body, (
+        "the handler is serialising Pydantic's input field; it will leak the "
+        "next value somebody submits"
+    )

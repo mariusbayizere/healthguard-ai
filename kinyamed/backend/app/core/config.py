@@ -97,6 +97,18 @@ class Settings(BaseSettings):
     RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60, ge=1)
     # Paths exempt from rate limiting (probes must never be throttled).
     RATE_LIMIT_EXEMPT_PATHS: str = "/health,/health/ready,/ready,/"
+    # FR-05-09: credential-presenting endpoints get their own, far tighter
+    # budget. Separate from the general one in both directions -- queue polling
+    # must not consume the login allowance, and a clinician mistyping a
+    # password must not lose access to the queue.
+    AUTH_RATE_LIMIT_REQUESTS: int = Field(default=10, ge=1)
+    AUTH_RATE_LIMIT_WINDOW_SECONDS: int = Field(default=900, ge=1)
+    # Refresh and logout are deliberately absent. Refresh runs on a timer, once
+    # per access-token lifetime per session, so counting it would throttle a
+    # clinician with several tabs open for doing nothing wrong.
+    AUTH_RATE_LIMIT_PATHS: str = (
+        "/api/v1/auth/login,/api/v1/auth/register,/api/v1/auth/change-password"
+    )
     # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is
     # believed. EMPTY BY DEFAULT: with no proxy configured the header is ignored
     # and the limiter keys on the TCP peer, because any client can write it.
@@ -206,6 +218,15 @@ class Settings(BaseSettings):
         return frozenset(
             path.strip()
             for path in self.RATE_LIMIT_EXEMPT_PATHS.split(",")
+            if path.strip()
+        )
+
+    @property
+    def auth_rate_limit_paths(self) -> frozenset[str]:
+        """Paths counted against the authentication budget."""
+        return frozenset(
+            path.strip()
+            for path in self.AUTH_RATE_LIMIT_PATHS.split(",")
             if path.strip()
         )
 
