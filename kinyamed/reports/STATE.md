@@ -524,6 +524,56 @@ the same transaction and the SQL was shown before it ran.
 - No frontend sign-in button: the backend accepts a token nothing yet sends.
 - `patients.name` is still a single field. The spec splits it too; only `users` was done.
 
+## 2026-09-17 — item 3 steps 1-2: the CRITICAL backfill (`9331080`)
+
+Design in `reports/ALERT_DELIVERY_DESIGN.md`, approved as proposed. Built transport-free on
+purpose: the safety property lives in these queries, so it is settled before any wiring
+exists to obscure it. An early stop here leaves the system **safer** than before, which is
+why the order was chosen.
+
+**Bounded by state, not time.** `outstanding_for` has no `since` clause, and a test asserts
+its absence against a month-old row. A CRITICAL still waiting after a week is still an
+emergency; a time window would suppress exactly the row that matters most.
+
+**Acknowledgement is not a clinical act**, and the schema says so by keeping it in its own
+table rather than as a column on `queue`. Per doctor, so one clinician's dismissal cannot
+hide a live CRITICAL from the one coming on shift.
+
+**Six mutations, all caught first time**: a 24h window creeping into the backfill,
+acknowledgement going global, completed entries staying owed, acknowledging advancing
+`queue.status`, routine entries treated as alerts, zero recipients reported as delivery.
+
+**522 backend tests pass**; CI green on `main` run #141.
+
+### CLINICAL DECISION OUTSTANDING — re-alerting on an acknowledged CRITICAL
+
+`alerts.acknowledged_and_still_waiting(db, longer_than=...)` lists CRITICALs that somebody
+acknowledged and that are **still waiting**. It is a measurement and nothing more: nothing
+calls it on a timer, nothing escalates from it, and **`longer_than` has no default** — a
+test asserts the default stays absent, because an interval baked into the signature becomes
+policy by accident.
+
+**Two questions belong to a clinical lead, not to this project:**
+
+1. **What interval means "too long"?** It plausibly differs by presentation, by time of day
+   and by how many clinicians are on. There is no defensible single number available here.
+2. **Should exceeding it escalate at all**, and to whom — re-alert the same doctor, alert
+   everyone, page someone not on the floor? Each is a different operational commitment and
+   none is an engineering choice.
+
+Until both are answered the function stays a query. Building an escalation on a guessed
+interval would put a number nobody ratified in front of a clinical decision, which is the
+same defect as the unsourced thresholds recorded in A30.
+
+### Also recorded: a CRITICAL can reach nobody
+
+With no clinician on duty, a real-time CRITICAL alert has **zero recipients**.
+`recipients_for_broadcast` reports it and `warn_if_unattended` logs
+`critical_alert_unattended` with the consequence. **The alert is not lost** — it stays
+outstanding and the next doctor to connect receives it from the backfill — but the real-time
+part did not happen, and a push that silently succeeds against an empty set is
+indistinguishable from one that worked. A stats/readiness surface for it comes with step 3.
+
 ## DEFERRED REGISTER — open by decision, not by oversight
 
 Things that were noticed, understood, and consciously not built. Listed together so that
