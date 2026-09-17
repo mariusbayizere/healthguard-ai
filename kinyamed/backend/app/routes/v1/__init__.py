@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter
 
+from app.routes.v1.alerts import router as alerts_router
 from app.routes.v1.analytics import router as analytics_router
 from app.routes.v1.auth import router as auth_router
 from app.routes.v1.doctors import router as doctors_router
@@ -21,10 +22,12 @@ for _router in (
     queue_router,
     doctors_router,
     analytics_router,
+    alerts_router,
 ):
     api_router.include_router(_router)
 
 __all__ = [
+    "alerts_router",
     "analytics_router",
     "api_router",
     "auth_router",
