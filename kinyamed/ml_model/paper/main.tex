@@ -65,31 +65,24 @@
 }
 \makeatother
 
-% The macros results.tex quotes. Keep this list in step with the prose; an
-% entry here that the emitter stops producing is caught at build time.
+% The macros the prose actually quotes. An entry here that the emitter stops
+% producing is caught at build time.
+%
+% This list held 21 entries until 2026-09-17, of which 20 named macros nothing
+% in the document printed. A guard asserting the presence of a number the paper
+% does not use cannot fail in any way that matters, and a list of twenty such
+% guards reads as provenance while providing none.
+%
+% The numbers themselves did not lose their provenance when the prose stopped
+% quoting macros: every one of them reaches the paper inside a generated .tex
+% file that this document \input s, written by the same emitter in the same
+% pass. See tests/test_render_completeness.py, which checks the four structural
+% counts that results.tex also states in prose against the emitter's values --
+% the one place where a regenerated figure could silently disagree with the
+% text around it.
 \input{generated/results_macros}
 
-\RequireGenerated{ResultMacroFOne}
-\RequireGenerated{ResultCriticalRecall}
-\RequireGenerated{ResultCriticalPrecision}
-\RequireGenerated{ResultUrgentRecall}
-\RequireGenerated{ResultEvalRows}
-\RequireGenerated{ResultEvalPhrases}
-\RequireGenerated{ResultEvalGroups}
-\RequireGenerated{ResultCriticalSentences}
-\RequireGenerated{ResultSelectedStep}
-\RequireGenerated{ResultGatePassed}
 \RequireGenerated{ResultFingerprint}
-\RequireGenerated{LatencyRows}
-\RequireGenerated{LatencyColdMs}
-\RequireGenerated{LatencyWarmMedianMs}
-\RequireGenerated{LatencyWarmPninetyfiveMs}
-\RequireGenerated{LatencyWarmPninetynineMs}
-\RequireGenerated{LatencyWarmMaxMs}
-\RequireGenerated{DegenerateCeiling}
-\RequireGenerated{DegenerateRunPrecision}
-\RequireGenerated{DegenerateRunCriticalRecall}
-\RequireGenerated{DegenerateRunUrgentRecall}
 
 % Charter §1: the six claims that need people are marked \PENDING{} so a
 % compile shows them as unfilled rather than silently omitting them. Rendered
@@ -103,8 +96,7 @@
 \title{\textbf{KinyaMed: Seeds, Not Rows}\\
 \large What a Corpus Requirement Written in the Wrong Unit Fails to Constrain%
 \thanks{Build fingerprint \texttt{\ResultFingerprint}. Every number in this paper
-re-derives from a clean clone of the repository with \texttt{make reproduce}, on
-branch \texttt{audit-p0-p1-and-frontend}.}}
+re-derives from a clean clone of the repository with \texttt{make reproduce}.}}
 \author{Marius Bayizere\\
   Independent Researcher, Kigali, Rwanda\\
   \texttt{bayizeremarius119@gmail.com}\\

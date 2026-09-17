@@ -218,17 +218,83 @@ def test_title_is_bold_and_subtitle_is_not() -> None:
     assert "\\textbf" not in subtitle, "the subtitle is bold; it should not be"
 
 
-def test_title_page_carries_the_repository_and_its_branch() -> None:
-    """A reader is told where the code is, and which branch to clone.
+def test_title_page_carries_the_repository() -> None:
+    """A reader is told where the code is.
 
-    `main` does not carry this work. A bare repository URL would send a reader
-    to a branch with none of it, which is a provenance claim that does not hold.
+    The footnote's claim is that every number re-derives from a clean clone with
+    `make reproduce`. That held only on a branch until 2026-09-17, when the work
+    was fast-forwarded onto main and the branch name was dropped from the
+    footnote. Verified by cloning main into /tmp under `env -i` and running all
+    eight steps; this test guards the URL, not the clone.
     """
     main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
     assert "\\url{https://github.com/mariusbayizere/healthguard-ai}" in main, (
         "the title page does not carry the repository URL"
     )
-    assert "audit-p0-p1-and-frontend" in main or "\\texttt{main}" in main, (
-        "no branch is named, so a reader cloning the default branch gets a tree "
-        "without this work"
+    assert "audit-p0-p1-and-frontend" not in main, (
+        "the footnote still names a branch; main carries the work now"
+    )
+
+
+def _macros() -> dict[str, str]:
+    text = read("generated/results_macros")
+    return dict(re.findall(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", text))
+
+
+def test_every_require_generated_names_a_macro_the_paper_prints() -> None:
+    """A \\RequireGenerated for a figure nothing prints guards nothing.
+
+    The list held 21 entries, 20 of which named macros no part of the document
+    used. They read as provenance and provided none. This keeps the list honest:
+    assert a macro only where the prose depends on it.
+    """
+    main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
+    required = re.findall(r"\\RequireGenerated\{(\w+)\}", main)
+    assert required, "no macro is asserted at all"
+
+    prose = re.sub(r"\\RequireGenerated\{\w+\}", "", main)
+    for name in [
+        "results.tex",
+        *sorted(str(p) for p in (PAPER / "sections").glob("*.tex")),
+    ]:
+        prose += re.sub(r"(?m)(?<!\\)%.*$", "", read(name))
+    for path in sorted((PAPER / "generated").glob("*.tex")):
+        if path.name != "results_macros.tex":
+            prose += re.sub(r"(?m)(?<!\\)%.*$", "", path.read_text())
+
+    unused = [n for n in required if not re.search(rf"\\{n}\b", prose)]
+    assert not unused, (
+        "asserted by \\RequireGenerated but never printed, so the guard cannot "
+        f"fail in any way that matters: {unused}"
+    )
+
+
+def test_counts_stated_in_prose_match_the_emitter() -> None:
+    """results.tex states four structural counts that the emitter also computes.
+
+    Those four are the only figures written in two places, so they are the only
+    ones where regenerating could leave the text disagreeing with the tables
+    beside it. Everything else reaches the paper solely as emitted text.
+    """
+    macros = _macros()
+    prose = re.sub(r"(?m)(?<!\\)%.*$", "", read("results.tex"))
+    duplicated = [
+        "ResultEvalRows",
+        "ResultEvalPhrases",
+        "ResultEvalGroups",
+        "ResultCriticalSentences",
+    ]
+    missing = []
+    for name in duplicated:
+        value = macros.get(name)
+        if value is None:
+            missing.append(f"{name}: emitter no longer defines it")
+            continue
+        if not (value in prose or value.replace(",", "{,}") in prose):
+            missing.append(
+                f"{name}: emitter says {value}, results.tex does not state it"
+            )
+    assert not missing, (
+        "the prose disagrees with the emitter on a count it repeats: "
+        + "; ".join(missing)
     )
