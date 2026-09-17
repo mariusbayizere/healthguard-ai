@@ -50,6 +50,7 @@ describe("CI gives the backend suite the database its conftest needs", () => {
     // rights to download, which made the first attempt undebuggable. A step
     // prints the broker's own logs when the wait fails.
     expect(backend).toMatch(/docker run -d --name kafka/);
+    expect(backend).toMatch(/apache\/kafka/);
     expect(backend).toMatch(/-p 9092:9092/);
     expect(backend).toMatch(/KAFKA_BOOTSTRAP_SERVERS:\s*\S+/);
     expect(backend).toMatch(/docker logs kafka/);

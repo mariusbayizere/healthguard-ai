@@ -193,35 +193,42 @@ jobs:
       # containers: failure" and its logs need admin rights to download, which
       # is how the first attempt at this was undebuggable. A step prints the
       # broker's own logs into the job output when the wait fails.
+      #
+      # apache/kafka, not bitnami/kafka: run #153 failed at `docker run` and the
+      # likeliest cause was the image, since Bitnami moved most of its public
+      # catalog. The official image also uses plain KAFKA_ env names rather than
+      # the KAFKA_CFG_ prefix, so the config below is not a port of the other.
+      - name: Pull Kafka
+        run: docker pull apache/kafka:3.9.0
+
       - name: Start Kafka (KRaft)
         run: |
           docker run -d --name kafka -p 9092:9092 \
-            -e KAFKA_CFG_NODE_ID=0 \
-            -e KAFKA_CFG_PROCESS_ROLES=controller,broker \
-            -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
-            -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
-            -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@localhost:9093 \
-            -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
-            -e KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
-            -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
-            -e KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true \
-            -e KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-            -e KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
-            -e KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=1 \
-            -e ALLOW_PLAINTEXT_LISTENER=yes \
-            bitnami/kafka:3.7
+            -e KAFKA_NODE_ID=0 \
+            -e KAFKA_PROCESS_ROLES=controller,broker \
+            -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+            -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+            -e KAFKA_CONTROLLER_QUORUM_VOTERS=0@localhost:9093 \
+            -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+            -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
+            -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+            -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+            -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
+            -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 \
+            -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=true \
+            apache/kafka:3.9.0
 
       - name: Wait for Kafka
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if (echo > /dev/tcp/localhost/9092) 2>/dev/null; then
               echo "broker accepting connections after ${i}s"
               exit 0
             fi
             sleep 1
           done
-          echo "::error::Kafka did not accept connections within 60s. Broker log:"
-          docker logs kafka 2>&1 | tail -80
+          echo "::error::Kafka did not accept connections within 90s. Broker log:"
+          docker logs kafka 2>&1 | tail -100
           exit 1
 
       - name: Install pinned dependencies
