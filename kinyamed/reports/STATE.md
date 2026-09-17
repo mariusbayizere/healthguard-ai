@@ -338,6 +338,77 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## 2026-09-17 — SECRET_KEY removed, and item 1b parts 1-2 of 6
+
+### SECRET_KEY is gone (`095dfd1`)
+
+It signed tokens under HS256. Once tokens became RS256 nothing read it, and a required
+variable that nothing reads is a trap: it gets rotated during an incident in the belief
+that doing so invalidates sessions. Removed from `Settings`, `.env.example` and the CI
+workflow, along with the placeholder blocklist that guarded only this value.
+
+**A future CSRF token or signed URL must introduce its own purpose-named secret rather
+than reviving this one.** Three tests hold the line: the field is absent from the model, a
+stray `SECRET_KEY` in an environment stays ignored (`extra="ignore"`) rather than quietly
+becoming live, and no non-comment line under `app/` mentions it. The frontend's CI-contract
+test now asserts the workflow does **not** set it, so the trap cannot return as an env var.
+
+**Action taken by the user:** line 17 of `backend/.env` deleted.
+
+### FR-05-11 password composition (`8a3e19e`)
+
+`aaaaaaaaaaaa` was valid: twelve characters, one distinct letter, nothing to stop it. All
+four character classes are now required, checked together so one attempt reports every
+failing rule, and the message names the classes that are missing.
+
+**The length floor stays at 12 although FR-05-11 says 8.** A specification minimum is a
+floor, not a target; lowering a limit that already holds to match a document would weaken a
+live gate for nothing. A test pins 12 so a later reading of the spec cannot lower it.
+`current_password` is deliberately not composition-checked: it is a credential being
+verified, and applying new rules there would lock out everyone whose password predates them.
+
+### FR-05-09 authentication rate limiting (`dc6c1fc`)
+
+One global bucket of 120/60s covered every route, so a guessing client had 120 attempts a
+minute **and** shared that allowance with ordinary traffic. Credential endpoints now have
+their own counter at ten per fifteen minutes per IP, separate in both directions: queue
+polling cannot consume the login budget, and an exhausted login budget does not lock a
+clinician out of the queue. `Retry-After` reports the window actually exhausted.
+
+Refresh and logout are excluded by design: refresh runs on a timer, once per access-token
+lifetime per session, so counting it would throttle a clinician with several tabs open.
+
+**The X-Forwarded-For fix still holds on this path**, verified rather than assumed: an
+integration test rotates the header and is still refused, and a unit test drives
+`client_ip` directly, because the TestClient's peer is the literal string `testclient` and
+can never be a configured proxy — asserting through HTTP would have proved something weaker
+while looking like coverage. The right-most-non-proxy rule is pinned, including a
+client-supplied hop to the left and a proxy appending its own address.
+
+**Operational risk recorded in the middleware, not hidden:** the key is an IP, as
+specified, so a clinic behind one NAT shares ten attempts between all staff. When that
+bites at shift change the answer is a per-account counter alongside this one, not a larger
+number here.
+
+**Side finding, now guarded:** a 422 must not echo the submitted value. Pydantic carries
+the offending input in its error objects, and a handler serialising them would reflect the
+phone, name and password back to the caller. It strips them today; `test_pii_scan.py` now
+keeps it stripped.
+
+**431+ backend tests pass**; CI green on `main` runs #111 and #113.
+
+### Remaining in item 1b, and one blocker to decide
+
+Not started: `family_id` reuse detection scoped to a token family rather than user-wide;
+bcrypt cost 12 exercised by a test rather than only configured; the Redis logout blocklist;
+the password-reset OTP.
+
+**Blocker for the blocklist: CI has no Redis service.** Redis runs locally and `redis-py`
+7.4.0 is installed, but the backend CI job declares only Postgres. Two things are needed:
+a Redis service in the job to test the real path, and the ENGINEERING_SPEC §6.3 fallback
+("Redis unavailable → database-only state, no crash") which must be tested with Redis
+deliberately absent. Flagged before building rather than after.
+
 ## 2026-09-17 — item 1a: RS256, a clean break from HS256
 
 **DECISION, recorded because it has a cost.** The cutover is a **forced re-login for
