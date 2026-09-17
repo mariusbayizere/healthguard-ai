@@ -157,8 +157,15 @@ def test_refresh_rotates_the_token(anon_client):
     assert refreshed.json()["access_token"] != first.json()["access_token"]
 
 
-def test_reusing_a_rotated_refresh_token_ends_every_session(anon_client, db):
-    """Replay of a rotated token is the signature of a stolen credential."""
+def test_reusing_a_rotated_refresh_token_ends_that_lineage(anon_client, db):
+    """Replay of a rotated token is the signature of a stolen credential.
+
+    Renamed 2026-09-17. It used to say "every session", which was true only
+    because this case has a single family: reuse now revokes the token's own
+    family, and the narrower guarantee is verified in test_token_family.py.
+    A name that claims more than the body checks is how a weakened guarantee
+    goes unnoticed.
+    """
     from app.models.user import RefreshToken
 
     anon_client.post("/api/v1/auth/register", json=REGISTRATION)
@@ -171,7 +178,10 @@ def test_reusing_a_rotated_refresh_token_ends_every_session(anon_client, db):
     assert replay.json()["error"]["code"] == "REFRESH_TOKEN_REUSED"
 
     live = db.query(RefreshToken).filter(RefreshToken.revoked_at.is_(None)).count()
-    assert live == 0, "all sessions must be ended after reuse is detected"
+    assert live == 0, (
+        "the replayed token's family must be ended; this account has exactly "
+        "one family, so nothing should remain live"
+    )
 
 
 def test_refresh_without_a_cookie_is_rejected(anon_client):

@@ -104,6 +104,10 @@ class RefreshToken(TimestampedModel):
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, index=True
     )
+    # One login and everything rotated from it. Reuse detection revokes a
+    # family rather than every session the user has, so a replayed token ends
+    # the compromised device and not the clinician's whole working day.
+    family_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Coarse client fingerprint, for showing a user their active sessions.
     user_agent: Mapped[str | None] = mapped_column(String(255))

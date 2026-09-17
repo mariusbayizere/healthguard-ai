@@ -11,6 +11,7 @@ ended rather than just refusing the one request.
 
 from __future__ import annotations
 
+import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
 
@@ -68,9 +69,20 @@ def _now() -> datetime:
 
 
 def _issue_session(
-    db: Session, user: User, *, user_agent: str | None, commit: bool = True
+    db: Session,
+    user: User,
+    *,
+    user_agent: str | None,
+    commit: bool = True,
+    family_id: str | None = None,
 ) -> IssuedSession:
-    """Mint an access/refresh pair and record the refresh token."""
+    """Mint an access/refresh pair and record the refresh token.
+
+    `family_id` is None for a new login, which starts its own lineage, and is
+    the incoming token's family on rotation, which keeps the lineage intact.
+    Getting this backwards would make reuse detection able to revoke only the
+    newest token, which is the same as not having it.
+    """
     access_token, _ = create_access_token(subject=user.id, role=user.role.value)
     refresh_token, refresh_claims = create_refresh_token(
         subject=user.id, role=user.role.value
@@ -81,6 +93,7 @@ def _issue_session(
         commit=False,
         jti=refresh_claims.jti,
         user_id=user.id,
+        family_id=family_id or str(uuid.uuid4()),
         expires_at=refresh_claims.expires_at,
         user_agent=(user_agent or "")[:255] or None,
     )
@@ -235,11 +248,16 @@ def refresh_session(
 
     if record.is_revoked:
         # This token was already exchanged. Either it leaked, or a client is
-        # replaying it; either way every session for the user is now suspect.
-        revoked = refresh_token_repository.revoke_all_for_user(db, record.user_id)
+        # replaying it; either way this lineage is compromised.
+        #
+        # The family, not the user: ending every session would sign a clinician
+        # out of the ward workstation and the laptop because the phone in their
+        # pocket replayed a token. The blast radius is the compromised device.
+        revoked = refresh_token_repository.revoke_family(db, record.family_id)
         logger.warning(
             "refresh_token_reuse_detected",
             user_id=record.user_id,
+            family_id=record.family_id,
             sessions_ended=revoked,
         )
         raise RefreshTokenReusedError()
@@ -254,6 +272,7 @@ def refresh_session(
         raise InactiveUserError()
 
     refresh_token_repository.revoke(db, record, commit=False)
+    family_id = record.family_id
     if audit is not None:
         audit_record(
             db,
@@ -265,8 +284,8 @@ def refresh_session(
             ip_address=audit.ip_address,
             user_agent=audit.user_agent,
         )
-    session = _issue_session(db, user, user_agent=user_agent)
-    logger.info("session_refreshed", user_id=user.id)
+    session = _issue_session(db, user, user_agent=user_agent, family_id=family_id)
+    logger.info("session_refreshed", user_id=user.id, family_id=family_id)
     return session
 
 

@@ -11,12 +11,24 @@ import uuid
 from datetime import UTC, date, datetime, timedelta
 
 
-def _token(db, user_id: int, *, expires_at: datetime, revoked: bool = False):
+def _token(
+    db,
+    user_id: int,
+    *,
+    expires_at: datetime,
+    revoked: bool = False,
+    family_id: str | None = None,
+):
     from app.models.user import RefreshToken
 
+    # Each token gets its own family unless the caller joins one. These cases
+    # count rows across a user rather than a lineage, so distinct families are
+    # the honest default: sharing one would make a family-scoped revocation
+    # look like a user-wide one.
     token = RefreshToken(
         jti=str(uuid.uuid4()),
         user_id=user_id,
+        family_id=family_id or str(uuid.uuid4()),
         expires_at=expires_at,
         revoked_at=datetime.now(UTC) if revoked else None,
     )

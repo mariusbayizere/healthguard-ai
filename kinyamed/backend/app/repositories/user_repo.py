@@ -76,6 +76,23 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
             db.commit()
         return token
 
+    def revoke_family(self, db: Session, family_id: str, *, commit: bool = True) -> int:
+        """Revoke every live token in one lineage. Returns how many were ended."""
+        result = cast(
+            CursorResult[Any],
+            db.execute(
+                update(RefreshToken)
+                .where(
+                    RefreshToken.family_id == family_id,
+                    RefreshToken.revoked_at.is_(None),
+                )
+                .values(revoked_at=datetime.now(UTC))
+            ),
+        )
+        if commit:
+            db.commit()
+        return result.rowcount
+
     def revoke_all_for_user(
         self, db: Session, user_id: int, *, commit: bool = True
     ) -> int:
