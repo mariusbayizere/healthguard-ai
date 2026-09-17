@@ -73,10 +73,28 @@ def _now() -> datetime:
 def _token_digest(token: str) -> str:
     """SHA-256 of a refresh token.
 
-    Not bcrypt: bcrypt truncates silently past 72 bytes and a JWT is longer, so
-    it would hash a prefix. A refresh token is high-entropy and not guessable,
-    so the slow-hash argument for passwords does not apply; the goal is that a
-    read of refresh_tokens yields nothing usable.
+    DO NOT "FIX" THIS TO bcrypt FOR CONSISTENCY WITH PASSWORDS. The two cases
+    are different in both directions, and bcrypt here would be worse, not
+    stricter:
+
+    1. CORRECTNESS. bcrypt truncates its input at 72 BYTES, silently. A refresh
+       token is a signed JWT of several hundred bytes, so bcrypt would hash a
+       prefix and ignore the rest -- including the signature. Two different
+       tokens sharing a 72-byte prefix would verify against each other. That is
+       not a theoretical concern: our tokens share an algorithm header and a
+       claim layout, so their prefixes are similar by construction.
+
+    2. THE THREAT. A slow hash exists to make GUESSING expensive, which matters
+       for a password because a human chose it from a small space. A refresh
+       token is 128+ bits of machine randomness; nobody is guessing it, and
+       making verification slow would only add latency to every refresh.
+
+    What hashing buys here is narrower and worth stating: a read of
+    `refresh_tokens` -- a backup, a support export, a stray query log -- yields
+    nothing a reader can present as a credential. SHA-256 delivers that in full.
+
+    If this ever needs to change, the question to answer first is which of the
+    two points above stopped being true.
     """
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 

@@ -524,6 +524,21 @@ the same transaction and the SQL was shown before it ran.
 - No frontend sign-in button: the backend accepts a token nothing yet sends.
 - `patients.name` is still a single field. The spec splits it too; only `users` was done.
 
+## DEFERRED REGISTER — open by decision, not by oversight
+
+Things that were noticed, understood, and consciously not built. Listed together so that
+"we knew about that" stays checkable rather than being a claim made afterwards. Each says
+what it costs to leave and what closing it needs.
+
+| # | Deferred | Cost of leaving it | What closing it needs | Raised |
+|---|---|---|---|---|
+| D1 | **Google revocation on logout** (§12.2). Logging out ends the local session and does **not** call `https://oauth2.googleapis.com/revoke`, so Google's own grant to this application survives. | Low today and not zero: a user who "signs out everywhere" after losing a laptop still leaves this app authorised in their Google account, and would reasonably expect otherwise. No KinyaMed session survives, so it is not an access path into the service. | One outbound call on logout for accounts with `oauth_provider='google'`, called best-effort: a failure must not fail the logout, exactly as the blocklist does not. | 2026-09-17, item 2 |
+| D2 | **No frontend Google sign-in button.** The backend accepts and verifies an ID token; nothing in the UI obtains one. | The feature is unreachable by a user. It is not dead code — the endpoint is tested and correct — but it delivers nothing until a client sends a token. | Google Identity Services in the React app, the client id as build config, and posting the credential to `/auth/google`. Frontend work, so it belongs with item 4's UI rather than here. | 2026-09-17, item 2 |
+| D3 | **`patients.name` is still one field** while `users` now has `first_name`/`last_name`. §8.1 splits both. | An inconsistency across two tables that both hold a person's name, and a migration that gets harder as more rows arrive. No functional failure: nothing depends on the split for patients. | The same treatment `users` got in `f4c81d5a9e27`: add both, backfill on the first space, leave `last_name` nullable for rows with one word, drop the old column. Roughly 20 call sites. | 2026-09-17, item 2 |
+
+**Rule for this table:** an entry leaves it only by being built or by being ruled out in
+writing. Nothing drops off because it stopped being mentioned.
+
 ## STANDING RULE (2026-09-17) — never point a schema command at the developer's database
 
 **Never run `alembic`, `psql`, or any migration or DDL command in a way that inherits
