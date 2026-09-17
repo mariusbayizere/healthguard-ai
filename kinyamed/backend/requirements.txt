@@ -31,3 +31,6 @@ psycopg2-binary==2.9.12
 
 # --- Cache / queue ---
 redis==7.4.0
+# Alert stream (FR-04-?/§4.2). Present in the venv since before this pin and
+# absent from here, so a deployed image would not have had it.
+kafka-python==2.3.1

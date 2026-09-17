@@ -146,6 +146,13 @@ class Settings(BaseSettings):
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
     KAFKA_TOPIC_PATIENTS: str = "kinyamed_patients"
     KAFKA_TOPIC_ALERTS: str = "kinyamed_alerts"
+    # The alert stream is the LATENCY half of alert delivery; the alert itself
+    # is durable in Postgres and the reconnect backfill never reads from Kafka.
+    # Disabling this costs notification speed, never an alert.
+    KAFKA_ENABLED: bool = True
+    # Short on purpose: this runs just after a request's transaction, and a
+    # hung broker must not become a hung triage endpoint.
+    KAFKA_TIMEOUT_SECONDS: float = Field(default=1.0, gt=0, le=30)
 
     # --- ML model --------------------------------------------------------
     MODEL_NAME: str = "Davlan/afro-xlmr-mini"

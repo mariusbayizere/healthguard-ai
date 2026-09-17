@@ -20,6 +20,7 @@ from typing import Protocol
 import structlog
 from sqlalchemy.orm import Session
 
+from app.core import alert_stream
 from app.core.audit_context import AuditContext
 from app.core.config import settings
 from app.core.exceptions import TriageModelUnavailableError, TriageResultNotFoundError
@@ -28,7 +29,7 @@ from app.models.queue import Queue
 from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import symptom_report_repository, triage_repository
-from app.services import queue_service, red_flags
+from app.services import alerts, queue_service, red_flags
 from app.services.audit import record
 from app.services.patient_message import patient_receipt
 from app.services.review import ReviewStatus, review_status
@@ -358,6 +359,17 @@ def run_triage(
             user_agent=audit.user_agent,
         )
     db.commit()
+
+    # AFTER the commit above, and never before: a publish inside the
+    # transaction could roll back a clinical record over a broker hiccup. Same
+    # placement as the SMS receipt, for the same reason.
+    if decision.urgency is UrgencyLevel.CRITICAL:
+        alerts.warn_if_unattended(db, queue_id=queue_entry.id)
+        alert_stream.publish_critical(
+            queue_id=queue_entry.id,
+            queue_number=queue_entry.queue_number,
+            created_at=queue_entry.created_at.isoformat(),
+        )
 
     position = queue_service.position_of(db, queue_entry)
     logger.info(

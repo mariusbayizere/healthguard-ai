@@ -574,6 +574,24 @@ outstanding and the next doctor to connect receives it from the backfill — but
 part did not happen, and a push that silently succeeds against an empty set is
 indistinguishable from one that worked. A stats/readiness surface for it comes with step 3.
 
+## STANDING RULE (2026-09-17) — when a command chain fails, read the failure
+
+**Do not re-run a sub-part of a failed chain without the gate that stopped it.**
+
+On 2026-09-17 a commit chain was `ruff check . && git add && git commit -F msg`. Ruff
+failed, the chain short-circuited, and nothing was staged. I read only the last line of the
+output — a git error about a missing message file — and retried with a bare
+`git add -A && git commit`, which **dropped the lint gate** rather than answering why it had
+fired. CI caught it on `main` (run #145, Lint). The gate worked; I walked around it.
+
+The failure mode is specific and worth naming: a `&&` chain reports the LAST thing that went
+wrong, which is often a consequence rather than the cause, and the natural next move —
+"just run the bit that failed" — is exactly the move that skips the check.
+
+**How to apply.** When a chain fails: read the whole output, not the tail. Identify which
+link failed. Fix that. Re-run the WHOLE chain. If a gate has to be bypassed deliberately,
+say so out loud and give the reason, so it is a decision rather than an accident.
+
 ## DEFERRED REGISTER — open by decision, not by oversight
 
 Things that were noticed, understood, and consciously not built. Listed together so that

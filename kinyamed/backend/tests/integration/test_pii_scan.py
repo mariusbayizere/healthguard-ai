@@ -6,8 +6,9 @@ conflict errors, a password reset delivered by SMS, and a database constraint
 error whose driver message quotes the row. Everything written to stdout and
 stderr is captured and scanned, and so is every error body.
 
-Kafka payloads and CSV exports: this service has neither (no Kafka producer, no
-export endpoint). When either is added it must be added to this scan.
+Kafka payloads: covered as of 2026-09-17 by test_alert_publish.py, which asserts
+the alert topic carries no symptom text, no phone and no name. CSV exports: this
+service still has no export endpoint; when one is added it must join this scan.
 """
 
 from __future__ import annotations
