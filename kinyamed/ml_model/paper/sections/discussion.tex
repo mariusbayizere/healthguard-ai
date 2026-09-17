@@ -2,7 +2,7 @@
 %
 % CUT: the macro-F1 comparison between configurations (a model quality claim on
 % the nine-sentence set, which reports/PAPER_PLAN.md forbids). The gate-design
-% argument stands on the class-collapse behaviour and the degenerate ceiling,
+% argument stands on the class-collapse behaviour and the merge-strategy precision,
 % neither of which is a quality claim about either configuration.
 %
 % Figures checked against disk rather than recalled (unchanged):
@@ -86,8 +86,11 @@ that defines it. Two points about its numbers, since this paper is largely about
 numbers without derivations. Its critical-recall threshold of 0.95 is
 \emph{inherited and unverified}: a different figure from the 0.91 our
 requirements document sets, and neither has a source we could trace. Its
-non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
-is a clinical judgement nobody has made. The gate states which is which, which is
+non-degeneracy floor is derived exactly, though it guarantees less than it
+appears to: macro F1 above $2/3$ implies only that the weakest class has
+$F1 \geq 3\,\mathrm{macro} - 2$, which is zero at the threshold itself. Its
+margin above the merge-strategy precision is a clinical judgement nobody has
+made. The gate states which is which, which is
 the property we would ask of any gate.
 
 \begingroup

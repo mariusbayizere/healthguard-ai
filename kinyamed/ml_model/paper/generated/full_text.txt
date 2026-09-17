@@ -8,10 +8,13 @@ in 130 seconds. Run against the nine corpus-quality gates written in the same
 specification, that corpus fails four as generated and six where its rows can be
 attributed to a source sentence. The binding gate counts distinct authored seed
 phrases, not rows, and the generator has 165 of them: at that inventory the
-largest corpus passing every gate is zero rows, at any row count. The distance to
-the target is 19,835 authored sentences, not 999,000 rows. Rows are produced
-by machine at roughly 7,700 per second; seeds are written by native-speaking
-clinicians. We argue the general form: a corpus requirement stated as a row count
+largest corpus passing every gate is zero rows, at any row count. Two distinct
+shortfalls follow, and they are not the same number. Passing the seed-count gate
+needs 2,835 further authored sentences (a floor of 3,000). Reaching the
+stated one million rows needs 19,835 further sentences, because a separate
+gate caps a seed at 50 rows and 1,000,000 rows therefore require 20,000
+seeds. Rows are produced by machine at roughly 7,700 per second; seeds are
+written by native-speaking clinicians. We argue the general form: a corpus requirement stated as a row count
 constrains the cheap quantity and leaves the expensive one free, so it does not
 constrain quality at all.
 
@@ -29,9 +32,11 @@ returns a five-token vocabulary, and answers its class prior on input it cannot
 read, with well-formed probabilities and deterministic predictions. We mistook
 it for single-class collapse in our own harness.
 
-We report no accuracy, recall or calibration figure for any model. No evaluation
-set meeting our own specification exists, our gate refuses on the set that does,
-and the trained artefact is an audit artefact rather than a baseline. The
+No figure in this paper is offered as evidence of model quality. Some model
+numbers appear, because the failures we report are about them, but none is a
+performance claim: no evaluation set meeting our own specification exists, our
+gate refuses on the set that does, and the trained artefact is an audit artefact
+rather than a baseline. The
 contribution is the measurement apparatus and the negative results it produced,
 each reproducible from a clean clone with one command.
 
@@ -44,9 +49,10 @@ a specification that could be satisfied without producing anything it was meant
 to secure, an evaluation set that could not support a verdict, and two failure
 modes that leave every signal a practitioner would check looking healthy.
 
-This is a negative-results and methodology paper. We report no accuracy, recall
-or calibration figure for any model, for reasons Section 4.4
-states plainly.
+This is a negative-results and methodology paper. Model numbers appear in it,
+because several of the failures we report are failures about those numbers, but
+none is offered as evidence of model quality; Section 4.4
+states the distinction and the reasons for it.
 
 A corpus requirement in rows constrains the cheap quantity. Our
 functional requirement asked for one million examples. Generating them took 130
@@ -120,7 +126,8 @@ silent failure modes with the checks that detect them. (4) The apparatus itself:
 every number in this paper re-derives from a clean clone with one command.
 
 0.9
-Provenance of every number. This paper reports no model quality figure.
+Provenance of every number. No number in this paper is offered as
+evidence of model quality.
 Each number in it is a property of a corpus, a specification, or an artefact's
 behaviour under perturbation, and reports/PAPER_NUMBERS.md lists every
 one with the committed script or record that produces it. Figures whose script
@@ -430,10 +437,16 @@ Seeds available | Rows allowed by G1 | Passes G2? | Largest passing corpus
 At 165 seeds no corpus of any size passes, because the floor is on
 seeds and not on rows.
 
-The shortfall is 19,835 sentences, not 999,000 rows. A row is a
-frame rendered around an existing phrase, produced at roughly 7,700 per second.
-A seed is a sentence a native-speaking clinician writes. Reaching the stated
-target requires 19,835 further seed phrases; at the authoring rates assumed in
+Two shortfalls, in sentences rather than rows. A row is a frame
+rendered around an existing phrase, produced at roughly 7,700 per second. A
+seed is a sentence a native-speaking clinician writes. The two are often
+conflated, including in an earlier draft of this paper, so we separate them.
+To pass the seed-count gate the corpus needs 3,000 distinct seeds
+against the 165 it has: a shortfall of 2,835. To reach the
+one million rows the requirement names it needs 20,000 seeds, because a
+separate gate caps any one seed at 50 rows: a shortfall of 19,835.
+The gates do not demand twenty thousand sentences; the row target does. Reaching
+that target requires 19,835 further seed phrases; at the authoring rates assumed in
 our clinician brief (two to three minutes per item, an assumption and not a
 measurement) that is on the order of 660 to 990 clinician-hours. Even at
 20,000 seeds the generated corpus would still fail G5, G7, G8 and G9, which
@@ -512,9 +525,16 @@ record this as a corpus-health signal and not as a quality metric, and we do not
 propose normalising input at serving time: that would hide the fragility and
 discard information the tokenizer is case-sensitive to.
 
-## WHAT WE DO NOT REPORT
+## WHAT WE DO NOT CLAIM
 
-We report no accuracy, recall, F1, calibration or latency figure for any model.
+No figure in this paper is offered as evidence of model quality. That
+is a narrower statement than the one an earlier draft made, and the narrower one
+is the true one: model numbers do appear here, because several of the failures we
+report are failures about those numbers, and a paper cannot describe a
+gate certifying a degenerate model without saying what the gate saw. A recall of
+0.9749 beside an urgent recall of 0.0083 is evidence about a gate, not a
+performance claim, and we make none.
+
 No evaluation set meeting our specification exists; our gate refuses on the set
 that does; and no model has been trained through the pipeline that would produce
 a calibrated, threshold-tuned checkpoint. When run, it refuses before reading
@@ -679,8 +699,11 @@ that defines it. Two points about its numbers, since this paper is largely about
 numbers without derivations. Its critical-recall threshold of 0.95 is
 inherited and unverified: a different figure from the 0.91 our
 requirements document sets, and neither has a source we could trace. Its
-non-degeneracy floor is derived exactly; its margin above the degenerate ceiling
-is a clinical judgement nobody has made. The gate states which is which, which is
+non-degeneracy floor is derived exactly, though it guarantees less than it
+appears to: macro F1 above 2/3 implies only that the weakest class has
+F1 ≥ 3 macro - 2, which is zero at the threshold itself. Its
+margin above the merge-strategy precision is a clinical judgement nobody has
+made. The gate states which is which, which is
 the property we would ask of any gate.
 
 A model is accepted only if all three conditions hold. They are not traded off against one another.

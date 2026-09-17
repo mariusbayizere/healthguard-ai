@@ -70,14 +70,31 @@ MINIMUM_CRITICAL_RECALL = 0.95
 # G2. DERIVED EXACTLY, no judgement in it. Macro F1 is the unweighted mean of
 # three per-class F1 scores. If any one class is dead its F1 is 0, so
 #
-#     macro F1 <= (1 + 1 + 0) / 3 = 0.6667
+#     macro F1 <= (1 + 1 + 0) / 3 = 2/3
 #
-# even when the other two classes are PERFECT. Therefore macro F1 > 2/3 is a
-# mathematical guarantee that no class has been abandoned, and it is the
-# tightest such guarantee available from a single number. This is a floor of
-# NON-DEGENERACY, not of quality: passing it means every class is alive, not
-# that the model is good.
+# even when the other two classes are PERFECT. The comparison is therefore
+# STRICT: a model scoring EXACTLY 2/3 is consistent with two perfect classes
+# and one dead one, and `>=` admitted it. Corrected 2026-09-17 after external
+# review; the constant is exactly 2/3, so this was not masked by rounding.
+#
+# WHAT IT ACTUALLY GUARANTEES, stated instead of the stronger claim this file
+# used to make. From macro = (f1 + f2 + f3)/3 and f_i <= 1,
+#
+#     min class F1 >= 3 * macro F1 - 2
+#
+# which is 0 just above 2/3 and 0.3172 at the 0.7724 this project measured. So
+# passing G2 proves no class is EXACTLY dead; it does not prove no class is
+# nearly dead. A model at macro 0.672 may carry a class at F1 0.016 and pass.
+# The earlier text called this "the tightest such guarantee available from a
+# single number", which overstates it: it is the tightest guarantee of
+# non-zero-ness, not of usefulness.
 MINIMUM_MACRO_F1 = 2.0 / 3.0
+
+
+def minimum_class_f1_implied(macro_f1: float) -> float:
+    """The weakest class this macro F1 still permits: 3 * macro - 2, floored at 0."""
+    return max(0.0, 3.0 * macro_f1 - 2.0)
+
 
 # G3. DERIVED FLOOR PLUS AN UNDERIVED MARGIN, and the split is the point.
 #
@@ -102,11 +119,34 @@ MINIMUM_MACRO_F1 = 2.0 / 3.0
 CRITICAL_PRECISION_MARGIN = 0.10
 
 
-def degenerate_precision_ceiling(support: dict[str, float]) -> float:
-    """CRITICAL precision earned for free by merging CRITICAL into URGENT."""
+def merge_strategy_precision(support: dict[str, float]) -> float:
+    """CRITICAL precision earned by one specific degenerate strategy.
+
+    RENAMED from `degenerate_precision_ceiling` on 2026-09-17. "Ceiling" was
+    wrong twice over: it is not an upper bound on anything (a real model should
+    exceed it), and it is the score of ONE strategy -- labelling every CRITICAL
+    and URGENT row CRITICAL -- not of degenerate strategies in general.
+
+    IT ASSUMES NO ROUTINE ROW IS LABELLED CRITICAL. A strategy that swept
+    ROUTINE in as well would score lower, so this is the precision of the
+    *best* merge of the two urgent classes, not of the worst degenerate model.
+    Stated because the number is only interpretable with that assumption
+    attached.
+    """
     critical, urgent = support.get("CRITICAL", 0.0), support.get("URGENT", 0.0)
     total = critical + urgent
     return critical / total if total else 0.0
+
+
+def g3_is_satisfiable(support: dict[str, float]) -> bool:
+    """Whether ANY model could pass G3 on this evaluation set.
+
+    When CRITICAL rows dominate the two urgent classes, the merge strategy
+    already scores near 1.0 and the floor (its precision plus the margin)
+    exceeds 1.0. No model can then pass, and reporting that as a model failure
+    would blame a model for a property of the set it was scored on.
+    """
+    return merge_strategy_precision(support) + CRITICAL_PRECISION_MARGIN <= 1.0
 
 
 def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list[str]]:
@@ -120,8 +160,24 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
     support = {name: per_class[name]["support"] for name in CLASS_ORDER}
     recall = per_class["CRITICAL"]["recall"]
     precision = per_class["CRITICAL"]["precision"]
-    ceiling = degenerate_precision_ceiling(support)
-    floor = ceiling + CRITICAL_PRECISION_MARGIN
+    merge_precision = merge_strategy_precision(support)
+    floor = merge_precision + CRITICAL_PRECISION_MARGIN
+
+    # G3 can be unsatisfiable by construction. Say so rather than failing the
+    # model for it: a floor above 1.0 is a fact about the evaluation set.
+    if not g3_is_satisfiable(support):
+        return False, [
+            f"PASS  G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}"
+            if recall >= MINIMUM_CRITICAL_RECALL
+            else f"FAIL  G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}",
+            f"{'PASS' if macro_f1 > MINIMUM_MACRO_F1 else 'FAIL'}  G2  macro F1"
+            f"           {macro_f1:.4f} > {MINIMUM_MACRO_F1:.4f}",
+            f"NOT COMPUTABLE  G3  the merge strategy already scores "
+            f"{merge_precision:.4f} on this set, so the floor is "
+            f"{floor:.4f} > 1.0 and no model can pass. This is a property of "
+            f"the evaluation set's class balance, not of the model. Rebalance "
+            f"the set or have a clinician set a margin appropriate to it.",
+        ]
 
     checks = [
         (
@@ -130,15 +186,17 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
             f"(inherited, source unverified)",
         ),
         (
-            macro_f1 >= MINIMUM_MACRO_F1,
-            f"G2  macro F1           {macro_f1:.4f} >= {MINIMUM_MACRO_F1:.4f} "
-            f"(derived: a dead class caps macro F1 at 2/3)",
+            # STRICT: exactly 2/3 is two perfect classes and one dead one.
+            macro_f1 > MINIMUM_MACRO_F1,
+            f"G2  macro F1           {macro_f1:.4f} > {MINIMUM_MACRO_F1:.4f} "
+            f"(derived: a dead class caps macro F1 at 2/3; this permits a "
+            f"weakest class of {minimum_class_f1_implied(macro_f1):.4f})",
         ),
         (
             precision >= floor,
             f"G3  CRITICAL precision {precision:.4f} >= {floor:.4f} "
-            f"(= {ceiling:.4f} degenerate ceiling + {CRITICAL_PRECISION_MARGIN:.2f} "
-            f"UNDERIVED margin)",
+            f"(= {merge_precision:.4f} merge-strategy precision + "
+            f"{CRITICAL_PRECISION_MARGIN:.2f} UNDERIVED margin)",
         ),
     ]
     lines = [f"{'PASS' if ok else 'FAIL'}  {text}" for ok, text in checks]
@@ -433,9 +491,11 @@ def write_confusion_table(
         w("\\end{table}\n")
 
 
-def write_gate_derivation(path: Path, support: dict[str, float], prov: dict) -> None:
+def write_gate_derivation(
+    path: Path, support: dict[str, float], prov: dict, run_macro_f1: float
+) -> None:
     """The gate's three conditions and, for each, where the number came from."""
-    ceiling = degenerate_precision_ceiling(support)
+    merge_precision = merge_strategy_precision(support)
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
@@ -458,31 +518,46 @@ def write_gate_derivation(path: Path, support: dict[str, float], prov: dict) -> 
             "evidence is worse than retaining an unsourced one.\n\n"
         )
         w(
-            "\\paragraph{G2: macro F1 $\\geq 2/3$.} "
+            "\\paragraph{G2: macro F1 $> 2/3$, strictly.} "
             "\\emph{Derived exactly.} Macro F1 is the unweighted mean of three "
             "per-class F1 scores. If any one class is abandoned its F1 is zero, so "
-            "macro F1 $\\leq (1+1+0)/3 = 0.6667$ \\emph{even when the other two "
-            "classes are perfect}. Requiring macro F1 above $2/3$ is therefore a "
-            "guarantee that no class has been abandoned, and it is the tightest such "
-            "guarantee obtainable from a single scalar. This is a floor of "
-            "non-degeneracy, not of quality.\n\n"
+            "macro F1 $\\leq (1+1+0)/3 = 2/3$ \\emph{even when the other two "
+            "classes are perfect}. The comparison is therefore strict: a model "
+            "scoring \\emph{exactly} $2/3$ is consistent with two perfect classes "
+            "and one dead one, and an inclusive $\\geq$ admitted it. "
+            "\\textbf{What the condition actually guarantees} is weaker than "
+            "non-degeneracy in any useful sense: from $f_i \\leq 1$ it follows that "
+            "$\\min_i F1_i \\geq 3\\,\\mathrm{macro} - 2$, which is $0$ just "
+            "above $2/3$ and "
+            f"${minimum_class_f1_implied(run_macro_f1):.4f}$ at the "
+            f"${run_macro_f1:.4f}$ measured here. Passing G2 proves no class is "
+            "exactly dead; it does not prove no class is nearly dead. A model at "
+            "macro $0.672$ may carry a class at $F1 = 0.016$ and pass.\n\n"
         )
         w(
-            "\\paragraph{G3: CRITICAL precision $\\geq$ the degenerate ceiling "
-            "plus a margin.} \\emph{Floor derived and measured per evaluation set; "
-            "margin not derived.} A model that merges CRITICAL and URGENT and labels "
-            "the union CRITICAL earns, by construction, a CRITICAL precision of\n"
+            "\\paragraph{G3: CRITICAL precision $\\geq$ the merge-strategy "
+            "precision plus a margin.} \\emph{Floor derived and measured per "
+            "evaluation set; margin not derived.} A model that merges CRITICAL and "
+            "URGENT and labels the union CRITICAL earns, by construction, a CRITICAL "
+            "precision of\n"
         )
         w(
             "\\[ \\frac{\\mathrm{support(CRITICAL)}}"
             "{\\mathrm{support(CRITICAL)} + \\mathrm{support(URGENT)}} "
-            f"= {ceiling:.4f} \\]\n"
+            f"= {merge_precision:.4f} \\]\n"
         )
         w(
-            "on this reporting set. That is what the degenerate strategy is paid for "
-            "free, so any informative model must exceed it. We compute it against the "
-            "set being scored rather than hardcoding a value, because it moves with "
-            "the set's composition. "
+            "on this reporting set. \\textbf{This is the precision of one specific "
+            "strategy, not a ceiling on degenerate models in general}, and it assumes "
+            "no ROUTINE row is labelled CRITICAL; a strategy that swept ROUTINE in as "
+            "well would score lower. It is what that strategy is paid for free, so an "
+            "informative model must exceed it. We compute it against the set being "
+            "scored rather than hardcoding a value, because it moves with the set's "
+            "composition. \\textbf{The condition is not always satisfiable.} When "
+            "CRITICAL rows dominate the two urgent classes the merge precision "
+            "approaches $1$, the floor exceeds $1$, and no model can pass; the gate "
+            "reports NOT COMPUTABLE rather than failing a model for a property of the "
+            "set it was scored on. "
             f"\\textbf{{The margin above that floor ({CRITICAL_PRECISION_MARGIN:.2f}) "
             "is not derived.} How far above provably-degenerate a deployable model "
             "must sit is a question about tolerable over-triage in a clinic, it is a "
@@ -492,7 +567,7 @@ def write_gate_derivation(path: Path, support: dict[str, float], prov: dict) -> 
 
 
 def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> None:
-    ceiling = degenerate_precision_ceiling(
+    merge_precision = merge_strategy_precision(
         {k: v2c["per_class"][k]["support"] for k in CLASS_ORDER}
     )
     prec = v2c["per_class"]["CRITICAL"]["precision"]
@@ -517,9 +592,9 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> No
         w(
             "The degeneracy is measurable rather than interpretive. A model that "
             "merges CRITICAL and URGENT earns a CRITICAL precision of "
-            f"${ceiling:.4f}$ on this set by construction. The model scored "
-            f"${prec:.4f}$, which is ${ceiling - prec:.4f}$ \\emph{{below}} its own "
-            "set's degenerate ceiling. Within a thousandth, it did not approximate "
+            f"${merge_precision:.4f}$ on this set by construction. The model scored "
+            f"${prec:.4f}$, which is ${merge_precision - prec:.4f}$ \\emph{{below}} its own "
+            "set's merge-strategy precision. Within a thousandth, it did not approximate "
             "the merge strategy; it was the merge strategy.\n\n"
         )
         w(
@@ -530,8 +605,8 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> No
             "written for exactly this failure, used the test "
             "$\\mathrm{recall} \\geq 0.9 \\wedge \\mathrm{precision} < 0.5$ "
             f"and did not fire, because ${prec:.4f}$ sits above a hardcoded $0.5$ "
-            f"while the true degenerate ceiling for this set was ${ceiling:.4f}$. The "
-            "lesson is not that the constant was too low: it is that the ceiling is a "
+            f"while the true merge-strategy precision for this set was ${merge_precision:.4f}$. The "
+            "lesson is not that the constant was too low: it is that the quantity is a "
             "property of the evaluation set and must be computed against it.\n\n"
         )
 
@@ -787,7 +862,12 @@ def writeup(args) -> int:
     write_sweep_table(
         args.tex_out / "sweep_table.tex", results, trainable, prov, fingerprint
     )
-    write_gate_derivation(args.tex_out / "gate_derivation.tex", support, prov)
+    write_gate_derivation(
+        args.tex_out / "gate_derivation.tex",
+        support,
+        prov,
+        reported["macro_f1"],
+    )
     write_degeneracy_finding(
         args.tex_out / "finding_gate_degeneracy.tex", degenerate, reported, prov
     )
@@ -807,7 +887,7 @@ def writeup(args) -> int:
         "ResultCriticalSentences": str(counts["CRITICAL"]),
         "ResultGatePassed": "true" if passed else "false",
         "ResultFingerprint": fingerprint,
-        "DegenerateCeiling": f"{degenerate_precision_ceiling(support):.4f}",
+        "MergeStrategyPrecision": f"{merge_strategy_precision(support):.4f}",
         "DegenerateRunPrecision": f"{degenerate['per_class']['CRITICAL']['precision']:.4f}",
         "DegenerateRunCriticalRecall": f"{degenerate['per_class']['CRITICAL']['recall']:.4f}",
         "DegenerateRunUrgentRecall": f"{degenerate['per_class']['URGENT']['recall']:.4f}",

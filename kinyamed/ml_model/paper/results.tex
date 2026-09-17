@@ -74,10 +74,16 @@ seeds and not on rows.}
 \label{tab:seeds}
 \end{table}
 
-\paragraph{The shortfall is 19{,}835 sentences, not 999{,}000 rows.} A row is a
-frame rendered around an existing phrase, produced at roughly 7{,}700 per second.
-A seed is a sentence a native-speaking clinician writes. Reaching the stated
-target requires 19{,}835 further seed phrases; at the authoring rates assumed in
+\paragraph{Two shortfalls, in sentences rather than rows.} A row is a frame
+rendered around an existing phrase, produced at roughly 7{,}700 per second. A
+seed is a sentence a native-speaking clinician writes. The two are often
+conflated, including in an earlier draft of this paper, so we separate them.
+\textbf{To pass the seed-count gate} the corpus needs 3{,}000 distinct seeds
+against the 165 it has: a shortfall of \textbf{2{,}835}. \textbf{To reach the
+one million rows the requirement names} it needs 20{,}000 seeds, because a
+separate gate caps any one seed at 50 rows: a shortfall of \textbf{19{,}835}.
+The gates do not demand twenty thousand sentences; the row target does. Reaching
+that target requires 19{,}835 further seed phrases; at the authoring rates assumed in
 our clinician brief (two to three minutes per item, an assumption and not a
 measurement) that is on the order of 660 to 990 clinician-hours. Even at
 20{,}000 seeds the generated corpus would still fail G5, G7, G8 and G9, which
@@ -158,10 +164,17 @@ record this as a corpus-health signal and not as a quality metric, and we do not
 propose normalising input at serving time: that would hide the fragility and
 discard information the tokenizer is case-sensitive to.
 
-\subsection{What we do not report}
+\subsection{What we do not claim}
 \label{sec:res:none}
 
-We report no accuracy, recall, F1, calibration or latency figure for any model.
+\textbf{No figure in this paper is offered as evidence of model quality.} That
+is a narrower statement than the one an earlier draft made, and the narrower one
+is the true one: model numbers do appear here, because several of the failures we
+report are failures \emph{about} those numbers, and a paper cannot describe a
+gate certifying a degenerate model without saying what the gate saw. A recall of
+0.9749 beside an urgent recall of 0.0083 is evidence about a gate, not a
+performance claim, and we make none.
+
 No evaluation set meeting our specification exists; our gate refuses on the set
 that does; and no model has been trained through the pipeline that would produce
 a calibrated, threshold-tuned checkpoint. When run, it refuses before reading

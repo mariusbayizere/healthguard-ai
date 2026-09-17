@@ -26,10 +26,13 @@ in 130 seconds. Run against the nine corpus-quality gates written in the same
 specification, that corpus fails four as generated and six where its rows can be
 attributed to a source sentence. The binding gate counts distinct authored seed
 phrases, not rows, and the generator has 165 of them: at that inventory the
-largest corpus passing every gate is zero rows, at any row count. The distance to
-the target is 19{,}835 authored sentences, not 999{,}000 rows. Rows are produced
-by machine at roughly 7{,}700 per second; seeds are written by native-speaking
-clinicians. We argue the general form: a corpus requirement stated as a row count
+largest corpus passing every gate is zero rows, at any row count. Two distinct
+shortfalls follow, and they are not the same number. Passing the seed-count gate
+needs 2{,}835 further authored sentences (a floor of 3{,}000). Reaching the
+stated one million rows needs 19{,}835 further sentences, because a separate
+gate caps a seed at 50 rows and 1{,}000{,}000 rows therefore require 20{,}000
+seeds. Rows are produced by machine at roughly 7{,}700 per second; seeds are
+written by native-speaking clinicians. We argue the general form: a corpus requirement stated as a row count
 constrains the cheap quantity and leaves the expensive one free, so it does not
 constrain quality at all.
 
@@ -47,9 +50,11 @@ returns a five-token vocabulary, and answers its class prior on input it cannot
 read, with well-formed probabilities and deterministic predictions. We mistook
 it for single-class collapse in our own harness.
 
-We report no accuracy, recall or calibration figure for any model. No evaluation
-set meeting our own specification exists, our gate refuses on the set that does,
-and the trained artefact is an audit artefact rather than a baseline. The
+No figure in this paper is offered as evidence of model quality. Some model
+numbers appear, because the failures we report are about them, but none is a
+performance claim: no evaluation set meeting our own specification exists, our
+gate refuses on the set that does, and the trained artefact is an audit artefact
+rather than a baseline. The
 contribution is the measurement apparatus and the negative results it produced,
 each reproducible from a clean clone with one command.
 \end{abstract}
