@@ -338,6 +338,56 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## 2026-09-17 — item 1b part 3: reuse detection scoped to a token family (`17df027`)
+
+Replaying a rotated refresh token revoked **every** session the user had. Safe, and far too
+broad: a clinician with a phone, a ward workstation and a laptop lost all three because one
+of them replayed a token, mid-shift, with no way to tell which device was at fault.
+
+A **family** is one login and everything rotated from it. Logging in starts a lineage, each
+rotation stays inside it, and reuse ends that lineage only. The blast radius is the
+compromised device rather than the person.
+
+**Deliberate actions keep their old breadth**, and tests hold that line: logging out
+everywhere still ends every family, and deactivating an account still revokes all of them.
+Narrowing reuse must not narrow those.
+
+Migration `d2a7c81b4e60` is additive: `family_id` NOT NULL with a `gen_random_uuid()`
+default so each pre-existing row becomes its own family (the safe reading: an old token
+replayed then ends only itself), and the default is dropped immediately so a future insert
+cannot silently start its own family instead of joining one.
+
+An existing test named `..._ends_every_session` was renamed `..._ends_that_lineage`. It
+passed either way, because that account has a single family. **A test name that claims more
+than its body checks is how a weakened guarantee goes unnoticed**, which is the same failure
+mode as the split manifest nobody read.
+
+7 new tests; **441 backend tests pass**; CI green on `main` run #117.
+
+## 2026-09-17 — RECOMMENDATION: the NAT risk in per-IP auth rate limiting
+
+**The risk.** FR-05-09 specifies ten authentication attempts per fifteen minutes **per IP**,
+and that is what `dc6c1fc` implements. A health centre whose staff share one public address
+therefore shares ten attempts between all of them. At shift change, with several clinicians
+signing in at once and some mistyping, the eleventh legitimate attempt is refused. The
+control aimed at an attacker lands on the ward.
+
+**What I recommend, and what I recommend against.**
+
+- **Do not raise the IP limit.** A number large enough to clear a shift change is large
+  enough for useful online guessing, and it degrades the control everywhere to fix it in one
+  place.
+- **Add a per-account counter alongside the per-IP one**, and refuse when *either* is
+  exhausted. The two answer different threats: per-account stops guessing at one person's
+  password from many addresses, per-IP stops guessing at many accounts from one address.
+  Neither subsumes the other, which is why this is an addition rather than a replacement.
+- With both in place, the per-IP limit can be relaxed for *authenticated-adjacent* traffic
+  without weakening the guess-resistance that per-account now carries.
+
+**Not built.** It is a design change with its own state, and it should be decided rather
+than slipped in beside a limiter that currently meets the written requirement. Recorded here
+so the trade-off is visible before a clinic hits it rather than after.
+
 ## 2026-09-17 — SECRET_KEY removed, and item 1b parts 1-2 of 6
 
 ### SECRET_KEY is gone (`095dfd1`)
