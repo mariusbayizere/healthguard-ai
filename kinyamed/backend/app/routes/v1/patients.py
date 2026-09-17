@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.database import get_db
 from app.core.dependencies import (
     AdminUser,
@@ -23,14 +24,19 @@ router = APIRouter(prefix="/patients", tags=["Patients"])
 
 @router.post("", response_model=PatientResponse, status_code=status.HTTP_201_CREATED)
 def create_patient(
-    data: PatientCreate, _staff: StaffUser, db: Session = Depends(get_db)
+    data: PatientCreate,
+    actor: StaffUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> PatientResponse:
     """Register a walk-in patient. Clinical staff only.
 
     Patients registering themselves use `POST /auth/register`, which creates
     the login and this record together.
     """
-    return PatientResponse.model_validate(patient_service.create_patient(db, data))
+    return PatientResponse.model_validate(
+        patient_service.create_patient(db, data, audit=audit.acting_as(actor))
+    )
 
 
 @router.get("", response_model=PaginatedResponse[PatientResponse])
@@ -68,19 +74,23 @@ def update_patient(
     patient_id: int,
     data: PatientUpdate,
     user: CurrentUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> PatientResponse:
     """Update the supplied fields only. Staff, or the patient themselves."""
     assert_may_act_for_patient(user, patient_id)
     return PatientResponse.model_validate(
-        patient_service.update_patient(db, patient_id, data)
+        patient_service.update_patient(
+            db, patient_id, data, audit=audit.acting_as(user)
+        )
     )
 
 
 @router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_patient(
     patient_id: int,
-    _admin: AdminUser,
+    actor: AdminUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
     cascade: Annotated[
         bool,
@@ -88,5 +98,7 @@ def delete_patient(
     ] = False,
 ) -> Response:
     """Delete a patient. Administrators only; refused if records exist."""
-    patient_service.delete_patient(db, patient_id, cascade=cascade)
+    patient_service.delete_patient(
+        db, patient_id, cascade=cascade, audit=audit.acting_as(actor)
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

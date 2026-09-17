@@ -5,6 +5,7 @@ relationships can be resolved and which Alembic's autogenerate relies on.
 """
 
 from app.models.analytics import Analytics
+from app.models.audit_log import AuditLog
 from app.models.base import TimestampedModel
 from app.models.consultation import Consultation
 from app.models.doctor import Doctor
@@ -24,6 +25,7 @@ __all__ = [
     "ACTIVE_STATUSES",
     "ALLOWED_STATUS_TRANSITIONS",
     "Analytics",
+    "AuditLog",
     "Consultation",
     "Doctor",
     "Patient",

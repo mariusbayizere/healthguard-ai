@@ -12,6 +12,7 @@ from typing import Annotated
 from fastapi import APIRouter, Cookie, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import AuthenticatedUser, CurrentUser, get_client_user_agent
@@ -72,6 +73,7 @@ def register(
     data: RegisterRequest,
     response: Response,
     request: Request,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> TokenResponse:
     """Register a patient account and sign them in.
@@ -80,7 +82,7 @@ def register(
     accounts are created by an administrator.
     """
     session = auth_service.register_patient(
-        db, data, user_agent=get_client_user_agent(request)
+        db, data, user_agent=get_client_user_agent(request), audit=audit
     )
     return _token_response(response, session)
 
@@ -90,6 +92,7 @@ def login(
     data: LoginRequest,
     response: Response,
     request: Request,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> TokenResponse:
     """Exchange credentials for an access token and a refresh cookie."""
@@ -98,6 +101,7 @@ def login(
         email=data.email,
         password=data.password,
         user_agent=get_client_user_agent(request),
+        audit=audit,
     )
     return _token_response(response, session)
 
@@ -106,6 +110,7 @@ def login(
 def refresh(
     response: Response,
     request: Request,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
     refresh_token: Annotated[
         str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)
@@ -117,7 +122,7 @@ def refresh(
     twice ends all of that user's sessions, on the assumption it was stolen.
     """
     session = auth_service.refresh_session(
-        db, refresh_token or "", user_agent=get_client_user_agent(request)
+        db, refresh_token or "", user_agent=get_client_user_agent(request), audit=audit
     )
     return _token_response(response, session)
 
@@ -125,6 +130,7 @@ def refresh(
 @router.post("/logout", response_model=Message)
 def logout(
     response: Response,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
     refresh_token: Annotated[
         str | None, Cookie(alias=settings.REFRESH_COOKIE_NAME)
@@ -134,17 +140,20 @@ def logout(
 
     Succeeds even without a valid cookie, so a client can always clear state.
     """
-    auth_service.logout(db, refresh_token)
+    auth_service.logout(db, refresh_token, audit=audit)
     _clear_refresh_cookie(response)
     return Message(message="Signed out")
 
 
 @router.post("/logout-all", response_model=Message)
 def logout_all(
-    user: AuthenticatedUser, response: Response, db: Session = Depends(get_db)
+    user: AuthenticatedUser,
+    response: Response,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> Message:
     """End every session for the current account, on every device."""
-    ended = auth_service.logout_everywhere(db, user)
+    ended = auth_service.logout_everywhere(db, user, audit=audit.acting_as(user))
     _clear_refresh_cookie(response)
     return Message(message=f"Ended {ended} session(s)")
 
@@ -171,6 +180,7 @@ def change_password(
     data: PasswordChangeRequest,
     user: AuthenticatedUser,
     response: Response,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> Message:
     """Change the current account's password, ending all other sessions."""
@@ -179,6 +189,7 @@ def change_password(
         user,
         current_password=data.current_password,
         new_password=data.new_password,
+        audit=audit,
     )
     _clear_refresh_cookie(response)
     return Message(message="Password changed. Please sign in again.")

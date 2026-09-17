@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 import structlog
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditContext
 from app.core.config import settings
 from app.core.exceptions import (
     EmailAlreadyRegisteredError,
@@ -42,6 +43,8 @@ from app.repositories import (
 )
 from app.schemas.auth import RegisterRequest, UserCreate
 from app.schemas.patient import normalise_phone
+from app.services.audit import record as audit_record
+from app.services.audit import snapshot
 
 logger = structlog.get_logger(__name__)
 
@@ -93,7 +96,11 @@ def _issue_session(
 
 
 def register_patient(
-    db: Session, data: RegisterRequest, *, user_agent: str | None
+    db: Session,
+    data: RegisterRequest,
+    *,
+    user_agent: str | None,
+    audit: AuditContext | None = None,
 ) -> IssuedSession:
     """Create a patient login together with their clinical record."""
     if user_repository.email_taken(db, data.email):
@@ -117,17 +124,29 @@ def register_patient(
         role=UserRole.PATIENT,
         patient_id=patient.id,
     )
+    if audit is not None:
+        audit_record(
+            db,
+            action="REGISTER_PATIENT",
+            table_name="users",
+            record_id=user.id,
+            after={"user_id": user.id, "patient_id": patient.id, "role": user.role},
+            actor=user,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     session = _issue_session(db, user, user_agent=user_agent)
     logger.info("patient_registered_account", user_id=user.id, patient_id=patient.id)
     return session
 
 
-def create_user(db: Session, data: UserCreate) -> User:
+def create_user(db: Session, data: UserCreate, *, audit: AuditContext) -> User:
     """Create a staff or administrator account. Administrators only."""
     if user_repository.email_taken(db, data.email):
         raise EmailAlreadyRegisteredError(data.email)
     user = user_repository.create(
         db,
+        commit=False,
         email=data.email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
@@ -135,12 +154,29 @@ def create_user(db: Session, data: UserCreate) -> User:
         doctor_id=data.doctor_id if data.role is UserRole.DOCTOR else None,
         patient_id=data.patient_id if data.role is UserRole.PATIENT else None,
     )
+    audit_record(
+        db,
+        action="CREATE_USER",
+        table_name="users",
+        record_id=user.id,
+        after=snapshot(user),
+        actor=audit.actor,
+        ip_address=audit.ip_address,
+        user_agent=audit.user_agent,
+    )
+    db.commit()
+    db.refresh(user)
     logger.info("user_created", user_id=user.id, role=user.role.value)
     return user
 
 
 def authenticate(
-    db: Session, *, email: str, password: str, user_agent: str | None
+    db: Session,
+    *,
+    email: str,
+    password: str,
+    user_agent: str | None,
+    audit: AuditContext | None = None,
 ) -> IssuedSession:
     """Verify credentials and start a session."""
     user = user_repository.get_by_email(db, email)
@@ -160,13 +196,32 @@ def authenticate(
         raise InactiveUserError()
 
     user_repository.update(db, user, commit=False, last_login_at=_now())
+    # A successful sign-in is a state change (last_login_at, a new session) and
+    # the event an intrusion review starts from. Failures are logged but not
+    # audited here: they change nothing, and an unauthenticated caller must not
+    # be able to append rows to this table at will.
+    if audit is not None:
+        audit_record(
+            db,
+            action="LOGIN",
+            table_name="users",
+            record_id=user.id,
+            after={"user_id": user.id, "role": user.role},
+            actor=user,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     session = _issue_session(db, user, user_agent=user_agent)
     logger.info("login_succeeded", user_id=user.id, role=user.role.value)
     return session
 
 
 def refresh_session(
-    db: Session, token: str, *, user_agent: str | None
+    db: Session,
+    token: str,
+    *,
+    user_agent: str | None,
+    audit: AuditContext | None = None,
 ) -> IssuedSession:
     """Rotate a refresh token, detecting reuse of one already rotated away."""
     try:
@@ -199,12 +254,25 @@ def refresh_session(
         raise InactiveUserError()
 
     refresh_token_repository.revoke(db, record, commit=False)
+    if audit is not None:
+        audit_record(
+            db,
+            action="REFRESH_SESSION",
+            table_name="refresh_tokens",
+            record_id=record.id,
+            after={"user_id": user.id},
+            actor=user,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     session = _issue_session(db, user, user_agent=user_agent)
     logger.info("session_refreshed", user_id=user.id)
     return session
 
 
-def logout(db: Session, token: str | None) -> None:
+def logout(
+    db: Session, token: str | None, *, audit: AuditContext | None = None
+) -> None:
     """End the session the refresh token belongs to.
 
     Never raises on an unrecognised token: logging out is always allowed to
@@ -218,13 +286,44 @@ def logout(db: Session, token: str | None) -> None:
         return
     record = refresh_token_repository.get_by_jti(db, claims.jti)
     if record is not None and not record.is_revoked:
-        refresh_token_repository.revoke(db, record)
+        refresh_token_repository.revoke(db, record, commit=False)
+        if audit is not None:
+            audit_record(
+                db,
+                action="LOGOUT",
+                table_name="refresh_tokens",
+                record_id=record.id,
+                before={"user_id": record.user_id, "revoked": False},
+                after={"user_id": record.user_id, "revoked": True},
+                actor=audit.actor,
+                ip_address=audit.ip_address,
+                user_agent=audit.user_agent,
+            )
+        db.commit()
         logger.info("logout", user_id=record.user_id)
 
 
-def logout_everywhere(db: Session, user: User) -> int:
-    """End every session for a user. Returns how many were ended."""
+def logout_everywhere(
+    db: Session, user: User, *, audit: AuditContext | None = None
+) -> int:
+    """End every session for a user. Returns how many were ended.
+
+    `audit` is None when deactivation calls this as one of its steps; that
+    operation writes the single row describing what it did.
+    """
     ended = refresh_token_repository.revoke_all_for_user(db, user.id)
+    if audit is not None:
+        audit_record(
+            db,
+            action="LOGOUT_ALL",
+            table_name="refresh_tokens",
+            record_id=None,
+            after={"user_id": user.id, "sessions_ended": ended},
+            actor=audit.actor,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
+        db.commit()
     logger.info("logout_all_sessions", user_id=user.id, sessions_ended=ended)
     return ended
 
@@ -235,7 +334,12 @@ def list_sessions(db: Session, user: User) -> Sequence[RefreshToken]:
 
 
 def change_password(
-    db: Session, user: User, *, current_password: str, new_password: str
+    db: Session,
+    user: User,
+    *,
+    current_password: str,
+    new_password: str,
+    audit: AuditContext | None = None,
 ) -> None:
     """Change a password and end every other session.
 
@@ -248,5 +352,17 @@ def change_password(
         db, user, commit=False, hashed_password=hash_password(new_password)
     )
     refresh_token_repository.revoke_all_for_user(db, user.id, commit=False)
+    # Neither password reaches the payload, old or new, hashed or not.
+    if audit is not None:
+        audit_record(
+            db,
+            action="CHANGE_PASSWORD",
+            table_name="users",
+            record_id=user.id,
+            after={"user_id": user.id, "sessions_ended": True},
+            actor=user,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     db.commit()
     logger.info("password_changed", user_id=user.id)

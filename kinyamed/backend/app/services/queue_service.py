@@ -18,6 +18,7 @@ from typing import Any
 import structlog
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditContext
 from app.core.config import settings
 from app.core.exceptions import (
     DoctorNotFoundError,
@@ -35,6 +36,7 @@ from app.models.queue import (
 from app.models.queue_band import QueueBand, band_for
 from app.models.triage_result import TriageResult
 from app.repositories import doctor_repository, queue_repository
+from app.services.audit import record, snapshot
 from app.services.review import needs_review
 
 logger = structlog.get_logger(__name__)
@@ -176,7 +178,12 @@ def enqueue(db: Session, triage_result: TriageResult, *, commit: bool = False) -
 
 
 def change_status(
-    db: Session, entry: Queue, new_status: QueueStatus, *, commit: bool = True
+    db: Session,
+    entry: Queue,
+    new_status: QueueStatus,
+    *,
+    commit: bool = True,
+    audit: AuditContext | None = None,
 ) -> Queue:
     """Move an entry to `new_status`, rejecting transitions that make no sense."""
     if new_status == entry.status:
@@ -199,7 +206,25 @@ def change_status(
         fields["started_at"] = None
 
     previous = entry.status.value
-    queue_repository.update(db, entry, commit=commit, **fields)
+    before = snapshot(entry)
+    queue_repository.update(db, entry, commit=False, **fields)
+    # `audit` is None when another operation calls this as one of its steps
+    # (assigning a doctor also starts the consultation). That operation writes
+    # the single row for what it did; two rows would describe one act twice.
+    if audit is not None:
+        record(
+            db,
+            action="CHANGE_QUEUE_STATUS",
+            table_name="queue",
+            record_id=entry.id,
+            before=before,
+            after=snapshot(entry),
+            actor=audit.actor,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
+    if commit:
+        db.commit()
     logger.info(
         "queue_status_changed",
         queue_id=entry.id,
@@ -210,7 +235,12 @@ def change_status(
 
 
 def assign_doctor(
-    db: Session, entry: Queue, doctor_id: int, *, commit: bool = True
+    db: Session,
+    entry: Queue,
+    doctor_id: int,
+    *,
+    commit: bool = True,
+    audit: AuditContext | None = None,
 ) -> Queue:
     """Assign an on-duty clinician and start the consultation."""
     doctor = doctor_repository.get_by_id(db, doctor_id)
@@ -221,9 +251,22 @@ def assign_doctor(
     if entry.status not in ACTIVE_STATUSES:
         raise QueueEntryNotActiveError(entry.id, entry.status.value)
 
+    before = snapshot(entry)
     queue_repository.update(db, entry, commit=False, doctor_id=doctor.id)
     if entry.status == QueueStatus.WAITING:
         change_status(db, entry, QueueStatus.IN_PROGRESS, commit=False)
+    if audit is not None:
+        record(
+            db,
+            action="ASSIGN_DOCTOR",
+            table_name="queue",
+            record_id=entry.id,
+            before=before,
+            after=snapshot(entry),
+            actor=audit.actor,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     if commit:
         db.commit()
     logger.info("queue_doctor_assigned", queue_id=entry.id, doctor_id=doctor.id)

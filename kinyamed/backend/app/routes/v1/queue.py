@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, StaffUser, assert_may_act_for_patient
 from app.models.queue import Queue, QueueStatus
@@ -113,12 +114,13 @@ def get_queue_entry(
 def update_queue_status(
     queue_id: int,
     data: QueueStatusUpdate,
-    _staff: StaffUser,
+    staff: StaffUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> QueueItemResponse:
     """Advance a queue entry. Clinical staff only; legal transitions only."""
     entry = queue_service.get_entry(db, queue_id)
-    queue_service.change_status(db, entry, data.status)
+    queue_service.change_status(db, entry, data.status, audit=audit.acting_as(staff))
     return _to_response(queue_service.describe(db, entry))
 
 
@@ -126,12 +128,13 @@ def update_queue_status(
 def assign_doctor(
     queue_id: int,
     data: QueueDoctorAssignment,
-    _staff: StaffUser,
+    staff: StaffUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
 ) -> QueueItemResponse:
     """Assign an on-duty clinician and start the consultation. Staff only."""
     entry = queue_service.get_entry(db, queue_id)
-    queue_service.assign_doctor(db, entry, data.doctor_id)
+    queue_service.assign_doctor(db, entry, data.doctor_id, audit=audit.acting_as(staff))
     return _to_response(queue_service.describe(db, entry))
 
 
@@ -139,7 +142,10 @@ def assign_doctor(
     "/{queue_id}", response_model=QueueItemResponse, status_code=status.HTTP_200_OK
 )
 def remove_from_queue(
-    queue_id: int, _staff: StaffUser, db: Session = Depends(get_db)
+    queue_id: int,
+    staff: StaffUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> QueueItemResponse:
     """Remove a patient from the queue by cancelling their entry. Staff only.
 
@@ -147,5 +153,7 @@ def remove_from_queue(
     consultation notes are clinical history and are kept.
     """
     entry = queue_service.get_entry(db, queue_id)
-    queue_service.change_status(db, entry, QueueStatus.CANCELLED)
+    queue_service.change_status(
+        db, entry, QueueStatus.CANCELLED, audit=audit.acting_as(staff)
+    )
     return _to_response(queue_service.describe(db, entry))

@@ -111,3 +111,44 @@ def _scrub_arg(arg: object) -> object:
 
 MaskedPhone = Annotated[str, PlainSerializer(mask_phone, return_type=str)]
 """A phone number in an API response. Serialised masked; validated unchanged."""
+
+
+def _json_safe(value: Any) -> Any:
+    """Coerce a column value to something JSONB can store.
+
+    Model snapshots carry datetimes, enums and decimals. Rendering them here
+    rather than at the call site keeps the audit payload a faithful view of the
+    row instead of whatever each caller happened to serialise.
+    """
+    import datetime
+    import decimal
+    import enum
+    import uuid
+
+    if isinstance(value, enum.Enum):
+        return value.value
+    if isinstance(value, datetime.datetime | datetime.date | datetime.time):
+        return value.isoformat()
+    if isinstance(value, decimal.Decimal):
+        return float(value)
+    if isinstance(value, uuid.UUID):
+        return str(value)
+    if isinstance(value, Mapping):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, list | tuple | set | frozenset):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, str | int | float | bool) or value is None:
+        return value
+    return str(value)
+
+
+def scrub_payload(payload: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    """Mask personal data in an audit payload and make it JSONB-storable.
+
+    The same `_scrub` the log processors use, so a key masked in a log line is
+    masked in an audit row: one definition of what counts as personal data,
+    not two that drift apart.
+    """
+    if payload is None:
+        return None
+    return {str(k): _json_safe(_scrub(v, str(k))) for k, v in payload.items()}

@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.database import get_db
 from app.core.dependencies import AdminUser, StaffUser
 from app.schemas.common import PaginatedResponse, PaginationParams, pagination
@@ -18,10 +19,15 @@ router = APIRouter(prefix="/doctors", tags=["Doctors"])
 
 @router.post("", response_model=DoctorResponse, status_code=status.HTTP_201_CREATED)
 def create_doctor(
-    data: DoctorCreate, _admin: AdminUser, db: Session = Depends(get_db)
+    data: DoctorCreate,
+    admin: AdminUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> DoctorResponse:
     """Register a clinician. Administrators only."""
-    return DoctorResponse.model_validate(doctor_service.create_doctor(db, data))
+    return DoctorResponse.model_validate(
+        doctor_service.create_doctor(db, data, audit=audit.acting_as(admin))
+    )
 
 
 @router.get("", response_model=PaginatedResponse[DoctorResponse])
@@ -66,26 +72,38 @@ def get_doctor(
 
 @router.patch("/{doctor_id}", response_model=DoctorResponse)
 def update_doctor(
-    doctor_id: int, data: DoctorUpdate, _admin: AdminUser, db: Session = Depends(get_db)
+    doctor_id: int,
+    data: DoctorUpdate,
+    admin: AdminUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> DoctorResponse:
     """Update the supplied fields only. Administrators only."""
     return DoctorResponse.model_validate(
-        doctor_service.update_doctor(db, doctor_id, data)
+        doctor_service.update_doctor(db, doctor_id, data, audit=audit.acting_as(admin))
     )
 
 
 @router.patch("/{doctor_id}/toggle-duty", response_model=DoctorResponse)
 def toggle_duty(
-    doctor_id: int, _staff: StaffUser, db: Session = Depends(get_db)
+    doctor_id: int,
+    staff: StaffUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> DoctorResponse:
     """Flip a clinician's duty status. Clinical staff only."""
-    return DoctorResponse.model_validate(doctor_service.toggle_duty(db, doctor_id))
+    return DoctorResponse.model_validate(
+        doctor_service.toggle_duty(db, doctor_id, audit=audit.acting_as(staff))
+    )
 
 
 @router.delete("/{doctor_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_doctor(
-    doctor_id: int, _admin: AdminUser, db: Session = Depends(get_db)
+    doctor_id: int,
+    admin: AdminUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> Response:
     """Delete a clinician who has no consultations. Administrators only."""
-    doctor_service.delete_doctor(db, doctor_id)
+    doctor_service.delete_doctor(db, doctor_id, audit=audit.acting_as(admin))
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -14,6 +14,7 @@ from typing import Any
 import structlog
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditContext
 from app.core.config import settings
 from app.core.exceptions import ConflictError
 from app.models.analytics import Analytics
@@ -25,6 +26,7 @@ from app.repositories import (
     sms_log_repository,
     triage_repository,
 )
+from app.services.audit import record as audit_record
 
 logger = structlog.get_logger(__name__)
 
@@ -107,7 +109,7 @@ def list_snapshots(
     return analytics_repository.list_snapshots(db, skip=skip, limit=limit)
 
 
-def save_daily_snapshot(db: Session) -> Analytics:
+def save_daily_snapshot(db: Session, *, audit: AuditContext) -> Analytics:
     """Record today's snapshot, replacing any snapshot already taken today."""
     triage = triage_repository.urgency_counts(db)
     snapshot = analytics_repository.upsert(
@@ -125,6 +127,21 @@ def save_daily_snapshot(db: Session) -> Analytics:
             "top_symptom": None,
         },
     )
+    audit_record(
+        db,
+        action="SAVE_ANALYTICS_SNAPSHOT",
+        table_name="analytics",
+        record_id=snapshot.id,
+        after={
+            "snapshot_date": snapshot.snapshot_date,
+            "total_patients": snapshot.total_patients,
+            "total_triaged": snapshot.total_triaged,
+        },
+        actor=audit.actor,
+        ip_address=audit.ip_address,
+        user_agent=audit.user_agent,
+    )
+    db.commit()
     logger.info(
         "analytics_snapshot_saved",
         snapshot_date=str(snapshot.snapshot_date),
@@ -133,12 +150,25 @@ def save_daily_snapshot(db: Session) -> Analytics:
     return snapshot
 
 
-def delete_snapshot(db: Session, snapshot_date: date) -> int:
+def delete_snapshot(db: Session, snapshot_date: date, *, audit: AuditContext) -> int:
     """Delete one day's snapshot. Returns the number of rows removed."""
-    return analytics_repository.delete_by_date(db, snapshot_date)
+    deleted = analytics_repository.delete_by_date(db, snapshot_date)
+    audit_record(
+        db,
+        action="DELETE_ANALYTICS_SNAPSHOT",
+        table_name="analytics",
+        before={"snapshot_date": snapshot_date, "rows_deleted": deleted},
+        actor=audit.actor,
+        ip_address=audit.ip_address,
+        user_agent=audit.user_agent,
+    )
+    db.commit()
+    return deleted
 
 
-def clear_all_snapshots(db: Session, confirm: str | None) -> int:
+def clear_all_snapshots(
+    db: Session, confirm: str | None, *, audit: AuditContext
+) -> int:
     """Delete every stored snapshot.
 
     Guarded twice: refused outright in production, and elsewhere requires an
@@ -155,5 +185,15 @@ def clear_all_snapshots(db: Session, confirm: str | None) -> int:
             code="CONFIRMATION_REQUIRED",
         )
     deleted = analytics_repository.delete_all(db)
+    audit_record(
+        db,
+        action="CLEAR_ANALYTICS",
+        table_name="analytics",
+        before={"rows_deleted": deleted},
+        actor=audit.actor,
+        ip_address=audit.ip_address,
+        user_agent=audit.user_agent,
+    )
+    db.commit()
     logger.warning("analytics_cleared", deleted_rows=deleted)
     return deleted

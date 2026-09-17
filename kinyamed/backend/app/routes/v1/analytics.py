@@ -8,6 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.database import get_db
 from app.core.dependencies import AdminUser
 from app.schemas.analytics import (
@@ -77,26 +78,32 @@ def get_daily_analytics(
     status_code=status.HTTP_201_CREATED,
 )
 def save_daily_snapshot(
-    _admin: AdminUser, db: Session = Depends(get_db)
+    admin: AdminUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> AnalyticsSnapshotResponse:
     """Record today's snapshot, replacing any snapshot already taken today."""
     return AnalyticsSnapshotResponse.model_validate(
-        analytics_service.save_daily_snapshot(db)
+        analytics_service.save_daily_snapshot(db, audit=audit.acting_as(admin))
     )
 
 
 @router.delete("/daily/{snapshot_date}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_daily_snapshot(
-    snapshot_date: date, _admin: AdminUser, db: Session = Depends(get_db)
+    snapshot_date: date,
+    admin: AdminUser,
+    audit: AuditCtx,
+    db: Session = Depends(get_db),
 ) -> Response:
     """Delete one day's snapshot."""
-    analytics_service.delete_snapshot(db, snapshot_date)
+    analytics_service.delete_snapshot(db, snapshot_date, audit=audit.acting_as(admin))
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/daily", status_code=status.HTTP_204_NO_CONTENT)
 def clear_analytics(
-    _admin: AdminUser,
+    admin: AdminUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
     confirm: Annotated[
         str | None,
@@ -104,5 +111,5 @@ def clear_analytics(
     ] = None,
 ) -> Response:
     """Delete every stored snapshot. Disabled in production."""
-    analytics_service.clear_all_snapshots(db, confirm)
+    analytics_service.clear_all_snapshots(db, confirm, audit=audit.acting_as(admin))
     return Response(status_code=status.HTTP_204_NO_CONTENT)

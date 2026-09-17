@@ -20,6 +20,7 @@ from typing import Protocol
 import structlog
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditContext
 from app.core.config import settings
 from app.core.exceptions import TriageModelUnavailableError, TriageResultNotFoundError
 from app.models.patient import Patient
@@ -28,6 +29,7 @@ from app.models.symptom_report import SymptomReport
 from app.models.triage_result import TriageResult, UrgencyLevel
 from app.repositories import symptom_report_repository, triage_repository
 from app.services import queue_service, red_flags
+from app.services.audit import record
 from app.services.patient_message import patient_receipt
 from app.services.review import ReviewStatus, review_status
 from app.services.text_fold import fold
@@ -261,6 +263,7 @@ def run_triage(
     symptoms_input: str,
     classifier: SymptomClassifier | None,
     lexicon: red_flags.RedFlagLexicon | None = None,
+    audit: AuditContext | None = None,
 ) -> TriageOutcome:
     """Triage a symptom report and place the patient in the queue.
 
@@ -324,6 +327,36 @@ def run_triage(
     )
 
     queue_entry = queue_service.enqueue(db, result, commit=False)
+    # One row for one act. The report, the result and the queue entry are a
+    # single clinical decision, and §4.3 requires the audit row to land in that
+    # same transaction or the whole thing to roll back.
+    #
+    # The payload carries identifiers and the decision, never the symptom text:
+    # a patient's own words about their body are the most sensitive field in
+    # this system, and an audit table is the last place they should be copied
+    # to (L11).
+    if audit is not None:
+        record(
+            db,
+            action="CREATE_TRIAGE",
+            table_name="triage_results",
+            record_id=result.id,
+            after={
+                "patient_id": patient.id,
+                "symptom_report_id": report.id,
+                "queue_id": queue_entry.id,
+                "queue_number": queue_entry.queue_number,
+                "urgency_level": decision.urgency,
+                "model_urgency_raw": decision.model_urgency,
+                "rules_layer_triggered": decision.triggered,
+                "rules_layer_reason": decision.reason,
+                "confidence_score": classification.confidence,
+                "language_detected": language,
+            },
+            actor=audit.actor,
+            ip_address=audit.ip_address,
+            user_agent=audit.user_agent,
+        )
     db.commit()
 
     position = queue_service.position_of(db, queue_entry)

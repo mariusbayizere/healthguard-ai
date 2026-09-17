@@ -99,7 +99,8 @@ def db() -> Iterator[Session]:  # noqa: F821 - imported lazily below
             connection.execute(
                 text(
                     "TRUNCATE patients, doctors, symptom_reports, triage_results, "
-                    "queue, consultations, sms_logs, analytics, users, refresh_tokens "
+                    "queue, consultations, sms_logs, analytics, users, refresh_tokens, "
+                    "audit_logs "
                     "RESTART IDENTITY CASCADE"
                 )
             )

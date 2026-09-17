@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
+from app.core.audit_context import AuditCtx
 from app.core.database import get_db
 from app.core.dependencies import CurrentUser, assert_may_act_for_patient
 from app.schemas.triage import TriageRequest, TriageResponse
@@ -36,6 +37,7 @@ def submit_triage(
     data: TriageRequest,
     background_tasks: BackgroundTasks,
     user: CurrentUser,
+    audit: AuditCtx,
     db: Session = Depends(get_db),
     classifier: SymptomClassifier | None = Depends(get_triage_classifier),
     lexicon: red_flags.RedFlagLexicon = Depends(get_red_flag_lexicon),
@@ -61,6 +63,7 @@ def submit_triage(
         symptoms_input=data.symptoms_input,
         classifier=classifier,
         lexicon=lexicon,
+        audit=audit.acting_as(user),
     )
 
     review = triage_service.review_status(outcome.result.confidence_score)
