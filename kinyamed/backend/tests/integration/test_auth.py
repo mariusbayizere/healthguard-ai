@@ -8,7 +8,7 @@ from app.models.user import UserRole
 
 REGISTRATION = {
     "email": "uwimana@example.rw",
-    "password": "correct-horse-battery",
+    "password": "Correct-Horse9-battery",
     "full_name": "Uwimana Jean",
     "phone": "0788123456",
     "age": 34,
@@ -217,7 +217,7 @@ def test_changing_password_ends_other_sessions_and_changes_the_credential(anon_c
         "/api/v1/auth/change-password",
         json={
             "current_password": REGISTRATION["password"],
-            "new_password": "a-brand-new-passphrase",
+            "new_password": "A-Brand-New-Pass9",
         },
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -231,7 +231,7 @@ def test_changing_password_ends_other_sessions_and_changes_the_credential(anon_c
     assert old.status_code == 401
     new = anon_client.post(
         "/api/v1/auth/login",
-        json={"email": REGISTRATION["email"], "password": "a-brand-new-passphrase"},
+        json={"email": REGISTRATION["email"], "password": "A-Brand-New-Pass9"},
     )
     assert new.status_code == 200
 
@@ -244,7 +244,7 @@ def test_wrong_current_password_does_not_change_the_credential(anon_client):
         "/api/v1/auth/change-password",
         json={
             "current_password": "not-the-password",
-            "new_password": "another-passphrase",
+            "new_password": "Another-Passphrase9",
         },
         headers={"Authorization": f"Bearer {token}"},
     )

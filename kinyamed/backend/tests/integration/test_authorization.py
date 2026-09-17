@@ -204,7 +204,7 @@ def test_admin_can_create_a_clinician_account(client, db):
         "/api/v1/users",
         json={
             "email": "mukamana.login@kinyamed.rw",
-            "password": "clinician-passphrase",
+            "password": "Clinician-Pass9",
             "full_name": "Dr Mukamana",
             "role": "DOCTOR",
             "doctor_id": doctor["id"],
@@ -220,7 +220,7 @@ def test_deactivating_an_account_revokes_its_access(anon_client, client):
         "/api/v1/users",
         json={
             "email": "temp.staff@kinyamed.rw",
-            "password": "temporary-passphrase",
+            "password": "Temporary-Pass9",
             "full_name": "Temp Staff",
             "role": "DOCTOR",
         },
@@ -228,7 +228,7 @@ def test_deactivating_an_account_revokes_its_access(anon_client, client):
 
     login = anon_client.post(
         "/api/v1/auth/login",
-        json={"email": "temp.staff@kinyamed.rw", "password": "temporary-passphrase"},
+        json={"email": "temp.staff@kinyamed.rw", "password": "Temporary-Pass9"},
     )
     token = login.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}

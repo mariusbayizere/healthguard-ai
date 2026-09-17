@@ -5,14 +5,55 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    EmailStr,
+    Field,
+    field_validator,
+)
 
 from app.models.user import UserRole
 from app.schemas.common import ORMModel
 
+# FR-05-11. The rule set is deliberately small: four character classes and a
+# length floor, checked together so one attempt reports every failure rather
+# than making the user discover them one at a time.
+#
+# The floor stays at 12 although FR-05-11 says 8. A specification minimum is a
+# floor, not a target, and lowering a limit that already holds to match a
+# document would weaken a live gate for nothing.
+SPECIAL_CHARACTERS = "!@#$%^&*()-_=+[]{};:,.<>?/\\|`~\"'"
+
+_PASSWORD_RULES: tuple[tuple[str, str], ...] = (
+    ("an uppercase letter", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+    ("a lowercase letter", "abcdefghijklmnopqrstuvwxyz"),
+    ("a digit", "0123456789"),
+    (f"a special character ({SPECIAL_CHARACTERS[:8]}...)", SPECIAL_CHARACTERS),
+)
+
+
+def enforce_password_composition(value: str) -> str:
+    """Require all four character classes, naming every class that is missing.
+
+    Raises ValueError, which Pydantic renders into the standard validation
+    envelope, so the client sees which rules failed rather than a bare refusal.
+    """
+    missing = [
+        name for name, alphabet in _PASSWORD_RULES if not set(value) & set(alphabet)
+    ]
+    if missing:
+        raise ValueError("Password must contain " + ", ".join(missing))
+    return value
+
+
 # Long enough to resist offline guessing, short enough to stay within bcrypt's
 # 72-byte input limit.
-PasswordStr = Annotated[str, Field(min_length=12, max_length=72)]
+PasswordStr = Annotated[
+    str,
+    Field(min_length=12, max_length=72),
+    AfterValidator(enforce_password_composition),
+]
 
 
 class LoginRequest(BaseModel):

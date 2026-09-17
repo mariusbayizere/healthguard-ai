@@ -204,7 +204,7 @@ def user_factory(db):
     counter = {"n": 0}
 
     def _create(
-        role: UserRole = None, password: str = "correct-horse-battery", **extra
+        role: UserRole = None, password: str = "Correct-Horse9-battery", **extra
     ) -> User:
         counter["n"] += 1
         role = role or UserRole.ADMIN
@@ -222,7 +222,7 @@ def user_factory(db):
     return _create
 
 
-def _authenticated(test_client, user, password: str = "correct-horse-battery"):
+def _authenticated(test_client, user, password: str = "Correct-Horse9-battery"):
     """Log a user in and attach their bearer token to the client."""
     response = test_client.post(
         "/api/v1/auth/login", json={"email": user.email, "password": password}

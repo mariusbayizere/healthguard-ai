@@ -75,7 +75,7 @@ class Ctx:
             "/api/v1/users",
             json={
                 "email": f"audited.user{self._made}@kinyamed.rw",
-                "password": "correct-horse-battery",
+                "password": "Correct-Horse9-battery",
                 "full_name": "Audited User",
                 "role": "DOCTOR",
             },
@@ -95,7 +95,7 @@ class Ctx:
             "/api/v1/auth/register",
             json={
                 "email": email,
-                "password": "correct-horse-battery",
+                "password": "Correct-Horse9-battery",
                 "full_name": "Sign Er",
                 "phone": f"07889911{self._made:02d}",
             },
@@ -108,7 +108,7 @@ class Ctx:
         email = self.a_registered_email()
         login = self.anon_client.post(
             "/api/v1/auth/login",
-            json={"email": email, "password": "correct-horse-battery"},
+            json={"email": email, "password": "Correct-Horse9-battery"},
         )
         assert login.status_code == 200, login.text
         self.anon_client.headers["Authorization"] = (
@@ -182,7 +182,7 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
             "/api/v1/users",
             json={
                 "email": "made@kinyamed.rw",
-                "password": "correct-horse-battery",
+                "password": "Correct-Horse9-battery",
                 "full_name": "Made Staff",
                 "role": "DOCTOR",
             },
@@ -210,7 +210,7 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
             "/api/v1/auth/register",
             json={
                 "email": "newcomer@kinyamed.rw",
-                "password": "correct-horse-battery",
+                "password": "Correct-Horse9-battery",
                 "full_name": "New Comer",
                 "phone": "0788990022",
             },
@@ -219,7 +219,7 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
     "POST /api/v1/auth/login": lambda c: (
         lambda email=c.a_registered_email(): c.anon_client.post(
             "/api/v1/auth/login",
-            json={"email": email, "password": "correct-horse-battery"},
+            json={"email": email, "password": "Correct-Horse9-battery"},
         )
     ),
     "POST /api/v1/auth/refresh": lambda c: (
@@ -235,8 +235,8 @@ SCENARIOS: dict[str, Callable[[Ctx], Callable[[], Any]]] = {
         lambda: c.client.post(
             "/api/v1/auth/change-password",
             json={
-                "current_password": "correct-horse-battery",
-                "new_password": "another-correct-horse",
+                "current_password": "Correct-Horse9-battery",
+                "new_password": "Another-Correct-Horse9",
             },
         )
     ),
@@ -369,7 +369,7 @@ def test_a_password_never_reaches_an_audit_payload(ctx, db) -> None:
     from app.models.audit_log import AuditLog
     from sqlalchemy import select
 
-    secret = "correct-horse-battery"
+    secret = "Correct-Horse9-battery"
     ctx.client.post(
         "/api/v1/users",
         json={"email": "pw@kinyamed.rw", "password": secret, "role": "DOCTOR"},
