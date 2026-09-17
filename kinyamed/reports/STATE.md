@@ -338,6 +338,60 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## 2026-09-17 — item 1b parts 4-5: bcrypt cost measured, logout blocklist with a real fallback
+
+### Part 4: bcrypt cost 12 is exercised, not just configured (`4d9c487`)
+
+The suite runs at cost 4 so fixture users do not add minutes to every run, so **nothing
+ever computed the digest production would produce** — only the config rejection path was
+asserted. A setting whose effect is never measured is a claim.
+
+Two checks, because either alone passes while the property is false: the cost embedded in
+the digest (exact), and elapsed time, because a cost recorded in a digest is worth nothing
+unless the work was done. Bounds are deliberately loose (50 ms absolute, 20x over cost 4
+against a theoretical 256x) so the test signals a stubbed library or a clamped cost rather
+than flaking on a loaded laptop.
+
+Also pinned: **a digest made at the suite cost still verifies after the setting is raised.**
+That is why a cost increase needs no migration, and it is the property that would silently
+lock every user out if it stopped holding.
+
+### Part 5: logout withdraws the access token (`186564f`, `ab9d104`, `6f423c2`)
+
+Logout revoked the refresh token in Postgres and did nothing to the **access** token, which
+stayed valid for up to fifteen minutes because verifying it needs no state. For that window
+a stolen token still opened the ward queue.
+
+**The fallback is the part that matters, as instructed.** Redis is a cache in front of a
+safety property, never a dependency of the request path. Four tests run with Redis pointed
+at a closed port — down, not merely misconfigured — covering serving, logging out, refresh
+revocation (unaffected: it lives in Postgres) and readiness. What degrades is stated
+plainly: an access token then remains usable until it expires, which is exactly the
+behaviour the system had before the blocklist existed.
+
+Readiness **reports** redis and does not gate on it: taking a pod out of rotation for a
+degraded blocklist would turn a cache outage into a triage outage, and hiding it would leave
+nobody knowing the window had reopened.
+
+Two details that decide whether this is an asset or a liability: entries carry a TTL bounded
+by the access-token lifetime, so the blocklist cannot grow without bound on a box that also
+serves the queue; and the connect timeout is 250 ms, because it sits on the request path.
+
+**CI gained a `redis:7` service** — and then a second, more important fix. CI went green on
+the blocklist commit and **that proved less than it looked**: the fixture skips when Redis is
+unreachable, so had the service failed to come up, the four feature cases would have skipped
+and the job would still have passed, with "CI is green" saying nothing about whether logout
+withdraws a token. **That is the vacuous pass this project keeps finding in other people's
+work, written into its own.** Skipping stays the courtesy on a developer machine; on the
+runner (`CI=true`) the absence is now a failure naming the service to check. Verified by
+running with `CI=true` against a closed port: four errors, four fallback cases still passing.
+
+**454 backend tests pass**; CI green on `main` runs #121 and #123.
+
+### Remaining in item 1b
+
+The password-reset OTP (FR-05-12): six digits, ten-minute expiry, single use. Not started.
+
 ## STANDING RULE (2026-09-17) — never point a schema command at the developer's database
 
 **Never run `alembic`, `psql`, or any migration or DDL command in a way that inherits
