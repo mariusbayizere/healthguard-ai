@@ -126,10 +126,6 @@ def test_another_session_is_unaffected_by_one_logout(
     """Blocking is per token, not per user."""
     _register(anon_client)
     other = make_client()
-    other.post(
-        "/api/v1/auth/login",
-        json={"email": REGISTRATION["email"], "password": REGISTRATION["password"]},
-    )
     login = other.post(
         "/api/v1/auth/login",
         json={"email": REGISTRATION["email"], "password": REGISTRATION["password"]},
