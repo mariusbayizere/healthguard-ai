@@ -90,29 +90,34 @@ def test_a_patient_token_is_refused(make_client, user_factory, db):
 
     client = make_client()
     token = _token_for(client, user)
-    with pytest.raises(WebSocketDisconnect) as closed:
-        with client.websocket_connect(SOCKET) as socket:
-            _auth(socket, token)
-    assert closed.value.code == 1008, "a patient token was not refused with a policy close"
+    with (
+        pytest.raises(WebSocketDisconnect) as closed,
+        client.websocket_connect(SOCKET) as socket,
+    ):
+        _auth(socket, token)
+    assert closed.value.code == 1008, (
+        "a patient token was not refused with a policy close"
+    )
 
 
 def test_a_socket_with_no_auth_frame_is_closed(make_client):
     from starlette.websockets import WebSocketDisconnect
 
     client = make_client()
-    with pytest.raises(WebSocketDisconnect):
-        with client.websocket_connect(SOCKET) as socket:
-            socket.send_json({"type": "something-else"})
-            socket.receive_json()
+    with pytest.raises(WebSocketDisconnect), client.websocket_connect(SOCKET) as socket:
+        socket.send_json({"type": "something-else"})
+        socket.receive_json()
 
 
 def test_a_garbage_token_is_refused(make_client):
     from starlette.websockets import WebSocketDisconnect
 
     client = make_client()
-    with pytest.raises(WebSocketDisconnect) as closed:
-        with client.websocket_connect(SOCKET) as socket:
-            _auth(socket, "not-a-token")
+    with (
+        pytest.raises(WebSocketDisconnect) as closed,
+        client.websocket_connect(SOCKET) as socket,
+    ):
+        _auth(socket, "not-a-token")
     assert closed.value.code == 1008
 
 
@@ -137,9 +142,11 @@ def test_a_logged_out_token_is_refused(make_client, doctor_user, monkeypatch):
     client.headers["Authorization"] = f"Bearer {token}"
     assert client.post("/api/v1/auth/logout").status_code == 200
 
-    with pytest.raises(WebSocketDisconnect) as closed:
-        with client.websocket_connect(SOCKET) as socket:
-            _auth(socket, token)
+    with (
+        pytest.raises(WebSocketDisconnect) as closed,
+        client.websocket_connect(SOCKET) as socket,
+    ):
+        _auth(socket, token)
     assert closed.value.code == 1008
     token_blocklist.reset_client()
 
@@ -151,9 +158,11 @@ def test_a_deactivated_doctor_is_refused(make_client, doctor_user, client, db):
     token = _token_for(socket_client, doctor_user)
     assert client.patch(f"/api/v1/users/{doctor_user.id}/deactivate").status_code == 200
 
-    with pytest.raises(WebSocketDisconnect) as closed:
-        with socket_client.websocket_connect(SOCKET) as socket:
-            _auth(socket, token)
+    with (
+        pytest.raises(WebSocketDisconnect) as closed,
+        socket_client.websocket_connect(SOCKET) as socket,
+    ):
+        _auth(socket, token)
     assert closed.value.code == 1008
 
 
