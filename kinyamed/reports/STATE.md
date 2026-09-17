@@ -338,6 +338,33 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## STANDING RULE (2026-09-17) — never point a schema command at the developer's database
+
+**Never run `alembic`, `psql`, or any migration or DDL command in a way that inherits
+`DATABASE_URL` from `kinyamed/backend/.env`.** That file points at the working database
+`kinyamed`. Always name the throwaway database explicitly:
+
+```
+cd kinyamed/backend
+DATABASE_URL="postgresql://<user>:<pass>@localhost:5432/kinyamed_test" \
+  ./venv/bin/python -m alembic <command>
+```
+
+The test database is created, migrated and dropped by `tests/conftest.py` for every session,
+so it is the only correct target for an ad-hoc schema command. To check a migration, prefer
+`alembic upgrade <from>:<to> --sql`, which prints the statements and executes nothing.
+
+**Why this is a rule and not a preference.** On 2026-09-17 I ran `alembic upgrade head` with
+no explicit URL while verifying the `family_id` migration. It went to the developer's
+`kinyamed` database and failed on the first migration with `relation "analytics" already
+exists`, changing nothing. **That was luck, not design**: the same command against a database
+whose `alembic_version` had been one revision behind would have altered a real schema without
+being asked. L14 exists for this and the command slipped under it because it looked like a
+read.
+
+The dev database's own inconsistency (tables present, `alembic_version` at base) is the
+developer's to resolve. Do not stamp, migrate or rebuild it.
+
 ## 2026-09-17 — item 1b part 3: reuse detection scoped to a token family (`17df027`)
 
 Replaying a rotated refresh token revoked **every** session the user had. Safe, and far too
