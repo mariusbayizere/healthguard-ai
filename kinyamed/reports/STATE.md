@@ -338,6 +338,66 @@ with four further renderer defects in `4644bd5` (references rendered as their ow
 headings split across source lines, labels leaking into prose, tables keeping their column
 specification and orphaning wrapped cells).
 
+## 2026-09-17 — item 1a: RS256, a clean break from HS256
+
+**DECISION, recorded because it has a cost.** The cutover is a **forced re-login for
+everyone**, with **no dual-verification path**. Your rationale, kept in your words: there
+are no production sessions, and a transition path that accepts HS256 is the thing we are
+removing; a clean break beats a temporary code path nobody remembers to delete. Any token
+issued before `9d9765e` is now rejected, by design.
+
+**What was wrong.** `JWT_ALGORITHM` was `HS256` and tokens were signed with `SECRET_KEY`
+(`core/config.py:68`, `core/security.py:100`). Under a symmetric algorithm the signing
+secret and the verifying secret are one string, so anything able to *check* a token was
+also able to *mint* one. No RSA settings existed, so this was a design change rather than
+a config flip.
+
+**The attack now closed.** The verifier pins the algorithm to the configured one and never
+reads `alg` from the token header. Without that pin, an attacker takes the public key,
+which is not a secret, computes an HS256 MAC over it, and a header-trusting verifier checks
+that MAC using the same public key and admits a token the attacker minted. The test
+hand-assembles exactly that token, because **PyJWT refuses to encode it and an attacker is
+not using PyJWT**, and asserts rejection both with and without a matching `kid`. `alg=none`
+is covered by its own test.
+
+**Key identity is derived, not configured.** A `kid` is a truncated SHA-256 of the public
+DER, and the public half is derived from the private key rather than configured beside it,
+so the two cannot drift apart.
+
+**Rotation, in two deploys, without signing anyone out:** put the old public PEM in
+`JWT_RETIRED_PUBLIC_KEYS` and the new private PEM in `JWT_PRIVATE_KEY`, deploy; wait one
+refresh-token lifetime (7 days); clear the retired key, deploy. Retired keys verify and
+never sign. Asserted by a test and by a three-process drill (signed under A, verified after
+rotating to B with A retired, rejected once A was dropped).
+
+**Development** with no key configured generates an ephemeral pair and logs it loudly;
+**production refuses to boot** without one. `hardening_problems()` was extracted from the
+validator so that refusal is directly testable rather than only reachable by booting a
+process that raises on import.
+
+**`SECRET_KEY` is now vestigial.** After this cutover **no application code reads it** — it
+is defined and validated in `config.py` and used by nothing. It is still required at
+start-up, which is a trap: rotating it now changes nothing. Flagged, not removed, because
+dropping a required env var is a breaking config change and CI supplies it. Decide whether
+it goes or gets a use (CSRF tokens, signed URLs).
+
+17 new tests, **408 backend tests pass**, CI green on `main` run #107, all 8 jobs.
+
+**Also corrected** three stale rows in `REQUIREMENTS_MATRIX.md`: FR-03-03 cited
+`routes/Dashboard.tsx` and `components/charts.tsx` as evidence (neither exists; the
+frontend has four routes and no admin page), FR-03-07 claimed the confidence threshold was
+referenced by 0 lines of app code (it is live at `services/review.py:39` and
+`services/queue_service.py:65`, with 6 passing tests, and the cited config line 101 was
+actually 109), and FR-03-09 still read MISSING after `audit_logs` landed.
+
+**Failed logins stay unaudited**, confirmed: they change no state, and an unauthenticated
+caller must not be able to append rows to the audit table at will. They remain in the
+structured log.
+
+**Next:** the rest of FR-05 — refresh rotation with `family_id` reuse detection, bcrypt
+cost 12 exercised by a test rather than only configured, login rate limiting at 10 per 15
+minutes per IP, the Redis blocklist, password complexity rules, and the reset OTP.
+
 ## 2026-09-17 — item 0: audit_logs, the precondition the other four items needed
 
 **Sequencing call I made, and why.** The order given was FR-05 auth, OAuth, Kafka, admin.
