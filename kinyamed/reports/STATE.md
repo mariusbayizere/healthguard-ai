@@ -574,6 +574,32 @@ outstanding and the next doctor to connect receives it from the backfill — but
 part did not happen, and a push that silently succeeds against an empty set is
 indistinguishable from one that worked. A stats/readiness surface for it comes with step 3.
 
+## 2026-09-17 — external review, BLOCK 1: five errors of fact (`42cb7aa`)
+
+Every claim was checked against the repository first and the arithmetic recomputed. **All
+five hold.** One is worse than the reviewer knew.
+
+| Item | Verified how | Outcome |
+|---|---|---|
+| G2 must be strict | `MINIMUM_MACRO_F1 = 2.0/3.0` compared with `>=` | **Confirmed, and worse**: the constant is exactly 2/3, so the bug was *not* masked by rounding at 0.6667. Two perfect classes and one dead scored exactly 2/3 and **passed**. Now strict |
+| "tightest guarantee" is wrong | Derived: macro = Σf/3 and f≤1 ⟹ min F1 ≥ 3·macro − 2 | Confirmed. **0.0000** at the threshold, **0.3172** at our 0.7724. Claim removed, bound stated |
+| "no accuracy/recall/calibration figure" is false | Paper reports 0.9749, 0.0083, 0.5337, 0.7724, 31.5%, 21.0% | Confirmed false. Replaced everywhere with **"no figure is offered as evidence of model quality"** |
+| Two shortfalls conflated | Recomputed from `corpus_gates.py`: floor 3,000 − 165 = **2,835**; 1,000,000 ÷ 50/seed = 20,000 − 165 = **19,835** | Confirmed. The gates demand 3,000 seeds, not 20,000. Now separated in abstract and results |
+| "degenerate ceiling" misnamed | It is one strategy's precision, valid only if no ROUTINE row is labelled CRITICAL | Confirmed. Renamed **merge-strategy precision**, assumption stated |
+| G3 undefined above 0.90 CRITICAL share | share + 0.10 > 1.0 ⟹ no model can pass | Confirmed a real gap. Now reports **NOT COMPUTABLE** naming the set's class balance as the cause, rather than failing the model |
+
+**Why the "no figure" wording mattered.** The narrower claim is the true one *and* the one
+actually meant: a paper cannot describe a gate certifying a degenerate model without saying
+what the gate saw. A recall of 0.9749 beside an urgent recall of 0.0083 is evidence about a
+**gate**, not a performance claim.
+
+**REGENERATION PENDING.** Three of these live in generated `.tex`, so the emitter changed and
+the output has not been rebuilt: 1.4 GiB free with a browser open is below what three model
+loads need. **The generated files still carry the old wording until it runs** — the paper is
+not yet internally consistent, and that is visible rather than hidden.
+
+87 ML tests pass; render-completeness 11/11; lint clean.
+
 ## STANDING RULE (2026-09-17) — when a command chain fails, read the failure
 
 **Do not re-run a sub-part of a failed chain without the gate that stopped it.**
