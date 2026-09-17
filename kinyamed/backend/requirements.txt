@@ -11,6 +11,8 @@ python-multipart==0.0.20
 
 # --- Authentication ---
 PyJWT==2.10.1
+# RS256 needs an asymmetric backend; PyJWT ships none of its own.
+cryptography==50.0.1
 bcrypt==4.3.0
 
 # --- Observability ---

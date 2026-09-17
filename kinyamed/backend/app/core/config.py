@@ -65,7 +65,18 @@ class Settings(BaseSettings):
     SMS_ENABLED: bool = False
 
     # --- Authentication ---
-    JWT_ALGORITHM: str = "HS256"
+    # RS256, not HS256: under a symmetric algorithm anything able to verify a
+    # token is also able to mint one. Changed 2026-09-17 as a clean break, with
+    # no dual-verification path — a transition that still accepts HS256 is the
+    # thing being removed. Every session issued before the cutover stops
+    # validating, which is correct: there were none in production.
+    JWT_ALGORITHM: Literal["RS256", "RS384", "RS512"] = "RS256"
+    # PEM of the active signing key. Unset outside production means an
+    # ephemeral pair is generated at start-up; production refuses to boot.
+    JWT_PRIVATE_KEY: SecretStr | None = None
+    # Zero or more public PEMs, concatenated. They verify and never sign, so a
+    # rotation does not sign anyone out. See app/core/jwt_keys.py.
+    JWT_RETIRED_PUBLIC_KEYS: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, ge=1, le=1440)
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1, le=90)
     # bcrypt's own minimum is 4. Production is held to 12 by the hardening
@@ -177,22 +188,7 @@ class Settings(BaseSettings):
                 )
             return self
 
-        problems: list[str] = []
-        secret = self.SECRET_KEY.get_secret_value()
-        if secret in _INSECURE_SECRETS:
-            problems.append("SECRET_KEY is a known placeholder value")
-        if len(secret) < 32:
-            problems.append("SECRET_KEY must be at least 32 characters")
-        if "*" in self.cors_origins:
-            problems.append("CORS_ORIGINS must not be '*'")
-        if self.DB_ECHO:
-            problems.append("DB_ECHO must be off (it logs SQL containing patient data)")
-        if self.BCRYPT_ROUNDS < 12:
-            problems.append("BCRYPT_ROUNDS must be at least 12")
-        if not self.REFRESH_COOKIE_SECURE:
-            problems.append(
-                "REFRESH_COOKIE_SECURE must be on (refresh tokens are bearer credentials)"
-            )
+        problems = self.hardening_problems()
         if problems:
             raise ValueError(
                 "Insecure configuration for ENVIRONMENT=production: "
@@ -226,6 +222,36 @@ class Settings(BaseSettings):
             for entry in self.TRUSTED_PROXIES.split(",")
             if entry.strip()
         )
+
+    def hardening_problems(self) -> list[str]:
+        """Every reason this configuration must not run in production.
+
+        A method rather than inline validator code so a test can assert what
+        production would refuse without having to construct a process that
+        raises on import.
+        """
+        problems: list[str] = []
+        secret = self.SECRET_KEY.get_secret_value()
+        if secret in _INSECURE_SECRETS:
+            problems.append("SECRET_KEY is a known placeholder value")
+        if len(secret) < 32:
+            problems.append("SECRET_KEY must be at least 32 characters")
+        if "*" in self.cors_origins:
+            problems.append("CORS_ORIGINS must not be '*'")
+        if self.DB_ECHO:
+            problems.append("DB_ECHO must be off (it logs SQL containing patient data)")
+        if self.BCRYPT_ROUNDS < 12:
+            problems.append("BCRYPT_ROUNDS must be at least 12")
+        if not self.REFRESH_COOKIE_SECURE:
+            problems.append(
+                "REFRESH_COOKIE_SECURE must be on (refresh tokens are bearer credentials)"
+            )
+        if self.JWT_PRIVATE_KEY is None:
+            problems.append(
+                "JWT_PRIVATE_KEY must be set (an ephemeral key would invalidate "
+                "every session on restart and cannot be rotated)"
+            )
+        return problems
 
     @property
     def is_production(self) -> bool:

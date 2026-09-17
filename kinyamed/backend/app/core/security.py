@@ -7,7 +7,11 @@ in one readable place.
 
 from __future__ import annotations
 
+import re
+import threading
 import uuid
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Final, Literal
@@ -17,8 +21,39 @@ import jwt
 import structlog
 
 from app.core.config import settings
+from app.core.jwt_keys import (
+    KeyPair,
+    generate_key_pair,
+    kid_for_public_pem,
+    normalise_pem,
+    public_pem_for_private_pem,
+)
 
 logger = structlog.get_logger(__name__)
+
+# Re-exported so callers have one import for token policy and its key material.
+__all__ = [
+    "ACCESS_TOKEN",
+    "REFRESH_TOKEN",
+    "TokenClaims",
+    "TokenError",
+    "active_kid",
+    "active_public_key_pem",
+    "additional_verification_keys",
+    "create_access_token",
+    "create_refresh_token",
+    "decode_token",
+    "generate_key_pair",
+    "hash_password",
+    "kid_for_public_pem",
+    "using_ephemeral_key",
+    "verification_kids",
+    "verify_password",
+]
+
+_PEM_BLOCK = re.compile(
+    r"-----BEGIN PUBLIC KEY-----.*?-----END PUBLIC KEY-----", re.DOTALL
+)
 
 TokenType = Literal["access", "refresh"]
 
@@ -48,6 +83,93 @@ class TokenClaims:
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+# ── Key material ──────────────────────────────────────────────────────────
+#
+# Resolved once at import. The signing key never changes within a process; a
+# rotation is a deploy, which is what makes the retired-key window a bounded
+# and observable thing rather than live mutable state.
+
+
+def _load_signing_key() -> tuple[KeyPair, bool]:
+    configured = settings.JWT_PRIVATE_KEY
+    if configured is None:
+        pair = generate_key_pair()
+        logger.warning(
+            "jwt_ephemeral_key_generated",
+            kid=pair.kid,
+            environment=settings.ENVIRONMENT,
+            effect="every session ends when this process restarts",
+            fix="set JWT_PRIVATE_KEY (python -m app.core.jwt_keys)",
+        )
+        return pair, True
+
+    private_pem = normalise_pem(configured.get_secret_value())
+    public_pem = public_pem_for_private_pem(private_pem)
+    return (
+        KeyPair(
+            private_pem=private_pem,
+            public_pem=public_pem,
+            kid=kid_for_public_pem(public_pem),
+        ),
+        False,
+    )
+
+
+_SIGNING_KEY, _EPHEMERAL = _load_signing_key()
+
+# kid -> public PEM. The active key plus any retired keys still inside a
+# refresh-token lifetime.
+_VERIFICATION_KEYS: dict[str, str] = {_SIGNING_KEY.kid: _SIGNING_KEY.public_pem}
+for _block in _PEM_BLOCK.findall(settings.JWT_RETIRED_PUBLIC_KEYS or ""):
+    _retired = normalise_pem(_block)
+    _VERIFICATION_KEYS.setdefault(kid_for_public_pem(_retired), _retired)
+
+_KEYS_LOCK = threading.Lock()
+
+
+def active_kid() -> str:
+    """The `kid` stamped on every token this process issues."""
+    return _SIGNING_KEY.kid
+
+
+def active_public_key_pem() -> str:
+    """The public half of the signing key. Not a secret; publishable."""
+    return _SIGNING_KEY.public_pem
+
+
+def using_ephemeral_key() -> bool:
+    """True when no key was configured and one was generated at start-up."""
+    return _EPHEMERAL
+
+
+def verification_kids() -> list[str]:
+    """Every key id currently accepted, active first."""
+    return [active_kid()] + [k for k in _VERIFICATION_KEYS if k != active_kid()]
+
+
+@contextmanager
+def additional_verification_keys(public_pems: Sequence[str]) -> Iterator[None]:
+    """Temporarily accept extra public keys. For tests and rotation drills.
+
+    Verification only: the signing key is untouched, so nothing minted inside
+    this block is signed by a retired key.
+    """
+    added: list[str] = []
+    with _KEYS_LOCK:
+        for pem in public_pems:
+            normalised = normalise_pem(pem)
+            kid = kid_for_public_pem(normalised)
+            if kid not in _VERIFICATION_KEYS:
+                _VERIFICATION_KEYS[kid] = normalised
+                added.append(kid)
+    try:
+        yield
+    finally:
+        with _KEYS_LOCK:
+            for kid in added:
+                _VERIFICATION_KEYS.pop(kid, None)
 
 
 # ── Passwords ─────────────────────────────────────────────────────────────
@@ -96,8 +218,9 @@ def _create_token(
     }
     token = jwt.encode(
         payload,
-        settings.SECRET_KEY.get_secret_value(),
+        _SIGNING_KEY.private_pem,
         algorithm=settings.JWT_ALGORITHM,
+        headers={"kid": _SIGNING_KEY.kid},
     )
     claims = TokenClaims(
         subject=subject,
@@ -138,9 +261,17 @@ def decode_token(token: str, *, expected_type: TokenType) -> TokenClaims:
     meaningless.
     """
     try:
+        # The key is chosen by the token's kid, but the ALGORITHM is pinned to
+        # the configured one and never read from the header. Trusting the
+        # header's `alg` is what lets an attacker present an HS256 MAC computed
+        # with the public key and have it accepted as a signature.
+        header = jwt.get_unverified_header(token)
+        public_pem = _VERIFICATION_KEYS.get(str(header.get("kid", "")))
+        if public_pem is None:
+            raise TokenError("Token was signed by an unknown key")
         payload = jwt.decode(
             token,
-            settings.SECRET_KEY.get_secret_value(),
+            public_pem,
             algorithms=[settings.JWT_ALGORITHM],
             options={"require": ["exp", "iat", "sub", "jti"]},
         )
