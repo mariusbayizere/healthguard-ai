@@ -41,6 +41,14 @@ describe("CI gives the backend suite the database its conftest needs", () => {
     expect(backend).toMatch(/-\s*6379:6379/);
   });
 
+  it("runs a Kafka, so the real-broker consumer tests do not silently skip", () => {
+    // The in-process fake proves our offset logic; only a broker proves the
+    // same code survives a consumer restart, which is the §13 requirement.
+    expect(backend).toMatch(/kafka:\s*\n\s+image:\s*bitnami\/kafka/);
+    expect(backend).toMatch(/-\s*9092:9092/);
+    expect(backend).toMatch(/KAFKA_BOOTSTRAP_SERVERS:\s*\S+/);
+  });
+
   it("sets DATABASE_URL, which conftest refuses to run without", () => {
     expect(conftest).toMatch(/DATABASE_URL must be set/);
     expect(backend).toMatch(/DATABASE_URL:\s*postgresql:\/\/\S+@localhost:5432\/\S+/);
