@@ -46,6 +46,63 @@ phrases, drawn without replacement from each phrase's frame combinations. It is
 a rebuild rather than a revision: a v1 result and a v2 result are not the same
 experiment and do not belong in one table.
 
+\subsection{Four language arms, one corpus}
+\label{sec:method:arms}
+
+The system is designed for four languages because a Rwandan health centre
+receives all four. Every instrument in this paper is per-language: the corpus
+gates count distinct seeds \emph{per language}, the power derivation fixes a
+minimum \emph{per language crossed with urgency class}, and the person and
+relation rulings are recorded per arm rather than assumed to transfer. The
+corpus that exists is Kinyarwanda. Table~\ref{tab:arms} gives the inventory of
+all four arms, emitted from the generator and the briefs rather than described.
+
+\input{generated/arm_table}
+
+The column that decides the others is \textbf{frames}. A row is a phrase wrapped
+in an opener, a time expression, a context and a closing line, and an arm
+missing any of the four emits nothing whatever its phrase count. Only
+Kinyarwanda has all four. The ten fragments each other arm carries are onsets
+left over from v1's machine drafts, which is why three arms sit at zero rows and
+why the phrase inventory is not the binding constraint on a four-language
+corpus.
+
+\paragraph{Two arms lifting the same eleven holds is evidence about concepts,
+not about a language.} The English and French briefs were built independently
+against the same concept spine, each reviewed without reference to the other.
+Both lifted the same eleven Kinyarwanda holds, and on the same reasoning in each
+case: the hold recorded a block on a Kinyarwanda \emph{word} rather than on the
+concept the word expressed, so an arm not using that word had nothing to be
+blocked by. Both then added the same new hold, on a concept-level clinical
+question that no wording resolves.
+
+This is the one cross-lingual result the project has, and it is a result about
+the taxonomy rather than about any arm. A hold that survives translation into
+two unrelated lexicons is a clinical question; a hold that dissolves in both is
+a lexical one. Separating those two by hand is the kind of judgement a single
+annotator cannot make about their own language, and here it fell out of building
+the arms separately and comparing afterwards. We record the mechanism because it
+generalises: where a taxonomy is shared but the wording is not, independent arms
+are a cheap test of whether a recorded doubt belongs to the concept or to the
+words.
+
+\paragraph{The Swahili brief ships with no Swahili in it, deliberately.} The
+sheet a Kiswahili speaker receives carries the English gloss, the person split,
+the applicability and relation rulings and the open clinical questions, and an
+empty column where the phrase goes. No machine draft is supplied, and a
+machine-translated Swahili corpus that exists in the frozen v1 vocabulary is
+withheld until the authored phrases exist.
+
+This follows directly from what happened to the Kinyarwanda arm, which had to be
+re-authored from scratch rather than corrected: a fluent draft anchors a reviewer
+to its errors. Reviewing a plausible sentence is a different task from writing
+one, and it produces a different artefact, because the reviewer's attention goes
+to what is wrong with the draft rather than to what the patient would actually
+say. We state it as a methodology position for any multilingual corpus effort:
+if the arm is meant to be authored, supply no draft, and accept the slower start
+as the price of not measuring a machine's register through a human's approval.
+The cost is real and is visible in Table~\ref{tab:arms} as a zero.
+
 \paragraph{Provenance of the phrases is recorded per phrase, and is mixed.}
 Roughly half the 165 phrases are recorded as authored directly by the speaker;
 the remainder are speaker-derived, machine drafts the speaker approved, or

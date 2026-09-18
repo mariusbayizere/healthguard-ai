@@ -81,6 +81,10 @@ DEFINITIONS_ONLY = {
     # uses them is in sections/appendix.tex, so there is nothing here for
     # the reading copy to be short of.
     "generated/corpus_counts.tex",
+    # Seed-curve annotations, emitted with the figure's data file by
+    # review/emit_seed_curve.py. Values only; the figure and its caption
+    # are in sections/seed_figure.tex.
+    "generated/seed_curve_macros.tex",
 }
 
 
@@ -190,6 +194,12 @@ def typeset_body(name: str) -> str:
     # \RequireGenerated error message names the emitter and its output file;
     # that text goes to the build log, never to the page.
     body = re.sub(r"(?s)\\makeatletter.*?\\makeatother", " ", body)
+    # A tikzpicture holds drawing instructions and file references, not prose.
+    # \addplot table {generated/seed_curve.dat} names a data file, and that
+    # underscore is an argument rather than a character to set. This rule is
+    # about glyphs that vanish silently; a bare underscore inside a picture is
+    # a hard LaTeX error, which the compile catches loudly on its own.
+    body = re.sub(r"(?s)\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}", " ", body)
     body = re.sub(r"\$[^$]*\$", " ", body)
     body = re.sub(r"(?s)\\\[.*?\\\]", " ", body)
     for macro in (
@@ -310,39 +320,57 @@ def test_arxiv_abstract_fits_the_submission_field() -> None:
     )
 
 
-def test_hyperref_draws_no_visible_border() -> None:
-    """hidelinks is set after hyperref loads, and nothing re-enables borders.
+def test_no_link_border_is_drawn_and_acl_owns_hyperref() -> None:
+    """No link border is drawn, and the document does not fight acl.sty over it.
 
-    This is a source-level assertion, not a check of a rendered PDF. It cannot
-    see the PDF; it can see that the only setting in the build is the one that
-    removes the border, and that no later \\hypersetup or package option puts a
-    coloured frame back.
+    THIS TEST CHANGED WHEN THE PAPER MOVED TO THE ACL TEMPLATE. It used to
+    require \\hypersetup{hidelinks} and forbid `colorlinks` anywhere. Under
+    acl.sty neither holds: the style loads hyperref itself and sets
+    `colorlinks=true` with dark blue link, cite and url colours, which is the
+    ACL house style and also removes the border, since a coloured-text link has
+    no frame. Keeping the old assertion would have meant either deleting the
+    guard or overriding the template, so it is restated against what actually
+    threatens the output now.
+
+    What still must not happen is a second, conflicting hyperref setup in our
+    own sources, or an option that puts a frame back.
     """
     files = ["main.tex", *sorted(reached("main.tex"))]
     body = "\n".join(re.sub(r"(?m)(?<!\\)%.*$", "", read(n)) for n in files)
-
     main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
-    load = main.find("\\usepackage{hyperref}")
-    hide = main.find("\\hypersetup{hidelinks}")
-    assert load != -1, "hyperref is not loaded"
-    assert hide != -1, "\\hypersetup{hidelinks} is missing"
-    assert hide > load, "hidelinks is set before hyperref loads, so it is ignored"
 
-    for option in (
-        "colorlinks",
-        "linkbordercolor",
-        "citebordercolor",
-        "urlbordercolor",
-        "pdfborder",
-    ):
-        assert option not in body, (
-            f"{option} would override hidelinks and draw or colour a link border"
+    assert "\\usepackage[preprint]{acl}" in main, "the ACL style is not loaded"
+
+    # acl.sty \RequirePackage-s these three. Loading any of them again with our
+    # own options is an option clash, and geometry silently takes the last call.
+    for package in ("geometry", "natbib", "hyperref"):
+        assert not re.search(rf"\\usepackage(\[[^\]]*\])?\{{{package}\}}", main), (
+            f"{package} is loaded in main.tex, but acl.sty loads it already; "
+            "the second load clashes or silently overrides the template"
         )
 
-    extra = re.findall(r"\\hypersetup\{([^}]*)\}", body)
-    assert extra == ["hidelinks"], (
-        f"more than one \\hypersetup in the build; borders may return: {extra}"
-    )
+    for option in ("linkbordercolor", "citebordercolor", "urlbordercolor", "pdfborder"):
+        assert option not in body, f"{option} would draw a border around links"
+
+    ours = re.findall(r"\\hypersetup\{([^}]*)\}", body)
+    assert not ours, f"main.tex sets hyperref options that acl.sty already owns: {ours}"
+
+
+def test_acl_style_files_are_vendored() -> None:
+    """acl.sty and acl_natbib.bst are in the repository, not assumed present.
+
+    A style file taken from whatever TeX Live the compiling machine carries can
+    differ between machines, and this one decides the page count, which is a
+    submission constraint. They are committed beside the paper and travel in the
+    Overleaf archive.
+    """
+    for name, floor in (("acl.sty", 8_000), ("acl_natbib.bst", 20_000)):
+        path = PAPER / name
+        assert path.exists(), f"{name} is not vendored in paper/"
+        assert path.stat().st_size > floor, (
+            f"{name} is {path.stat().st_size} bytes, which is too small to be "
+            "the real file; the download probably returned an error page"
+        )
 
 
 def test_title_is_bold_and_subtitle_is_not() -> None:

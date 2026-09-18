@@ -1,28 +1,31 @@
 Triage decides who is seen first. Building an urgency classifier for
-patient-voice Kinyarwanda, we found the specification could be
-satisfied without producing anything it was meant to secure. We report
-that, and the instruments that detect it, instead of a classifier.
+patient-voice Kinyarwanda, we found our specification could be met without
+producing anything it was meant to secure. We report that,
+and the instruments that detect it, instead of a classifier.
+
+The system is designed for the four languages a Rwandan health centre
+receives, and every instrument here is per-language. The corpus is Kinyarwanda
+only.
 
 Our corpus requirement asked for one million examples. Generation produced them
-in 130 seconds. The corpus fails four of the nine quality gates written in the
-same specification, six when rows are attributed to their source sentence. The binding gate counts distinct authored seed phrases, not rows, and
-the generator has 165: at that inventory no corpus passes, at any row count. Two shortfalls follow and are not the same
+in 130 seconds. It fails four of the nine quality gates in the same
+specification, six when rows are attributed to their source sentence. The binding gate counts distinct authored seed phrases, not rows: at our
+165, no corpus passes at any row count. Two shortfalls follow and are not the same
 number: 2,835 further authored sentences to pass the seed-count gate, and
 19,835 to reach the stated million rows, because a separate gate caps a seed
-at 50 rows. Rows come from a machine at roughly 7,700 per second; seeds
-are written by native-speaking clinicians. A corpus requirement stated as a row
-count constrains the cheap quantity, leaves the expensive one free, and so does
-not constrain quality at all.
+at 50 rows. Rows come from a machine at roughly 7,700 per second; seeds from
+native-speaking clinicians. A row count constrains the cheap quantity, leaves
+the expensive one free, and so does not constrain quality at all.
 
 Two further negatives follow. An evaluation set of 17,942 rows built from nine
-distinct source sentences supports no verdict: our deployment gate, which counts
-distinct sentences, refuses 38 of its cells and declines to report. A model
+distinct sentences supports no verdict: our gate, which counts distinct
+sentences, refuses 38 of its cells and reports nothing. A model
 trained on a corpus of uniform surface form changes its predicted urgency for
-31.5% of inputs under capitalisation and 21.0% under a single typo, which we
-report as measurement and not attribution. A model directory shipped
+31.5% of inputs under capitalisation and 21.0% under a single typo, reported
+as measurement and not attribution. A model directory shipped
 without its tokenizer loads without error and answers its class prior on input
 it cannot read, with well-formed probabilities.
 
-No figure here is evidence of model quality; the contribution is the measurement
-apparatus and the negative results it produced, each reproducible from a clean
-clone with one command except where marked NOT REPRODUCIBLE.
+No figure here is evidence of model quality; the contribution is the apparatus
+and the negative results it produced, reproducible from a clean clone except
+where marked NOT REPRODUCIBLE.

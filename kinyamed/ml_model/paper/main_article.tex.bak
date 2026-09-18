@@ -27,25 +27,7 @@
 
 \documentclass[11pt]{article}
 
-% ---------------------------------------------------------------------------
-% ACL TWO-COLUMN STYLE, VENDORED.
-%
-% acl.sty and acl_natbib.bst sit in this directory rather than being taken from
-% whatever TeX Live the compiling machine happens to have. A style file that
-% differs between two machines changes the page count, and the page count is a
-% submission constraint.
-%
-% Source: https://github.com/acl-org/acl-style-files (repository root).
-%
-% acl.sty LOADS geometry, natbib AND hyperref ITSELF, and calls \twocolumn. Do
-% not load any of those here: a second \usepackage with different options is an
-% option clash, and geometry loaded twice silently wins on the last call.
-%
-% The previous article-class preamble is kept verbatim at main_article.tex.bak
-% so this switch can be reverted in one move if it will not compile.
-% ---------------------------------------------------------------------------
-\usepackage[preprint]{acl}
-
+\usepackage[margin=1in]{geometry}
 % T1 SO THAT UNDERSCORES SURVIVE. Under the default OT1 encoding an underscore
 % in typewriter text is not reliably available as a glyph, and the compiled v2
 % PDF dropped it from every file path it printed: a paper about reproducibility
@@ -58,29 +40,13 @@
 \usepackage{url}
 \usepackage{booktabs}   % \toprule \midrule \bottomrule, used by every table
 \usepackage{amsmath}    % \[ \] and \frac, used by the gate derivation
-\usepackage{graphicx}
-\usepackage{pgfplots}   % the seeds-to-rows figure
-\pgfplotsset{compat=1.18}
-\usepackage{colortbl}   % \cellcolor for the outcome column
-\usepackage{xcolor}
-
-% Table markers. One command per verdict so a gate outcome cannot be written
-% three different ways in three tables, which is what the prose did before.
-\definecolor{failbg}{gray}{0.90}
-\definecolor{passbg}{gray}{0.97}
-\newcommand{\vFail}{\cellcolor{failbg}\textbf{FAIL}}
-\newcommand{\vPass}{\cellcolor{passbg}pass}
-\newcommand{\vNC}{\cellcolor{passbg}not computable}
-
-% Takeaway box. Short bold heading, two or three lines, after each results
-% subsection. Deliberately plain: a framed box that needs tcolorbox is one more
-% package that can fail on a machine that is not this one.
-\newcommand{\takeaway}[2]{%
-  \par\vspace{0.6em}%
-  \noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
-    \small\textbf{#1}\ #2}}%
-  \par\vspace{0.6em}%
-}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+% hyperref's defaults draw a coloured border around every link: red for an
+% internal reference, green for a citation. They render as boxes in the PDF and
+% are printed by some viewers. hidelinks removes the border and the colour while
+% leaving the link live, which is what a preprint wants.
+\hypersetup{hidelinks}
 
 % ---------------------------------------------------------------------------
 % FAIL LOUDLY ON A MISSING NUMBER.
@@ -129,9 +95,6 @@
 % review/emit_corpus_counts.py. They were hand-typed and went stale; see
 % reports/EXTERNAL_REVIEW.md D2.
 \input{generated/corpus_counts}
-% Seed-curve annotations, emitted with the figure's data file by
-% review/emit_seed_curve.py so the labels cannot drift from the curve.
-\input{generated/seed_curve_macros}
 
 \RequireGenerated{ResultFingerprint}
 

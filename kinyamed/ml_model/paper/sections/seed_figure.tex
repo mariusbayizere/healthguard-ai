@@ -1,0 +1,58 @@
+% THE SEEDS-TO-ROWS FIGURE.
+%
+% The data is NOT inline. It is read from generated/seed_curve.dat, written by
+% review/emit_seed_curve.py from the thresholds in dataset/corpus_gates.py.
+% Two reasons: a number typed into a picture has no provenance, and a failed
+% render can then be attributed to the data or to the drawing rather than to
+% both at once.
+%
+% The annotations quote macros from generated/seed_curve_macros.tex, emitted in
+% the same pass as the data, so a threshold change moves the curve and the
+% labels together.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth,
+  height=0.62\linewidth,
+  xlabel={Distinct authored seed phrases},
+  ylabel={Largest gate-passing corpus (rows)},
+  xmin=0, xmax=20000,
+  ymin=0, ymax=1050000,
+  scaled y ticks=false,
+  yticklabel style={/pgf/number format/fixed, /pgf/number format/1000 sep={,}},
+  xticklabel style={/pgf/number format/fixed, /pgf/number format/1000 sep={,}},
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  grid=major,
+  grid style={gray!25},
+  clip=false,
+]
+% The curve itself: flat at zero below the seed floor, linear above it.
+\addplot[thick, black, no marks] table[x=seeds, y=rows] {generated/seed_curve.dat};
+
+% The discontinuity. Everything left of this line is zero rows at any row count.
+\addplot[dashed, gray] coordinates {(\SeedFloorRaw,0) (\SeedFloorRaw,1050000)};
+\node[anchor=west, font=\scriptsize, gray!60!black]
+  at (axis cs:\SeedFloorRaw,980000) {\ seed floor \SeedFloor};
+
+% Where this project actually sits.
+\addplot[only marks, mark=*, mark size=2pt, black]
+  coordinates {(\SeedOursRaw,0)};
+\node[anchor=south west, font=\scriptsize, align=left]
+  at (axis cs:\SeedOursRaw,0)
+  {ours: \SeedOurs\ seeds,\\[-2pt] 0 rows};
+\end{axis}
+\end{tikzpicture}
+\caption{Table~\ref{tab:seeds} plotted. \textbf{This is arithmetic on the gate
+thresholds, not a measurement}: the seed floor (\SeedFloor{} distinct authored
+phrases per language) and the per-seed cap (\SeedRowsPerSeed{} rows) are written
+in the corpus specification, and the curve is
+$y = x \times \SeedRowsPerSeed$ where $x \geq \SeedFloor$ and $0$ below it.
+Nothing here is fitted or observed. The discontinuity is the point: below the
+floor the largest corpus that passes every gate is zero rows \emph{at any row
+count}, so our \SeedOurs{} seeds sit on the flat section and no amount of
+generation moves them off it. Data emitted to
+\path{paper/generated/seed_curve.dat} by \path{review/emit_seed_curve.py}.}
+\label{fig:seedcurve}
+\end{figure}

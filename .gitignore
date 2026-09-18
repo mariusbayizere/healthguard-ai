@@ -103,3 +103,8 @@ kinyamed/ml_model/paper/CORRECTIONS.md
 # See docs/clinical/README.md. Keep local copies here; they stay untracked.
 kinyamed/docs/clinical/*
 !kinyamed/docs/clinical/README.md
+
+# The pre-ACL article-class preamble, kept so the two-column switch can be
+# reverted in one move. Tracked deliberately despite the *.bak rule above: a
+# revert file that exists only on one laptop is not a revert path.
+!kinyamed/ml_model/paper/main_article.tex.bak

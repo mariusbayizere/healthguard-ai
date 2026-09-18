@@ -300,6 +300,36 @@ forced by the hardware but the right size for the problem, and the run that
 preceded these was abandoned in part because it had been budgeted at roughly
 forty times what the task needed.
 
+\section{The reported run in full}
+\label{app:run}
+
+These three tables are written by \path{training/holdout_eval.py} on every
+evaluation pass, and until 2026-09-18 no file included them: the emitter wrote
+them, the document ignored them, and the build header had said since the
+pipeline was written that \path{results.tex} inputs the tables. Nothing failed,
+because a generated file nobody reads produces no error. They are collected
+here rather than in the results section because none of them is offered as a
+statement about model quality, for the reasons in
+Section~\ref{sec:res:none}; they are the evidence behind claims the paper makes
+about its own \emph{gate}, and a reader checking those claims should not have
+to re-run the pipeline to see the numbers.
+
+Read them against that section and not as a performance report. In particular,
+Table~\ref{tab:results} is measured on 9 distinct sentences, so its support
+column is not an independent sample size.
+
+\input{generated/results_table}
+\input{generated/confusion_table}
+\input{generated/sweep_table}
+
+Table~\ref{tab:sweep} is the one that carries an argument. The three
+configurations differ only in how many layers were frozen and in learning rate,
+they were scored in one pass on the same reporting set, and all three fail the
+acceptance gate. The middle row is the configuration of
+Section~\ref{sec:gate-failure}: the highest CRITICAL recall of the three, an
+URGENT recall of 0.0083, and the lowest macro F1. A gate reading CRITICAL
+recall alone would have selected it.
+
 \section{The other three language arms}
 \label{app:arms}
 
@@ -355,12 +385,8 @@ any result in this paper.
 machine-drafted candidate phrasings with per-row provenance and review verdicts
 against the same concept spine. No English speaker and no French speaker has
 ruled on them, and the French brief records explicitly that no French speaker has
-seen any of it. The two arms did produce one result worth keeping: built
-independently, they lifted the same eleven Kinyarwanda holds on the same
-reasoning (each a block on a Kinyarwanda \emph{word} rather than on the
-concept), and added the same hold on a concept-level clinical question. Two
-arms agreeing independently is the strongest evidence available that those
-rulings concern concepts rather than one language.
+seen any of it. The eleven holds the two arms lifted independently are treated as
+a finding in Section~\ref{sec:method:arms} rather than here.
 
 \paragraph{Swahili is out for authoring, with no draft supplied.} The brief the
 speaker received contains no Swahili at all: it carries the English gloss, the
@@ -370,9 +396,18 @@ fluent draft anchors a speaker to its errors, which is why that arm was
 re-authored from scratch rather than corrected. A machine-translated Swahili
 corpus exists in the frozen v1 vocabulary and is deliberately withheld until the
 authored phrases exist, which is the only order in which comparing them means
-anything. Two gaps are recorded and not closed: no Swahili relation terms exist
-anywhere in the project, so third-person placeholders have nothing to substitute,
-and the frame slots have not been authored.
+anything. The reasoning is in Section~\ref{sec:method:arms}.
+
+One gap is recorded and not closed: the frame slots have not been authored, so
+the arm emits nothing regardless of what else it holds. \textbf{An earlier
+version of this appendix also claimed that no Swahili relation terms exist
+anywhere in the project. That was false, and it contradicted this appendix's own
+opening paragraph.} The terms exist, speaker-authored with regional variants, in
+\path{review/swahili_relations.py}; seven are wired and the eighth Kinyarwanda
+relation has no counterpart, for the reason given above. What is true is that no
+frame can use them yet. The two statements were written months apart and nothing
+compared them, which is why Table~\ref{tab:arms} is emitted from the inventory
+rather than described in prose.
 
 \section{The per-sentence diagnostic}
 \label{app:diagnostic}

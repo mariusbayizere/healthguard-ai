@@ -9,6 +9,19 @@
 \section{Related work}
 \label{sec:related}
 
+\subsection{Kinyarwanda in current African-language model work}
+\label{sec:related:afriquellm}
+
+Kinyarwanda is represented in the current reference point for continued
+pre-training on African languages. \citet{yu2026afriquellm} adapt five base
+models to twenty African languages and report their per-language data mixture;
+their Table~1 gives Kinyarwanda 481M raw tokens, upsampled over two epochs to
+1.07B, with 13M synthetic tokens added. That is the scale at which general
+Kinyarwanda text is available, and it stands in a useful contrast to the
+quantity this paper is about. Our binding constraint is not tokens of running
+text but \SeedFloor{} independently authored clinical sentences in the patient's
+own voice, a quantity no crawl supplies and no upsampling factor changes.
+
 \subsection{Why we make no comparison with a triage instrument}
 \label{sec:related:instruments}
 

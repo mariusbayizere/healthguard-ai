@@ -1,31 +1,34 @@
 Triage decides who is seen first. Building an urgency classifier for
-patient-voice Kinyarwanda, we found the specification could be
-satisfied without producing anything it was meant to secure. We report
-that, and the instruments that detect it, instead of a classifier.
+patient-voice Kinyarwanda, we found our specification could be met without
+producing anything it was meant to secure. We report that,
+and the instruments that detect it, instead of a classifier.
+
+The system is designed for the four languages a Rwandan health centre
+receives, and every instrument here is per-language. The corpus is Kinyarwanda
+only.
 
 Our corpus requirement asked for one million examples. Generation produced them
-in 130 seconds. The corpus fails four of the nine quality gates written in the
-same specification, six when rows are attributed to their source sentence. The binding gate counts distinct authored seed phrases, not rows, and
-the generator has 165: at that inventory no corpus passes, at any row count. Two shortfalls follow and are not the same
+in 130 seconds. It fails four of the nine quality gates in the same
+specification, six when rows are attributed to their source sentence. The binding gate counts distinct authored seed phrases, not rows: at our
+165, no corpus passes at any row count. Two shortfalls follow and are not the same
 number: 2,835 further authored sentences to pass the seed-count gate, and
 19,835 to reach the stated million rows, because a separate gate caps a seed
-at 50 rows. Rows come from a machine at roughly 7,700 per second; seeds
-are written by native-speaking clinicians. A corpus requirement stated as a row
-count constrains the cheap quantity, leaves the expensive one free, and so does
-not constrain quality at all.
+at 50 rows. Rows come from a machine at roughly 7,700 per second; seeds from
+native-speaking clinicians. A row count constrains the cheap quantity, leaves
+the expensive one free, and so does not constrain quality at all.
 
 Two further negatives follow. An evaluation set of 17,942 rows built from nine
-distinct source sentences supports no verdict: our deployment gate, which counts
-distinct sentences, refuses 38 of its cells and declines to report. A model
+distinct sentences supports no verdict: our gate, which counts distinct
+sentences, refuses 38 of its cells and reports nothing. A model
 trained on a corpus of uniform surface form changes its predicted urgency for
-31.5% of inputs under capitalisation and 21.0% under a single typo, which we
-report as measurement and not attribution. A model directory shipped
+31.5% of inputs under capitalisation and 21.0% under a single typo, reported
+as measurement and not attribution. A model directory shipped
 without its tokenizer loads without error and answers its class prior on input
 it cannot read, with well-formed probabilities.
 
-No figure here is evidence of model quality; the contribution is the measurement
-apparatus and the negative results it produced, each reproducible from a clean
-clone with one command except where marked NOT REPRODUCIBLE.
+No figure here is evidence of model quality; the contribution is the apparatus
+and the negative results it produced, reproducible from a clean clone except
+where marked NOT REPRODUCIBLE.
 
 ## INTRODUCTION
 
@@ -42,6 +45,14 @@ This is a negative-results and methodology paper. Model numbers appear in it,
 because several of the failures we report are failures about those numbers, but
 none is offered as evidence of model quality; Section 4.4
 states the distinction and the reasons for it.
+
+The system is designed for the four languages a Rwandan health centre receives,
+Kinyarwanda, English, French and Kiswahili, and the design is per-language
+throughout: the corpus gates count seeds per language, the power derivation fixes
+a minimum per language crossed with urgency class, and the person and relation
+rulings are recorded per arm. The corpus that exists is Kinyarwanda
+only, and the other three arms generate no row that appears in any result here
+(Table 3.3).
 
 A corpus requirement in rows constrains the cheap quantity. Our
 functional requirement asked for one million examples. Generating them took 130
@@ -114,12 +125,35 @@ medical triage dataset for Kinyarwanda, and the resource audit described in
 Section 2 did not locate one. We have not run a systematic search
 of the field, and we make no stronger claim than that.
 
-Contributions. (1) The seeds-not-rows result and the gate instrument
-that produces it. (2) A derivation of what a held-out set must contain before any
-gate verdict is possible, and the refusal that follows when it does not. (3) Two
-silent failure modes with the checks that detect them. (4) The apparatus itself:
-every number in this paper re-derives from a clean clone with one command,
-except those marked NOT REPRODUCIBLE where they appear.
+Contributions. Our audit yields four findings.
+
+(1) A corpus requirement written in rows does not constrain quality.
+The binding quantity is distinct authored seed phrases, not rows, and the two
+are separated by a factor a generator supplies for free. At our inventory of
+165 seeds, no corpus passes the gates at any row count, and the distance to the
+specification is 2,835 sentences to pass the seed gate or 19,835 to reach
+the stated million rows, never 999,000 rows.
+
+(2) Cluster structure, not row count, decides what a held-out set can
+show. An evaluation set of 17,942 rows built from nine distinct sentences
+supports no verdict. We derive what a set must contain before any gate verdict
+is possible, and our gate refuses on the set that exists rather than reporting a
+number it cannot support.
+
+(3) A single-metric safety gate certified a model that had abandoned an
+urgency class. The gate had no term in which over-triage could be expressed.
+The replacement is three conditions, of which one is derived exactly, one is
+inherited without a verified source, and one rests on a margin we do not derive,
+and we label which is which.
+
+(4) Two failure modes leave every output-side signal healthy. A model
+directory shipped without its tokenizer, and a classifier whose answer moves
+under surface variation. Neither is visible from probabilities, accuracy or
+label order; each was caught by a property check against something outside the
+model.
+
+The apparatus that produces all four re-derives from a clean clone with one
+command, except where marked NOT REPRODUCIBLE.
 
 0.9
 Provenance of every number. No number in this paper is offered as
@@ -133,6 +167,18 @@ training/holdout_eval.py --writeup; they carry the fingerprint of the
 weights, the evaluation data and the commit that produced them.
 
 ## RELATED WORK
+
+## KINYARWANDA IN CURRENT AFRICAN-LANGUAGE MODEL WORK
+
+Kinyarwanda is represented in the current reference point for continued
+pre-training on African languages. yu2026afriquellm adapt five base
+models to twenty African languages and report their per-language data mixture;
+their Table 1 gives Kinyarwanda 481M raw tokens, upsampled over two epochs to
+1.07B, with 13M synthetic tokens added. That is the scale at which general
+Kinyarwanda text is available, and it stands in a useful contrast to the
+quantity this paper is about. Our binding constraint is not tokens of running
+text but 3,000 independently authored clinical sentences in the patient's
+own voice, a quantity no crawl supplies and no upsampling factor changes.
 
 ## WHY WE MAKE NO COMPARISON WITH A TRIAGE INSTRUMENT
 
@@ -295,6 +341,75 @@ phrases, drawn without replacement from each phrase's frame combinations. It is
 a rebuild rather than a revision: a v1 result and a v2 result are not the same
 experiment and do not belong in one table.
 
+## FOUR LANGUAGE ARMS, ONE CORPUS
+
+The system is designed for four languages because a Rwandan health centre
+receives all four. Every instrument in this paper is per-language: the corpus
+gates count distinct seeds per language, the power derivation fixes a
+minimum per language crossed with urgency class, and the person and
+relation rulings are recorded per arm rather than assumed to transfer. The
+corpus that exists is Kinyarwanda. Table 3.3 gives the inventory of
+all four arms, emitted from the generator and the briefs rather than described.
+
+Arm | Phrases | Drafts | Relations | Frames | Rows
+Kinyarwanda | 165 | -- | 8 | 43 (4/4) | 330,000
+English | 0 | 198 | 8 | 10 (1/4) | 0
+French | 0 | 194 | 8 | 10 (1/4) | 0
+Swahili | 0 | 0 | 7 | 10 (1/4) | 0
+
+What each language arm contains. Phrases are authored by a
+speaker of that arm; drafts are machine-written candidates no
+speaker of that language has reviewed, counted separately because counting them
+as phrases is the overstatement this paper is about. Frames counts
+openers, onsets, contexts and closers, with the number of those four slots that
+are non-empty: a row needs all four, which is why three arms generate nothing
+whatever their other columns say. Provenance differs within a column
+(english relations wording from the v1 machine drafts; swahili relations speaker authored).
+
+The column that decides the others is frames. A row is a phrase wrapped
+in an opener, a time expression, a context and a closing line, and an arm
+missing any of the four emits nothing whatever its phrase count. Only
+Kinyarwanda has all four. The ten fragments each other arm carries are onsets
+left over from v1's machine drafts, which is why three arms sit at zero rows and
+why the phrase inventory is not the binding constraint on a four-language
+corpus.
+
+Two arms lifting the same eleven holds is evidence about concepts,
+not about a language. The English and French briefs were built independently
+against the same concept spine, each reviewed without reference to the other.
+Both lifted the same eleven Kinyarwanda holds, and on the same reasoning in each
+case: the hold recorded a block on a Kinyarwanda word rather than on the
+concept the word expressed, so an arm not using that word had nothing to be
+blocked by. Both then added the same new hold, on a concept-level clinical
+question that no wording resolves.
+
+This is the one cross-lingual result the project has, and it is a result about
+the taxonomy rather than about any arm. A hold that survives translation into
+two unrelated lexicons is a clinical question; a hold that dissolves in both is
+a lexical one. Separating those two by hand is the kind of judgement a single
+annotator cannot make about their own language, and here it fell out of building
+the arms separately and comparing afterwards. We record the mechanism because it
+generalises: where a taxonomy is shared but the wording is not, independent arms
+are a cheap test of whether a recorded doubt belongs to the concept or to the
+words.
+
+The Swahili brief ships with no Swahili in it, deliberately. The
+sheet a Kiswahili speaker receives carries the English gloss, the person split,
+the applicability and relation rulings and the open clinical questions, and an
+empty column where the phrase goes. No machine draft is supplied, and a
+machine-translated Swahili corpus that exists in the frozen v1 vocabulary is
+withheld until the authored phrases exist.
+
+This follows directly from what happened to the Kinyarwanda arm, which had to be
+re-authored from scratch rather than corrected: a fluent draft anchors a reviewer
+to its errors. Reviewing a plausible sentence is a different task from writing
+one, and it produces a different artefact, because the reviewer's attention goes
+to what is wrong with the draft rather than to what the patient would actually
+say. We state it as a methodology position for any multilingual corpus effort:
+if the arm is meant to be authored, supply no draft, and accept the slower start
+as the price of not measuring a machine's register through a human's approval.
+The cost is real and is visible in Table 3.3 as a zero.
+
 Provenance of the phrases is recorded per phrase, and is mixed.
 Roughly half the 165 phrases are recorded as authored directly by the speaker;
 the remainder are speaker-derived, machine drafts the speaker approved, or
@@ -379,7 +494,7 @@ The other three language arms, as built
 The corpus reported here is Kinyarwanda; the frame fragments that wrap a phrase
 are authored for that language alone, so no other arm can generate a
 single row, and the component-by-component position is in
-Appendix F.
+Appendix G.
 
 ## MODEL, TRAINING CONFIGURATION AND ENVIRONMENT
 
@@ -485,15 +600,15 @@ cannot be computed from the data at hand is reported as such rather than as a
 pass. Table 4.1 gives the outcome.
 
 Gate | What it constrains | Outcome on our corpus
-C1 | rows per seed (≤ 50; no seed above 0.1%) | FAIL: worst seed 8,975 rows, 26.07% of the 34,425-row test split
-C2 | distinct seeds per language (≥ 3,000) | FAIL: 15 in the test split, 150 in train, 165 in the whole inventory
-C3 | lexical diversity against the pilot's floor | not computable, because the pilot that defines the floor does not exist
-C4 | near-duplicate seeds (≤ 2% at Jaccard 0.85) | pass: 0 of 15
-C5 | machine person-transformation banned | FAIL: no recorded origin per row
-C6 | frame consistent with reporter and age group | not computable: neither is recorded
-C7 | per-row provenance complete | FAIL: no seed, origin, author or validator fields
-C8 | author concentration (≤ 20% per cell) | FAIL: the corpus has no authors
-C9 | surface variation (case, punctuation, spacing, typos) | FAIL: 0 capitalised rows, 0 with stray spacing, no typos
+C1 | rows per seed (≤ 50; no seed above 0.1%) | : worst seed 8,975 rows, 26.07% of the 34,425-row test split
+C2 | distinct seeds per language (≥ 3,000) | : 15 in the test split, 150 in train, 165 in the whole inventory. This is the binding gate.
+C3 | lexical diversity against the pilot's floor | : the pilot that defines the floor does not exist
+C4 | near-duplicate seeds (≤ 2% at Jaccard 0.85) | : 0 of 15
+C5 | machine person-transformation banned | : no recorded origin per row
+C6 | frame consistent with reporter and age group | : neither is recorded
+C7 | per-row provenance complete | : no seed, origin, author or validator fields
+C8 | author concentration (≤ 20% per cell) | : the corpus has no authors
+C9 | surface variation (case, punctuation, spacing, typos) | : 0 capitalised rows, 0 with stray spacing, no typos
 
 The nine corpus gates against the generated corpus. Four fail as
 generated; six fail on the split whose rows can be attributed to a source
@@ -504,12 +619,57 @@ rows. Our generator has 165. Table 4.1 follows that constraint
 through.
 
 Seeds available | Rows allowed by C1 | Passes C2? | Largest passing corpus
-165 (ours) | 8,250 | no (needs 3,000) | 0 rows
-3,000 | 150,000 | yes | 150,000
-20,000 | 1,000,000 | yes | 1,000,000 (the target)
+165 (ours) | 8,250 | \ (needs 3,000) | 0 rows
+3,000 | 150,000 |  | 150,000
+20,000 | 1,000,000 |  | 1,000,000 (the target)
 
 At 165 seeds no corpus of any size passes, because the floor is on
 seeds and not on rows.
+
+figure[t]
+
+tikzpicture
+axis[
+  width=,
+  height=0.62,
+  xlabel=Distinct authored seed phrases,
+  ylabel=Largest gate-passing corpus (rows),
+  xmin=0, xmax=20000,
+  ymin=0, ymax=1050000,
+  scaled y ticks=false,
+  yticklabel style=/pgf/number format/fixed, /pgf/number format/1000 sep=,,
+  xticklabel style=/pgf/number format/fixed, /pgf/number format/1000 sep=,,
+  tick label style=font=,
+  label style=font=,
+  grid=major,
+  grid style=gray!25,
+  clip=false,
+]
+
+ table[x=seeds, y=rows] generated/seed_curve.dat;
+
+ coordinates (3000,0) (3000,1050000);
+
+  at (axis cs:3000,980000) \ seed floor 3,000;
+
+  coordinates (165,0);
+
+  at (axis cs:165,0)
+  ours: 165 seeds,[-2pt] 0 rows;
+axis
+tikzpicture
+Table 4.1 plotted. This is arithmetic on the gate
+thresholds, not a measurement: the seed floor (3,000 distinct authored
+phrases per language) and the per-seed cap (50 rows) are written
+in the corpus specification, and the curve is
+y = x × 50 where x ≥ 3,000 and 0 below it.
+Nothing here is fitted or observed. The discontinuity is the point: below the
+floor the largest corpus that passes every gate is zero rows at any row
+count, so our 165 seeds sit on the flat section and no amount of
+generation moves them off it. Data emitted to
+paper/generated/seed_curve.dat by review/emit_seed_curve.py.
+
+figure
 
 Two shortfalls, in sentences rather than rows. A row is a frame
 rendered around an existing phrase, produced at roughly 7,700 per second. A
@@ -533,6 +693,12 @@ exactly that. The quantity that resists expansion, and that the model needs, is
 the number of independently authored source items. A specification that sets no
 floor on that number has not constrained quality, however large the row count it
 demands. The remedy is small: constrain seeds, and let the row count follow.
+
+Takeaway 1: A row count constrains the cheap quantity.Rows are
+produced by machine at roughly 7,700 per second; seeds are written by
+native-speaking clinicians. A requirement stated in rows therefore binds the
+free quantity and leaves the expensive one unconstrained, which is why a corpus
+can meet it and fail four of the nine gates written beside it.
 
 ## CLUSTER STRUCTURE, NOT ROW COUNT, DECIDES WHAT A HELD-OUT SET CAN SHOW
 
@@ -590,7 +756,15 @@ configuration passed it while abandoning the urgent class entirely, scoring on
 the protected class below what merging the two classes earns for free on the same
 rows. The figures, their closed form and the three-condition gate that replaced
 them are in Section 6.3; they are a defect in gate design and
-support no quality conclusion about any configuration.
+support no quality conclusion about any configuration. All three configurations,
+the per-class figures and the confusion matrix are in
+Appendix F, so the claim can be checked without re-running the
+pipeline.
+
+Takeaway 2: Count clusters, not rows.17,942 rows built from nine
+distinct sentences are nine observations wearing a large number. Every interval
+is governed by the distinct-sentence count, so a gate that counts rows will
+report confidence it has not earned. Ours counts sentences and refuses.
 
 ## TWO FAILURE MODES THAT LEAVE EVERY OUTPUT-SIDE SIGNAL HEALTHY
 
@@ -636,6 +810,13 @@ patient typing in capitals or mistyping a word is not making a clinical
 statement, so we record this as a corpus-health signal and not as a quality
 metric, and we do not propose normalising input at serving time: that would hide
 the fragility and discard information the tokenizer is case-sensitive to.
+
+Takeaway 3: A healthy output signal is not evidence of a healthy
+model.A missing tokenizer and a fragile decision boundary both leave
+probabilities well formed, predictions deterministic and label order correct.
+Each was caught only by checking a property outside the model: the encoding of
+its input, and the invariance of its answer under a change that should not
+matter.
 
 ## WHAT WE DO NOT CLAIM
 
@@ -824,11 +1005,11 @@ the property we would ask of any gate.
 
 A model is accepted only if all three conditions hold. They are not traded off against one another.
 
-G1: CRITICAL recall ≥ 0.95. Inherited; source not verified. This threshold predates the current record and carries only the note that missing a critical case is the failure that matters. It is consistent with the trauma field-triage convention of holding under-triage at or below 5%, but we have not verified that attribution against a source and do not claim it. We keep the value because loosening a safety threshold on no evidence is worse than retaining an unsourced one.
+A1: CRITICAL recall ≥ 0.95. Inherited; source not verified. This threshold predates the current record and carries only the note that missing a critical case is the failure that matters. It is consistent with the trauma field-triage convention of holding under-triage at or below 5%, but we have not verified that attribution against a source and do not claim it. We keep the value because loosening a safety threshold on no evidence is worse than retaining an unsourced one.
 
-G2: macro F1 > 2/3, strictly. Derived exactly. Macro F1 is the unweighted mean of three per-class F1 scores. If any one class is abandoned its F1 is zero, so macro F1 ≤ (1+1+0)/3 = 2/3 even when the other two classes are perfect. The comparison is therefore strict: a model scoring exactly 2/3 is consistent with two perfect classes and one dead one, and an inclusive ≥ admitted it. What the condition actually guarantees is weaker than non-degeneracy in any useful sense: from f_i ≤ 1 it follows that _i F1_i ≥ 3 macro - 2, which is 0 just above 2/3 and 0.3172 at the 0.7724 measured here. Passing G2 proves no class is exactly dead; it does not prove no class is nearly dead. A model at macro 0.672 may carry a class at F1 = 0.016 and pass.
+A2: macro F1 > 2/3, strictly. Derived exactly. Macro F1 is the unweighted mean of three per-class F1 scores. If any one class is abandoned its F1 is zero, so macro F1 ≤ (1+1+0)/3 = 2/3 even when the other two classes are perfect. The comparison is therefore strict: a model scoring exactly 2/3 is consistent with two perfect classes and one dead one, and an inclusive ≥ admitted it. What the condition actually guarantees is weaker than non-degeneracy in any useful sense: from f_i ≤ 1 it follows that _i F1_i ≥ 3 macro - 2, which is 0 just above 2/3 and 0.3172 at the 0.7724 measured here. Passing A2 proves no class is exactly dead; it does not prove no class is nearly dead. A model at macro 0.672 may carry a class at F1 = 0.016 and pass.
 
-G3: CRITICAL precision ≥ the merge-strategy precision plus a margin. Floor derived and measured per evaluation set; margin not derived. A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
+A3: CRITICAL precision ≥ the merge-strategy precision plus a margin. Floor derived and measured per evaluation set; margin not derived. A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
 \[ support(CRITICAL)support(CRITICAL) + support(URGENT) = 0.5349 \]
 on this reporting set. This is the precision of one specific strategy, not a ceiling on degenerate models in general, and it assumes no ROUTINE row is labelled CRITICAL; a strategy that swept ROUTINE in as well would score lower. It is what that strategy is paid for free, so an informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. The condition is not always satisfiable. When CRITICAL rows dominate the two urgent classes the merge precision approaches 1, the floor exceeds 1, and no model can pass; the gate reports NOT COMPUTABLE rather than failing a model for a property of the set it was scored on. The margin above that floor (0.10) is not derived. How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
 
@@ -963,7 +1144,7 @@ vignettes. What we could not locate is an instrument validated for the specific
 task this system performs: assigning urgency from a patient's own written
 free text, in the patient's own words, without examination and without a
 clinician in the loop asking follow-up questions
-(Section 2.1).
+(Section 2.2).
 
 The difference is not a technicality. Telephone triage is interactive: the nurse
 can ask, disambiguate, and hear how the patient sounds. Symptom-checker audits
@@ -1102,7 +1283,7 @@ one. A clinician session is designed and has not been held. Two of the three
 thresholds in our acceptance gate also await a clinical judgement that has not
 been made; see Section 6.4.
 
-Further limitations are in Appendix H. Monolingual
+Further limitations are in Appendix I. Monolingual
 scope, the converged holdouts, the absent baseline comparison, the six claims that
 require studies nobody has run, the patient-facing text gap, the connectivity
 assumption and the inconclusive configuration search are all recorded there.
@@ -1190,13 +1371,13 @@ The other three languages, as they stand
 
 None of the other three contributes a row to any result in this paper; their
 status, and the one result the English and French arms did produce, are in
-Appendix F.
+Appendix G.
 
 The diagnostic that costs one inference pass
 
 The next diagnostic is per-sentence rather than per-configuration and costs one
 inference pass rather than another training run; it is described in
-Appendix G.
+Appendix H.
 
 ## CONCLUSION
 
@@ -1305,8 +1486,11 @@ be restored by accident. We state the history exactly rather than describe the
 repository as clean: the ETAT participant manual was committed in error on
 2026-09-17 and removed on 2026-09-18, and because removing a file does not
 remove it from version history, that blob is still reachable from earlier
-commits. Purging it requires rewriting published history, which we have not
-done. See docs/clinical/README.md.
+commits. Purging it would require rewriting published history, breaking every
+existing clone and every reference to a commit identifier, and we judged that
+cost higher than the exposure of one WHO document that anyone may download from
+WHO. It is therefore a recorded decision rather than an outstanding task. See
+docs/clinical/README.md.
 
 Language and provenance. Every phrase carries a per-row provenance
 record naming its origin and whether a speaker verified it. No Kinyarwanda in
@@ -1324,7 +1508,7 @@ every concept supports both, and 50 rows are ruled
 inapplicable.
 
 This does not license dividing the row count by two to obtain a concept
-total. Section 3.3 records that our own audit found the
+total. Section 3.4 records that our own audit found the
 concept count stated with five different values across this repository, and
 declines to assert one; deriving 128 here would be asserting one of the five by
 arithmetic instead of by claim. The rulings below are therefore counted in rows,
@@ -1580,6 +1764,59 @@ forced by the hardware but the right size for the problem, and the run that
 preceded these was abandoned in part because it had been budgeted at roughly
 forty times what the task needed.
 
+## THE REPORTED RUN IN FULL
+
+These three tables are written by training/holdout_eval.py on every
+evaluation pass, and until 2026-09-18 no file included them: the emitter wrote
+them, the document ignored them, and the build header had said since the
+pipeline was written that results.tex inputs the tables. Nothing failed,
+because a generated file nobody reads produces no error. They are collected
+here rather than in the results section because none of them is offered as a
+statement about model quality, for the reasons in
+Section 4.4; they are the evidence behind claims the paper makes
+about its own gate, and a reader checking those claims should not have
+to re-run the pipeline to see the numbers.
+
+Read them against that section and not as a performance report. In particular,
+Table F is measured on 9 distinct sentences, so its support
+column is not an independent sample size.
+
+Triage performance of the reported model on the frozen phrase holdout. The 17,942 rows are frame permutations of 9 distinct phrases in 5 phrase groups; the support column is therefore not an independent sample size, and the final column gives the count that governs the granularity of each recall figure.
+
+Class | Precision | Recall | F1 | Rows | Distinct sentences
+CRITICAL | 0.6633 | 0.8504 | 0.7453 | 8,962 | 4
+URGENT | 0.7426 | 0.4963 | 0.5950 | 7,793 | 4
+ROUTINE | 0.9549 | 1.0000 | 0.9770 | 1,187 | 1
+Macro avg | n/a | n/a | 0.7724 | 17,942 | 9
+
+[2pt] Run fingerprint 4680af6192cc27f9
+
+Confusion matrix for model_v2d_freeze8_lr1e-5 on the reporting set. ROUTINE is separated perfectly; the residual error is entirely on the CRITICAL/URGENT boundary, and this was true of every configuration trained.
+
+Truth  / Pred → | CRITICAL | URGENT | ROUTINE
+CRITICAL | 7,621 | 1,341 | 0
+URGENT | 3,869 | 3,868 | 56
+ROUTINE | 0 | 0 | 1,187
+
+[2pt] Run fingerprint 4680af6192cc27f9
+
+Three configurations on the same frozen phrase holdout, same split seed, same reporting set. Trainable parameters exclude the frozen 250,002×384 embedding table, which is 96,199,296 of the model's 117,641,859 parameters in every row.
+
+Run | Trainable | Macro F1 | CRIT P/R | URG P/R | Gate
+v2b_freeze10_lr1e-5 | 3,697,923 | 0.7660 | 0.7951/0.9007 | 0.8636/0.6315 | FAIL
+v2c_freeze6_lr1.5e-5 | 10,795,779 | 0.5545 | 0.5337/0.9749 | 0.2321/0.0083 | FAIL
+v2d_freeze8_lr1e-5 | 7,246,851 | 0.7724 | 0.6633/0.8504 | 0.7426/0.4963 | FAIL
+
+[2pt] All rows evaluated in one pass; fingerprint of the reported model 4680af6192cc27f9
+
+Table F is the one that carries an argument. The three
+configurations differ only in how many layers were frozen and in learning rate,
+they were scored in one pass on the same reporting set, and all three fail the
+acceptance gate. The middle row is the configuration of
+Section 6.5: the highest CRITICAL recall of the three, an
+URGENT recall of 0.0083, and the lowest macro F1. A gate reading CRITICAL
+recall alone would have selected it.
+
 ## THE OTHER THREE LANGUAGE ARMS
 
 The first part records what each arm contains today; the second records what
@@ -1634,12 +1871,8 @@ English and French exist as review briefs, not corpora. Both are
 machine-drafted candidate phrasings with per-row provenance and review verdicts
 against the same concept spine. No English speaker and no French speaker has
 ruled on them, and the French brief records explicitly that no French speaker has
-seen any of it. The two arms did produce one result worth keeping: built
-independently, they lifted the same eleven Kinyarwanda holds on the same
-reasoning (each a block on a Kinyarwanda word rather than on the
-concept), and added the same hold on a concept-level clinical question. Two
-arms agreeing independently is the strongest evidence available that those
-rulings concern concepts rather than one language.
+seen any of it. The eleven holds the two arms lifted independently are treated as
+a finding in Section 3.3 rather than here.
 
 Swahili is out for authoring, with no draft supplied. The brief the
 speaker received contains no Swahili at all: it carries the English gloss, the
@@ -1649,9 +1882,18 @@ fluent draft anchors a speaker to its errors, which is why that arm was
 re-authored from scratch rather than corrected. A machine-translated Swahili
 corpus exists in the frozen v1 vocabulary and is deliberately withheld until the
 authored phrases exist, which is the only order in which comparing them means
-anything. Two gaps are recorded and not closed: no Swahili relation terms exist
-anywhere in the project, so third-person placeholders have nothing to substitute,
-and the frame slots have not been authored.
+anything. The reasoning is in Section 3.3.
+
+One gap is recorded and not closed: the frame slots have not been authored, so
+the arm emits nothing regardless of what else it holds. An earlier
+version of this appendix also claimed that no Swahili relation terms exist
+anywhere in the project. That was false, and it contradicted this appendix's own
+opening paragraph. The terms exist, speaker-authored with regional variants, in
+review/swahili_relations.py; seven are wired and the eighth Kinyarwanda
+relation has no counterpart, for the reason given above. What is true is that no
+frame can use them yet. The two statements were written months apart and nothing
+compared them, which is why Table 3.3 is emitted from the inventory
+rather than described in prose.
 
 ## THE PER-SENTENCE DIAGNOSTIC
 

@@ -59,8 +59,11 @@ be restored by accident. We state the history exactly rather than describe the
 repository as clean: the ETAT participant manual was committed in error on
 2026-09-17 and removed on 2026-09-18, and because removing a file does not
 remove it from version history, that blob is still reachable from earlier
-commits. Purging it requires rewriting published history, which we have not
-done. See \path{docs/clinical/README.md}.
+commits. Purging it would require rewriting published history, breaking every
+existing clone and every reference to a commit identifier, and we judged that
+cost higher than the exposure of one WHO document that anyone may download from
+WHO. It is therefore a recorded decision rather than an outstanding task. See
+\path{docs/clinical/README.md}.
 
 \paragraph{Language and provenance.} Every phrase carries a per-row provenance
 record naming its origin and whether a speaker verified it. No Kinyarwanda in

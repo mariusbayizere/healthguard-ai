@@ -26,6 +26,14 @@ because several of the failures we report are failures about those numbers, but
 \textbf{none is offered as evidence of model quality}; Section~\ref{sec:res:none}
 states the distinction and the reasons for it.
 
+The system is designed for the four languages a Rwandan health centre receives,
+Kinyarwanda, English, French and Kiswahili, and the design is per-language
+throughout: the corpus gates count seeds per language, the power derivation fixes
+a minimum per language crossed with urgency class, and the person and relation
+rulings are recorded per arm. \textbf{The corpus that exists is Kinyarwanda
+only}, and the other three arms generate no row that appears in any result here
+(Table~\ref{tab:arms}).
+
 \paragraph{A corpus requirement in rows constrains the cheap quantity.} Our
 functional requirement asked for one million examples. Generating them took 130
 seconds. Run against the nine corpus-quality gates written in the same
@@ -97,12 +105,35 @@ medical triage dataset for Kinyarwanda, and the resource audit described in
 Section~\ref{sec:related} did not locate one. We have not run a systematic search
 of the field, and we make no stronger claim than that.
 
-\paragraph{Contributions.} (1) The seeds-not-rows result and the gate instrument
-that produces it. (2) A derivation of what a held-out set must contain before any
-gate verdict is possible, and the refusal that follows when it does not. (3) Two
-silent failure modes with the checks that detect them. (4) The apparatus itself:
-every number in this paper re-derives from a clean clone with one command,
-except those marked \textbf{NOT REPRODUCIBLE} where they appear.
+\paragraph{Contributions.} Our audit yields four findings.
+
+\textbf{(1) A corpus requirement written in rows does not constrain quality.}
+The binding quantity is distinct authored seed phrases, not rows, and the two
+are separated by a factor a generator supplies for free. At our inventory of
+165 seeds, no corpus passes the gates at any row count, and the distance to the
+specification is 2{,}835 sentences to pass the seed gate or 19{,}835 to reach
+the stated million rows, never 999{,}000 rows.
+
+\textbf{(2) Cluster structure, not row count, decides what a held-out set can
+show.} An evaluation set of 17{,}942 rows built from nine distinct sentences
+supports no verdict. We derive what a set must contain before any gate verdict
+is possible, and our gate refuses on the set that exists rather than reporting a
+number it cannot support.
+
+\textbf{(3) A single-metric safety gate certified a model that had abandoned an
+urgency class.} The gate had no term in which over-triage could be expressed.
+The replacement is three conditions, of which one is derived exactly, one is
+inherited without a verified source, and one rests on a margin we do not derive,
+and we label which is which.
+
+\textbf{(4) Two failure modes leave every output-side signal healthy.} A model
+directory shipped without its tokenizer, and a classifier whose answer moves
+under surface variation. Neither is visible from probabilities, accuracy or
+label order; each was caught by a property check against something outside the
+model.
+
+The apparatus that produces all four re-derives from a clean clone with one
+command, except where marked \textbf{NOT REPRODUCIBLE}.
 
 \begin{center}
 \fbox{\parbox{0.9\textwidth}{\small\raggedright
