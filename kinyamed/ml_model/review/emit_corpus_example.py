@@ -168,7 +168,6 @@ def render() -> str:
     group_third = by_phrase[third][0]["phrase_group"]
     same_group = group_first == group_third
 
-    expansion = relation_terms()[0]
     match = difflib.SequenceMatcher(None, first, third)
     lcs = max((b.size for b in match.get_matching_blocks()), default=0)
     prefix = shared_prefix(first, third)
@@ -225,11 +224,6 @@ def render() -> str:
         "\\midrule",
         f"first & {tex(first)} & {len(first)} \\\\",
         f"third & {tex(third)} & {len(third)} \\\\",
-        "\\addlinespace",
-        "\\multicolumn{3}{l}{\\emph{one expansion of the third-person row, shown "
-        "to explain the notation:}} \\\\",
-        f"\\emph{{expansion}} & \\emph{{{tex(third.replace(PLACEHOLDER, expansion))}}} "
-        "& \\emph{{--}} \\\\".replace("{{", "{").replace("}}", "}"),
         "\\midrule",
         f"\\multicolumn{{2}}{{l}}{{Shared prefix}} & \\textbf{{{prefix}}} \\\\",
         f"\\multicolumn{{2}}{{l}}{{Longest common substring}} & {lcs} \\\\",
@@ -237,6 +231,10 @@ def render() -> str:
         f"{inter}/{union} = {inter / union:.3f} \\\\",
         "\\bottomrule",
         "\\end{tabularx}",
+        f"\\\\[2pt]{{\\footnotesize \\texttt{{\\{{REL\\}}}} is the stored relation "
+        f"placeholder, expanded at generation time to one of {len(relation_terms())} "
+        "ruled relation terms; the counts above are computed from the stored "
+        "form.}",
         "",
     ]
 
@@ -271,12 +269,10 @@ def render() -> str:
         "\\emph{because the authoring record declares them one concept}, not because any",
         "string comparison found them alike, and that is what makes this the case no",
         "similarity rule catches.",
-        "\\textbf{The third line is an expansion, not a corpus row.} The corpus stores",
-        "the placeholder form, and every count above is computed from the stored form:",
-        "substituting a relation term would change the character count and the shared",
-        f"prefix, which is the whole point. {PLACEHOLDER} expands to one of",
-        f"{len(relation_terms())} relation terms ruled per concept, and one is shown so",
-        "the notation explains itself.",
+        "Substituting a relation term for the placeholder would change the character",
+        "count and the shared prefix, which is why the counts are computed from the",
+        "stored form and the expansion is described in the note rather than shown as a",
+        "row.",
         f"\\textbf{{On the choice of {CONCEPT}.}} {REJECTED} gives a cleaner Part B",
         f"(shared prefix 0, longest common substring 25 against {CONCEPT}'s {lcs}) and is",
         "not used because its \\path{english_gloss} in the authoring record is a",

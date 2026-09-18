@@ -225,13 +225,16 @@ quality, negative results, evaluation methodology, reproducibility.
 % Acknowledgements, ethics and data statements. External review Block 6.
 \input{sections/statements}
 
+% REFERENCES BEFORE THE APPENDICES, which is ACL convention and near-universal
+% practice. They sat after the appendices until 2026-09-18, so the bibliography
+% heading began mid-page directly beneath the tail of Appendix I.
+\bibliographystyle{plainnat}
+\bibliography{references}
+
 \appendix
 % Switched on here, so only appendix sections carry the word.
 \newcommand{\sectionprefix}{Appendix~}
 \newcommand{\sectionsuffix}{:}
 \input{sections/appendix}
-
-\bibliographystyle{plainnat}
-\bibliography{references}
 
 \end{document}

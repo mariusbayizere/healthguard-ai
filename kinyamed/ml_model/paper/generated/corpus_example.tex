@@ -33,15 +33,13 @@ Person & Phrasing & Characters \\
 \midrule
 first & Mfite umuriro kandi mfite uduheri ku mubiri wose. & 49 \\
 third & \texttt{\{REL\}} afite umuriro n'uduheri ku mubiri wose. & 45 \\
-\addlinespace
-\multicolumn{3}{l}{\emph{one expansion of the third-person row, shown to explain the notation:}} \\
-\emph{expansion} & \emph{Umwana wanjye afite umuriro n'uduheri ku mubiri wose.} & \emph{--} \\
 \midrule
 \multicolumn{2}{l}{Shared prefix} & \textbf{0} \\
 \multicolumn{2}{l}{Longest common substring} & 23 \\
 \multicolumn{2}{l}{Word Jaccard} & 4/10 = 0.400 \\
 \bottomrule
 \end{tabularx}
+\\[2pt]{\footnotesize \texttt{\{REL\}} is the stored relation placeholder, expanded at generation time to one of 8 ruled relation terms; the counts above are computed from the stored form.}
 
 \caption{What a frame permutation is, and what no similarity rule catches.
 \textbf{Part A.} All 446 rows built on this seed carry the label
@@ -63,12 +61,10 @@ in one phrase group
 \emph{because the authoring record declares them one concept}, not because any
 string comparison found them alike, and that is what makes this the case no
 similarity rule catches.
-\textbf{The third line is an expansion, not a corpus row.} The corpus stores
-the placeholder form, and every count above is computed from the stored form:
-substituting a relation term would change the character count and the shared
-prefix, which is the whole point. {REL} expands to one of
-8 relation terms ruled per concept, and one is shown so
-the notation explains itself.
+Substituting a relation term for the placeholder would change the character
+count and the shared prefix, which is why the counts are computed from the
+stored form and the expansion is described in the note rather than shown as a
+row.
 \textbf{On the choice of IF05.} EX24 gives a cleaner Part B
 (shared prefix 0, longest common substring 25 against IF05's 23) and is
 not used because its \path{english_gloss} in the authoring record is a
