@@ -14,18 +14,18 @@
 Each subsection states a finding, the measurement that establishes it, and the
 script and report it comes from. All of it re-derives from a clean clone with
 \texttt{make reproduce} (eight steps, verified on a machine with no prior state;
-\texttt{ml\_model/reproduce.py}).
+\path{ml_model/reproduce.py}).
 
 \subsection{A corpus requirement stated in rows does not constrain quality}
 \label{sec:res:seeds}
 
 Our functional requirement asks for at least 1{,}000{,}000 unique examples.
 Generating them took 130 seconds and passed the generator's own quality targets
-(\texttt{dataset/generate\_large\_dataset.py}).
+(\path{dataset/generate_large_dataset.py}).
 
 We then ran that corpus against the nine corpus-quality gates written in the same
-specification (\texttt{dataset/corpus\_gates.py}, 19 tests;
-\texttt{reports/PRELIMINARY\_RESULTS.md}). No gate was waived, and a gate that
+specification (\path{dataset/corpus_gates.py}, 19 tests;
+\path{reports/PRELIMINARY_RESULTS.md}). No gate was waived, and a gate that
 cannot be computed from the data at hand is reported as such rather than as a
 pass. Table~\ref{tab:gates} gives the outcome.
 
@@ -36,24 +36,24 @@ pass. Table~\ref{tab:gates} gives the outcome.
 \toprule
 Gate & What it constrains & Outcome on our corpus \\
 \midrule
-G1 & rows per seed ($\leq 50$; no seed above 0.1\%) & \textbf{FAIL}: worst seed 8{,}975 rows, 26.07\% of the evaluation split \\
-G2 & distinct seeds per language ($\geq 3{,}000$) & \textbf{FAIL}: 15 in the evaluation split, 150 in train, 165 in the whole inventory \\
-G3 & lexical diversity against the pilot's floor & not computable, because the pilot that defines the floor does not exist \\
-G4 & near-duplicate seeds ($\leq 2\%$ at Jaccard 0.85) & pass: 0 of 15 \\
-G5 & machine person-transformation banned & \textbf{FAIL}: no recorded origin per row \\
-G6 & frame consistent with reporter and age group & not computable: neither is recorded \\
-G7 & per-row provenance complete & \textbf{FAIL}: no seed, origin, author or validator fields \\
-G8 & author concentration ($\leq 20\%$ per cell) & \textbf{FAIL}: the corpus has no authors \\
-G9 & surface variation (case, punctuation, spacing, typos) & \textbf{FAIL}: 0 capitalised rows, 0 with stray spacing, no typos \\
+C1 & rows per seed ($\leq 50$; no seed above 0.1\%) & \textbf{FAIL}: worst seed 8{,}975 rows, 26.07\% of the 34{,}425-row test split \\
+C2 & distinct seeds per language ($\geq 3{,}000$) & \textbf{FAIL}: 15 in the test split, 150 in train, 165 in the whole inventory \\
+C3 & lexical diversity against the pilot's floor & not computable, because the pilot that defines the floor does not exist \\
+C4 & near-duplicate seeds ($\leq 2\%$ at Jaccard 0.85) & pass: 0 of 15 \\
+C5 & machine person-transformation banned & \textbf{FAIL}: no recorded origin per row \\
+C6 & frame consistent with reporter and age group & not computable: neither is recorded \\
+C7 & per-row provenance complete & \textbf{FAIL}: no seed, origin, author or validator fields \\
+C8 & author concentration ($\leq 20\%$ per cell) & \textbf{FAIL}: the corpus has no authors \\
+C9 & surface variation (case, punctuation, spacing, typos) & \textbf{FAIL}: 0 capitalised rows, 0 with stray spacing, no typos \\
 \bottomrule
 \end{tabular}
 \caption{The nine corpus gates against the generated corpus. Four fail as
 generated; six fail on the split whose rows can be attributed to a source
-sentence, which is where G1, G2 and G4 become computable.}
+sentence, which is where C1, C2 and C4 become computable.}
 \label{tab:gates}
 \end{table}
 
-The binding gate, G2, counts \emph{distinct authored seed phrases} rather than
+The binding gate, C2, counts \emph{distinct authored seed phrases} rather than
 rows. Our generator has 165. Table~\ref{tab:seeds} follows that constraint
 through.
 
@@ -62,7 +62,7 @@ through.
 \small
 \begin{tabular}{rrlr}
 \toprule
-Seeds available & Rows allowed by G1 & Passes G2? & Largest passing corpus \\
+Seeds available & Rows allowed by C1 & Passes C2? & Largest passing corpus \\
 \midrule
 \textbf{165 (ours)} & 8{,}250 & \textbf{no} (needs 3{,}000) & \textbf{0 rows} \\
 3{,}000 & 150{,}000 & yes & 150{,}000 \\
@@ -86,7 +86,7 @@ The gates do not demand twenty thousand sentences; the row target does. Reaching
 that target requires 19{,}835 further seed phrases; at the authoring rates assumed in
 our clinician brief (two to three minutes per item, an assumption and not a
 measurement) that is on the order of 660 to 990 clinician-hours. Even at
-20{,}000 seeds the generated corpus would still fail G5, G7, G8 and G9, which
+20{,}000 seeds the generated corpus would still fail C5, C7, C8 and C9, which
 constrain how a row is made (its origin, its provenance, its author, its
 surface form) rather than how many rows exist.
 
@@ -101,7 +101,7 @@ demands. The remedy is small: constrain seeds, and let the row count follow.
 \label{sec:res:eval}
 
 Our evaluation set is 17{,}942 rows built from nine distinct source sentences,
-four of them carrying the critical label (\texttt{reports/DATASET\_AUDIT.md}).
+four of them carrying the critical label (\path{reports/DATASET_AUDIT.md}).
 Our deployment gate counts distinct source sentences rather than rows and
 computes its intervals by resampling sentences
 (\texttt{training/evaluate.py}). On this set it refuses 38 of its cells and
@@ -109,24 +109,45 @@ reports no metric at all; the refusal is reproduced from a clean clone as step
 seven of \texttt{make reproduce}.
 
 The required sizes are derived rather than asserted
-(\texttt{training/eval\_spec.py}, whose power calculations are recomputed by a
+(\path{training/eval_spec.py}, whose power calculations are recomputed by a
 test): 710 distinct sentences for overall accuracy, 365 gold critical items per
 pure language for critical recall at the stated threshold, and 720 for the
 critical-to-routine rate. Nine sentences is not a small sample of the required
 set; it is three orders of magnitude below it on the axis that matters.
 
+\paragraph{Two sets, and which is which.} Three names appear in this paper for
+two sets, and they are not interchangeable.
+
+\begin{itemize}
+\item The \textbf{test split}: 34{,}425 rows built from 15 distinct seed
+  phrases. This is what the corpus gates in Table~\ref{tab:gates} are measured
+  against.
+\item The \textbf{reporting set}: 17{,}942 rows from 9 distinct sentences, in 5
+  phrase groups. Every per-class metric in this paper is measured on this.
+\end{itemize}
+
+The second is a subset of the first. Three phrase groups of the test split are
+held out as the stopping set during training, so the reporting set is the test
+split minus the sentences whose loss selected the checkpoint. Reporting on the
+whole test split would mean reporting on rows that chose the model.
+
+That is why a share of one is not a share of the other: the largest seed is
+26.07\% of the test split and 50.02\% of the reporting set, and quoting either
+figure without naming its denominator makes the concentration look like a
+different problem than it is.
+
 \paragraph{Seed provenance, stated before any metric.} Train and test share no
 seed: 150 distinct source phrases and 295{,}575 rows against 15 and 34{,}425,
 with zero shared seeds and zero test rows built from a shared seed
-(\texttt{dataset/seed\_provenance.py}). Disjoint is not independent. Both splits
+(\path{dataset/seed_provenance.py}). Disjoint is not independent. Both splits
 come from one generator and one 165-phrase inventory, so any metric measured
 across them would describe generalisation within the generator's distribution.
-The largest single seed accounts for 26.07\% of the test split.
+The largest single seed accounts for 26.07\% of that 34{,}425-row test split.
 
 \paragraph{The floor a number would have to clear.} A constant classifier that
 always answers the most frequent class scores 0.4995 on that evaluation set and
 0.3418 on the wider generated split (\texttt{reports/measurements/}
-\texttt{majority\_baseline.py}, labels only, no model). We record these so that
+\path{majority_baseline.py}, labels only, no model). We record these so that
 any future number is read against them.
 
 \paragraph{A single-condition gate certifies the wrong model.} Our first
@@ -149,20 +170,41 @@ our own probing harness and read it as single-class collapse until it contradict
 a previously recorded confusion matrix. No metric computed from the model's own
 outputs distinguishes the two cases. Our probe now measures the vocabulary size
 and the unknown-token rate of the tokenizer it actually loaded and fails loudly
-(\texttt{training/probe.py}; \texttt{reports/MODEL\_AUDIT.md} §11.1).
+(\texttt{training/probe.py}; \path{reports/MODEL_AUDIT.md} §11.1).
 
-\paragraph{Surface fragility, traced to the corpus.} The same probe measures
-whether the predicted class survives surface variation. On 200 sampled inputs,
-the predicted urgency changes for 31.5\% under capitalisation and 21.0\% under a
-single realistic typo, for 5.0\% when punctuation is removed, and for none under
-extra whitespace, the one variant the tokenizer normalises away, which is what
-makes the other three a property of the training data rather than of the
-tokenizer. The corpus contains zero capitalised rows, zero rows with stray
-spacing and no typographical noise at all (Table~\ref{tab:gates}, G9). A patient
-typing in capitals or mistyping a word is not making a clinical statement. We
-record this as a corpus-health signal and not as a quality metric, and we do not
-propose normalising input at serving time: that would hide the fragility and
-discard information the tokenizer is case-sensitive to.
+\paragraph{Surface fragility.} The same probe measures whether the predicted
+class survives surface variation. On 200 sampled inputs, \textbf{drawn from 9
+distinct source sentences with no interval reported, because 9 clusters cannot
+support one}, the predicted urgency changes for 31.5\% under capitalisation and
+21.0\% under a single realistic typo, for 5.0\% when punctuation is removed, and
+for none under extra whitespace.
+
+\textbf{We do not claim the corpus caused this.} The corpus does contain zero
+capitalised rows, zero rows with stray spacing and no typographical noise at all
+(Table~\ref{tab:gates}, C9), and that is a plausible contributor. But at least
+two other explanations are available on the same evidence, and nothing we
+measured separates them:
+
+\begin{itemize}
+\item the tokenizer is \textbf{cased}, so capitalisation changes the token
+  sequence before the model sees it. That is a different input, not a fragile
+  response to the same one;
+\item the artefact's confidence \textbf{never exceeded 0.55} on the critical
+  class (Section~\ref{sec:future:calibration}), so it sits close to its own
+  decision boundary throughout, where small input changes flip the argmax for
+  reasons that have nothing to do with the training data.
+\end{itemize}
+
+Whitespace flipping for none is consistent with the tokenizer normalising it
+away, which is a fact about the tokenizer rather than evidence about the corpus.
+Separating these would need a probe against a cased and an uncased tokenizer, or
+a model whose confidence is not pinned near the boundary; we ran neither.
+
+We therefore report the flip rates as a measurement and not as an attribution. A
+patient typing in capitals or mistyping a word is not making a clinical
+statement, so we record this as a corpus-health signal and not as a quality
+metric, and we do not propose normalising input at serving time: that would hide
+the fragility and discard information the tokenizer is case-sensitive to.
 
 \subsection{What we do not claim}
 \label{sec:res:none}

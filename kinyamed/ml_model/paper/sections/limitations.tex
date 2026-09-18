@@ -15,8 +15,9 @@
 \paragraph{1. The evaluation set is nine sentences.} Rows built from one source
 sentence are frame permutations of each other, not independent observations, so
 the quantity governing every interval is the number of distinct sentences.
-Section~\ref{sec:limits:base} gives the counts, generated from the frozen split.
-Our own gate, which counts distinct sentences, refuses 38 of its cells on this set
+The paragraph \emph{How many distinct sentences each figure rests on}, below,
+gives the counts, generated from the frozen split.
+Our own gate, which counts distinct sentences, refuses 38 of its cells on this set (a \emph{cell} is one language crossed with one urgency class, the unit the gate requires a minimum count of before it will report)
 and reports nothing; the sizes it requires are derived rather than asserted:
 710 distinct sentences for overall accuracy, 365 gold critical items per pure
 language for critical recall, 720 for the critical-to-routine rate.
@@ -25,10 +26,22 @@ offered.} Every figure we report is a property of a corpus, of a specification, 
 of an artefact's behaviour under perturbation, never of a model's clinical
 performance.
 
-\paragraph{2. No validated instrument authorises the construct.} We could not
-locate any validated instrument for assigning urgency from a patient's own
-written description without examination
-(Section~\ref{sec:related:instruments}). The instrument our specification named,
+\paragraph{2. No validated instrument authorises this construct.} Validated
+triage instruments exist, and we do not claim otherwise. Telephone triage
+protocols are in routine clinical use, nurse-led telephone triage has been
+studied for decades, and symptom checkers have been audited against clinical
+vignettes. What we could not locate is an instrument validated for the specific
+task this system performs: assigning urgency from a patient's own \emph{written}
+free text, in the patient's own words, without examination and without a
+clinician in the loop asking follow-up questions
+(Section~\ref{sec:related:instruments}).
+
+The difference is not a technicality. Telephone triage is interactive: the nurse
+can ask, disambiguate, and hear how the patient sounds. Symptom-checker audits
+are typically run against vignettes written by clinicians rather than text
+written by patients. Neither supplies a reference standard for a single
+unprompted sentence typed by the person who is unwell, which is the only input
+this system receives. The instrument our specification named,
 WHO ETAT, is defined on examination signs, addresses children, and rules
 explicitly against substituting a caretaker's history for observation.
 \textbf{Every urgency label in this work is therefore an unvalidated
@@ -44,7 +57,7 @@ patients present. The corpus is Kinyarwanda only, and no second speaker has
 reviewed it, so inter-rater agreement on anything (labels, naturalness,
 register) is unmeasured because there is no second rater.
 
-\subsection{How many distinct sentences each figure rests on}
+\paragraph{How many distinct sentences each figure rests on}
 \label{sec:limits:base}
 
 The counts below are regenerated from the frozen split by the emitter, so they
@@ -68,14 +81,15 @@ anything:
 \begin{itemize}
 \item critical recall $\geq 0.91$ in each pure language;
 \item critical-to-routine rate $< 1.0\%$;
-\item inference latency p50 $< 150$\,ms and p95 $< 200$\,ms;
+\item inference latency p50 $< 150$\,ms and p95 $< 200$\,ms (\emph{two} numbers, and the reason the count below is six across five bullets);
 \item a cost ratio of 10:1 for a missed critical against any other error, which
   is the quantity that selects the served decision thresholds;
 \item the requirement of 1{,}000{,}000 examples, which is the case this paper
   examines in detail.
 \end{itemize}
 
-We report this as one systemic failure with six instances rather than six
+We report this as one systemic failure with six instances across five bullets,
+the latency requirement carrying two, rather than six
 unrelated slips, and we do not exempt ourselves from it. The first four were
 inherited from a requirements document written before any measurement; the fifth
 is an engineering default we chose; the sixth we met in 130 seconds while failing
@@ -85,9 +99,9 @@ gates if we do not trust the requirements, and the next subsection is that answe
 \subsection{The gates are engineering defaults, not validated instruments}
 
 The nine corpus gates are our own construction. Two have a derivation we would
-defend (G1's cap on rows per seed and G2's floor on distinct seeds follow from
+defend (C1's cap on rows per seed and C2's floor on distinct seeds follow from
 the cluster structure that governs an interval), and the rest are defaults
-chosen by judgement. \textbf{G9's thresholds are placeholders}: the shares of
+chosen by judgement. \textbf{C9's thresholds are placeholders}: the shares of
 capitalised, unpunctuated, mis-spaced and mistyped items it requires were set by
 us, not measured, and they should be replaced by the distribution a real pilot
 exhibits once one exists. The near-duplicate threshold, the author-concentration
@@ -112,7 +126,7 @@ demonstrate it.} Whether other generators, other languages or other teams hit th
 same wall at the same place is untested, and a reader should treat the general
 form as an argument to be checked rather than a result we have established.
 
-\subsection{Figures that cannot be re-run}
+\paragraph{Figures that cannot be re-run}
 
 The Phase~0 audit measured model accuracy, per-class recall, phrase-cluster
 confidence intervals, calibration error and latency with scripts that were never
@@ -141,11 +155,15 @@ Roughly half the phrases are authored directly by the speaker and the remainder
 are machine drafts under that speaker's approval, recorded per phrase in the
 repository. We give no percentage: the per-phrase provenance is recorded, but no
 committed script prints the split, so any figure here would be \textbf{NOT
-REPRODUCIBLE}. Eight phrases carry an unresolved hold or a flag for clinician
-review and are nonetheless in the corpus.
+REPRODUCIBLE}. \CorpusFlaggedOnly{} rows of the authoring record carry a flag for clinician
+review without a hold, and \CorpusFlaggedInInventory{} of those are in the
+corpus: a flag records an open clinical question, not a withdrawal. The
+remainder generate nothing for a different reason, being ruled inapplicable or
+not yet written. Held rows generate nothing by definition.
 
-\paragraph{No clinician has signed off on anything.} Twenty-five rows are
-flagged as needing clinical review and twenty-three are held pending decisions.
+\paragraph{No clinician has signed off on anything.} \CorpusFlagged{} rows are
+flagged as needing clinical review and \CorpusHeld{} are held pending decisions;
+\CorpusFlaggedAndHeld{} are both.
 The open questions are not cosmetic: whether fetal demise belongs in a triage
 taxonomy at all, whether a patient reporting their own new confusion is
 meaningfully confused, whether high fever with refusal to eat is urgent or

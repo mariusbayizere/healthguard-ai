@@ -178,6 +178,138 @@ def test_no_em_dash_reaches_the_pdf() -> None:
     assert not offenders, f"em dashes would be typeset in: {offenders}"
 
 
+def typeset_body(name: str) -> str:
+    """The part of a file that reaches the page.
+
+    Comments go, then math, then the arguments of the macros that take a label,
+    a key or a verbatim path rather than prose. What is left is what a reader
+    sees, which is the only place an underscore rule can be enforced.
+    """
+    body = re.sub(r"(?m)(?<!\\)%.*$", "", read(name))
+    # \makeatletter ... \makeatother holds macro definitions, not prose. The
+    # \RequireGenerated error message names the emitter and its output file;
+    # that text goes to the build log, never to the page.
+    body = re.sub(r"(?s)\\makeatletter.*?\\makeatother", " ", body)
+    body = re.sub(r"\$[^$]*\$", " ", body)
+    body = re.sub(r"(?s)\\\[.*?\\\]", " ", body)
+    for macro in (
+        "input",
+        "label",
+        "ref",
+        "cite",
+        "citep",
+        "path",
+        "url",
+        "bibliography",
+        "bibliographystyle",
+        "RequireGenerated",
+        "usepackage",
+        "documentclass",
+        "hypersetup",
+        "newcommand",
+        "renewcommand",
+        "GenericError",
+    ):
+        body = re.sub(rf"\\{macro}\b(\[[^\]]*\])?(\{{[^{{}}]*\}})?", " ", body)
+    return body
+
+
+# Extensions that make a token a file path rather than a word.
+PATH_SUFFIXES = ("py", "md", "tex", "json", "csv", "pdf", "txt", "yml", "yaml")
+
+
+def test_no_bare_underscore_is_typeset() -> None:
+    """A bare `_` outside math stops the build, or prints as a subscript.
+
+    Every underscore that reaches the page must be inside \\path{...}, which
+    takes its argument verbatim. This is the cheap half of the rule; the
+    expensive half is that a path written any other way loses the character
+    silently, which is what the next test is for.
+    """
+    offenders: list[str] = []
+    for name in ["main.tex", *sorted(reached("main.tex"))]:
+        for line_no, line in enumerate(typeset_body(name).splitlines(), 1):
+            if re.search(r"(?<!\\)_", line):
+                offenders.append(f"{name}:{line_no}: {line.strip()[:90]}")
+    assert not offenders, "a bare underscore would be typeset:\n" + "\n".join(offenders)
+
+
+def test_every_file_path_is_written_with_path() -> None:
+    """File paths go in \\path{...}, never \\texttt{...} with escaped underscores.
+
+    WHY THIS FILE'S RULE IS \\path AND NOT \\texttt. The compiled v2 PDF printed
+    `eval_spec.py` as `evalspec.py`, and the same for nine other scripts: the
+    sources escaped the underscore correctly as `\\_`, but the document had no
+    T1 font encoding, so the glyph was not reliably there to set. A paper whose
+    argument is that a reader must be able to re-run the code was naming the
+    code under names that do not exist.
+
+    fontenc is now loaded, which fixes the glyph. This test fixes the class:
+    \\path takes its argument verbatim, so a path is written exactly as it
+    appears on disk and there is no escape to forget or lose.
+    """
+    suffixes = "|".join(PATH_SUFFIXES)
+    looks_like_a_path = re.compile(rf"[\w/\\.-]+\\?_[\w/\\.-]*\.({suffixes})\b")
+    offenders: list[str] = []
+    for name in ["main.tex", *sorted(reached("main.tex"))]:
+        # typeset_body already drops comments, math, definitions and the
+        # macros whose arguments are keys rather than prose, \path among them.
+        body = typeset_body(name)
+        for match in looks_like_a_path.finditer(body):
+            offenders.append(f"{name}: {match.group(0)}")
+    assert not offenders, (
+        "file paths with an underscore must be written \\path{...} so the "
+        "character cannot be lost: " + "; ".join(offenders)
+    )
+
+
+def test_fontenc_is_loaded_before_the_document_body() -> None:
+    """T1 is what makes the underscore glyph available at all.
+
+    Without it the two tests above can pass on sources that still print the
+    wrong thing, because the defect is in the encoding rather than the markup.
+    """
+    main = re.sub(r"(?m)(?<!\\)%.*$", "", read("main.tex"))
+    assert "\\usepackage[T1]{fontenc}" in main, (
+        "T1 font encoding is not loaded; underscores in typewriter text are "
+        "not reliably available under the default OT1 encoding"
+    )
+    assert "\\usepackage{url}" in main, (
+        "the url package is not loaded, so \\path is undefined"
+    )
+    assert main.index("\\usepackage[T1]{fontenc}") < main.index("\\begin{document}")
+
+
+def test_arxiv_abstract_fits_the_submission_field() -> None:
+    """The abstract must fit arXiv's 1,920-character field, and match the paper.
+
+    arXiv truncates a longer abstract silently. The compiled v2 abstract was
+    2,768 characters, so the submitted version would have lost its last third,
+    including the sentence saying that no figure in the paper is evidence of
+    model quality. That is the one sentence least safe to lose.
+
+    reports/ARXIV_ABSTRACT.txt is emitted from sections/abstract.tex rather than
+    written beside it, so the two cannot disagree.
+    """
+    sys.path.insert(0, str(PAPER))
+    emit = pytest.importorskip("emit_arxiv_abstract")
+
+    rendered = emit.render()
+    length = len(rendered.rstrip("\n"))
+    assert length <= emit.ARXIV_LIMIT, (
+        f"the abstract is {length:,} characters; arXiv accepts "
+        f"{emit.ARXIV_LIMIT:,} and truncates the rest without warning"
+    )
+
+    committed = emit.OUT
+    assert committed.exists(), (
+        "reports/ARXIV_ABSTRACT.txt is missing; run paper/emit_arxiv_abstract.py"
+    )
+    assert committed.read_text(encoding="utf-8") == rendered, (
+        "reports/ARXIV_ABSTRACT.txt is stale; re-run paper/emit_arxiv_abstract.py"
+    )
+
+
 def test_hyperref_draws_no_visible_border() -> None:
     """hidelinks is set after hyperref loads, and nothing re-enables borders.
 

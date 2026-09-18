@@ -28,6 +28,16 @@
 \documentclass[11pt]{article}
 
 \usepackage[margin=1in]{geometry}
+% T1 SO THAT UNDERSCORES SURVIVE. Under the default OT1 encoding an underscore
+% in typewriter text is not reliably available as a glyph, and the compiled v2
+% PDF dropped it from every file path it printed: a paper about reproducibility
+% was naming scripts that do not exist under the names it gave. T1 gives the
+% character outright.
+\usepackage[T1]{fontenc}
+% \path{...} for file paths and identifiers. It takes the characters verbatim,
+% so a path is written the way it appears on disk with nothing to escape, and
+% no future path can lose an underscore to a forgotten backslash.
+\usepackage{url}
 \usepackage{booktabs}   % \toprule \midrule \bottomrule, used by every table
 \usepackage{amsmath}    % \[ \] and \frac, used by the gate derivation
 \usepackage[numbers,sort&compress]{natbib}
@@ -81,6 +91,10 @@
 % the one place where a regenerated figure could silently disagree with the
 % text around it.
 \input{generated/results_macros}
+% Corpus counts, emitted from the authoring record by
+% review/emit_corpus_counts.py. They were hand-typed and went stale; see
+% reports/EXTERNAL_REVIEW.md D2.
+\input{generated/corpus_counts}
 
 \RequireGenerated{ResultFingerprint}
 
@@ -96,11 +110,15 @@
 \title{\textbf{KinyaMed: Seeds, Not Rows}\\
 \large What a Corpus Requirement Written in the Wrong Unit Fails to Constrain%
 \thanks{Build fingerprint \texttt{\ResultFingerprint}. Every number in this paper
-re-derives from a clean clone of the repository with \texttt{make reproduce}.}}
+re-derives from a clean clone of the repository with \texttt{make reproduce},
+except those marked \textbf{NOT REPRODUCIBLE} where they appear: a small number
+of figures rest on artefacts that were never committed.}}
 \author{Marius Bayizere\\
   Independent Researcher, Kigali, Rwanda\\
   \texttt{bayizeremarius119@gmail.com}\\
-  \url{https://github.com/mariusbayizere/healthguard-ai}}
+  \url{https://github.com/mariusbayizere/healthguard-ai}\\
+  {\small The system is named KinyaMed; the repository retains its original
+  name, \texttt{healthguard-ai}. They are the same artefact.}}
 \date{\today}
 
 \begin{document}
@@ -128,6 +146,9 @@ quality, negative results, evaluation methodology, reproducibility.
 \input{sections/limitations}
 \input{sections/future_work}
 \input{sections/conclusion}
+
+% Acknowledgements, ethics and data statements. External review Block 6.
+\input{sections/statements}
 
 \appendix
 \input{sections/appendix}

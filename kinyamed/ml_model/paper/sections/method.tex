@@ -59,15 +59,19 @@ speaker-authored and machine-drafted material stay distinguishable in the record
 precisely so that a paper can report them separately, and elsewhere in this
 repository the corpus is described as ``165 speaker-authored phrases''. Against
 the per-phrase provenance column that description overstates the speaker's
-contribution by roughly half, and we do not use it. Eight of the 165 phrases
-additionally carry an unresolved hold or a flag for clinician review.
+contribution by roughly half, and we do not use it.
+\CorpusFlaggedInInventory{} of the \CorpusInventory{} phrases additionally carry
+a flag for clinician review. None carries a hold: a held row generates nothing,
+so no held row is in the inventory at all. Appendix~\ref{app:person} counts
+flags over the whole authoring record, where the figure is larger because it
+includes rows that generate no phrase.
 
 \subsection{Concept taxonomy and clinical anchoring}
 
 Phrases are organised under concepts, and concepts are anchored to published
 clinical guidance wherever guidance exists for the presentation.
 
-\paragraph{The concept total is not established, and we do not assert one.} Our
+\paragraph{The concept total is not established, and we do not assert one.}\label{sec:method:concepts} Our
 own audit found the concept count recorded with \textbf{five different values}
 across this repository (68, 80, 126, 127 and 128) in documents that each
 describe the same spine. A paper cannot quote one of five and call it a
@@ -115,18 +119,87 @@ Section~\ref{sec:related}: the assignments that would justify naming them have
 never been checked against the sources. The licence analysis that produced the
 no-reproduction rule is recorded in the repository.
 
-\subsection{Person, and the rulings that remove rows}
+\paragraph{Person, and the rulings that remove rows}
 
 A speaker's rulings on grammatical person remove whole concepts and restrict which
 relations may appear. The rulings, the concept-collapse table and the relation
 restrictions are in Appendix~\ref{app:person}.
 
-\subsection{The other three language arms, as built}
+\paragraph{The other three language arms, as built}
 
 The corpus reported here is Kinyarwanda; the frame fragments that wrap a phrase
 are authored for that language alone, so \textbf{no other arm can generate a
 single row}, and the component-by-component position is in
 Appendix~\ref{app:arms}.
+
+\subsection{Model, training configuration and environment}
+\label{sec:method:training}
+
+Stated in full so the run can be repeated. Every value is the one recorded in
+the run's own report, not a value retyped from a configuration file.
+
+\paragraph{Encoder.} \texttt{Davlan/afro-xlmr-mini}
+\cite{alabi2022afroxlmr}, fine-tuned for
+three-class sequence classification. The whole embedding module is frozen:
+96{,}199{,}296 parameters of 117{,}641{,}859, being the
+250{,}002\,$\times$\,384 word-embedding table (96{,}000{,}768) together with
+the position and token-type tables and the embedding LayerNorm. The lowest 8
+transformer layers are frozen as well, leaving 7{,}246{,}851 trainable
+parameters in the reported configuration.
+
+\paragraph{Hyperparameters.} Learning rate $1\times10^{-5}$; batch size 16;
+maximum sequence length 96 tokens; one epoch with a 2{,}000-step cap, stopping
+at 1{,}150 steps; warmup ratio 0.06; weight decay 0.01; seed 42 for both
+training and the split. The reported checkpoint is step 900, selected on
+stopping-set loss (0.5786), not the final step.
+
+\paragraph{Environment.} Python 3.11; \texttt{torch} 2.12.0+cpu,
+\texttt{transformers} 5.8.1, \texttt{scikit-learn} 1.8.0, \texttt{numpy}
+2.4.4, all pinned exactly. CPU only; no GPU was used at any point.
+
+\paragraph{Sequence length is a choice with a cost.} Kinyarwanda is
+agglutinative and tokenises long. At 96 tokens some inputs truncate, and the
+truncation rate per language is \textbf{NOT YET MEASURED}. A model that never
+sees the end of a sentence cannot be said to have read it, so this is a
+measurement we owe rather than a parameter we defend.
+
+\subsection{Why the evaluation set must be the size it is}
+\label{sec:method:power}
+
+The figures 710, 365 and 720 come from exact binomial power calculations, and
+the assumptions behind them are stated here because a sample size quoted
+without its assumptions is exactly the kind of number this paper is about.
+
+\paragraph{The common assumptions.} Confidence 0.95, two-sided, so 0.025 in
+each tail. A threshold counts as met only when the \emph{lower} end of the
+interval clears it, which is why an observed value exactly at the threshold
+never passes. Power $\geq 0.80$, and required to hold at that $n$ and at the
+next nine, so a minimum is not an isolated lucky point on the power curve.
+Intervals are exact binomial (Clopper--Pearson), not normal approximations,
+because the rates of interest sit close to 0 and 1 where the approximation
+fails.
+
+\paragraph{The three figures.}
+\begin{itemize}
+\item \textbf{710}, overall accuracy at a 0.82 threshold, assuming a true
+  accuracy of 0.86.
+\item \textbf{365}, CRITICAL recall at a 0.91 threshold in \emph{each} pure
+  language, assuming a true recall of 0.95. The assumption is load-bearing: at a
+  true 0.93 the requirement is 1{,}535, and at 0.97 it is 145.
+\item \textbf{720}, the CRITICAL-to-ROUTINE rate below 0.01, assuming a true
+  rate of 0.002. With zero observed events 368 would suffice; at a true 0.5\%
+  it is 2{,}470.
+\end{itemize}
+
+\paragraph{Clustering is not modelled, and that makes these numbers
+optimistic.} The calculations above treat items as independent. Our rows are
+not: they are generated from a small inventory of seed phrases, so rows sharing
+a seed are correlated, and the effective sample size is closer to the number of
+distinct seeds than to the number of rows. No intra-cluster correlation
+coefficient has been estimated, so no design effect is applied. \textbf{Every
+minimum above should therefore be read as a floor on a floor.} This is the same
+failure the corpus gates exist to prevent, appearing in the evaluation
+specification instead of in the corpus.
 
 \subsection{Split and leakage control}
 

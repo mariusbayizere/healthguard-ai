@@ -111,22 +111,24 @@ class, and a model that does so passes while destroying every distinction the
 system exists to make. The gate did not fail to notice over-triage; it had no
 term in which over-triage could be expressed.
 
-\paragraph{The degenerate baseline has a closed form and should be computed
-rather than guessed.} What made this diagnosable rather than arguable is that
-merging two classes and labelling the union with the protected class scores a
+\paragraph{The merge strategy's precision has a closed form and should be
+computed rather than guessed.} What made this diagnosable rather than arguable is
+that merging two classes and labelling the union with the protected class scores a
 predictable precision on any evaluation set, namely the protected class's share of
 the merged support. We could therefore say not that the model \emph{resembled}
-the degenerate strategy but that it sat below that strategy's own ceiling on
-those exact rows. We would report this quantity beside any single-class recall
-figure: it is defined for any confusion matrix and converts a judgement call
-into arithmetic.
+the degenerate strategy but that it sat below that strategy's own precision on
+those exact rows. This is the precision of one specific strategy and not a
+ceiling on degenerate models in general: a strategy that swept the routine class
+in as well would score lower. We would report the quantity beside any
+single-class recall figure: it is defined for any confusion matrix and converts a
+judgement call into arithmetic.
 
 \paragraph{A hardcoded degeneracy guard drifts out of range.} We had written an
 automated degeneracy check before any of this happened, using a fixed precision
-threshold. It did not fire, because the true ceiling on that evaluation set was
-above the constant we had chosen. The lesson is not that the constant was too
-low but that it was a constant: the ceiling moves with the evaluation set's
-class composition.
+threshold. It did not fire, because the merge strategy's precision on that
+evaluation set was above the constant we had chosen. The lesson is not that the
+constant was too low but that it was a constant: that precision moves with the
+evaluation set's class composition.
 
 \paragraph{The gate certified the worse of two configurations.} The rejected
 configuration kept all three classes alive; the accepted one had abandoned an
@@ -137,7 +139,7 @@ protect. Any process that trusted the gate (an automated
 promotion step, a continuous-integration check, a tired reviewer) would have
 shipped the wrong model with a passing test to point at.
 
-\subsection{The leakage guarantee rests on a declaration, not on a similarity
+\paragraph{The leakage guarantee rests on a declaration, not on a similarity
 rule}
 \label{sec:disc:leakage}
 
@@ -146,7 +148,7 @@ similarity threshold could have made it so, so the guarantee rests on authoring
 metadata instead; the mechanism, its \textbf{NOT REPRODUCIBLE} supporting figure
 and the same shape recurring twice are in Appendix~\ref{app:leakage}.
 
-\subsection{The cost of the configuration search}
+\paragraph{The cost of the configuration search}
 
 Three configurations were trained to completion at a total cost under five hours
 on two CPU cores; the cost, what it does and does not establish, and why a budget
@@ -174,18 +176,22 @@ should verify the encoding at start-up: the vocabulary size and the
 unknown-token rate on a fixed probe string cost nothing to check and are
 decisive.
 
-\paragraph{Surface fragility is a property of the training data that the model
-inherits silently.} A corpus generated to a template has uniform case,
+\paragraph{Surface fragility is cheap to measure and the measurement does not
+identify its cause.} A corpus generated to a template has uniform case,
 punctuation and spacing, and contains no typographical noise. A model trained on
 it can change its answer for a third of inputs on capitalisation alone, and no
 metric computed on that same corpus will show it, because the evaluation rows are
 as uniform as the training rows. The check is cheap (perturb the surface and
-count class changes) and the result is interpretable only against the corpus:
-the variant our tokenizer normalises away changed nothing, which is what
-localises the cause in the data. For low-resource clinical text, where patients
-type on phone keyboards in a language with agglutinative morphology and no
-autocorrect, surface variation is not an edge case but the ordinary condition of
-the input.
+count class changes), which is reason enough to run it. What it does not do is
+locate the cause. As Section~\ref{sec:res:silent} sets out, a cased tokenizer
+and an artefact whose confidence never left the region of its own decision
+boundary account for the same flip rates as well as the corpus does, and we
+measured nothing that separates them; the variant our tokenizer normalises away
+changed nothing, which is a fact about the tokenizer rather than evidence about
+the corpus. For low-resource clinical text, where patients type on phone
+keyboards in a language with agglutinative morphology and no autocorrect,
+surface variation is not an edge case but the ordinary condition of the input,
+which is why the flip rate is worth reporting even while its cause is open.
 
 \paragraph{Neither is visible from the model's own outputs.} This is the common
 shape, and it is why we report both: a system can be wrong in a way that no

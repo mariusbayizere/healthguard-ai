@@ -40,6 +40,9 @@ ORDER = [
     # The appendices were absent from this list until 2026-09-16, so every
     # rendered plain text before that date was main text only and silently
     # short of the appendix material the pointers refer to.
+    # Acknowledgements, ethics and data statements (Block 6). Listed before the
+    # appendix because that is the order main.tex inputs them.
+    "sections/statements.tex",
     "sections/appendix.tex",
 ]
 

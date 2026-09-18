@@ -16,8 +16,10 @@ A nurse facing a full waiting room has to decide who is seen first. We set out t
 build an urgency classifier for patient-voice Kinyarwanda to support that
 decision, and we report instead what we found while trying to build one honestly:
 a specification that could be satisfied without producing anything it was meant
-to secure, an evaluation set that could not support a verdict, and two failure
-modes that leave every signal a practitioner would check looking healthy.
+to secure, an evaluation set that could not support a verdict, and two
+\emph{silent} failure modes, a tokenizer that can be left behind and a
+classifier whose answer moves under surface variation, both of which leave every
+signal a practitioner would check looking healthy.
 
 This is a negative-results and methodology paper. Model numbers appear in it,
 because several of the failures we report are failures about those numbers, but
@@ -30,8 +32,12 @@ seconds. Run against the nine corpus-quality gates written in the same
 specification, that corpus fails four as generated, and six where its rows can be
 attributed to a source sentence. The gate that binds counts \emph{distinct
 authored seed phrases}, and our generator has 165: at that inventory the largest
-corpus passing every gate is zero rows, whatever the row count. The distance to
-the target is 19{,}835 authored sentences, not 999{,}000 rows. We take the
+corpus passing every gate is zero rows, whatever the row count. Two distances
+follow and they are not the same number. Passing the seed-count gate needs
+2{,}835 further authored sentences; reaching the one million rows the
+requirement names needs 19{,}835, because a separate gate caps any one seed at
+50 rows. Neither distance is measured in rows, and the missing 999{,}000 rows
+are not the shortfall that matters. We take the
 general form of this seriously, because it is not specific to our generator:
 expansion is the cheap operation in any templated or model-expanded corpus, so a
 requirement written in rows leaves the expensive quantity, independently
@@ -56,8 +62,10 @@ that set it refuses 38 of its cells and reports nothing. We state the
 distinct-sentence count beside every figure in this paper, and never the row
 count alone.
 
-\paragraph{Two failures worth more than the model.} Both were recorded correctly
-and acted on late.
+\paragraph{Two process failures worth more than the model.} These are a
+different pair from the two silent failure modes above, and the distinction
+matters: those are properties of the artefact, these are failures of our own
+reading. Both were recorded correctly and acted on late.
 
 The first is an evaluation split that never worked. Its manifest recorded that
 100\% of its evaluation rows were built on phrases also present in training:
@@ -93,18 +101,19 @@ of the field, and we make no stronger claim than that.
 that produces it. (2) A derivation of what a held-out set must contain before any
 gate verdict is possible, and the refusal that follows when it does not. (3) Two
 silent failure modes with the checks that detect them. (4) The apparatus itself:
-every number in this paper re-derives from a clean clone with one command.
+every number in this paper re-derives from a clean clone with one command,
+except those marked \textbf{NOT REPRODUCIBLE} where they appear.
 
 \begin{center}
 \fbox{\parbox{0.9\textwidth}{\small\raggedright
 \textbf{Provenance of every number.} No number in this paper is offered as
 evidence of model quality.
 Each number in it is a property of a corpus, a specification, or an artefact's
-behaviour under perturbation, and \texttt{reports/PAPER\_NUMBERS.md} lists every
+behaviour under perturbation, and \path{reports/PAPER_NUMBERS.md} lists every
 one with the committed script or record that produces it. Figures whose script
 was never committed are marked NOT REPRODUCIBLE where they appear, or cut. The
 gate-degeneracy figures are generated macros written by
-\texttt{training/holdout\_eval.py -{}-writeup}; they carry the fingerprint of the
+\path{training/holdout_eval.py} \texttt{-{}-writeup}; they carry the fingerprint of the
 weights, the evaluation data and the commit that produced them.
 }}
 \end{center}

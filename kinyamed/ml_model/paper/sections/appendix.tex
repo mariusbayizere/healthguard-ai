@@ -1,15 +1,25 @@
-% APPENDICES — moved out of the main text 2026-09-17 to keep the preprint short.
-% Each has a one-line pointer where it used to sit.
+% APPENDICES. Each has a one-line pointer in the main text where it is
+% referenced.
 
 \section{Person rulings, concept collapse and relation restrictions}
 \label{app:person}
 
 
-Each concept has a first-person row (the patient speaking) and a third-person row
+The authoring record holds \CorpusRows{} rows. A row is one concept crossed with
+one grammatical person: first person (the patient speaking) or third person
 (someone speaking about them, with the relation carried by a placeholder). Not
-every concept supports both, and 50 of the 256 rows are ruled inapplicable. The
-rulings fall into three groups, and each was made by a named party rather than by
-default.
+every concept supports both, and \CorpusInapplicable{} rows are ruled
+inapplicable.
+
+\textbf{This does not license dividing the row count by two to obtain a concept
+total.} Section~\ref{sec:method:concepts} records that our own audit found the
+concept count stated with five different values across this repository, and
+declines to assert one; deriving 128 here would be asserting one of the five by
+arithmetic instead of by claim. The rulings below are therefore counted in rows,
+which is what the record enumerates.
+
+The rulings fall into three groups, and each was made by a named party rather
+than by default.
 
 \paragraph{Whole concepts collapsed into another (15 concepts, 30 rows).} Where
 two concepts turned out to name one sign, the speaker ruled them one concept and
@@ -59,11 +69,47 @@ three to household members and one to the obstetric set. One concept is held
 pending a decision and one is out of generation pending a service-design question
 about whether men present for family-planning advice in this setting.
 
-\paragraph{Open at the time of writing.} Twenty-three rows are held and 25 carry
-a flag for clinician review. Held rows generate nothing. The flags are of two
-kinds and the distinction is maintained deliberately: some are clinical questions
-about the concept, which any language inherits, and some are doubts about a
-specific Kinyarwanda word, which no other language inherits.
+\paragraph{Open at the time of writing.} Of the \CorpusRows{} rows in the
+authoring record, \CorpusFlagged{} carry a flag for clinician review and
+\CorpusHeld{} are held pending a decision. \textbf{These two sets overlap:
+\CorpusFlaggedAndHeld{} rows are both flagged and held}, \CorpusHeldOnly{} are
+held without a flag, and \CorpusFlaggedOnly{} are flagged without a hold.
+Subtracting the two counts from the row total therefore double-counts the
+overlap.
+
+\paragraph{Reconciling the record to the generating inventory.} A reader
+subtracting the inapplicable and held rows from the row total arrives at
+\CorpusRows{} $-$ \CorpusInapplicable{} $-$ \CorpusHeld{} $=$ 183, which is not
+the \CorpusInventory{} phrases the generator holds, and an earlier version of
+this appendix attributed the difference to the flagged/held overlap above. That
+was wrong: \emph{inapplicable} and \emph{held} are disjoint, no row carries
+both, and the overlap has no bearing on this subtraction. The subtraction is
+short one term. \CorpusUnauthored{} rows are applicable and unheld but carry no
+phrase yet, so they are in scope and not yet written, and \CorpusSecondPhrasings{}
+row contributes a second phrasing, which is an additional corpus phrase rather
+than an additional row. The reconciliation is therefore
+%
+\[ \CorpusRows{} - \CorpusInapplicable{} - \CorpusHeld{} - \CorpusUnauthored{}
+   + \CorpusSecondPhrasings{} = \CorpusInventory{}, \]
+%
+every term of which is emitted from the record by
+\path{review/emit_corpus_counts.py}. That emitter also reads
+\path{dataset/vocabulary.py} and refuses to write if the two disagree, so the
+figure the paper prints and the inventory the generator actually holds cannot
+drift apart without the build saying so. The distinction the subtraction turns
+on is between a row that may not be written and a row that nobody has written
+yet, and only the second is work remaining.
+
+Held and flagged are different states and the distinction is maintained
+deliberately. A \emph{held} row generates nothing until the hold is lifted. A
+\emph{flagged} row may still be in the corpus: the flag records that a clinical
+question about it is open, not that it is withdrawn. That is why the two counts
+above overlap rather than partition, and why \CorpusHeldOnly{} rows are held
+without a flag while \CorpusFlaggedOnly{} are flagged without a hold.
+
+The flags are themselves of two kinds: some are clinical questions about the
+concept, which any language inherits, and some are doubts about a specific
+Kinyarwanda word, which no other language inherits.
 
 
 \section{Code-switching, pair by pair}
@@ -124,9 +170,6 @@ shipped a four-noun inventory as a bilingual corpus.
 \section{Leakage: closure, and the declaration that replaced it}
 \label{app:leakage}
 
-Moved from Section~\ref{sec:discussion}.
-
-
 Our phrase holdout closes over nesting: where one phrase is contained in
 another, or is an ordered subsequence of it, the two are inseparable. That
 closure is computed from the strings and needs no outside knowledge. It is also
@@ -183,9 +226,6 @@ accumulates places to read them should expect more of them.
 \section{The v1 family holdout, in full}
 \label{app:v1leak}
 
-Moved from Section~\ref{sec:method}. The paragraph heading is retained so the
-figures can be read against the summary that now stands in its place.
-
 \paragraph{One of the two evaluation splits never worked, and the manifest
 recorded it from the first commit.} v1 was split two ways, by phrase and by
 family, and presented as two difficulty levels. The family holdout was not a
@@ -195,13 +235,13 @@ evaluation rows was built on a phrase that also appears in training:
 \begin{center}\small
 \begin{tabular}{lr}
 \toprule
-\texttt{eval\_rows\_whose\_phrase\_appears\_in\_train} & 114{,}321 \\
-\texttt{eval\_rows\_leaked\_fraction} & 1.0 \\
-\texttt{phrase\_overlap} & 50 \\
-\texttt{substring\_violations} & 54 \\
+\path{eval_rows_whose_phrase_appears_in_train} & 114{,}321 \\
+\path{eval_rows_leaked_fraction} & 1.0 \\
+\path{phrase_overlap} & 50 \\
+\path{substring_violations} & 54 \\
 \midrule
-\texttt{exact\_text\_overlap} & 0 \\
-\texttt{family\_overlap} & 0 \\
+\path{exact_text_overlap} & 0 \\
+\path{family_overlap} & 0 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -237,8 +277,6 @@ the difference a model improvement.
 \section{The cost of the configuration search}
 \label{app:search}
 
-Moved from Section~\ref{sec:discussion}.
-
 Three configurations were trained to completion, at 115, 70 and 95 minutes on
 two CPU cores. The whole search cost under five hours of compute on a laptop. We
 report no result from any of them: these are costs, recorded in the run records,
@@ -265,9 +303,8 @@ forty times what the task needed.
 \section{The other three language arms}
 \label{app:arms}
 
-Moved from Section~\ref{sec:method} and Section~\ref{sec:future_work}. The first
-part records what each arm contains today; the second records what each would
-still need.
+The first part records what each arm contains today; the second records what
+each would still need.
 
 \subsection{As built}
 
@@ -339,8 +376,6 @@ and the frame slots have not been authored.
 
 \section{The per-sentence diagnostic}
 \label{app:diagnostic}
-
-Moved from Section~\ref{sec:future_work}.
 
 Every configuration trained separated the routine class without error and none
 resolved the critical/urgent boundary. The next diagnostic is per-sentence rather

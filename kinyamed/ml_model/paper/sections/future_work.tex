@@ -74,7 +74,7 @@ today. What the right measure is, and whether any single number can stand for
 diversity in a corpus assembled this way, is open.
 
 \paragraph{What does calibration mean when confidence never reaches the review
-threshold?} Our service refers any prediction below a confidence threshold to a
+threshold?}\label{sec:future:calibration} Our service refers any prediction below a confidence threshold to a
 clinician. The artefact we probed never exceeded 0.55 on the critical class, so
 under that rule every case would be referred: the threshold is not separating
 confident from unconfident predictions, it is refusing all of them. A calibration
@@ -84,13 +84,13 @@ confidence range is indistinguishable from having no model. Whether calibration
 should be reported at all in that regime, and what a useful review threshold
 would be when the distribution is that compressed, we do not know.
 
-\subsection{The other three languages, as they stand}
+\paragraph{The other three languages, as they stand}
 
 None of the other three contributes a row to any result in this paper; their
 status, and the one result the English and French arms did produce, are in
 Appendix~\ref{app:arms}.
 
-\subsection{The diagnostic that costs one inference pass}
+\paragraph{The diagnostic that costs one inference pass}
 
 The next diagnostic is per-sentence rather than per-configuration and costs one
 inference pass rather than another training run; it is described in

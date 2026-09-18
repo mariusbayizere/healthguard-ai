@@ -16,15 +16,19 @@ We met the one-million-example target in 130 seconds with a corpus that fails
 four of the nine quality gates written beside it, and six where its rows can be
 attributed to a source sentence. The gate that binds counts distinct authored
 seed phrases: at our inventory of 165, the largest corpus passing every gate is
-zero rows at any row count, and the distance to the target is 19{,}835 authored
-sentences rather than 999{,}000 rows.
+zero rows at any row count. Two distances follow, both measured in sentences and
+neither in rows. Passing the seed-count gate needs 2{,}835 further authored
+sentences; reaching the one million rows the requirement names needs 19{,}835,
+because a separate gate caps any one seed at 50 rows.
 
 An evaluation set of 17{,}942 rows built from nine distinct sentences supports no
 verdict, and our gate refuses on it rather than reporting a number. A model
 trained on a corpus of uniform surface form changed its predicted urgency for
-31.5\% of inputs under capitalisation alone and 21.0\% under a single typo, while
-the one variant the tokenizer normalises changed nothing, which locates the
-cause in the training data rather than the tokenizer. A model directory shipped
+31.5\% of inputs under capitalisation alone and 21.0\% under a single typo. We
+report those rates as a measurement and not as an attribution: the corpus is a
+plausible contributor, and so are a cased tokenizer and an artefact sitting
+close to its own decision boundary throughout, and we ran no probe that
+separates them. A model directory shipped
 without its tokenizer loads without error and answers its class prior on input it
 cannot read, with well-formed probabilities, deterministic predictions and a
 correct label order; we mistook it for single-class collapse in our own harness
@@ -45,4 +49,7 @@ possible. Until those exist, the honest output of this project is the apparatus
 and the negative results it produced.
 
 Every number in this paper re-derives from a clean clone of the repository with a
-single command.
+single command, except those marked \textbf{NOT REPRODUCIBLE} where they appear.
+Those rest on artefacts that were never committed; we mark them rather than
+quietly dropping them, because an unreproducible figure a reader can see is
+worth more than a gap they cannot.
