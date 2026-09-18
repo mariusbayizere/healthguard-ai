@@ -44,6 +44,11 @@ LANGUAGE_ORDER = ("kinyarwanda", "english", "french", "swahili", "mixed")
 # ---------------------------------------------------------------------------
 # THE TRIAGE GATE
 #
+# NAMED A1-A3 SINCE 2026-09-18. They were G1-G3, which collided with the
+# NINE CORPUS GATES in results.tex -- also G1-G9, and a different set of
+# conditions entirely. Acceptance conditions are A1-A3; corpus gates are
+# C1-C9. External review item B10.
+#
 # WHY IT IS NOT ONE NUMBER ANY MORE. On 2026-09-07 a model PASSED the
 # single-metric gate with CRITICAL recall 0.9749 while having abandoned an
 # entire urgency class: URGENT recall was 0.0083, and 7,633 of 7,793 URGENT
@@ -57,7 +62,7 @@ LANGUAGE_ORDER = ("kinyarwanda", "english", "french", "swahili", "mixed")
 # than dressed up as a derivation.
 # ---------------------------------------------------------------------------
 
-# G1. SOURCE NOT VERIFIED IN THIS REPOSITORY. The value predates this file's
+# A1. SOURCE NOT VERIFIED IN THIS REPOSITORY. The value predates this file's
 # history and carries only the comment "missing a CRITICAL case is the failure
 # that matters". It is CONSISTENT with the trauma field-triage convention of
 # holding under-triage at or below 5%, which would give recall >= 0.95 — but
@@ -67,7 +72,7 @@ LANGUAGE_ORDER = ("kinyarwanda", "english", "french", "swahili", "mixed")
 # than keeping an unsourced one.
 MINIMUM_CRITICAL_RECALL = 0.95
 
-# G2. DERIVED EXACTLY, no judgement in it. Macro F1 is the unweighted mean of
+# A2. DERIVED EXACTLY, no judgement in it. Macro F1 is the unweighted mean of
 # three per-class F1 scores. If any one class is dead its F1 is 0, so
 #
 #     macro F1 <= (1 + 1 + 0) / 3 = 2/3
@@ -83,7 +88,7 @@ MINIMUM_CRITICAL_RECALL = 0.95
 #     min class F1 >= 3 * macro F1 - 2
 #
 # which is 0 just above 2/3 and 0.3172 at the 0.7724 this project measured. So
-# passing G2 proves no class is EXACTLY dead; it does not prove no class is
+# passing A2 proves no class is EXACTLY dead; it does not prove no class is
 # nearly dead. A model at macro 0.672 may carry a class at F1 0.016 and pass.
 # The earlier text called this "the tightest such guarantee available from a
 # single number", which overstates it: it is the tightest guarantee of
@@ -96,7 +101,7 @@ def minimum_class_f1_implied(macro_f1: float) -> float:
     return max(0.0, 3.0 * macro_f1 - 2.0)
 
 
-# G3. DERIVED FLOOR PLUS AN UNDERIVED MARGIN, and the split is the point.
+# A3. DERIVED FLOOR PLUS AN UNDERIVED MARGIN, and the split is the point.
 #
 # The floor is measured, not assumed. A model that merges CRITICAL and URGENT
 # and calls the union CRITICAL scores, by construction,
@@ -139,7 +144,7 @@ def merge_strategy_precision(support: dict[str, float]) -> float:
 
 
 def g3_is_satisfiable(support: dict[str, float]) -> bool:
-    """Whether ANY model could pass G3 on this evaluation set.
+    """Whether ANY model could pass A3 on this evaluation set.
 
     When CRITICAL rows dominate the two urgent classes, the merge strategy
     already scores near 1.0 and the floor (its precision plus the margin)
@@ -152,10 +157,10 @@ def g3_is_satisfiable(support: dict[str, float]) -> bool:
 def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list[str]]:
     """Evaluate all three conditions. Returns (passed, one line per condition).
 
-    ALL THREE MUST HOLD. They are not weighted or traded off: G1 bounds
-    under-triage, G2 proves no class was abandoned, and G3 proves the CRITICAL
+    ALL THREE MUST HOLD. They are not weighted or traded off: A1 bounds
+    under-triage, A2 proves no class was abandoned, and A3 proves the CRITICAL
     predictions carry information rather than volume. The 2026-09-07 model
-    passed G1 alone and failed both others.
+    passed A1 alone and failed both others.
     """
     support = {name: per_class[name]["support"] for name in CLASS_ORDER}
     recall = per_class["CRITICAL"]["recall"]
@@ -163,16 +168,16 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
     merge_precision = merge_strategy_precision(support)
     floor = merge_precision + CRITICAL_PRECISION_MARGIN
 
-    # G3 can be unsatisfiable by construction. Say so rather than failing the
+    # A3 can be unsatisfiable by construction. Say so rather than failing the
     # model for it: a floor above 1.0 is a fact about the evaluation set.
     if not g3_is_satisfiable(support):
         return False, [
-            f"PASS  G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}"
+            f"PASS  A1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}"
             if recall >= MINIMUM_CRITICAL_RECALL
-            else f"FAIL  G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}",
-            f"{'PASS' if macro_f1 > MINIMUM_MACRO_F1 else 'FAIL'}  G2  macro F1"
+            else f"FAIL  A1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL}",
+            f"{'PASS' if macro_f1 > MINIMUM_MACRO_F1 else 'FAIL'}  A2  macro F1"
             f"           {macro_f1:.4f} > {MINIMUM_MACRO_F1:.4f}",
-            f"NOT COMPUTABLE  G3  the merge strategy already scores "
+            f"NOT COMPUTABLE  A3  the merge strategy already scores "
             f"{merge_precision:.4f} on this set, so the floor is "
             f"{floor:.4f} > 1.0 and no model can pass. This is a property of "
             f"the evaluation set's class balance, not of the model. Rebalance "
@@ -182,19 +187,19 @@ def triage_gate(per_class: dict[str, dict], macro_f1: float) -> tuple[bool, list
     checks = [
         (
             recall >= MINIMUM_CRITICAL_RECALL,
-            f"G1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL} "
+            f"A1  CRITICAL recall    {recall:.4f} >= {MINIMUM_CRITICAL_RECALL} "
             f"(inherited, source unverified)",
         ),
         (
             # STRICT: exactly 2/3 is two perfect classes and one dead one.
             macro_f1 > MINIMUM_MACRO_F1,
-            f"G2  macro F1           {macro_f1:.4f} > {MINIMUM_MACRO_F1:.4f} "
+            f"A2  macro F1           {macro_f1:.4f} > {MINIMUM_MACRO_F1:.4f} "
             f"(derived: a dead class caps macro F1 at 2/3; this permits a "
             f"weakest class of {minimum_class_f1_implied(macro_f1):.4f})",
         ),
         (
             precision >= floor,
-            f"G3  CRITICAL precision {precision:.4f} >= {floor:.4f} "
+            f"A3  CRITICAL precision {precision:.4f} >= {floor:.4f} "
             f"(= {merge_precision:.4f} merge-strategy precision + "
             f"{CRITICAL_PRECISION_MARGIN:.2f} UNDERIVED margin)",
         ),
@@ -508,7 +513,7 @@ def write_gate_derivation(
             "traded off against one another.\n\n"
         )
         w(
-            "\\paragraph{G1: CRITICAL recall $\\geq 0.95$.} "
+            "\\paragraph{A1: CRITICAL recall $\\geq 0.95$.} "
             "\\emph{Inherited; source not verified.} This threshold predates the "
             "current record and carries only the note that missing a critical case "
             "is the failure that matters. It is consistent with the trauma "
@@ -518,7 +523,7 @@ def write_gate_derivation(
             "evidence is worse than retaining an unsourced one.\n\n"
         )
         w(
-            "\\paragraph{G2: macro F1 $> 2/3$, strictly.} "
+            "\\paragraph{A2: macro F1 $> 2/3$, strictly.} "
             "\\emph{Derived exactly.} Macro F1 is the unweighted mean of three "
             "per-class F1 scores. If any one class is abandoned its F1 is zero, so "
             "macro F1 $\\leq (1+1+0)/3 = 2/3$ \\emph{even when the other two "
@@ -530,12 +535,12 @@ def write_gate_derivation(
             "$\\min_i F1_i \\geq 3\\,\\mathrm{macro} - 2$, which is $0$ just "
             "above $2/3$ and "
             f"${minimum_class_f1_implied(run_macro_f1):.4f}$ at the "
-            f"${run_macro_f1:.4f}$ measured here. Passing G2 proves no class is "
+            f"${run_macro_f1:.4f}$ measured here. Passing A2 proves no class is "
             "exactly dead; it does not prove no class is nearly dead. A model at "
             "macro $0.672$ may carry a class at $F1 = 0.016$ and pass.\n\n"
         )
         w(
-            "\\paragraph{G3: CRITICAL precision $\\geq$ the merge-strategy "
+            "\\paragraph{A3: CRITICAL precision $\\geq$ the merge-strategy "
             "precision plus a margin.} \\emph{Floor derived and measured per "
             "evaluation set; margin not derived.} A model that merges CRITICAL and "
             "URGENT and labels the union CRITICAL earns, by construction, a CRITICAL "
@@ -578,6 +583,9 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> No
             "\\subsection{A single-metric safety gate certified a model that had "
             "abandoned an urgency class}\n\\label{sec:gate-failure}\n\n"
         )
+        # Truth URGENT, predicted CRITICAL, straight from the run's own matrix.
+        urgent_as_critical = int(v2c["confusion"][1][0])
+
         w(
             "Our acceptance gate was initially a single condition, CRITICAL recall "
             "$\\geq 0.95$, on the reasoning that missing a critical presentation is "
@@ -585,9 +593,20 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> No
             f"recall of {v2c['per_class']['CRITICAL']['recall']:.4f} while achieving "
             f"an URGENT recall of {v2c['per_class']['URGENT']['recall']:.4f}: it "
             "assigned the CRITICAL label to "
-            f"{int(v2c['per_class']['URGENT']['support']):,} URGENT rows almost "
-            "without exception. It passed the safety gate \\emph{because} it "
-            "over-triaged, and the gate contained no term that could observe this.\n\n"
+            # B6. This read the URGENT *support* and presented it as the number
+            # mislabelled. It is not: at URGENT recall 0.0083 roughly 65 of those
+            # rows were labelled correctly, so the same figure cannot also be the
+            # count sent to CRITICAL. Reusing it overstated the finding by about
+            # 160 rows and asserted a number no computed quantity supported.
+            #
+            # Taken from the degenerate run's own confusion matrix instead: row 1
+            # is truth URGENT, column 0 is prediction CRITICAL
+            # (dataset.labels.CLASS_ORDER). The header comment at the top of this
+            # file had the right figure all along.
+            f"{urgent_as_critical:,} of "
+            f"{int(v2c['per_class']['URGENT']['support']):,} URGENT rows. It "
+            "passed the safety gate \\emph{because} it over-triaged, and the gate "
+            "contained no term that could observe this.\n\n"
         )
         w(
             "The degeneracy is measurable rather than interpretive. A model that "
