@@ -217,7 +217,7 @@ def render() -> str:
         )
     body = "\n".join(lines)
     notes = "; ".join(
-        f"{r['arm']} relations {r['relation_note']}"
+        f"{r['arm'].capitalize()}'s are {r['relation_note']}"
         for r in data
         if r["arm"] in ("english", "swahili")
     )
@@ -226,10 +226,11 @@ def render() -> str:
 % review/<arm>_relations.py, review/drafts/ and the generator's own
 % TARGET_ROWS_V2. Editing a count here is fabrication; change the inventory.
 %
-\\begin{{table}}[t]
+\\begin{{table*}}[t]
 \\centering
 \\small
-\\begin{{tabular}}{{lrrrrr}}
+\\setlength{{\\tabcolsep}}{{4pt}}
+\\begin{{tabular}}{{>{{\\raggedright\\arraybackslash}}p{{3cm}}rrrrr}}
 \\toprule
 Arm & Phrases & Drafts & Relations & Frames & Rows \\\\
 \\midrule
@@ -245,7 +246,7 @@ are non-empty: a row needs all four, which is why three arms generate nothing
 whatever their other columns say. Provenance differs within a column
 ({notes}).}}
 \\label{{tab:arms}}
-\\end{{table}}
+\\end{{table*}}
 
 """
 

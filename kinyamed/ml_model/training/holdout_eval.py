@@ -394,7 +394,12 @@ def write_result_table(
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\begin{table}[t]\n\\centering\n")
+        # table*, not table: in the ACL two-column layout a single-column float
+        # is set inside a ~3.1in column and a six-column table is printed over
+        # the neighbouring text. \small and a reduced \tabcolsep because the
+        # header row alone is wider than one column.
+        w("\\begin{table*}[t]\n\\centering\n\\small\n")
+        w("\\setlength{\\tabcolsep}{4pt}\n")
         w(
             "\\caption{Triage performance of the reported model on the frozen "
             f"phrase holdout. The {rows:,} rows are frame permutations of {phrases} "
@@ -425,7 +430,7 @@ def write_result_table(
         )
         w("\\bottomrule\n\\end{tabular}\n")
         w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
-        w("\\end{table}\n")
+        w("\\end{table*}\n")
 
 
 def write_sweep_table(
@@ -438,15 +443,26 @@ def write_sweep_table(
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\begin{table}[t]\n\\centering\n")
+        w("\\begin{table*}[t]\n\\centering\n")
+        # EXTERNAL REVIEW 2c. This caption said the frozen "250,002x384
+        # embedding table ... is 96,199,296", conflating two different
+        # quantities. The word-embedding table is 250,002 x 384 = 96,000,768.
+        # 96,199,296 is the whole embedding module: that table plus the
+        # position and token-type tables and the embedding LayerNorm. The
+        # method section states it correctly and this now matches it.
         w(
             "\\caption{Three configurations on the same frozen phrase holdout, same "
             "split seed, same reporting set. Trainable parameters exclude the frozen "
-            "250{,}002$\\times$384 embedding table, which is 96{,}199{,}296 of the "
-            "model's 117{,}641{,}859 parameters in every row.}\n"
+            "embedding module, which is 96{,}199{,}296 of the model's "
+            "117{,}641{,}859 parameters in every row: the "
+            "250{,}002$\\times$384 word-embedding table (96{,}000{,}768) together "
+            "with the position and token-type tables and the embedding LayerNorm.}\n"
         )
         w("\\label{tab:sweep}\n")
-        w("\\small\n\\begin{tabular}{lrrrrr}\n\\toprule\n")
+        w("\\small\n\\setlength{\\tabcolsep}{4pt}\n")
+        w(
+            "\\begin{tabular}{>{\\raggedright\\arraybackslash}p{3.6cm}rrrrr}\n\\toprule\n"
+        )
         w("Run & Trainable & Macro F1 & CRIT P/R & URG P/R & Gate \\\\\n\\midrule\n")
         for run in runs:
             pc = run["per_class"]
@@ -467,7 +483,7 @@ def write_sweep_table(
             f"\\\\[2pt]{{\\scriptsize All rows evaluated in one pass; "
             f"fingerprint of the reported model \\texttt{{{fingerprint}}}}}\n"
         )
-        w("\\end{table}\n")
+        w("\\end{table*}\n")
 
 
 def write_confusion_table(

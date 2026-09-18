@@ -4,7 +4,7 @@
 % re-run the emitter instead.
 %
 % reported_model: model_v2d_freeze8_lr1e-5
-% run_fingerprint: 4680af6192cc27f9
+% run_fingerprint: ee40fcaa015a5850
 % source_sha256: 2ea0d2d495617e6c7385faa3afce1c7ccfcedfa2bc438d75620ba8e98a40b394
 % eval_sha256: b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5
 % manifest: dataset/processed/eval_manifest_phrase_v2.json
@@ -14,11 +14,13 @@
 % reporting_phrases: 9
 % reporting_groups: 5
 % max_length: 96
-% git_commit: c637aec
-% generated_at: 2026-09-18T06:44:08.705890+00:00
+% git_commit: 0534100
+% generated_at: 2026-09-18T10:01:44.821289+00:00
 %
-\begin{table}[t]
+\begin{table*}[t]
 \centering
+\small
+\setlength{\tabcolsep}{4pt}
 \caption{Triage performance of the reported model on the frozen phrase holdout. The 17,942 rows are frame permutations of 9 distinct phrases in 5 phrase groups; the support column is therefore not an independent sample size, and the final column gives the count that governs the granularity of each recall figure.}
 \label{tab:results}
 \begin{tabular}{lrrrrr}
@@ -32,5 +34,5 @@ ROUTINE & 0.9549 & 1.0000 & 0.9770 & 1,187 & 1 \\
 Macro avg & n/a & n/a & 0.7724 & 17,942 & 9 \\
 \bottomrule
 \end{tabular}
-\\[2pt]{\scriptsize Run fingerprint \texttt{4680af6192cc27f9}}
-\end{table}
+\\[2pt]{\scriptsize Run fingerprint \texttt{ee40fcaa015a5850}}
+\end{table*}
