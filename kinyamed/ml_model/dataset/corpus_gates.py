@@ -235,13 +235,85 @@ def _g5(rows) -> GateResult:
     )
 
 
+# Reporter x age-group pairs ratified as coherent. EMPTY ON PURPOSE: which
+# combinations a corpus may contain is a judgement about who presents on whose
+# behalf, and nobody has made it for this project. G6 reports the pairs it
+# observes so they can be ratified; it does not invent the ruling, and it does
+# not pass a corpus because the pairs look reasonable.
+PERMITTED_REPORTER_AGE: frozenset[tuple[str, str]] = frozenset()
+
+
 def _g6(rows) -> GateResult:
+    """Reporter and age group: present, complete, and drawn from a ratified set.
+
+    WRITTEN 2026-09-18. Until then this returned a hardcoded NOT COMPUTABLE
+    string and read no column at all, so it could not pass or fail whatever it
+    was given, and it reported the same sentence about a corpus that records
+    both fields as about one that records neither. A gate that cannot change its
+    answer is not a gate. The generated corpus genuinely lacked both columns,
+    which is why nobody noticed until a corpus arrived that had them.
+    """
+    rule = "the frame matches the row's reporter and patient age group"
+    has_reporter = any("reporter" in row for row in rows)
+    has_age = any("age_group" in row or "patient_age_group" in row for row in rows)
+
+    if not (has_reporter and has_age):
+        absent = ", ".join(
+            name
+            for name, present in (("reporter", has_reporter), ("age_group", has_age))
+            if not present
+        )
+        return GateResult(
+            "G6", rule, None, f"the corpus carries no {absent} column per row"
+        )
+
+    def age_of(row) -> str:
+        return (row.get("age_group") or row.get("patient_age_group") or "").strip()
+
+    incomplete = sum(
+        1 for row in rows if not (row.get("reporter") or "").strip() or not age_of(row)
+    )
+    if incomplete:
+        return GateResult(
+            "G6",
+            rule,
+            False,
+            f"{incomplete:,}/{len(rows):,} row(s) are missing a reporter or an age "
+            "group, so the frame cannot be checked against them",
+        )
+
+    observed = Counter((row["reporter"].strip(), age_of(row)) for row in rows)
+    if not PERMITTED_REPORTER_AGE:
+        listed = ", ".join(f"{r} x {a} ({n:,})" for (r, a), n in observed.most_common())
+        return GateResult(
+            "G6",
+            rule,
+            None,
+            f"every row carries both fields and {len(observed)} distinct pairs are "
+            f"present, but no ratified set of permitted reporter x age-group pairs "
+            f"exists to check them against. Observed: {listed}. Ratify these in "
+            "PERMITTED_REPORTER_AGE and this gate becomes computable",
+        )
+
+    unratified = {
+        pair: n for pair, n in observed.items() if pair not in PERMITTED_REPORTER_AGE
+    }
+    if unratified:
+        listed = ", ".join(
+            f"{r} x {a} ({n:,})" for (r, a), n in sorted(unratified.items())
+        )
+        return GateResult(
+            "G6",
+            rule,
+            False,
+            f"{sum(unratified.values()):,} row(s) in unratified pairs: {listed}",
+        )
     return GateResult(
         "G6",
-        "the frame matches the row's reporter and patient age group",
-        None,
-        "NOT COMPUTABLE: the corpus carries no reporter or patient_age_group per row, and the age axis "
-        "awaits E6",
+        rule,
+        True,
+        f"all {len(rows):,} rows carry a reporter and an age group, in "
+        f"{len(observed)} ratified pairs",
     )
 
 
