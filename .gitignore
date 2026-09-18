@@ -98,3 +98,8 @@ kinyamed/ml_model/paper/CORRECTIONS.md
 
 # make reproduce-env
 .venv-reproduce/
+
+# Clinical source documents are licensed material and are not redistributed.
+# See docs/clinical/README.md. Keep local copies here; they stay untracked.
+kinyamed/docs/clinical/*
+!kinyamed/docs/clinical/README.md
