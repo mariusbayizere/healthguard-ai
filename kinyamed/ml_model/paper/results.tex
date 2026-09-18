@@ -29,10 +29,11 @@ specification (\path{dataset/corpus_gates.py}, 19 tests;
 cannot be computed from the data at hand is reported as such rather than as a
 pass. Table~\ref{tab:gates} gives the outcome.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \small
-\begin{tabular}{llp{0.46\linewidth}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{9cm}}
 \toprule
 Gate & What it constrains & Outcome on our corpus \\
 \midrule
@@ -51,16 +52,17 @@ C9 & surface variation (case, punctuation, spacing, typos) & \vFail: 0 capitalis
 generated; six fail on the split whose rows can be attributed to a source
 sentence, which is where C1, C2 and C4 become computable.}
 \label{tab:gates}
-\end{table}
+\end{table*}
 
 The binding gate, C2, counts \emph{distinct authored seed phrases} rather than
 rows. Our generator has 165. Table~\ref{tab:seeds} follows that constraint
 through.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \small
-\begin{tabular}{rrlr}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{r r >{\raggedright\arraybackslash}p{5cm} r}
 \toprule
 Seeds available & Rows allowed by C1 & Passes C2? & Largest passing corpus \\
 \midrule
@@ -72,7 +74,7 @@ Seeds available & Rows allowed by C1 & Passes C2? & Largest passing corpus \\
 \caption{At 165 seeds no corpus of any size passes, because the floor is on
 seeds and not on rows.}
 \label{tab:seeds}
-\end{table}
+\end{table*}
 
 \input{sections/seed_figure}
 

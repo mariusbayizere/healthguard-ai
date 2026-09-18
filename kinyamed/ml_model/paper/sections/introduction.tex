@@ -136,7 +136,10 @@ The apparatus that produces all four re-derives from a clean clone with one
 command, except where marked \textbf{NOT REPRODUCIBLE}.
 
 \begin{center}
-\fbox{\parbox{0.9\textwidth}{\small\raggedright
+% \linewidth, NOT \textwidth. In two columns \textwidth is the whole page,
+% about twice this column, so 0.9\textwidth overflowed the column edge and
+% every line of this box was clipped mid-word in the first ACL compile.
+\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\small\raggedright
 \textbf{Provenance of every number.} No number in this paper is offered as
 evidence of model quality.
 Each number in it is a property of a corpus, a specification, or an artefact's
