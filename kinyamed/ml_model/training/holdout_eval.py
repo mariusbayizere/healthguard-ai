@@ -504,7 +504,8 @@ def write_confusion_table(
             "trained.}\n"
         )
         w("\\label{tab:confusion}\n")
-        w("\\begin{tabular}{lrrr}\n\\toprule\n")
+        w("\\small\n\\setlength{\\tabcolsep}{4pt}\n")
+        w("\\begin{tabular}{>{\\raggedright\\arraybackslash}p{4cm}rrr}\n\\toprule\n")
         w(
             "Truth $\\downarrow$ / Pred $\\rightarrow$ & CRITICAL & URGENT & "
             "ROUTINE \\\\\n\\midrule\n"
@@ -574,10 +575,15 @@ def write_gate_derivation(
         # that this is arithmetic on class sizes rather than a measurement.
         n_crit = int(support["CRITICAL"])
         n_urg = int(support["URGENT"])
+        # \resizebox as well as the short form: the display is set in a 219.1pt
+        # column and there is no way to verify from the source that it fits.
+        # When the content is already narrower, \resizebox scales by 1 and
+        # changes nothing.
         w(
-            "\\[ \\frac{n_{\\mathrm{CRIT}}}{n_{\\mathrm{CRIT}} + n_{\\mathrm{URG}}}"
+            "\\[ \\resizebox{\\columnwidth}{!}{$"
+            "\\displaystyle \\frac{n_{\\mathrm{CRIT}}}{n_{\\mathrm{CRIT}} + n_{\\mathrm{URG}}}"
             f" = \\frac{{{n_crit:,}}}{{{n_crit + n_urg:,}}}"
-            f" = {merge_precision:.4f} \\]\n".replace(",", "{,}")
+            f" = {merge_precision:.4f}$}} \\]\n".replace(",", "{,}")
         )
         w(
             "on this reporting set, where $n$ is a count of gold rows. "

@@ -82,6 +82,30 @@
   \par\vspace{0.6em}%
 }
 
+% APPENDIX HEADINGS READ "Appendix H: Title", NOT "H Title".
+%
+% A bare letter before a title reads as a stray character to anyone not
+% expecting LaTeX's appendix numbering. This is set once, here, rather than by
+% editing nine \section titles by hand.
+%
+% \@startsection calls \@seccntformat to typeset the number, so patching it
+% reaches every heading at every level. The prefix and suffix are looked up by
+% level name: \sectionprefix for a section, \subsectionprefix for a
+% subsection. An undefined one expands to \relax and prints nothing, so main
+% body sections are untouched and only the levels we name gain a prefix.
+%
+% \thesection IS DELIBERATELY NOT CHANGED. Redefining it to "Appendix H" would
+% make every "Appendix~\ref{app:run}" in the prose read "Appendix Appendix F".
+% This affects the heading only; \ref still yields the bare letter.
+\makeatletter
+\renewcommand{\@seccntformat}[1]{%
+  \csname #1prefix\endcsname
+  \csname the#1\endcsname
+  \csname #1suffix\endcsname
+  \quad
+}
+\makeatother
+
 % ---------------------------------------------------------------------------
 % FAIL LOUDLY ON A MISSING NUMBER.
 %
@@ -191,6 +215,9 @@ quality, negative results, evaluation methodology, reproducibility.
 \input{sections/statements}
 
 \appendix
+% Switched on here, so only appendix sections carry the word.
+\newcommand{\sectionprefix}{Appendix~}
+\newcommand{\sectionsuffix}{:}
 \input{sections/appendix}
 
 \bibliographystyle{plainnat}
