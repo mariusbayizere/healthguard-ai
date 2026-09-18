@@ -394,7 +394,8 @@ generator emitted it and it is left untouched: it is a live instance of the
 C9 surface-uniformity failure, visible in the example itself rather than only
 in the gate's verdict.
 Part B. The two phrasings share a prefix of 0 characters,
-because the third person opens on the \REL\ placeholder, and their word
+because the third person opens on the \REL\ placeholder, and
+their word
 Jaccard of 0.400 is far below the 0.85 the near-duplicate gate
 uses. Neither a prefix rule nor a similarity threshold would group them.
 They are
@@ -406,9 +407,9 @@ On the choice of IF05. EX24 gives a cleaner Part B
 (shared prefix 0, longest common substring 25 against IF05's 23) and is
 not used because its english_gloss in the authoring record is a
 placeholder rather than a gloss. Of the
-15 distinct phrases in the reporting split, 2
+15 distinct phrases in the reporting split, 15
 carry a real English gloss, and they are the two persons of
-1 concept.
+8 concept.
 Every other phrase the reported figures rest on is glossed only by a
 placeholder telling the author where to look. That is a property of the
 corpus rather than a note about which row was convenient, and it is why this

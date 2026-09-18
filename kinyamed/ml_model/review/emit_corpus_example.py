@@ -63,8 +63,19 @@ class Missing(RuntimeError):
     """A row the table depends on is not where it was. Never a silent fallback."""
 
 
+# The generator's relation placeholder. It is not Kinyarwanda and not a word a
+# patient says: it is a slot the frame substitutes a relation term into. Set in
+# \texttt so it reads as a token rather than as part of the sentence.
+PLACEHOLDER = "{REL}"
+
+
 def tex(text: str) -> str:
-    """Escape corpus text for LaTeX. The corpus is quoted, never rewritten."""
+    """Escape corpus text for LaTeX, and set the placeholder as a token.
+
+    The corpus is quoted, never rewritten. The only transformation beyond
+    escaping is wrapping {REL} in \texttt, so a reader can see at a glance that
+    it is a slot and not a word.
+    """
     for old, new in (
         ("\\", r"\textbackslash{}"),
         ("{", r"\{"),
@@ -76,7 +87,8 @@ def tex(text: str) -> str:
         ("$", r"\$"),
     ):
         text = text.replace(old, new)
-    return text
+    # After escaping, {REL} is \{REL\}. Set that whole token in \texttt.
+    return text.replace("\\{REL\\}", "\\texttt{\\{REL\\}}")
 
 
 def shared_prefix(a: str, b: str) -> int:
@@ -231,7 +243,8 @@ def render() -> str:
         caption.append("in the gate's verdict.")
     caption += [
         f"\\textbf{{Part B.}} The two phrasings share a prefix of {prefix} characters,",
-        "because the third person opens on the \\{REL\\} placeholder, and their word",
+        "because the third person opens on the \\texttt{\\{REL\\}} placeholder, and",
+        "their word",
         f"Jaccard of {inter / union:.3f} is far below the 0.85 the near-duplicate gate",
         "uses. Neither a prefix rule nor a similarity threshold would group them.",
         "They are",
