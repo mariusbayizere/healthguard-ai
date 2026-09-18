@@ -574,6 +574,48 @@ outstanding and the next doctor to connect receives it from the backfill — but
 part did not happen, and a push that silently succeeds against an empty set is
 indistinguishable from one that worked. A stats/readiness surface for it comes with step 3.
 
+## 2026-09-18 — external review: Block 2 verified, B6 fixed, and a staleness finding
+
+**The review list now lives on disk: `reports/EXTERNAL_REVIEW.md`.** It was lost between
+sessions twice because it existed only in a chat transcript. It carries all six blocks, a
+status per item, the findings beyond the reviewer's list, and the decisions taken. Work the
+review from that file, not from memory.
+
+**All 15 Block 2 items verified against the repository. The reviewer was wrong about none.
+One (B9) was already addressed and was deliberately left alone** — `discussion.tex` L86-88
+already calls the 0.95 critical-recall threshold "inherited and unverified" against the 0.91
+in the requirements. Rewriting honest text because a list says to is a regression.
+
+**B6 fixed at the emitter.** The paper said the degenerate run "assigned the CRITICAL label
+to 7,793 URGENT rows almost without exception". 7,793 is the URGENT *support*; at URGENT
+recall 0.0083 about 65 of those rows were correct, so the same figure cannot also be the
+count mislabelled. It now reads `v2c["confusion"][1][0]` — truth URGENT, prediction CRITICAL
+— which is **7,634**. `holdout_eval.py`'s own header comment had carried the right figure
+since 2026-09-07; only the emitted sentence was wrong.
+
+**FINDING BEYOND THE LIST: the paper's corpus counts are stale, and commit `934433a` is why.**
+That commit moved four third-person rows into `needs_clinician`. The record now holds 256
+rows, **29** flagged, 23 held, 19 both, 4 held-only, 10 flagged-only. The paper still says 25
+flagged, and its "eight phrases" is the held-only count from *before* that commit.
+
+This is what made B2 and B3 look like arithmetic errors. They are drift. B2's
+`256 - 50 - 23 = 183` assumed flagged and held are disjoint; they overlap by 19.
+
+**It is the same shape as B6**: a number hand-copied from a source that later moved. Decision
+taken — the corpus counts will be **emitted from the CSV** the way the clinician pack is,
+rather than corrected in place. See `EXTERNAL_REVIEW.md` D2.
+
+**Regeneration was running at handover.** It carries Block 1's emitter changes and the B6
+fix. A backup of `paper/generated/` was taken before it started. When it lands: every
+scientific number must be byte-identical to that backup EXCEPT the B6 count. Block 1 changed
+wording only, so numeric movement means the run did not reproduce.
+
+**Process note.** The first regeneration was stopped deliberately, a third of the way in, to
+fold in the B6 fix rather than run twice. That is a chosen stop, not a memory kill, and the
+"do not retry after a kill" rule does not apply to it. Separately: `pkill` returned 144 and
+short-circuited an `&&` chain, so an edit silently did not apply — the STATE rule about
+reading the whole failure rather than the tail caught it.
+
 ## 2026-09-17 — external review, BLOCK 1: five errors of fact (`42cb7aa`)
 
 Every claim was checked against the repository first and the arithmetic recomputed. **All
