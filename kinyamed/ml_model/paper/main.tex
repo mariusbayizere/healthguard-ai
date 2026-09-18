@@ -135,11 +135,13 @@
 
 \RequireGenerated{ResultFingerprint}
 
-% Charter §1: the six claims that need people are marked \PENDING{} so a
-% compile shows them as unfilled rather than silently omitting them. Rendered
-% visibly on purpose -- a placeholder nobody can see is the same as a missing
-% claim, and this project has already been bitten by a generated file that
-% quietly outlived its truth.
+% \PENDING marked the claims that need a person the project could not obtain.
+% NO LONGER USED IN THE BODY, as of the 2026-09-18 revision: in a compiled PDF
+% the markers read as draft notes rather than as limitations, so each was
+% rewritten as ordinary prose that states the same absence. The statements were
+% kept in full and none was softened into a scoping decision; we did not choose
+% to have no clinician. The macro is left defined so a future draft can mark a
+% genuinely unfilled slot without reinventing it.
 \newcommand{\PENDING}[1]{\textbf{[PENDING: #1]}}
 
 % The title is bold and the subtitle is not, so the two lines read as title
@@ -164,7 +166,8 @@ of figures rest on artefacts that were never committed.}}
 \input{sections/abstract}
 
 \begin{center}
-\begin{minipage}{0.86\textwidth}
+% \linewidth: see the note in sections/introduction.tex on the same trap.
+\begin{minipage}{0.95\linewidth}
 \small\textbf{Keywords:} low-resource NLP, Kinyarwanda, clinical triage, dataset
 quality, negative results, evaluation methodology, reproducibility.
 \end{minipage}
