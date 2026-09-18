@@ -103,6 +103,114 @@ distribution should replace them.
 **What is explicitly NOT the fix:** lowercasing or normalising input at serving time. That hides the fragility,
 discards information the tokenizer is case-sensitive to, and leaves the model no more robust than it was.
 
+## 3.2 Authoring rules for the text itself (added 2026-09-18)
+
+Gates G1-G9 constrain the *distribution* of the corpus. These constrain each
+sentence. Both were learned from reviewing returned batches, and each is here
+because a batch already violated it.
+
+### R1 — direct speech only
+
+**Write what the patient or carer would type. Not what a nurse would record.**
+
+In the second batch of 100 authored Kinyarwanda sentences, **29 were written in
+clinical-record voice** — reported speech of the form "X says that ...", or a
+bare "Says that ...", rather than the speaker's own words.
+
+**Why this is a defect and not a style preference.** The deployed model receives
+text typed by a patient or their carer into a phone. It never receives nurse
+notes. A sentence in record voice teaches the register of the wrong speaker, and
+register is not incidental to this task: it changes pronouns, tense, and
+whether the complaint is stated or attributed. A corpus that mixes the two
+teaches the model that both are the input distribution, when only one is.
+
+**The rule.** First person for the patient's own complaint. Direct speech for a
+carer speaking about someone present ("my child is ..."). Reported speech is
+admissible ONLY where a carer is genuinely relaying words spoken by another
+person who is not the one typing — which is rare, and must be marked in
+`reporter` rather than inferred from the sentence.
+
+**Applies to:** every language arm, not only Kinyarwanda.
+
+**Enforcement:** not automatic. Detecting reported speech reliably needs the
+language, and `annotation/authoring.py` is deliberately language-agnostic. This
+is a rule for the authoring brief and the human review pass; see R2 for what the
+validator can and cannot do.
+
+### R2 — the two columns must describe the same event
+
+One row in the same batch carried an **English/Kinyarwanda content mismatch**:
+the English described being bitten by a monkey, the Kinyarwanda described a
+snake bite. Two different events, one row, and the row would have entered the
+corpus as a matched pair.
+
+**Why it matters more than a typo.** A mismatched pair is not noise that
+averages out. If the English side is ever used as a gloss, a reference, or a
+cross-language check, the row asserts an equivalence that is false, and every
+downstream use inherits it silently.
+
+**The rule.** Where a row carries both an English column and an authored
+column, the two must describe the same event: same mechanism, same body part,
+same actor, same number of complaints.
+
+**But note what the English column IS, because it is not a translation pair.**
+See R3. The English is a situation prompt, and the authored sentence is what a
+person in that situation would say. The two must be *about the same event*; they
+must not be sentence-for-sentence equivalents, and a validator must never treat
+divergence in wording as an error.
+
+**What the validator can do, and what it cannot.** See
+`annotation/authoring.py::check_rows`. It compares what is comparable WITHOUT
+knowing either language — numerals, and whether both columns are non-empty —
+and it flags every such pair for human confirmation. It cannot detect
+monkey-versus-snake: that needs a reader who knows both languages. The check is
+therefore a routing mechanism, not a decision, and it is written to say so
+rather than to imply the pair has been verified.
+
+### R3 — the situation prompts are not part of the instrument (added 2026-09-18)
+
+**The sheet an author receives has one text column, and it is the Kinyarwanda
+one.** `annotation/authoring.py::write_sheet` emits `text` blank for the author
+to fill. There is no English column in the issued instrument, and there is no
+English source text in this repository.
+
+The situation prompts are produced by the maintainer **outside the repository**
+and given to authors alongside the sheet. They are an input to the authoring
+session, not an artefact of the corpus.
+
+**Why this must be written down.** Two wrong assumptions are available to
+anyone who later finds a prompt next to an authored sentence, and both would
+damage the corpus:
+
+1. *That the prompts are part of the instrument.* They are not versioned here,
+   not covered by the G7 provenance columns, and not reproducible from a clean
+   clone. Treating them as instrument would put an unversioned artefact inside
+   a reproducibility claim.
+2. *That the prompt is a source text to translate from.* It is not, and this is
+   the more damaging error. **The prompt describes a situation; the author
+   writes what the person would say.** A translator produces the prompt's
+   sentence in another language. An author produces a different sentence — the
+   one a frightened parent would actually type — which may share no content
+   word with the prompt at all.
+
+**This distinction is the reason the corpus is worth building.** The authored
+sentences carry roughly **twice the vocabulary** of the generated ones. That
+gain comes precisely from authors not tracking the prompt's wording: a
+translation pass would have inherited the prompt's vocabulary and produced
+something closer to the generator it was meant to replace.
+
+**Consequences for anyone working on this.**
+
+- Do not add an English column to `write_sheet`. It would invite translation.
+- Do not use prompts as a gloss, a reference translation, or a cross-language
+  alignment target.
+- Where a returned sheet does carry an English column, R2's check treats it as
+  a *situation* to compare against, never as a string to diff. Wording
+  divergence is the intended outcome; event divergence is the defect.
+- Vocabulary breadth relative to the generated corpus is a measurable property
+  worth keeping an eye on: if it falls toward parity, authors have started
+  translating.
+
 ## 4. Not in scope of this document
 
 - No clinical content: every clinical parameter above is a blank naming its source.

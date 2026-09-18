@@ -220,6 +220,47 @@ def _content_words(text: str) -> frozenset[str]:
     return frozenset(_normalise(text).split(" "))
 
 
+#: Columns that, if present in a RETURNED sheet, carry the English SITUATION
+#: PROMPT for the item -- not a translation of it.
+#:
+#: The issued sheet has none of these: `write_sheet` emits one `text` column and
+#: the author fills it in Kinyarwanda. Prompts are produced outside the
+#: repository and handed to authors alongside the sheet (CORPUS_REBUILD.md R3).
+#:
+#: The distinction governs what may be checked. The prompt describes a
+#: situation; the author writes what the person would SAY. Divergent wording is
+#: the intended outcome and the reason authored sentences carry twice the
+#: vocabulary of generated ones -- so nothing here diffs strings. A divergent
+#: EVENT is the defect: one returned pair described a monkey bite in the prompt
+#: and a snake bite in the authored text.
+ENGLISH_COLUMNS = ("english", "english_gloss", "english_text", "gloss")
+
+_DIGITS = re.compile(r"\d+")
+
+
+def _numeric_disagreement(english: str, authored: str) -> str | None:
+    """A numeral in one column and not the other, or different numerals.
+
+    THE ONLY PART OF R2 THAT CAN BE AUTOMATED HERE. Numerals are the one thing
+    both columns spell identically regardless of language, so "for 3 days"
+    against a sentence containing no 3 is detectable without knowing either
+    language. Everything else about R2 -- whether the animal, the body part or
+    the mechanism agree -- is not, and this function deliberately does not
+    pretend otherwise.
+    """
+    left, right = set(_DIGITS.findall(english)), set(_DIGITS.findall(authored))
+    if left == right:
+        return None
+    only_english = sorted(left - right)
+    only_authored = sorted(right - left)
+    parts = []
+    if only_english:
+        parts.append(f"{only_english} appears only in the English")
+    if only_authored:
+        parts.append(f"{only_authored} appears only in the authored text")
+    return "; ".join(parts)
+
+
 def check_rows(rows: Sequence[Mapping[str, str]], *, scope: str = "pilot") -> list[str]:
     """Every gate violation and rule violation in a returned sheet. Empty means it may be
     imported for annotation. `scope='corpus'` additionally enforces G2."""
@@ -357,6 +398,46 @@ def check_rows(rows: Sequence[Mapping[str, str]], *, scope: str = "pilot") -> li
                     f"G2 distinct seeds: {language} has {len(found)}, needs "
                     f"{MIN_SEEDS_PER_LANGUAGE} (corpus scope)"
                 )
+    # R2: a row carrying BOTH a prompt column and authored text asserts that the
+    # two describe the same EVENT. One returned pair did not -- a monkey bite in
+    # the prompt, a snake bite in the authored column -- and it would have entered
+    # the corpus as a matched pair.
+    #
+    # Wording is NOT compared and must not be: the prompt is a situation, not a
+    # source text, and an author who tracked its wording would be translating
+    # (CORPUS_REBUILD.md R3).
+    #
+    # This CANNOT decide the question. Deciding it needs a reader with both
+    # languages, and this module is deliberately language-agnostic. So it does two
+    # things it can do honestly: report the numeric disagreements it can see, and
+    # route every remaining pair to a human. The message says "confirm", never
+    # "verified", because nothing here has verified anything.
+    for row in rows:
+        english_column = next(
+            (c for c in ENGLISH_COLUMNS if (row.get(c) or "").strip()), None
+        )
+        if english_column is None:
+            continue
+        english = (row.get(english_column) or "").strip()
+        authored = (row.get("text") or "").strip()
+        if not authored:
+            continue
+
+        item = row.get("item_id", "?")
+        mismatch = _numeric_disagreement(english, authored)
+        if mismatch is not None:
+            problems.append(
+                f"R2 numerals: item {item!r} disagrees between prompt {english_column!r} and "
+                f"'text' -- {mismatch}. One column describes something the other does "
+                "not."
+            )
+        problems.append(
+            f"R2 REVIEW REQUIRED: item {item!r} carries both {english_column!r} and "
+            "'text'. A human who reads both languages must confirm they describe the "
+            "same event -- same mechanism, body part, actor and number of complaints. "
+            "This check cannot decide it (CORPUS_REBUILD.md R2)."
+        )
+
     return problems
 
 
