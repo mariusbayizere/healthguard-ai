@@ -1,0 +1,338 @@
+"# PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth."
+id,label,marker,text_kw
+203,URGENT,avuga ko,Avuga ko uruhinja rufite kubyimba korohereye ku mutwe kandi ko rutari rufite icyo kibyimba ruvuka.
+207,ROUTINE,avuga ko,Avuga ko agira ububabare mu gihe cy'imibonano mpuzabitsina kandi akaba atarabibwira umuntu.
+211,ROUTINE,avuga ko,Avuga ko umuti umufasha ariko ko atabasha kuwugura buri kwezi.
+214,ROUTINE,avuga ko,Umugabo avuga ko atarasinzira kuva murumuna we cyangwa mukuru we apfuye hashize ibyumweru bitatu.
+216,URGENT,avuga ko,Avuga ko umwanda w'umwana wera cyane kandi inkari zikaba zijimye.
+220,ROUTINE,avuga ko,Avuga ko amaze gukorora kuva atangiye gukorera mu bubiko bw'ibinyampeke.
+223,ROUTINE,avuga ko,Avuga ko igikomere cyadodewe hano kandi ko imidodo igomba gukurwamo.
+225,ROUTINE,avuga ko,Nyina avuga ko umwana yagabanutse ibiro kuva atangiye ishuri.
+226,URGENT,avuga ko,Umugabo avuga ko ibuye ryinjiye mu jisho ubwo yamenaga amabuye.
+228,ROUTINE,avuga ko,Avuga ko ububabare bwo mu menyo bumukangura nijoro.
+230,URGENT,avuga ko,Umugore avuga ko yumva umwana atakigenda cyane nk'uko bisanzwe.
+233,URGENT,avuga ko,Avuga ko kuva ejo umwana yanga gukandagiza ukuguru kumwe.
+236,URGENT,avuga ko,Avuga ko atwite kandi amaze icyumweru aruka ibyo arya cyangwa anywa byose.
+239,URGENT,avuga ko,Avuga ko ibirenge bye bimaze amezi bitumva neza kandi atigeze amenya ko afite igikomere.
+241,ROUTINE,avuga ko,Avuga ko akorora iyo anyweye amazi.
+244,URGENT,avuga ko,Avuga ko ububabare bwatangiriye mu nda bukaza kwimukira hepfo iburyo.
+246,ROUTINE,avuga ko,Avuga ko kuva yabyara atagishobora kwifata inkari.
+249,ROUTINE,avuga ko,Avuga ko kubyimba mu dusabo tw'intanga bimaze umwaka byiyongera.
+250,CRITICAL,avuga ko,Umugore avuga ko kuva yabyara amaraso atarahagarara.
+252,URGENT,avuga ko,Avuga ko amaze igihe abona nk'urumuri rutunguranye mu jisho rimwe.
+253,URGENT,avuga ko,Umugabo avuga ko amaze guhagarika inzoga umubiri udahagarika gutitira.
+255,CRITICAL,avuga ko,Avuga ko ububabare bwo mu gituza bwatangiye atwaye umufuka kandi bukaba butarahagarara.
+256,ROUTINE,avuga ko,Nyina avuga ko uruhinja rwe rugonda umugongo kandi rugataka nyuma yo konka cyangwa kurya.
+257,ROUTINE,yabwiwe ko,Yabwiwe ko afite amaraso make kandi abaza ibyo yakwiriye kurya.
+258,CRITICAL,avuga ko,Avuga ko inkuba yamukubise hafi y'umurima kandi akaba yumva atameze neza.
+260,URGENT,avuga ko,Umugore avuga ko imihango yatinze kandi afite ububabare ku ruhande rumwe rw'inda.
+261,ROUTINE,avuga ko,Avuga ko amaze kugira umutwe kuva atangiye akazi gashya.
+263,ROUTINE,avuga ko,Avuga ko umwana amaze igihe arya ubutaka.
+265,URGENT,avuga ko,"Avuga ko ijisho rimwe ryijimye ntabona mu gihe cy'iminota mike, nyuma akongera kubona."
+268,URGENT,avuga ko,Avuga ko amaze igihe azungera kandi imihango ikaba ari myinshi.
+269,URGENT,avuga ko,Umugabo avuga ko kuva ejo mu gitondo atigeze yihagarika.
+270,ROUTINE,avuga ko,Avuga ko inkorora imufite kuva yavuka kandi nta muntu wigeze amusobanurira impamvu.
+272,ROUTINE,avuga ko,Avuga ko imiti imutera gusinzira maze arayihagarika.
+274,ROUTINE,avuga ko,Avuga ko ashaka kumenya uko ubuzima bwe buhagaze mbere yo gushaka.
+277,ROUTINE,avuga ko,Avuga ko kuryaryatwa bikabije hagati y'intoki.
+278,URGENT,avuga ko,Umugabo avuga ko yaguye ku ngazi agwa ku bitendegeri.
+280,ROUTINE,avuga ko,Avuga ko afite amaraso mu nkari ariko nta bubabare afite.
+281,CRITICAL,avuga ko,Umugore avuga ko umutwe watangiye kumurya gitunguranye nk'uwakubiswe.
+283,ROUTINE,avuga ko,Avuga ko ibirenge hafi y'amaguru byabyimba nimugoroba bikagabanuka mu gitondo.
+285,URGENT,avuga ko,Avuga ko umwana akorora cyane kugeza ubwo aruka.
+287,CRITICAL,avuga ko,Umugore avuga ko kuva abyutse atakumva uruhande rumwe rw'umubiri we.
+288,ROUTINE,avuga ko,Avuga ko yahagaritse urushinge rwo kuboneza urubyaro kandi kuva icyo gihe akaba atarongera kuva amaraso.
+291,ROUTINE,avuga ko,Avuga ko yabwiwe ko afite umuvuduko w'amaraso ukabije ariko akaba nta kintu yumva.
+293,URGENT,avuga ko,Avuga ko ababara mu mutsi w'inyana kandi ukuguru gushyuha.
+295,ROUTINE,avuga ko,Avuga ko akora nijoro kandi akaba adashobora gusinzira ku manywa.
+297,ROUTINE,avuga ko,Umugore avuga ko umugabo we amubuza gukoresha uburyo bwo kuboneza urubyaro.
+298,URGENT,avuga ko,Avuga ko igisebe cy'ubushye yagize mu cyumweru gishize ubu gisohora amazi kandi kinuka.
+299,ROUTINE,avuga ko,Umugabo avuga ko umugongo wamunaniye ubwo yazamuraga ikintu kandi ubu akaba adashobora guhagarara yemye.
+301,ROUTINE,avuga ko,Avuga ko umwana amaze igihe asohora inzoka mu musarani.
+303,CRITICAL,avuga ko,Umugore avuga ko amaze kuva amaraso menshi kuva yakorerwa igikorwa cyo kwa muganga ahandi.
+304,URGENT,avuga ko,Avuga ko ububabare mu gutwi bwatangiye nyuma yo gukubitwa urushyi.
+305,ROUTINE,avuga ko,Umugabo avuga ko amaze kugabanuka ibiro ariko arya nk'uko bisanzwe.
+307,ROUTINE,avuga ko,Avuga ko imiti yamushizeho kuko ivuriro ritari rifite imiti ukwezi gushize.
+309,URGENT,avuga ko,Umugore avuga ko atwite amezi icyenda kandi uyu munsi akaba atarumva umwana agenda.
+310,URGENT,avuga ko,Avuga ko yikase ku isahani y'icyuma cyafashwe n'ingese.
+312,URGENT,avuga ko,Avuga ko yatewe urushinge n'umuturanyi kandi aho yarutereye hakaba hakomeye.
+313,CRITICAL,avuga ko,Umugabo avuga ko ukuboko kwe kwafashwe n'imashini isya ibigori.
+315,ROUTINE,avuga ko,Avuga ko umuhogo umaze ibyumweru bitatu ubabara kandi ijwi rikaba ryarahindutse.
+317,URGENT,avuga ko,Avuga ko umwana yaguye ku buriri maze nyuma akaruka inshuro ebyiri.
+318,URGENT,avuga ko,Umugore avuga ko ababara iyo yihagarika kandi atwite.
+319,URGENT,avuga ko,Avuga ko yatewe n'inzuki z'intubamubiri ahantu henshi ubwo zari mu gisenge.
+320,ROUTINE,avuga ko,Umusaza avuga ko atumva ku gutwi kumwe kuva yumvise urusaku rukomeye.
+322,URGENT,avuga ko,Avuga ko igikomere cyo ku kuguru gifite impande zirabura.
+324,CRITICAL,avuga ko,Avuga ko ububabare bwavuye ku rutugu bugera ku rwasaya.
+325,ROUTINE,avuga ko,Umugore avuga ko uruhinja rwavutse ikirenge kimwe kireba imbere.
+326,ROUTINE,avuga ko,Avuga ko amaze kugira inzozi mbi kuva yagira impanuka.
+329,URGENT,avuga ko,Avuga ko kubyimba byatangiriye mu maso bikaza kugera ku maguru.
+330,URGENT,avuga ko,Umugabo avuga ko yarumwe n'imbwa atazi maze igahunga.
+331,URGENT,avuga ko,Avuga ko kuva yakorerwa iyo operation atabasha kurya.
+333,ROUTINE,avuga ko,Avuga ko ububabare bwo mu gituza bwiyongera iyo agukandagiyeho.
+334,CRITICAL,avuga ko,Umugore avuga ko yabyariye mu rugo kandi urusoro rutarasohoka.
+335,ROUTINE,avuga ko,Avuga ko ishinya ivamo amaraso iyo yoza amenyo.
+337,CANNOT CLASSIFY,avuga ko,Avuga ko yibeshye akanywa imiti y'umugore we.
+339,ROUTINE,avuga ko,Avuga ko ukuguru kwe kwagabanutse kuva arwaye akiri umwana.
+341,URGENT,avuga ko,Avuga ko ububabare buza bukagenda kandi ko adashobora gutuza hamwe.
+343,URGENT,avuga ko,Avuga ko amaze iminsi itatu yumva ashyushye rimwe ubundi akumva akonje.
+344,URGENT,avuga ko,Umugabo avuga ko ishami ry'igiti ryamukubise mu jisho ubwo yatemaga ibiti.
+346,URGENT,avuga ko,Avuga ko igikomere cyavuwe hakoreshejwe imiti gakondo ariko ubu kikaba cyarushijeho kuba kibi.
+349,ROUTINE,avuga ko,Avuga ko yabwiwe ko adashobora gusama kandi ashaka inama.
+350,URGENT,avuga ko,Umugabo avuga ko ububabare bwo mu kirenge bwatangiriye nijoro kandi bukaba bukabije cyane.
+351,URGENT,avuga ko,Avuga ko umwana amaze iminsi asohora amaraso mu mwanda.
+352,URGENT,avuga ko,Umugore avuga ko yafashwe ku ngufu kandi akaba adashaka ko hagira ubibwira undi.
+353,ROUTINE,avuga ko,Avuga ko aho yatewe urushinge hashize ukwezi hakiri hakomeye kandi hababara.
+355,CRITICAL,avuga ko,Avuga ko guhumeka byamugoye nyuma yo kurya ubunyobwa.
+357,ROUTINE,avuga ko,Avuga ko imiti ari iyo kuvura diyabete ariko akayisangiza umugore we.
+359,ROUTINE,avuga ko,Umugore avuga ko yumva ububabare bwo gushya iyo uruhinja rutangiye konka.
+360,CRITICAL,avuga ko,Avuga ko yagiranye imirwano n'umuntu kandi ubu akaba atabona n'ijisho rimwe.
+362,ROUTINE,avuga ko,Avuga ko umwana agenda ahagaze ku ntoki z'ibirenge kuva yatangira kugenda.
+363,CRITICAL,avuga ko,Umugabo avuga ko igituza cye cyafashwe hagati y'imodoka n'urukuta.
+364,ROUTINE,avuga ko,Avuga ko kuryaryatwa byatangiye nyuma yo kuryama ahantu hashya.
+365,ROUTINE,avuga ko,Umugore avuga ko amaze gukuramo inda inshuro eshatu kandi ashaka kumenya impamvu.
+366,ROUTINE,avuga ko,Avuga ko ababara iyo afungura umunwa kugira ngo arye.
+368,ROUTINE,avuga ko,Avuga ko yahagaritse imiti ya virusi itera SIDA amaze kumva ameze neza.
+370,URGENT,avuga ko,Avuga ko umusaza amaze igihe avuga n'abantu batari aho.
+372,ROUTINE,avuga ko,Avuga ko ububabare bwo mu ivi bumubuza gukora mu murima.
+373,URGENT,avuga ko,Umugore avuga ko ari kuva amaraso kandi atwite amezi atatu.
+374,ROUTINE,avuga ko,Avuga ko umwana amaze iminsi afata umwanda kubera ubwoba.
+375,CRITICAL,avuga ko,Umugabo avuga ko inzoka yamurumye ejo kandi ubu ukuguru kwarirabura.
+376,CANNOT CLASSIFY,avuga ko,Avuga ko yabwiwe kugaruka niba umuriro wongera kugaruka.
+378,ROUTINE,avuga ko,Avuga ko kuva yakomereka atagishobora gukora kandi akaba nta mafaranga afite.
+380,URGENT,avuga ko,Avuga ko igikomere cyadodwe mu rugo hakoreshejwe urushinge n'urudodo.
+381,URGENT,avuga ko,Umugore avuga ko uruhinja rwe kuva ejo rutigeze rwihagarika.
+382,CRITICAL,avuga ko,Avuga ko ukuboko kwe kwagabanyutse imbaraga kuva abyutse.
+384,ROUTINE,avuga ko,Avuga ko ububabare buri hose kandi bumaze imyaka.
+385,URGENT,avuga ko,Umugabo avuga ko yamize igufa ry'ifi kandi rikaba ryamugumyemo.
+386,URGENT,avuga ko,Avuga ko umwana agira umuriro buri minsi ibiri.
+387,ROUTINE,yabwiwe ko,Yabwiwe ko akeneye kubagwa kandi afite ubwoba.
+388,URGENT,avuga ko,Avuga ko amaze kuzungera kuva yakubita umutwe mu mukino.
+389,ROUTINE,avuga ko,Umugore avuga ko umwanya w'inda w'uruhinja wasohotse ukabyimba.
+390,ROUTINE,avuga ko,Avuga ko kubabara no gushya mu gihe cyo kwihagarika byagarutse ku nshuro ya gatatu.
+392,URGENT,avuga ko,Avuga ko amaze icyumweru akorora amaraso kandi akaba yarabihishe umuryango we.
+394,URGENT,avuga ko,Avuga ko umwana yari ameze neza kugeza aguye ku giti cy'umwembe ejo.
+396,ROUTINE,avuga ko,Avuga ko kuva umwana yavuka amaze igihe yumva atameze neza mu mutima.
+397,URGENT,avuga ko,Umugabo avuga ko igikomere cyo ku kuguru kirimo inyo.
+398,URGENT,avuga ko,Avuga ko umutwe w'umwana usa n'aho urimo gukura vuba kurusha mbere.
+400,ROUTINE,avuga ko,Avuga ko amaze ukwezi asohora umwanda urimo ibimwira.
+401,CANNOT CLASSIFY,avuga ko,Umugore avuga ko yahawe imiti ku ivuriro ryigenga maze ubuzima bukarushaho kumera nabi.
+402,URGENT,avuga ko,Avuga ko ububabare bwamukanguye mu gihe yari asinziriye maze araruka.
+404,URGENT,avuga ko,Avuga ko atibuka ibyabaye nyuma y'impanuka.
+406,URGENT,avuga ko,Avuga ko uruhinja rwari rumeze neza kugeza igihe umugozi w'inda waciwe urwembe.
+407,URGENT,avuga ko,Umugore avuga ko ababara mu ibere kandi afite umuriro.
+408,ROUTINE,avuga ko,Avuga ko ukuguru kwe kwavunitse umwaka ushize ariko ko gukomeza kumubabaza.
+410,ROUTINE,avuga ko,Avuga ko umwana atwarwa n'amazi cyangwa akenda kunanirwa guhumeka iyo anywa.
+412,URGENT,avuga ko,Umugabo avuga ko kuva yagira impanuka yo mu muhanda atabasha kwihagarika.
+413,URGENT,avuga ko,Avuga ko ibisebe byo ku ruhu byazanye n'umuriro kandi bikaba biri gukwira.
+414,ROUTINE,avuga ko,Umugore avuga ko umuryango ushaka ko abyara mu rugo.
+415,URGENT,avuga ko,Avuga ko ikirenge cye cyanyujijweho igare kandi kikaba cyarabyimbye.
+417,ROUTINE,avuga ko,Avuga ko inda imurya gusa iyo atariye.
+418,ROUTINE,yabwiwe ko,Amaze amezi akorora kandi yabwiwe ko ari allergie.
+419,ROUTINE,avuga ko,Avuga ko umwana ajya areba hamwe ntasubize iyo bamuvugisha mu gihe gito.
+420,URGENT,avuga ko,Umugabo avuga ko afite ibisebe by'inda cyangwa hernia itakijya imbere.
+421,URGENT,avuga ko,Avuga ko yakubiswe kandi akaba ava amaraso mu mazuru.
+423,ROUTINE,avuga ko,Avuga ko kuva ku nshuro iheruka umwana atigeze yiyongera ibiro.
+425,URGENT,avuga ko,Avuga ko yaguye ku igare akajugunywa hasi agwa ku rutugu.
+426,ROUTINE,avuga ko,Umugore avuga ko ava amaraso nyuma y'imibonano mpuzabitsina.
+427,URGENT,avuga ko,Avuga ko ijisho rimubabaza kandi urumuri rukamubangamira.
+429,ROUTINE,avuga ko,Avuga ko arara abira ibyuya kugeza ishati ye itose.
+431,URGENT,avuga ko,Avuga ko ukuguru kwabyimbye nyuma y'urugendo rurerure muri bisi.
+432,URGENT,avuga ko,Umugabo avuga ko ugutwi kwe kwaciwe mu mirwano kandi kukaba kumanitse.
+433,CANNOT CLASSIFY,avuga ko,Avuga ko umwana arira buri gihe bamuhinduye pampers.
+434,ROUTINE,yabwiwe ko,Yabwiwe ko afite ikibazo cy'umutima kandi ashaka ko undi muganga amwisuzuma.
+435,URGENT,avuga ko,Avuga ko igikomere cyo ku gikorwa cyo kubagwa cyafungutse.
+436,CRITICAL,avuga ko,Umugore avuga ko ari kubabara kandi umwana akaba ari hafi kuvuka ubu.
+437,ROUTINE,avuga ko,Avuga ko adashobora kurambura urutoki nyuma yo gufata umupira.
+439,URGENT,avuga ko,Avuga ko umwana amaze icyumweru afite umuriro kandi nta mpamvu iraboneka.
+441,URGENT,avuga ko,Avuga ko yarumwe n'ikinyamukuru cyo mu gisenge.
+442,ROUTINE,avuga ko,Umugore avuga ko yabwiwe ko umwana aryamye mu nda atambitse.
+443,ROUTINE,avuga ko,Avuga ko imiti y'umuvuduko w'amaraso yamushizeho kandi ubu yumva ameze neza atayifata.
+445,URGENT,avuga ko,Avuga ko ububabare bwo mu gituza bwiyongera iyo ahumetse cyane.
+447,URGENT,avuga ko,Avuga ko ukuboko k'umwana kwakubiswe cyangwa kwakwegerewe kandi ubu atagikoresha.
+449,URGENT,avuga ko,Avuga ko adashobora kwicara kubera ububabare bwo ku kibuno.
+450,URGENT,avuga ko,Umugore avuga ko amaze umunsi asohora amazi mu gitsina kandi atwite.
+451,URGENT,avuga ko,Avuga ko yikase ku kirahure cyamenetse ubwo yasukuraga.
+453,ROUTINE,avuga ko,Avuga ko amaze gufata imiti ahabwa n'inshuti ye ifite ibimenyetso nk'ibye.
+455,URGENT,avuga ko,Avuga ko ububabare bwatangiriye mu mugongo kandi ubu akaba adashobora kwihagarika.
+457,URGENT,avuga ko,Avuga ko umwana abira ibyuya iyo arimo konka cyangwa kurya maze akareka akaruhuka.
+458,URGENT,avuga ko,Umugore avuga ko amaguru ye yabyimbye mu cyumweru cya nyuma cyo gutwita.
+459,URGENT,avuga ko,Avuga ko afite ikibyimba kirimo amashyira inyuma y'ijosi kandi kirimo gukwira.
+461,ROUTINE,avuga ko,Avuga ko umwana yishimagura ku kibuno nijoro.
+463,ROUTINE,avuga ko,Avuga ko yaguye igihumure ubwo yari asibye kurya.
+464,URGENT,avuga ko,Umugabo avuga ko agace k'icyuma kamwinjiye mu jisho ubwo yasudaga.
+465,URGENT,avuga ko,Avuga ko umwana amaze gukorora kandi umuriro ukaba utagabanuka.
+466,ROUTINE,avuga ko,Umugore avuga ko amaze kugira ububabare kuva ashyirwamo agakoresho ko kuboneza urubyaro ko mu mura.
+467,URGENT,avuga ko,Avuga ko igikomere kinuka kandi afite umuriro.
+469,ROUTINE,avuga ko,Avuga ko amaboko ye atitira kandi akaba adashobora gufata igikombe.
+471,CRITICAL,avuga ko,Avuga ko yakandagiyewe n'urukuta rwaguye mu gihe cy'imvura.
+472,CRITICAL,avuga ko,Umugore avuga ko kuva aguye umwana atakigenda cyane nk'uko bisanzwe.
+473,ROUTINE,avuga ko,Avuga ko ububabare bwo mu kanwa bumubuza kurya kandi akaba ari kugabanuka ibiro.
+475,ROUTINE,avuga ko,Avuga ko igikomere cyo ku kuguru cyatewe n'ubushye yagize akiri umwana.
+477,URGENT,avuga ko,Avuga ko umwana yaguye maze akomeretsa umunwa akoresheje amenyo.
+478,ROUTINE,avuga ko,Umugore avuga ko atazi neza niba atwite kandi akaba yumva arwaye.
+479,ROUTINE,avuga ko,Avuga ko afite igikomere ku gitsina cy'umugabo kandi afite isoni.
+481,ROUTINE,avuga ko,Avuga ko umwana akorora kandi umuryango umaze kumuvura umwuka w'amazi ashyushye.
+483,CRITICAL,avuga ko,Avuga ko yumva ububabare bukomeye mu nda nk'aho hari ikintu kiyitanyagura kandi atwite.
+484,URGENT,avuga ko,Umugabo avuga ko yakubiswe n'umufuka wa kawa waguye mu bubiko.
+485,URGENT,avuga ko,Avuga ko intoki z'umwana zabyimbye kandi zibabaza.
+487,ROUTINE,avuga ko,Avuga ko akorora cyane kugeza ubwo yihagarika atabishaka.
+488,ROUTINE,avuga ko,Umugore avuga ko kuva yabyara umwaka ushize atongeye kugira imihango.
+489,URGENT,avuga ko,Avuga ko ubushye buri ku gituza kandi uruhu rwaho rwaravaho.
+491,URGENT,avuga ko,Avuga ko umwana yabaye igikendera kandi nyina akabona amaraso muri pampers.
+492,URGENT,avuga ko,Umugabo avuga ko kuva aguye adashobora kuzamura ukuboko hejuru y'umutwe.
+493,CANNOT CLASSIFY,avuga ko,Avuga ko ububabare bushira iyo afashe imiti ariko bukongera kugaruka.
+495,CRITICAL,avuga ko,Avuga ko igikomere kiri ku mutwe kandi amaraso akaba atahagarara.
+496,CRITICAL,avuga ko,Umugore avuga ko yagize impanuka yo mu muhanda kandi atwite amezi atandatu.
+497,ROUTINE,avuga ko,Avuga ko ibirenge bye bimaze umwaka bishya nijoro.
+499,URGENT,avuga ko,Avuga ko amaze kugira ububabare mu gituza ariko akeka ko ari mu nda.
+501,URGENT,avuga ko,Avuga ko umwana yarumwe n'udukoko kandi ku kuboko hakaba hari umurongo utukura ugenda ukwira.
+502,ROUTINE,yabwiwe ko,Yabwiwe ko afite ikibazo cy'impyiko kandi abaza niba agishobora gukora ubuhinzi.
+503,URGENT,avuga ko,Avuga ko iryinyo ritakibabara ariko ubu mu maso hakaba harabyimbye.
+504,ROUTINE,avuga ko,Umugore avuga ko afite umunuko umutera isoni.
+505,ROUTINE,avuga ko,Avuga ko adashobora kunama ivi kuva yamaze umunsi wose apfukamye mu murima.
+507,ROUTINE,avuga ko,Avuga ko imiti ye yibwe hamwe n'isakoshi ye.
+509,URGENT,avuga ko,Avuga ko amaso y'umwana ajya hejuru iyo afite umuriro.
+510,ROUTINE,avuga ko,Umugabo avuga ko amaze igihe adashobora kubyara umwana kandi ashaka kwisuzumisha.
+511,CRITICAL,avuga ko,Avuga ko agira umutwe kandi akabona ibicucu mu maso igihe atwite.
+513,URGENT,avuga ko,Avuga ko igikomere cyatewe n'imbwa hashize ibyumweru bitatu kandi atarakitaho.
+515,ROUTINE,avuga ko,Avuga ko ububabare bwatangiye nyuma yo guterura umwuzukuru we.
+516,URGENT,avuga ko,Umugore avuga ko uruhinja rwavukiye mu rugo kandi ruhumeka vuba.
+517,URGENT,avuga ko,Avuga ko amaze ukwezi aruka nyuma ya buri funguro.
+519,CANNOT CLASSIFY,avuga ko,Avuga ko yaretse kuza kuko umurongo wari muremure cyane ubushize.
+521,CRITICAL,avuga ko,Avuga ko umwana arira kandi intanga imwe yarabyimbye.
+522,URGENT,avuga ko,Umugabo avuga ko yabyutse yumva icyumba kizungera.
+523,URGENT,avuga ko,Avuga ko umuvandimwe yahaye uruhinja imiti gakondo maze ruruka.
+525,URGENT,avuga ko,Avuga ko amaze iminsi ibiri yihagarika duke cyane.
+527,ROUTINE,avuga ko,Avuga ko ababara munsi y'imbavu zo ku ruhande rw'iburyo kandi bikiyongera nyuma yo kurya ibiryo birimo ibinure byinshi.
+528,ROUTINE,avuga ko,Umugore avuga ko yabazwe abyara kandi inkovu ikaba imubabaza.
+529,ROUTINE,avuga ko,Avuga ko atakumva kuva amazi yinjira mu gutwi.
+531,ROUTINE,avuga ko,Avuga ko kubyimba kuza kugashira bitewe n'ubushyuhe.
+532,URGENT,avuga ko,Umugabo avuga ko yakubiswe kandi afite igikomere hejuru y'ijisho.
+533,URGENT,avuga ko,Avuga ko umwana amaze ibyumweru bibiri asohora umwanda w'amazi.
+535,ROUTINE,avuga ko,Avuga ko akorora gusa nijoro mu gihe cy'ubukonje.
+536,CRITICAL,avuga ko,Umugore avuga ko ari kuva amaraso kandi atwite amezi umunani.
+537,ROUTINE,avuga ko,Avuga ko igikomere cyo ku kuguru bamaze amezi abiri bagipfuka hano ariko nta mpinduka.
+539,ROUTINE,avuga ko,Avuga ko ababara iyo agenda ariko ububabare bukagenda iyo ahagaze.
+540,ROUTINE,yabwiwe ko,Yabwiwe ko afite ikibyimba kandi ashaka kumenya niba ari kanseri.
+541,ROUTINE,avuga ko,Avuga ko umwana yari ameze neza ariko kuva ku muhango wo gushyingura akaba yaracecetse cyane.
+542,URGENT,avuga ko,Umugabo avuga ko ijisho rye ritukura kandi adashobora kureba urumuri.
+543,ROUTINE,avuga ko,Avuga ko yumva ibintu bigenda mu nda kandi atari atwite.
+545,ROUTINE,avuga ko,Avuga ko ubushye bwabayeho hashize iminsi itatu kandi hakaba haravutse utubyimba twuzuye amazi.
+547,CANNOT CLASSIFY,avuga ko,Avuga ko imiti ye n'iy'umugore we yavanze.
+548,ROUTINE,avuga ko,Umugore avuga ko afite igikomere cyaturutse ku kubyara kitarakira.
+549,ROUTINE,avuga ko,Avuga ko adashobora kugenda intera ndende atabanje guhagarara ngo abone umwuka.
+551,URGENT,avuga ko,Avuga ko umwana yaguye mu ivu rishyushye.
+552,ROUTINE,yabwiwe ko,Yaje kuko yabwiwe ko isukari yo mu maraso iri hejuru.
+553,URGENT,avuga ko,Avuga ko igikomere kiri ku kuboko kandi akaba adashobora kugendesha intoki ebyiri.
+554,URGENT,avuga ko,Umugore avuga ko uruhinja ruruka nyuma yo kuronka cyangwa kurya buri gihe kandi rukaba rugabanuka ibiro.
+555,ROUTINE,avuga ko,Avuga ko nijoro amaguru yombi amubabaza.
+557,ROUTINE,avuga ko,Avuga ko uruhu rw'umwana ruri kuvaho nyuma y'umuriro.
+558,CRITICAL,avuga ko,Umugabo avuga ko yanyoye umuti wica imbeba.
+559,ROUTINE,avuga ko,Avuga ko ububabare bwo ku rutugu bumukangura kandi akaba adashobora kuryama kuri urwo rutugu.
+561,URGENT,avuga ko,Avuga ko kubyimba ku kuguru byatangiye nyuma yo kurumwa n'ikintu atabonye.
+562,CRITICAL,avuga ko,Umugore avuga ko ari ku nda kandi ukuboko k'umwana kwabanje gusohoka.
+563,ROUTINE,avuga ko,Avuga ko yabonye ikibyimba ku ntanga ubwo yiyuhagiraga.
+565,URGENT,avuga ko,Avuga ko inkorora imusohorezamo amaraso gusa mu gitondo.
+567,ROUTINE,avuga ko,Avuga ko umwana amaze ibyumweru asohora ibintu mu mazuru ku ruhande rumwe.
+568,CRITICAL,avuga ko,Umugabo avuga ko kuva muri iki gitondo ukuguru kwe gukonje kandi kubabaza.
+569,URGENT,avuga ko,Avuga ko yabwiwe ko umutima w'uruhinja utumvikanaga.
+571,URGENT,avuga ko,Avuga ko mu maso h'umwana hatwitswe n'igikoresho giturika cyo kwishimisha.
+573,URGENT,avuga ko,Avuga ko amaze icyumweru adashobora gusinzira aryamye.
+574,ROUTINE,avuga ko,Umugore avuga ko ibintu bidasanzwe bisohoka mu gitsina byatangiye nyuma y'uko umugabo we agarutse mu rugendo.
+575,ROUTINE,avuga ko,Avuga ko ububabare bwo mu mugongo bukabije nijoro kandi ntibugabanuke iyo aruhutse.
+577,ROUTINE,avuga ko,Avuga ko akaguru ke hafi y'ikirenge kamaze ukwezi karabyimbye kuva yakagoreka.
+579,URGENT,avuga ko,Avuga ko umwana akorora kandi amaze amezi agabanuka ibiro.
+581,CRITICAL,avuga ko,Avuga ko ari we waciye umugozi w'inda kandi ubu uruhinja rukaba rurawuvamo amaraso.
+582,ROUTINE,avuga ko,Umugore avuga ko ukuboko kwe kwabyimbye kuva yabagwa ku ibere.
+583,ROUTINE,avuga ko,Avuga ko ububabare bwatangiriye mu gutwi kumwe ariko ubu amatwi yombi akababara.
+585,ROUTINE,avuga ko,Avuga ko ukuboko hafi y'ikiganza kumubabaza kubera kwandika kuri mudasobwa umunsi wose.
+587,URGENT,avuga ko,Avuga ko atabasha kugumana imiti mu nda kuko arayiruka igihe atwite.
+588,URGENT,avuga ko,Umugabo avuga ko kuva aguye abona ibintu bibiri.
+589,URGENT,avuga ko,Avuga ko umwana arira iyo bakoze ku kuguru kandi yanga guhagarara.
+590,ROUTINE,yabwiwe ko,Yabwiwe ko amaso ye akeneye kubagwa kandi ashaka inama.
+591,CRITICAL,avuga ko,Avuga ko kuva amaraso byatangiye nyuma yo kunywa imiti gakondo yo gukuramo inda.
+593,CRITICAL,avuga ko,Avuga ko igikomere cyatewe n'amasasu kandi adashaka kugira ibindi avuga.
+595,URGENT,avuga ko,Avuga ko uruhu rwe rwahindutse umuhondo ariko nta kindi yumva.
+596,ROUTINE,avuga ko,Umugore avuga ko ukuboko k'uruhinja kwe kwakomeretse igihe yarubyazaga.
+597,URGENT,avuga ko,Avuga ko ababara mu gituza gusa iyo arakaye.
+599,ROUTINE,avuga ko,Avuga ko umwana amaze igihe ahumbiranya amaso kuva akiri muto.
+601,ROUTINE,avuga ko,Avuga ko ku ibere hari ahantu hameze nk'ahagwa imbere mu ruhu yabonye ukwezi gushize.
+602,ROUTINE,avuga ko,Umugabo avuga ko adashobora kurambura umugongo nyuma yo gukora yunamye umunsi wose.
+603,URGENT,avuga ko,Avuga ko umwana amaze kwihagarika kenshi kandi yongeye kwinyarira mu buriri.
+605,ROUTINE,avuga ko,Avuga ko amaze kugira ibicuri kuva akiri umwana.
+607,URGENT,avuga ko,Avuga ko ububabare bwo mu nda budahagarara kandi adashobora kuryama arambuye.
+608,ROUTINE,avuga ko,Umugore avuga ko yabwiwe ko atwite impanga kandi akaba afite impungenge.
+609,URGENT,avuga ko,Avuga ko amashanyarazi yamutwitse ukuboko ubwo yakoraga ku nsinga.
+611,ROUTINE,avuga ko,Avuga ko imiti yamushizeho ukwezi gushize ariko ntiyagaruka.
+613,ROUTINE,avuga ko,Avuga ko uruhinja rufite ikibyimba mu ijosi kuva ruvuka.
+614,CRITICAL,avuga ko,Umugabo avuga ko ihembe ry'inka ryamwinjiye mu itako.
+615,URGENT,avuga ko,Avuga ko amaze ibyumweru bitatu ava amaraso adahagarara.
+617,URGENT,avuga ko,Avuga ko ububabare bwo ku ruhande bujyana n'umuriro no gutitira.
+619,ROUTINE,avuga ko,Avuga ko ku kirenge afite umwobo winjira cyane kandi utamubabaza.
+620,ROUTINE,avuga ko,Umugore avuga ko amaze imyaka ibiri adashobora gusama.
+621,ROUTINE,avuga ko,Avuga ko umwana yari asanzwe ameze neza ariko mu mezi ashize akaba yararetse kuvuga.
+622,ROUTINE,yabwiwe ko,Yabwiwe ko umwijima we munini kandi ashaka kumenya icyo bivuze.
+623,CANNOT CLASSIFY,avuga ko,Avuga ko ububabare bwatangiye nyuma yo kugenda urugendo rurerure kandi bumaze iminsi butagabanuka.
+625,URGENT,avuga ko,Avuga ko umuhogo umufunga iyo ariye amafi.
+626,URGENT,avuga ko,Umwana afite ijisho ryakomeretse kandi nyina avuga ko yaguye ku buriri.
+627,URGENT,avuga ko,Avuga ko amaze kumva uburemere mu gituza kuva yabyara.
+628,CRITICAL,avuga ko,Umugabo avuga ko igiti cyamuguye ku kuguru ubwo yatemaga inkwi.
+629,CRITICAL,avuga ko,Avuga ko inda y'umwana ikomeye kandi akaba atarasohora umwuka mu nda.
+631,ROUTINE,avuga ko,Avuga ko imihango yahagaze umwaka ushize ariko ubu ikaba yongeye kugaruka.
+633,ROUTINE,avuga ko,Avuga ko umwana akorora kuva yavuka imburagihe.
+635,ROUTINE,avuga ko,Avuga ko buri gitondo ababara ku gatsinsino.
+636,ROUTINE,avuga ko,Umugore avuga ko arwaye umutwe kandi imiti itakimufasha.
+637,CRITICAL,avuga ko,Avuga ko umwana yarumwe n'inzoka maze umuryango ukamushyiraho imiti gakondo.
+639,URGENT,avuga ko,Avuga ko asohora uturemangingo tw'amaraso mu nkari.
+641,ROUTINE,avuga ko,Avuga ko igikomere cyadodewe ahandi kandi urudodo rukaba ruri kugaragara.
+643,URGENT,avuga ko,Avuga ko ababara mu mugongo wo hasi ku ruhande rumwe kandi ububabare bukagera mu ihina.
+644,URGENT,avuga ko,Umugore avuga ko yabwiwe kuza kubagwa ariko akaba nta buryo bwo gutwara afite.
+645,ROUTINE,avuga ko,Avuga ko umuhungu we anywa inzoga kandi akaba atazi icyo yakora.
+647,ROUTINE,avuga ko,Avuga ko gushya mu birenge byiyongereye kuva imiti yahinduka.
+649,URGENT,avuga ko,Avuga ko muri iki cyumweru yagize ububabare bwo mu gituza inshuro eshatu.
+650,ROUTINE,yabwiwe ko,Yabwiwe ko agomba kubyarira ku bitaro kandi ashaka kumenya impamvu.
+651,URGENT,avuga ko,Avuga ko umwana afite umuriro kandi yanga ko bamukoraho.
+652,CRITICAL,avuga ko,Umugabo avuga ko ukuboko kwe kwafashwe n'imashini itwara ibintu ku ruganda.
+653,ROUTINE,avuga ko,Avuga ko hari ibintu bidasanzwe bimusohokamo kandi uwo bashakanye na we afite ibimenyetso.
+655,ROUTINE,avuga ko,Avuga ko kubyimba mu nda bimaze amezi byiyongera kandi atari atwite.
+657,ROUTINE,avuga ko,Avuga ko atabona neza nijoro kandi akagonga ibintu.
+658,ROUTINE,avuga ko,Umugore avuga ko yavuye amaraso mu ntangiriro z'inda ariko ubu byarahagaze.
+659,ROUTINE,avuga ko,Avuga ko ububabare bwo ku rwasaya bumufata iyo ari guhekenya.
+661,ROUTINE,avuga ko,Avuga ko umwana amaze kwishimagura kandi uruhu rwarabyimbye rukaba rwarakomeye.
+663,URGENT,avuga ko,Avuga ko aruka amaraso kandi akeka ko ava mu mazuru.
+664,URGENT,avuga ko,Umugabo avuga ko yarumwe ku kuboko ubwo yatandukanyaga imbwa ebyiri.
+665,ROUTINE,avuga ko,Avuga ko umwana akorora kandi umuryango ukaba umaze kumuvura umwuka w'amazi ashyushye.
+667,CRITICAL,avuga ko,Avuga ko ijisho ryatangiye kubabara nyuma yo kurigeraho umuti wa shimi.
+668,URGENT,avuga ko,Umugore avuga ko uruhinja rwe rwahindutse umuhondo kandi rwanga konka cyangwa kurya.
+669,URGENT,avuga ko,Avuga ko aribwa mu nda kandi umwanda ukaba wirabura.
+671,ROUTINE,avuga ko,Avuga ko kubyimba munsi y'urwasaya bibabaza iyo ariye.
+673,ROUTINE,avuga ko,Avuga ko amaze kubona mu bitekerezo ibintu by'ibyabaye kuva yagabwaho igitero.
+675,CRITICAL,avuga ko,Avuga ko adashobora kwituma kandi ibyo arya cyangwa anywa byose akabiruka.
+676,URGENT,avuga ko,Umugore avuga ko amazi yo mu nda yasohotse afite inda y'amezi arindwi.
+677,ROUTINE,avuga ko,Avuga ko ukuboko k'umwana kwafungiranywe mu rugi.
+679,URGENT,avuga ko,Avuga ko yarumwe n'igitagangurirwa kandi uruhu ruzengurutse aho yarumwe rurimo kwangirika.
+681,URGENT,avuga ko,Avuga ko kuva mu gitondo umwana atabasha kunama ijosi.
+682,CANNOT CLASSIFY,avuga ko,Umugabo avuga ko imiti yahinduwe none akaba yumva arushijeho kumera nabi.
+683,CRITICAL,avuga ko,Avuga ko yabyariye impanga mu rugo kandi umwe muri bo atagenda neza.
+685,ROUTINE,avuga ko,Avuga ko ububabare bwo ku mukondo bwatangiye kuva akora akazi ko guterura ibintu.
+687,URGENT,avuga ko,Avuga ko umwana ahinduka ubururu iyo arize cyane.
+688,ROUTINE,avuga ko,Umugore avuga ko amaze kuva amaraso kuva yaterwa urushinge rwo kuboneza urubyaro.
+689,URGENT,avuga ko,Avuga ko yakaswe ku kirenge n'isuka maze akizirikaho ikibabi cy'igitoki.
+691,ROUTINE,avuga ko,Avuga ko ijosi rimaze igihe rimubabaza kuva aryama nabi.
+693,URGENT,avuga ko,Avuga ko amaze iminsi ine atabasha kurya kandi aruka.
+694,URGENT,avuga ko,Umugabo avuga ko ibuye ryatewe mu bantu ryamukubise mu jisho.
+695,URGENT,avuga ko,Avuga ko umwana afite umuriro kandi ahumeka vuba kandi adahumeka cyane.
+697,URGENT,avuga ko,Avuga ko igikomere cyo ku kuguru cyatewe no kugwa mu mwobo igihe cy'imvura.
+698,URGENT,avuga ko,Umugore avuga ko nyina amaze icyumweru atazi neza ibimukikije kandi atarya.
+699,URGENT,avuga ko,Avuga ko afite ububabare mu gituza kandi se yapfuye azize indwara y'umutima.
+1073,URGENT,avuga ko,Umwana yanga kurya kandi yerekana umuhogo avuga ko ari ho harwaye.
+1153,URGENT,avuga ko,Umwana afite igikomere ku jisho kandi nyina avuga ko yaguye ku buriri.
+1260,ROUTINE,avuga ko,Umwana avuga ko ibyo arya byose bimuryohera nabi.
+1669,ROUTINE,avuga ko,Umusaza ahora agwa kandi avuga ko biterwa n’amaso ye.
+1946,ROUTINE,avuga ko,Umwana avuga ko ababaye ariko arakina nk’ibisanzwe.
+2321,URGENT,avuga ko,Umwana avuga ko urumuri rumubabaza amaso.
+2449,ROUTINE,avuga ko,Umwana avuga ko ababaza ahantu hose ariko ntamenye aho bimubabaza.
+2536,URGENT,avuga ko,Uruhinja ntironsa kandi nyina avuga ko ari ubunebwe.
+2537,URGENT,avuga ko,Umwana aragenda ananirwa gukandagira neza ariko ababyeyi bavuga ko ari ukwiyitirira.
+2545,URGENT,avuga ko,Uruhinja rufite umuhondo ariko nyina avuga ko ari izuba.

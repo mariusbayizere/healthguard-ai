@@ -1,0 +1,8 @@
+# PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth.
+# Ids absent from the contiguous range. These are unwritten, not lost:
+# nothing was deleted, the ids were never filled.
+1401-1499	99
+2001-2019	19
+2101-2200	100
+2701-2799	99
+# total 317

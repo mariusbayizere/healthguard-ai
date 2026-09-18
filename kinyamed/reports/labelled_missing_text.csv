@@ -1,0 +1,203 @@
+"# PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth."
+id,cue,reporter,age_group,label
+2800,Ndababara kuva mu mugongo kugeza ku ivi,Self,Umuntu mukuru,ROUTINE
+2801,Mfite igisebe cyatangiriye ku kabyimba gato,Self,Umuntu mukuru,ROUTINE
+2802,Kubyimba birushaho kuba byinshi ku ruhande ndyama,Self,Umuntu mukuru,ROUTINE
+2803,Umwana arya ubutaka kandi akarya inzara,Carer,Umwana,ROUTINE
+2804,Ndababara mu mayasha iyo nkoroye,Self,Umusaza/Umukecuru,ROUTINE
+2805,Uruhinja rutera ukuguru kumwe kurusha ukundi,Carer,Impinja,ROUTINE
+2806,Nva amaraso nijoro gusa,Self,Umuntu mukuru,CANNOT CLASSIFY
+2807,Mfite kubyimba kwaje nyuma yo kumara igihe ndwaye,Self,Umuntu mukuru,CANNOT CLASSIFY
+2808,Umwana afite umuriro kandi intangangore imwe yarabyimbye,Carer,Umwana,URGENT
+2809,Mfite ibiheri munsi y’amaboko yombi,Self,Umusaza/Umukecuru,ROUTINE
+2810,Ndababara ariko si mu nda na gato,Self,Umuntu mukuru,CANNOT CLASSIFY
+2811,Ndatangira kubabara nyuma yo gukurwamo iryinyo,Self,Umuntu mukuru,ROUTINE
+2812,Amabere arambabaza cyane ku ruhande rumwe,Self,Umuntu mukuru,ROUTINE
+2813,Umwana arakorora kuva ishuri risizwe irangi,Carer,Umwana,ROUTINE
+2814,Numva mfite intege nke nyuma yo kumara umunsi ntanywa amazi,Self,Umusaza/Umukecuru,URGENT
+2815,"Uruhinja rurira, rugahita rureka, rukongera kurira",Carer,Impinja,ROUTINE
+2816,Uruhu rurandya cyane nyuma yo kwiyuhagira,Self,Umuntu mukuru,ROUTINE
+2817,Ububabare buragabanuka iyo nkoresheje igitambaro gishyushye,Self,Umuntu mukuru,ROUTINE
+2818,Umwana yarabyimbye nyuma yo guhabwa urukingo umwaka ushize,Carer,Umwana,ROUTINE
+2819,Ndababara ku rutugu kandi ububabare bukagera ku kuboko,Self,Umusaza/Umukecuru,ROUTINE
+2820,Natangiye kuva amaraso nyuma yo kugabanya konsa,Self,Umuntu mukuru,ROUTINE
+2821,Mfite igisebe umuvuzi gakondo yansatuye akoresheje urwembe,Self,Umuntu mukuru,URGENT
+2822,Umwana afite umuriro kandi ijisho rimwe ryarabyimbye,Carer,Umwana,URGENT
+2823,Natangiye kubabara nyuma yo guterura umwana mukuru,Self,Umuntu mukuru,ROUTINE
+2824,"Sinshobora kwihagarika mpagaze, ariko nicaye ndabishobora",Self,Umusaza/Umukecuru,ROUTINE
+2825,Mfite kubyimba kwaje nyuma yo kurumwa n’agakoko nijoro,Self,Umuntu mukuru,ROUTINE
+2826,Uruhinja ruronka ariko ntirumira neza,Carer,Impinja,URGENT
+2827,Ndababara ukuguru ku buryo bintera kubyuka gusa,Self,Umuntu mukuru,ROUTINE
+2828,Umwana yagize umuriro watangiranye no kubabara umuhogo,Carer,Umwana,URGENT
+2829,Mfite igisebe ku kuguru kandi isazi ziragikikiza,Self,Umusaza/Umukecuru,ROUTINE
+2830,Mfite akabyimba mu ijosi kaje mfite ibicurane,Self,Umuntu mukuru,ROUTINE
+2831,Maze igihe mbura umwuka kuva inzu yacu yatewe n’amazi,Self,Umuntu mukuru,ROUTINE
+2832,Umwana yatangiye kugenda acumbagira nyuma yo kubabara umuhogo,Carer,Umwana,URGENT
+2833,Ndababara iyo umwana ankandagiye ku mbavu,Self,Umuntu mukuru,ROUTINE
+2834,Mfite igisebe ku itako kitigeze gikira,Self,Umusaza/Umukecuru,ROUTINE
+2835,Nta sensation mfite ku ntoki ebyiri za nyuma gusa,Self,Umuntu mukuru,ROUTINE
+2836,Uruhinja ntirufunga ijisho rimwe neza,Carer,Impinja,URGENT
+2837,Ndababara ku rutugu kuva naraye hanze,Self,Umuntu mukuru,ROUTINE
+2838,Umwana afite umuriro kandi amaboko yombi yarabyimbye,Carer,Umwana,URGENT
+2839,Natangiye kugira intege nke nyuma yo gutangira iyo miti,Self,Umusaza/Umukecuru,ROUTINE
+2840,Natangiye gukorora mu kwezi kwa nyuma ko gutwita,Self,Umuntu mukuru,ROUTINE
+2841,Mfite kubyimba kubabaza iyo ikirere gihindutse,Self,Umuntu mukuru,ROUTINE
+2842,Umwana ntashaka gufungura ijisho rimwe mu gitondo,Carer,Umwana,ROUTINE
+2843,Ndababara iyo uruhago rwanjye rwuzuye,Self,Umusaza/Umukecuru,ROUTINE
+2844,Mfite ibintu biva mu gitsina byatangiye nyuma y’urugendo rurerure,Self,Umuntu mukuru,ROUTINE
+2845,Uruhu rw’uruhinja ruhinduka utudomo iyo hakonje,Carer,Impinja,ROUTINE
+2846,Inkorora iragabanuka iyo nicaye negamiye imbere,Self,Umuntu mukuru,ROUTINE
+2847,Umwana afite kubyimba mu rwasaya kandi iryinyo riranyeganyega,Carer,Umwana,URGENT
+2848,Umwana natangiye kumva atanyeganyega cyane nyuma yo kugira ubwoba,Self,Umuntu mukuru,URGENT
+2849,Natangiye kubabara nyuma yo guhabwa urukingo,Self,Umusaza/Umukecuru,ROUTINE
+2850,Ukuboko kumwe kurabyimba iyo nteruye umwana,Self,Umuntu mukuru,ROUTINE
+2851,Yahumye amaso yombi gitunguranye kandi bakeka ko yaba yanyoye methanol,Carer,Umuntu mukuru,CRITICAL
+2852,Umwana yatangiye kubyimba umuhogo gitunguranye nyuma yo gufata umuti,Carer,Umwana,CRITICAL
+2853,Afite ububabare bukabije kandi inda yarakomeye nyuma yo kugwa,Carer,Umuntu mukuru,CRITICAL
+2854,Afite iminwa yagiye ubururu kandi ntashobora kugenda ngo agere ku muryango,Carer,Umusaza/Umukecuru,CRITICAL
+2855,"Uruhinja rurakonje kandi ntirinyeganyega, twaruzanye turupfunyitse",Carer,Impinja,CRITICAL
+2856,Afite amaraso menshi ava mu kanwa nyuma yo gukubitwa,Carer,Umuntu mukuru,CRITICAL
+2857,Umwana ijosi rirakomeye kandi ntashaka kureba urumuri,Carer,Umwana,CRITICAL
+2858,"Afashwe n’ibinya, aratwite kandi ntabwo yari asanzwe yivuriza hano",Carer,Umuntu mukuru,CRITICAL
+2859,Afite ububabare bukabije mu mugongo bwatangiye gitunguranye kandi ntashobora guhagarara,Carer,Umusaza/Umukecuru,CRITICAL
+2860,Yabyimbye mu maso no mu muhogo nyuma yo kurya ubunyobwa,Carer,Umuntu mukuru,CRITICAL
+2861,Umwana yatwitswe mu gatuza no ku maboko yombi,Carer,Umwana,CRITICAL
+2862,Afite kuva amaraso menshi kandi yazimiye mu murongo w’abarwayi,Carer,Umuntu mukuru,CRITICAL
+2863,Afite igisebe mu ijosi kandi ari kugifatiraho umwenda,Carer,Ingimbi/Umwangavu,CRITICAL
+2864,Ntabasha kwihagarika kuva hashize iminsi ibiri kandi arababara cyane,Carer,Umusaza/Umukecuru,URGENT
+2865,"Uruhinja rwarafashwe n’ibinya, rurashyushye cyane kandi twaruvanye kure",Carer,Impinja,CRITICAL
+2866,Umwana yanyoye aside ya batiri,Carer,Umwana,CRITICAL
+2867,Twabonye ururenda rw’umwana ruzengurutse umwana turi mu rugo,Carer,Umuntu mukuru,CRITICAL
+2868,"Afite ububabare bukabije mu gatuza, araruka kandi yabaye umuhondo",Carer,Umusaza/Umukecuru,CRITICAL
+2869,Umukecuru yaraguye kandi ava amaraso mu gutwi,Carer,Umusaza/Umukecuru,CRITICAL
+2870,Umwana ntahumeka neza nyuma yo kuniga ku bishyimbo,Carer,Umwana,CRITICAL
+2871,Naje gukora isuzuma rya kanseri y’inkondo y’umura ry’umwaka,Self,Umuntu mukuru,ROUTINE
+2872,Naje gupima umuvuduko w’amaraso muri gahunda yo gupima abantu,Self,Umuntu mukuru,ROUTINE
+2873,Naje gupima ibiro by’uruhinja muri gahunda y’icyumweru cy’imirire,Carer,Impinja,ROUTINE
+2874,Naje gukora isuzuma ry’amaso muri gahunda y’isuzuma ry’amaso,Self,Umusaza/Umukecuru,ROUTINE
+2875,Naje gupima niba ntwite mbere yo gukora urugendo,Self,Ingimbi/Umwangavu,ROUTINE
+2876,Naje kwipimisha ndi kumwe n’umufasha wanjye,Self,Umuntu mukuru,ROUTINE
+2877,Umwana aje gukora isuzuma ry’ubuzima ku ishuri,Carer,Umwana,ROUTINE
+2878,Naje gupima diabete muri gahunda yo kuyipima,Self,Umusaza/Umukecuru,ROUTINE
+2879,Naje gutangira gukurikirana inda hakiri kare,Self,Umuntu mukuru,ROUTINE
+2880,Naje gukora isuzuma ry’ubuzima mbere yo gutangira akazi,Self,Umuntu mukuru,ROUTINE
+2881,Naje gupima ikura ry’uruhinja rufite amezi atandatu,Carer,Impinja,ROUTINE
+2882,Naje gusuzumisha ibere nyuma y’inyigisho twahawe,Self,Umuntu mukuru,ROUTINE
+2883,Naje kubaza ibijyanye no kubagwa kw’abagabo kugira ngo batabyara,Self,Umuntu mukuru,ROUTINE
+2884,Naje gusuzumisha ubuzima bw’amagufwa,Self,Umusaza/Umukecuru,ROUTINE
+2885,Naje guhabwa inama mbere yo gushyingirwa,Self,Ingimbi/Umwangavu,ROUTINE
+2886,Naje nyuma y’uko isuzuma ryakorewe abaturage hagize ikintu basanga,Self,Umuntu mukuru,ROUTINE
+2887,Umwana aje muri gahunda yo gukingira iseru,Carer,Umwana,ROUTINE
+2888,Naje guhabwa inama ku kuboneza urubyaro gusa,Self,Umuntu mukuru,ROUTINE
+2889,Naje gukora isuzuma ry’umwaka nubwo nta kibazo mfite,Self,Umusaza/Umukecuru,ROUTINE
+2890,Naje kubaza ibijyanye na gahunda nshya y’ubuzima,Self,Umuntu mukuru,ROUTINE
+2891,Umubiri wose urambabaza kuva nagira umuriro ukwezi gushize,Self,Umuntu mukuru,ROUTINE
+2892,Sinshobora kwihanganira impumuro y’ibiryo,Self,Ingimbi/Umwangavu,ROUTINE
+2893,Mfite igisebe ku kuboko ariko aho hantu nta sensation mfite,Self,Umuntu mukuru,ROUTINE
+2894,Ububabare buntera kutabasha gusenga,Self,Umusaza/Umukecuru,ROUTINE
+2895,Uruhinja rwarabyimbye igihe amenyo yatangiraga kumera,Carer,Impinja,ROUTINE
+2896,Ndababara iyo ndyamye ngaramye gusa,Self,Umuntu mukuru,ROUTINE
+2897,Ukuboko numva kuremereye ariko ntikumbabaza,Self,Umuntu mukuru,URGENT
+2898,Inkorora yanjye ikangura abantu bose mu rugo,Self,Umusaza/Umukecuru,ROUTINE
+2899,Umwana afite igisebe ku munwa kiguma gifunguka,Carer,Umwana,ROUTINE
+2900,Mfite kubyimba inyuma y’ivi nyuma yo kumara umwanya mpagaze,Self,Umuntu mukuru,ROUTINE
+2901,Ndababara cyane hanyuma ububabare bugahita bushira,Self,Umuntu mukuru,CANNOT CLASSIFY
+2902,Iyo mfashe uruhu rwanjye ruraguma ruzamutse ntiruhite rusubira,Self,Umusaza/Umukecuru,URGENT
+2903,Umwana afite umuriro kandi amaboko arakonje,Carer,Umwana,URGENT
+2904,Mfite igisebe ku gatsinsino cyatewe n’inkweto,Self,Umusaza/Umukecuru,ROUTINE
+2905,Mfite akabyimba kaje nyuma yo guhagarika konsa,Self,Umuntu mukuru,ROUTINE
+2906,Ahantu horoshye ku mutwe w’uruhinja uyu munsi haratandukanye n’uko byari bisanzwe,Carer,Impinja,URGENT
+2907,Ndababara mu nyana y’ukuguru nyuma yo kumara umunsi nicaye,Self,Umuntu mukuru,URGENT
+2908,Umwana yanga kumira ikintu cyose,Carer,Umwana,URGENT
+2909,Mfite kubyimba mu nda kwaje vuba,Self,Umusaza/Umukecuru,URGENT
+2910,Ndababara iyo nituma nkiri gutwita,Self,Umuntu mukuru,ROUTINE
+2911,Mfite igisebe cyaje nyuma yo kogosha umutwe,Self,Umuntu mukuru,ROUTINE
+2912,Umwana urutugu rumwe ruri hejuru y’urundi,Carer,Ingimbi/Umwangavu,ROUTINE
+2913,Umutwe wanjye uranyeganyega,Self,Umusaza/Umukecuru,ROUTINE
+2914,Numva ndimo kuribwa no gushya iyo ngenda urugendo rurerure,Self,Umuntu mukuru,ROUTINE
+2915,Uruhinja rwanga kuryama rugaramye,Carer,Impinja,ROUTINE
+2916,Mfite igisebe imbwa yarigishwe,Self,Umuntu mukuru,URGENT
+2917,Umwana yari afite kubyimba ku itama rimwe none kwagiye ku rindi,Carer,Umwana,ROUTINE
+2918,Ndababara mu gatuza iyo hakonje,Self,Umusaza/Umukecuru,URGENT
+2919,Mfite ibiheri aho umwambaro w’umwenda umpfatira,Self,Umuntu mukuru,ROUTINE
+2920,Ukuboko kumwe gusa ni ko kwabyimbye,Self,Umuntu mukuru,ROUTINE
+2921,Sinshobora gutandukanya ubushyuhe n’ubukonje iyo nkoze ku kintu,Self,Umusaza/Umukecuru,ROUTINE
+2922,Umwana afite akabyimba mu nda numvise igihe yakinaga,Carer,Umwana,URGENT
+2923,Natangiye gukorora nyuma yo kunigwa,Self,Umusaza/Umukecuru,ROUTINE
+2924,Ububabare burushaho kuba bwinshi iyo maze umwanya nicaye,Self,Umuntu mukuru,ROUTINE
+2925,Uruhinja rufite ibiheri mu mapfundo y’ijosi,Carer,Impinja,ROUTINE
+2926,Mfite igisebe nishyizemo igisebe ndagiturika,Self,Umuntu mukuru,ROUTINE
+2927,Umwana afite umuriro kandi arababara iyo yihagarika,Carer,Umwana,URGENT
+2928,Ukuboko kwanjye kwarabyimbye nyuma yo guhabwa umuti unyuze mu rushinge,Self,Umusaza/Umukecuru,URGENT
+2929,Ndababara cyane iyo uruhago rwanjye ruba rutarimo inkari,Self,Umuntu mukuru,ROUTINE
+2930,Natangiye kubabara umutwe mu cyumweru gishize nkiri gutwita,Self,Umuntu mukuru,URGENT
+2931,Nkorora hagasohokamo amase y’icyatsi akomeye,Self,Umuntu mukuru,ROUTINE
+2932,Umwana yatunguwe no kubyimba itama ryose mu ijoro,Carer,Umwana,URGENT
+2933,Ndababara kuva mu kibuno kugeza ku kirenge,Self,Umusaza/Umukecuru,ROUTINE
+2934,Mfite igisebe cyaje nyuma yo guhabwa urushinge mu mahanga,Self,Umuntu mukuru,ROUTINE
+2935,Uruhinja rusubiza amata mu mazuru,Carer,Impinja,ROUTINE
+2936,Ndababara mu nda cyane cyane nijoro,Self,Umuntu mukuru,ROUTINE
+2937,Umwana afite umuriro n’ibiheri biri ku mubiri wo hagati gusa,Carer,Impinja,URGENT
+2938,Mfite kubyimba kubabaza iyo ngenda gusa,Self,Umusaza/Umukecuru,ROUTINE
+2939,Natangiye gukorora kuva natangira akazi gashya mu gikoni,Self,Umuntu mukuru,ROUTINE
+2940,Inda irakomera buri minota icumi kandi bimaze amasaha abiri,Self,Umuntu mukuru,URGENT
+2941,Igisebe cyanjye cyafungutse igihe nitsamuye,Self,Umuntu mukuru,URGENT
+2942,Umukara w’ijisho rimwe ntugabanuka iyo hari urumuri,Carer,Umwana,CRITICAL
+2943,Ndababara mu rwasaya cyane cyane mu gitondo,Self,Umusaza/Umukecuru,ROUTINE
+2944,Ukuguru kwanjye kurabyimba nyuma yo kumara umunsi wose mu murima,Self,Umuntu mukuru,ROUTINE
+2945,Uruhinja rufite akabyimba munsi y’ukuboko kandi karanyeganyega,Carer,Impinja,ROUTINE
+2946,Natangiye kugira ikinya nyuma yo gukurwaho plaster,Self,Umuntu mukuru,ROUTINE
+2947,Umwana yongera gukorora buri gihe iyo imiti irangiye,Carer,Umwana,ROUTINE
+2948,Ndababara ku rutugu rw’inyuma kandi ububabare bukagera mu gatuza,Self,Umusaza/Umukecuru,URGENT
+2949,Mfite ibintu biva mu gitsina kandi ndababara ku ruhande rumwe gusa,Self,Umuntu mukuru,ROUTINE
+2950,Igisebe cyarakize ariko urutoki ruragorama rujya imbere,Self,Umuntu mukuru,ROUTINE
+2951,Umwana afite akabyimba k’agasabo k’umubiri kandi karakomeye,Carer,Umwana,URGENT
+2952,Natangiye kubabara umunsi ukurikira urugendo rurerure,Self,Umusaza/Umukecuru,ROUTINE
+2953,Mfite ibiheri byaje nyuma y’uko n’abandi bo mu muryango babigize,Self,Umuntu mukuru,ROUTINE
+2954,Uruhinja rufite kubyimba ku ishinya mbere y’uko iryinyo rimera,Carer,Impinja,ROUTINE
+2955,Natangiye kubabara mu gihimba cy’ukuboko nyuma yo kugwa,Self,Umuntu mukuru,URGENT
+2956,Kubyimba birushaho kuba byinshi mu gitondo,Self,Umuntu mukuru,ROUTINE
+2957,Ububabare bugabanuka gusa iyo nicaye negamiye imbere,Self,Umusaza/Umukecuru,URGENT
+2958,Umwana afite igisebe kikibirimo umugozi,Carer,Umwana,ROUTINE
+2959,Ndababara ku ruhande rumwe rw’igituza iyo mpindukiye,Self,Umuntu mukuru,ROUTINE
+2960,Mfite kubyimba kwaje nyuma yo kurumwa n’inyamaswa hashize amezi,Self,Umuntu mukuru,ROUTINE
+2961,Sinshobora kuzamura ikirenge iyo ngenda,Self,Umusaza/Umukecuru,URGENT
+2962,Umwana afite umuriro kandi urutoki rumwe ruratukura rurabyimba,Carer,Umwana,URGENT
+2963,Ububabare butangira iyo muretse gukora,Self,Umuntu mukuru,ROUTINE
+2964,"Uruhinja rurakorora, rufite umuriro kandi ruhumeka vuba",Carer,Impinja,URGENT
+2965,Mfite igisebe basigayeho umuti gakondo wo kukizinga,Self,Umuntu mukuru,ROUTINE
+2966,Kubyimba kwatangiye igihe natangiraga imiti mishya,Self,Umusaza/Umukecuru,ROUTINE
+2967,"Umwana acumbagira, afite umuriro kandi yanga kurya",Carer,Umwana,URGENT
+2968,Natangiye kuva amaraso mfite n’ibinya bikomeye mu nda,Self,Umuntu mukuru,URGENT
+2969,Ndababara ku ruhande kandi bigabanuka iyo ndyamye,Self,Umuntu mukuru,ROUTINE
+2970,Mfite ikinya mu kirenge nyuma yo kumara igihe mpagaze,Self,Umuntu mukuru,ROUTINE
+2971,Mfite igisebe aho plaster yakuwe,Self,Umusaza/Umukecuru,ROUTINE
+2972,Umwana afite kubyimba ku gitsike cy’ijisho kandi hariho akantu gato,Carer,Umwana,ROUTINE
+2973,Ndababara mu ibere kandi hari aho ritukura,Self,Umuntu mukuru,URGENT
+2974,Uruhinja rugira akabyimba gasohoka gusa iyo rurira,Carer,Impinja,ROUTINE
+2975,Natangiye kubabara umutwe mfite n’umuriro,Self,Umuntu mukuru,URGENT
+2976,Nkorora hagasohokamo amase arimo utudomo tw’amaraso,Self,Umusaza/Umukecuru,URGENT
+2977,Umwana yagize ibiheri nyuma yo kurangiza imiti,Carer,Umwana,ROUTINE
+2978,Ukuguru kwanjye kurabyimba nyuma y’urugendo gusa,Self,Umuntu mukuru,ROUTINE
+2979,Mfite igisebe cyasohotsemo inyo,Self,Umusaza/Umukecuru,URGENT
+2980,Ndababara iyo umwana anyeganyeze mu nda,Self,Umuntu mukuru,ROUTINE
+2981,Ububabare bugabanuka iyo ndi gukora cyangwa mfite icyo mpugiyemo,Self,Umusaza/Umukecuru,ROUTINE
+2982,Umwana afite ukuguru kumwe kwabyimbye kandi nta cyo yakomeretse,Carer,Umwana,URGENT
+2983,Inkorora yanjye yahindutse igira urusaku mu guhumeka,Self,Umuntu mukuru,ROUTINE
+2984,Ndababara mu nda ku buryo ntashobora kunama,Self,Umuntu mukuru,URGENT
+2985,Uruhinja rufite umuriro kandi umutsi wo ku mutwe warabyimbye,Carer,Impinja,URGENT
+2986,Igisebe cyaretse kunuka ariko kirushaho kuba kinini,Self,Umusaza/Umukecuru,URGENT
+2987,Umwana agira umuriro ukagaruka buri gicamunsi,Carer,Umwana,URGENT
+2988,Mfite akabyimba kari gato umwaka ushize,Self,Umuntu mukuru,ROUTINE
+2989,Amaguru yombi yatangiye kubyimba icyarimwe,Self,Umuntu mukuru,URGENT
+2990,"Ndababara umutwe, ndaruka ariko nta muriro mfite",Self,Umuntu mukuru,URGENT
+2991,Ububabare buntera kwicara ijoro ryose,Self,Umusaza/Umukecuru,URGENT
+2992,Umwana afite igisebe ku kiganza cyatewe n’insinga y’amahwa,Carer,Umwana,ROUTINE
+2993,Mfite ibintu biva mu gitsina byatangiye nyuma yo gukorerwa procedure,Self,Umuntu mukuru,ROUTINE
+2994,Mfite ikinya kigera ku nkokora,Self,Umuntu mukuru,ROUTINE
+2995,Uruhinja ntirushobora konsa no kumira icyarimwe,Carer,Impinja,URGENT
+2996,Mfite kubyimba gukandamwa kugasigaho akobo ntigasubire vuba,Self,Umusaza/Umukecuru,ROUTINE
+2997,"Umwana arakorora, nyuma agahumeka cyane afata umwuka muremure",Carer,Umwana,URGENT
+2998,Ububabare bwatangiriye mu rwasaya bugera ku gutwi,Self,Umuntu mukuru,ROUTINE
+2999,Mfite igisebe gifite umukara hagati,Self,Umusaza/Umukecuru,URGENT
+3000,Mfite kubyimba kuva nagwa,Self,Umusaza/Umukecuru,URGENT
