@@ -69,9 +69,15 @@ WHAT IS CARRIED FROM THE SPINE UNCHANGED
 ----------------------------------------
 `applies`, the person split, `hold`, `needs_clinician` and the relation-set
 rulings are language-independent and are carried, exactly as the French arm
-carried them. Eleven holds are lifted — the same eleven the English and French
-arms independently lifted, because each is a block on a Kinyarwanda WORD and not
-on the concept. See `LIFTED_HOLDS`.
+carried them.
+
+TWELVE holds are lifted, not eleven. `LIFTED_HOLDS` carries the FRENCH set. The
+English arm lifted eleven of those twelve and deliberately kept `EX27` third
+held, so eleven is the size of the intersection and twelve is the size of this
+arm's inheritance. This docstring said eleven until 2026-09-18 while the
+constant below held twelve and the print at the end of the run reported twelve:
+three places, two numbers, and a validator narrow enough never to notice. See
+`LIFTED_HOLDS` and `check_lifts_match_both_arms`.
 
 RE-RUNNING
 ----------
@@ -269,7 +275,8 @@ PAEDIATRIC_DUPLICATE = (
 # concept, so it cannot bind a language that may simply have the word. The
 # English and French arms lifted exactly this set independently of each other;
 # two arms agreeing is the strongest evidence available that the lifts are right.
-# Verified against `speaker_brief_french_v2.csv` by `check_lifts_match_french()`.
+# Verified against BOTH prior briefs by `check_lifts_match_both_arms()`.
+# This is the FRENCH set of twelve; English lifted eleven of them.
 LIFTED_HOLDS = {
     ("CR05", "third"): "the Kinyarwanda hold is on whether 'ijwi ridasanzwe' "
     "(an unusual sound) maps to wheeze — a question about a "
@@ -796,20 +803,31 @@ def relation_ruling(concept_id: str, domain: str, ruled: dict[str, str]) -> str:
     return "ALL_RELATIONS"
 
 
-def check_lifts_match_french() -> list[str]:
-    """Every hold this arm lifts must be one the French arm lifted too.
+def check_lifts_match_both_arms() -> list[str]:
+    """Every hold this arm lifts must be checked against BOTH prior arms.
 
-    The lifts are not this arm's judgement — they are two independent arms
-    having already reached the same conclusion, which is the whole reason for
-    trusting them. If the French brief stops agreeing, that is a finding, not a
-    detail: re-derive the lift rather than keeping it because it is written here.
+    The lifts are not this arm's judgement: they are arms that already reached
+    the same conclusion, which is the whole reason for trusting them. If either
+    brief stops agreeing, that is a finding, not a detail.
+
+    THIS CHECKED FRENCH ALONE UNTIL 2026-09-18, and that is why nobody noticed
+    that LIFTED_HOLDS is the French set of twelve while English lifted eleven:
+    validating one side cannot detect a disagreement between the two sides. The
+    English arm keeps `EX27` third held, so that row is inherited from French
+    only and is reported here rather than silently carried.
     """
     french = ROOT / "review" / "speaker_brief_french_v2.csv"
-    if not french.exists():
-        return [f"{french.name} is missing; the lifts cannot be cross-checked"]
+    english = ROOT / "review" / "speaker_brief_english_v2.csv"
+    missing = [p.name for p in (french, english) if not p.exists()]
+    if missing:
+        return [f"{', '.join(missing)} missing; the lifts cannot be cross-checked"]
     fr = {
         (r["concept_id"], r["person"]): r
         for r in csv.DictReader(french.open(encoding="utf-8"))
+    }
+    en = {
+        (r["concept_id"], r["person"]): r
+        for r in csv.DictReader(english.open(encoding="utf-8"))
     }
     spine = {
         (r["concept_id"], r["person"]): r
@@ -828,6 +846,25 @@ def check_lifts_match_french() -> list[str]:
             and fr.get(key, {}).get("hold") != "yes"
         ):
             problems.append(f"{key} is lifted in the French brief but held here")
+
+    # The two arms against each other. A row lifted by one and held by the other
+    # is not a defect, but it must be visible: it is inheritance from a single
+    # arm, not the independent agreement the lifts are trusted for.
+    for key in sorted(LIFTED_HOLDS):
+        if spine.get(key, {}).get("hold") != "yes":
+            continue
+        lifted_fr = fr.get(key, {}).get("hold") != "yes"
+        lifted_en = en.get(key, {}).get("hold") != "yes"
+        if lifted_fr and not lifted_en:
+            problems.append(
+                f"{key} is lifted in French and HELD in English: this arm "
+                "inherits it from one arm only, not from two agreeing"
+            )
+        elif lifted_en and not lifted_fr:
+            problems.append(
+                f"{key} is lifted in English and HELD in French: this arm "
+                "inherits it from one arm only, not from two agreeing"
+            )
     return problems
 
 
@@ -1127,7 +1164,7 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    lift_problems = check_lifts_match_french()
+    lift_problems = check_lifts_match_both_arms()
 
     rows = build()
     assert_no_swahili(rows, v1_vocabulary())
