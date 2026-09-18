@@ -1,0 +1,75 @@
+% GENERATED FILE - DO NOT EDIT BY HAND.
+% Written by review/emit_corpus_example.py from
+% dataset/processed/eval_phrase_holdout.csv and
+% review/speaker_brief_kinyarwanda_v2.csv. The Kinyarwanda is quoted from
+% the corpus exactly as generated and is never rewritten here.
+%
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+
+\textbf{Part A: one seed phrase and five of its 446 frame permutations.}
+
+\begin{tabular}{r>{\raggedright\arraybackslash}p{14.3cm}}
+\toprule
+& \textbf{Seed} (concept IF05, \emph{fever with generalised rash}, label URGENT) \\
+& Mfite umuriro kandi mfite uduheri ku mubiri wose. \\
+\midrule
+1 & Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize \\
+2 & Muraho, mfite umuriro kandi mfite uduheri ku mubiri wose kuva hashize icyumweru nta miti imfasha. Murakoze. \\
+3 & Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu gitondo kandi nta miti mfite. Urakoze. \\
+4 & Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize. Abandi bana na bo bafite iki kibazo. Nkora iki? \\
+5 & Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu masaha abiri ashize. Byatangiye gitunguranye. \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.8em}
+
+\textbf{Part B: the same concept in two persons, and what no similarity rule catches.}
+
+\begin{tabular}{l>{\raggedright\arraybackslash}p{9.5cm}r}
+\toprule
+Person & Phrasing & Characters \\
+\midrule
+first & Mfite umuriro kandi mfite uduheri ku mubiri wose. & 49 \\
+third & \{REL\} afite umuriro n'uduheri ku mubiri wose. & 45 \\
+\midrule
+\multicolumn{2}{l}{Shared prefix} & \textbf{0} \\
+\multicolumn{2}{l}{Longest common substring} & 23 \\
+\multicolumn{2}{l}{Word Jaccard} & 4/10 = 0.400 \\
+\bottomrule
+\end{tabular}
+
+\caption{What a frame permutation is, and what no similarity rule catches.
+\textbf{Part A.} All 446 rows built on this seed carry the label
+URGENT \emph{because the seed carries it}: the seed text is invariant and
+only the opener, the time expression and the closing line move. They are one
+observation, not
+446, which is the cluster argument made visible rather than argued.
+\textbf{Row 1 ends without terminal punctuation.} That is how the
+generator emitted it and it is left untouched: it is a live instance of the
+C9 surface-uniformity failure, visible in the example itself rather than only
+in the gate's verdict.
+\textbf{Part B.} The two phrasings share a prefix of 0 characters,
+because the third person opens on the \{REL\} placeholder, and their word
+Jaccard of 0.400 is far below the 0.85 the near-duplicate gate
+uses. Neither a prefix rule nor a similarity threshold would group them.
+They are
+in one phrase group
+\emph{because the authoring record declares them one concept}, not because any
+string comparison found them alike, and that is what makes this the case no
+similarity rule catches.
+\textbf{On the choice of IF05.} EX24 gives a cleaner Part B
+(shared prefix 0, longest common substring 25 against IF05's 23) and is
+not used because its \path{english_gloss} in the authoring record is a
+placeholder rather than a gloss. \textbf{Of the
+15 distinct phrases in the reporting split, 2
+carry a real English gloss, and they are the two persons of
+1 concept.}
+\textbf{Every other phrase the reported figures rest on is glossed only by a
+placeholder telling the author where to look.} That is a property of the
+corpus rather than a note about which row was convenient, and it is why this
+table could not be built from the cleaner pair.}
+\label{tab:example}
+\end{table*}
+
