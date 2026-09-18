@@ -13,6 +13,15 @@
 \newcommand{\CorpusHeldOnly}{4}
 \newcommand{\CorpusFlaggedOnly}{10}
 %
+% The reconciliation to the generating inventory. Every term, so the appendix
+% can show the subtraction arriving rather than assert a number near it:
+%   rows - inapplicable - held - unauthored + second phrasings = inventory
+\newcommand{\CorpusInapplicable}{50}
+\newcommand{\CorpusUnauthored}{19}
+\newcommand{\CorpusSecondPhrasings}{1}
+\newcommand{\CorpusInventory}{165}
+\newcommand{\CorpusFlaggedInInventory}{8}
+%
 % NO SENTENCE MACRO HERE, DELIBERATELY. An earlier version defined one
 % containing \textbf{...}; `paper/render_plain.py::macros()` parses
 % \newcommand with [^}]* and cannot capture nested braces, so the macro would
