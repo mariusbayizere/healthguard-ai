@@ -67,19 +67,34 @@ left over from v1's machine drafts, which is why three arms sit at zero rows and
 why the phrase inventory is not the binding constraint on a four-language
 corpus.
 
-\paragraph{Two arms lifting the same eleven holds is evidence about concepts,
-not about a language.} The English and French briefs were built independently
+\paragraph{Two arms lifting the same eleven held rows is evidence about
+concepts, not about a language.} The English and French briefs were built
 against the same concept spine, each reviewed without reference to the other.
-Both lifted the same eleven Kinyarwanda holds, and on the same reasoning in each
-case: the hold recorded a block on a Kinyarwanda \emph{word} rather than on the
-concept the word expressed, so an arm not using that word had nothing to be
-blocked by. Both then added the same new hold, on a concept-level clinical
-question that no wording resolves.
+Of the \CorpusHeld{} held rows on the spine, English lifted 11 and French 12;
+the two sets intersect in \textbf{11 rows across 7 concepts}, and French lifted
+one row English did not (\texttt{EX27} third). The unit matters: eleven is a
+count of held \emph{rows}, each a concept crossed with a grammatical person, not
+of concepts.
 
-This is the one cross-lingual result the project has, and it is a result about
-the taxonomy rather than about any arm. A hold that survives translation into
-two unrelated lexicons is a clinical question; a hold that dissolves in both is
-a lexical one. Separating those two by hand is the kind of judgement a single
+For 6 of those 7 concepts the reasoning recorded on each side is the same and
+was reached separately: the hold recorded a block on a Kinyarwanda \emph{word}
+rather than on the concept the word expressed, so an arm not using that word had
+nothing to be blocked by. \textbf{The seventh, \texttt{OB12}, is not independent
+agreement and we do not present it as such}: the English arm ruled it and the
+French brief records that it mirrored that ruling because it is a ruling about
+the concept.
+
+Both briefs also carry one hold the spine does not, on whether a patient who can
+accurately report new confusion is meaningfully confused (\texttt{NE06} first).
+\textbf{That is shared state rather than convergence.} The French record says in
+terms that it carries the English arm's ruling, so it is one arm's clinical
+question propagated, and it is not evidence of two arms agreeing.
+
+Taking only the 6 concepts both arms reached separately, this is the one
+cross-lingual result the project has, and it is a result about the taxonomy
+rather than about any arm. A hold that survives translation into two unrelated
+lexicons is a clinical question; a hold that dissolves in both is a lexical
+one. Separating those two by hand is the kind of judgement a single
 annotator cannot make about their own language, and here it fell out of building
 the arms separately and comparing afterwards. We record the mechanism because it
 generalises: where a taxonomy is shared but the wording is not, independent arms
@@ -117,11 +132,26 @@ precisely so that a paper can report them separately, and elsewhere in this
 repository the corpus is described as ``165 speaker-authored phrases''. Against
 the per-phrase provenance column that description overstates the speaker's
 contribution by roughly half, and we do not use it.
-\CorpusFlaggedInInventory{} of the \CorpusInventory{} phrases additionally carry
-a flag for clinician review. None carries a hold: a held row generates nothing,
-so no held row is in the inventory at all. Appendix~\ref{app:person} counts
-flags over the whole authoring record, where the figure is larger because it
-includes rows that generate no phrase.
+\paragraph{Flag counts, reconciled once.}
+\label{sec:method:flagcounts}
+Three flag counts appear in this paper and they are in different units, so the
+reconciliation is given here and referred to rather than repeated.
+
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item \CorpusFlagged{} \emph{rows of the authoring record} carry a flag for
+  clinician review. This is the count Appendix~\ref{app:person} reports, over
+  all \CorpusRows{} rows.
+\item \CorpusFlaggedOnly{} of those carry a flag \emph{without} also being held.
+  The other \CorpusFlaggedAndHeld{} are both flagged and held.
+\item \CorpusFlaggedInInventory{} of the \CorpusInventory{} \emph{phrases the
+  generator holds} carry a flag. This is smaller than \CorpusFlaggedOnly{}
+  because two flagged, unheld rows still generate nothing: one is ruled
+  inapplicable and one has not been written yet.
+\end{itemize}
+
+No phrase in the inventory carries a hold, because a held row generates nothing
+by definition. The three figures are emitted from the record by
+\path{review/emit_corpus_counts.py}, so they move together or the build fails.
 
 \subsection{Concept taxonomy and clinical anchoring}
 
@@ -154,14 +184,15 @@ English gloss of their own; where this work needed a gloss for them it took the
 frozen v1 English string at the same corpus position, which describes a
 presentation rather than prescribing an utterance.
 
-\paragraph{Clinical approval of the taxonomy: \PENDING{no clinician has
-reviewed it}.} The urgency assignments are the authors' reading of the guidance
-above. Twenty-five rows carry an explicit flag for clinical review and
-twenty-three are held pending a decision; the review pack listing them, the five
+\paragraph{No clinician has reviewed the taxonomy.} The urgency assignments are
+the author's reading of the guidance cited above, and nobody with clinical
+training has checked them. We approached clinical contacts and did not secure
+one; this is a gap we could not close, not a scope we chose. \CorpusFlagged{} rows carry an explicit flag for clinical review and
+\CorpusHeld{} are held pending a decision; the review pack listing them, the five
 open taxonomy questions and a sign-off sheet is written and unexecuted.
 
-\paragraph{Label agreement: \PENDING{no second annotator}.} Every urgency
-label in this corpus is one person's. No second annotator has labelled any
+\paragraph{No second annotator has labelled any part of the corpus.} Every
+urgency label in it is one person's. No second annotator has labelled any
 part of it, so no inter-rater agreement statistic exists: not a low one, none.
 The annotation protocol, the boundary cases we expect disagreement to
 concentrate on, and the $\kappa$ computation are written and wait on a person.
