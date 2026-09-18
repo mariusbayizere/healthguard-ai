@@ -92,4 +92,4 @@ def test_the_verdict_actually_depends_on_the_input() -> None:
 
 def test_permitted_pairs_start_empty_and_that_is_deliberate() -> None:
     """Nobody has ruled on which pairs are coherent; the gate must not guess."""
-    assert gates.PERMITTED_REPORTER_AGE == frozenset()
+    assert frozenset() == gates.PERMITTED_REPORTER_AGE

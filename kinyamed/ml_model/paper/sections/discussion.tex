@@ -115,7 +115,11 @@ term in which over-triage could be expressed.
 computed rather than guessed.} What made this diagnosable rather than arguable is
 that merging two classes and labelling the union with the protected class scores a
 predictable precision on any evaluation set, namely the protected class's share of
-the merged support. We could therefore say not that the model \emph{resembled}
+the merged support. \textbf{That share is a class prior, computed from gold
+support counts with no model involved}, which is what makes it a baseline rather
+than a rival result: on our reporting set it is
+$8{,}962 / 16{,}755 = 0.5349$, and the configuration we rejected scored
+\emph{below} it. We could therefore say not that the model \emph{resembled}
 the degenerate strategy but that it sat below that strategy's own precision on
 those exact rows. This is the precision of one specific strategy and not a
 ceiling on degenerate models in general: a strategy that swept the routine class

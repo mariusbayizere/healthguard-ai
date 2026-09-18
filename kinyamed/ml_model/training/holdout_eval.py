@@ -492,7 +492,11 @@ def write_confusion_table(
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\begin{table}[t]\n\\centering\n")
+        # table*, not table. Bounding-box analysis of the compiled PDF found this
+        # printed ON TOP OF the body text on page 28: the table sat at x~301 and
+        # the paragraph at x~306-347, overlapping by up to 25pt. A four-column
+        # numeric table looked narrow enough to leave single-column and was not.
+        w("\\begin{table*}[t]\n\\centering\n")
         w(
             f"\\caption{{Confusion matrix for {tex_escape(label)} on the reporting "
             "set. ROUTINE is separated perfectly; the residual error is entirely on "
@@ -509,7 +513,7 @@ def write_confusion_table(
             w(f"{name} & " + " & ".join(f"{v:,}" for v in row) + " \\\\\n")
         w("\\bottomrule\n\\end{tabular}\n")
         w(f"\\\\[2pt]{{\\scriptsize Run fingerprint \\texttt{{{fingerprint}}}}}\n")
-        w("\\end{table}\n")
+        w("\\end{table*}\n")
 
 
 def write_gate_derivation(
@@ -562,13 +566,25 @@ def write_gate_derivation(
             "URGENT and labels the union CRITICAL earns, by construction, a CRITICAL "
             "precision of\n"
         )
+        # DEFECT 4, 2026-09-18. This was set as
+        #   \frac{\mathrm{support(CRITICAL)}}{\mathrm{support(CRITICAL)} + ...}
+        # whose numerator and denominator are together wider than the 219pt
+        # column, so the display ran 9pt past the column edge. The short
+        # subscripted form fits, and showing the two counts makes it visible
+        # that this is arithmetic on class sizes rather than a measurement.
+        n_crit = int(support["CRITICAL"])
+        n_urg = int(support["URGENT"])
         w(
-            "\\[ \\frac{\\mathrm{support(CRITICAL)}}"
-            "{\\mathrm{support(CRITICAL)} + \\mathrm{support(URGENT)}} "
-            f"= {merge_precision:.4f} \\]\n"
+            "\\[ \\frac{n_{\\mathrm{CRIT}}}{n_{\\mathrm{CRIT}} + n_{\\mathrm{URG}}}"
+            f" = \\frac{{{n_crit:,}}}{{{n_crit + n_urg:,}}}"
+            f" = {merge_precision:.4f} \\]\n".replace(",", "{,}")
         )
         w(
-            "on this reporting set. \\textbf{This is the precision of one specific "
+            "on this reporting set, where $n$ is a count of gold rows. "
+            "\\textbf{No model is involved in this quantity}: it is the CRITICAL "
+            "class prior within the two urgent classes, computed from support counts "
+            "alone, and it is the score the merge strategy is paid for free. "
+            "\\textbf{It is the precision of one specific "
             "strategy, not a ceiling on degenerate models in general}, and it assumes "
             "no ROUTINE row is labelled CRITICAL; a strategy that swept ROUTINE in as "
             "well would score lower. It is what that strategy is paid for free, so an "
@@ -625,8 +641,12 @@ def write_degeneracy_finding(path: Path, v2c: dict, v2d: dict, prov: dict) -> No
             "contained no term that could observe this.\n\n"
         )
         w(
-            "The degeneracy is measurable rather than interpretive. A model that "
-            "merges CRITICAL and URGENT earns a CRITICAL precision of "
+            "The degeneracy is measurable rather than interpretive. The quantity "
+            "it is measured against is a \\textbf{class prior, not a model "
+            "output}: the CRITICAL share of the two urgent classes' gold "
+            "support, which any strategy that merges CRITICAL and URGENT and "
+            "labels the union CRITICAL earns by construction, without learning "
+            "anything. On this set that is a CRITICAL precision of "
             f"${merge_precision:.4f}$ on this set by construction. The model scored "
             f"${prec:.4f}$, which is ${merge_precision - prec:.4f}$ \\emph{{below}} its own "
             "set's merge-strategy precision. Within a thousandth, it did not approximate "

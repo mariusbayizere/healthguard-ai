@@ -25,8 +25,14 @@ than by default.
 two concepts turned out to name one sign, the speaker ruled them one concept and
 the absorbed identifier went out of generation. The collapses are:
 
-\begin{center}\small
-\begin{tabular}{llllll}
+% DEFECT 2 (page 23): six columns overflowed the 219.1pt column by ~21pt and
+% collided with the body text at x~306. table* gives 455.2pt. Widths below:
+% 6 x 1.6cm = 273.1pt content + 12 x 4pt tabcolsep = 48pt, total 321.1pt,
+% which leaves 134.1pt of the 455.2pt available.
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{*{6}{>{\raggedright\arraybackslash}p{1.6cm}}}
 \toprule
 Absorbed & Into & Absorbed & Into & Absorbed & Into \\
 \midrule
@@ -37,7 +43,9 @@ GI08 & EX16 & NE02 & EX32 & PA06 & IF05 \\
 HT01 & EX18 & NE03 & EX34 & PA10 & EX46 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{Concepts collapsed into another, 15 concepts over 30 rows.}
+\label{tab:collapses}
+\end{table*}
 
 A collapse was permitted only where the
 absorbing \emph{phrase} carried the whole sign; two proposed collapses were
@@ -126,8 +134,13 @@ agreement it triggers. That yielded five borrowed terms with established
 Kinyarwanda forms, which belong in \emph{monolingual} rows rather than mixed
 ones, and four cleanly switched terms.
 
-\begin{center}
-\begin{tabular}{l>{\raggedright\arraybackslash}p{0.60\linewidth}}
+% Found by paper/check_tables.py after it learned to see bare tabulars, not by
+% the bounding-box pass. 3cm + 11cm = 396.9pt content + 2 x 2 x 4pt tabcolsep
+% = 412.9pt against \textwidth 455.2pt -> fits, 42.3pt to spare.
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3cm}>{\raggedright\arraybackslash}p{11cm}}
 \toprule
 pair & why it does not generate \\
 \midrule
@@ -142,7 +155,9 @@ sw $\rightarrow$ en, en $\rightarrow$ sw & require a Swahili-matrix worksheet.
 None exists; the noun classes ruled so far are Kinyarwanda's. \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{The six ordered language pairs, and why none of them generates a row.}
+\label{tab:codeswitch}
+\end{table*}
 
 Five of the fifteen terms carry a dual disposition: the speaker's answer was
 that they are both switched and borrowed, which is a real linguistic answer
@@ -246,8 +261,13 @@ family, and presented as two difficulty levels. The family holdout was not a
 holdout. Its own frozen manifest reports that every one of its 114{,}321
 evaluation rows was built on a phrase that also appears in training:
 
-\begin{center}\small
-\begin{tabular}{lr}
+% 8cm + a numeric column = 226.8pt + ~40pt + 16pt tabcolsep, about 283pt
+% against \textwidth 455.2pt. In a 219.1pt column the first cell alone is
+% roughly 192pt at \small, which is why this is a float and not a center.
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{8cm}r}
 \toprule
 \path{eval_rows_whose_phrase_appears_in_train} & 114{,}321 \\
 \path{eval_rows_leaked_fraction} & 1.0 \\
@@ -258,7 +278,9 @@ evaluation rows was built on a phrase that also appears in training:
 \path{family_overlap} & 0 \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{The v1 family holdout's own frozen manifest, as committed.}
+\label{tab:v1manifest}
+\end{table*}
 
 The failure is not that the leakage went undetected. It was detected, measured
 and written into the manifest by the same commit that introduced the pipeline.
@@ -477,8 +499,18 @@ open, not as answered in our favour.
 \paragraph{Six claims require studies that have not run.} No value for any of
 the following exists anywhere in our records, and none is estimated here:
 
-\begin{center}\small
-\begin{tabular}{l>{\raggedright\arraybackslash}p{0.58\linewidth}}
+% DEFECT 3 (page 29): this ran OFF THE PAGE EDGE, to x=599.2 on a 597.5pt page,
+% because the first column was `l' and could not wrap "Community health worker
+% consultation" while the second took 0.58 of a 219.1pt column. Both columns now
+% wrap and the table is full width. Arithmetic, checked before committing:
+%   5cm + 10cm = 426.8pt content
+%   2 columns x 2 x 4pt tabcolsep = 16.0pt
+%   total 442.8pt against \textwidth 455.2pt -> fits, 12.5pt to spare
+% (\textwidth = 210mm paper - 2 x 25mm geometry margin = 455.2pt.)
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{10cm}}
 \toprule
 Claim & Why there is no value \\
 \midrule
@@ -494,7 +526,10 @@ Community health worker consultation & No consultation took place \\
 Deployment & The system has never run in a health centre and is not cleared to \\
 \bottomrule
 \end{tabular}
-\end{center}
+\caption{Six claims that require a study nobody has run. None of these
+absences was chosen.}
+\label{tab:pending}
+\end{table*}
 
 The protocol for each is written and ready to execute; what is missing is a
 person, not an instrument. None of these absences was chosen. Each is a study we

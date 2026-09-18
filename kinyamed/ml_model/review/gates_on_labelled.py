@@ -44,8 +44,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from dataset import corpus_gates  # noqa: E402
-from dataset import labelled_corpus as lc  # noqa: E402
+from dataset import corpus_gates
+from dataset import labelled_corpus as lc
 
 ARMS = ("kinyarwanda", "english", "french", "swahili")
 

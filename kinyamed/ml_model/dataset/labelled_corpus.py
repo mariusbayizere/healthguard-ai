@@ -59,7 +59,7 @@ RECORD_VOICE_MARKERS = ("avuga ko", "yabwiwe ko")
 
 # Characters stripped from the edge of a whitespace-delimited token. The
 # apostrophe is deliberately NOT here: it is part of the word in Kinyarwanda.
-EDGE_PUNCTUATION = ".,;:!?()\"“”"
+EDGE_PUNCTUATION = '.,;:!?()"“”'
 
 
 def tokenise(text: str) -> list[str]:
