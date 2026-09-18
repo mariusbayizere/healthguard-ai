@@ -63,6 +63,17 @@
 \pgfplotsset{compat=1.18}
 \usepackage{colortbl}   % \cellcolor for the outcome column
 \usepackage{xcolor}
+\usepackage{tabularx}   % a shared measure for the two halves of tab:example
+
+% \raggedbottom: let a short page end short rather than stretching the vertical
+% space between its blocks to reach the bottom margin. With full-width floats on
+% a two-column page the default \flushbottom opens visible gaps between
+% paragraphs. This trades a ragged page bottom for even interline spacing, which
+% is the right trade in a document with this many table* floats.
+%
+% NOT VERIFIED HERE. There is no TeX engine on this machine, so whether the gap
+% this is meant to close is actually gone can only be seen in a compile.
+\raggedbottom
 
 % Table markers. One command per verdict so a gate outcome cannot be written
 % three different ways in three tables, which is what the prose did before.

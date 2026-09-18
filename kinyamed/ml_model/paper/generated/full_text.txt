@@ -353,24 +353,35 @@ table*[t]
 
 Part A: one seed phrase and five of its 446 frame permutations.
 
- | Seed (concept IF05, fever with generalised rash, label URGENT)
- | Mfite umuriro kandi mfite uduheri ku mubiri wose.
-1 | Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize
-2 | Muraho, mfite umuriro kandi mfite uduheri ku mubiri wose kuva hashize icyumweru nta miti imfasha. Murakoze.
-3 | Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu gitondo kandi nta miti mfite. Urakoze.
-4 | Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize. Abandi bana na bo bafite iki kibazo. Nkora iki?
-5 | Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu masaha abiri ashize. Byatangiye gitunguranye.
+tabularxr>X
+
+ |  Seed (concept IF05, fever with generalised rash, label URGENT) 
+ |  Mfite umuriro kandi mfite uduheri ku mubiri wose. 
+
+1  |  Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize 
+2  |  Muraho, mfite umuriro kandi mfite uduheri ku mubiri wose kuva hashize icyumweru nta miti imfasha. Murakoze. 
+3  |  Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu gitondo kandi nta miti mfite. Urakoze. 
+4  |  Mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu cyumweru gishize. Abandi bana na bo bafite iki kibazo. Nkora iki? 
+5  |  Nyabuneka, mfite umuriro kandi mfite uduheri ku mubiri wose kuva mu masaha abiri ashize. Byatangiye gitunguranye. 
+
+tabularx
 
 0.8em
 
 Part B: the same concept in two persons, and what no similarity rule catches.
 
-Person | Phrasing | Characters
-first | Mfite umuriro kandi mfite uduheri ku mubiri wose. | 49
-third | \REL\ afite umuriro n'uduheri ku mubiri wose. | 45
-2lShared prefix | 0
-2lLongest common substring | 23
-2lWord Jaccard | 4/10 = 0.400
+tabularxl>Xr
+
+Person  |  Phrasing  |  Characters 
+
+first  |  Mfite umuriro kandi mfite uduheri ku mubiri wose.  |  49 
+third  |  \REL\ afite umuriro n'uduheri ku mubiri wose.  |  45 
+
+2lShared prefix  |  0 
+2lLongest common substring  |  23 
+2lWord Jaccard  |  4/10 = 0.400 
+
+tabularx
 
 What a frame permutation is, and what no similarity rule catches.
 Part A. All 446 rows built on this seed carry the label

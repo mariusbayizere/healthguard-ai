@@ -172,7 +172,10 @@ def render() -> str:
         "\\textbf{Part A: one seed phrase and five of its "
         f"{len(rows):,} frame permutations.}}",
         "",
-        "\\begin{tabular}{r>{\\raggedright\\arraybackslash}p{14.3cm}}",
+        # tabularx on \\textwidth so Part A and Part B share one measure and
+        # their rules line up. Fixed p{} widths gave the two halves different
+        # widths (about 431pt against 363pt), which reads as a misalignment.
+        "\\begin{tabularx}{\\textwidth}{r>{\\raggedright\\arraybackslash}X}",
         "\\toprule",
         f"& \\textbf{{Seed}} (concept {CONCEPT}, \\emph{{{tex(gloss)}}}, "
         f"label {label}) \\\\",
@@ -183,14 +186,14 @@ def render() -> str:
         lines.append(f"{i} & {tex(r['text'])} \\\\")
     lines += [
         "\\bottomrule",
-        "\\end{tabular}",
+        "\\end{tabularx}",
         "",
         "\\vspace{0.8em}",
         "",
         "\\textbf{Part B: the same concept in two persons, and what no similarity "
         "rule catches.}",
         "",
-        "\\begin{tabular}{l>{\\raggedright\\arraybackslash}p{9.5cm}r}",
+        "\\begin{tabularx}{\\textwidth}{l>{\\raggedright\\arraybackslash}Xr}",
         "\\toprule",
         "Person & Phrasing & Characters \\\\",
         "\\midrule",
@@ -202,7 +205,7 @@ def render() -> str:
         f"\\multicolumn{{2}}{{l}}{{Word Jaccard}} & "
         f"{inter}/{union} = {inter / union:.3f} \\\\",
         "\\bottomrule",
-        "\\end{tabular}",
+        "\\end{tabularx}",
         "",
     ]
 

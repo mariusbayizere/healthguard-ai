@@ -24,7 +24,7 @@ from pathlib import Path
 
 # A column specifier that wraps. Anything else holding a sentence will be
 # clipped in a narrow column rather than broken across lines.
-WRAPPING = re.compile(r"[pmb]\{|>\{")
+WRAPPING = re.compile(r"[pmb]\{|>\{|X")
 # Cells longer than this are prose, not a number or a short label.
 PROSE = 45
 
@@ -67,13 +67,32 @@ def tabular_spec(body: str) -> str:
     from the character immediately after \\begin{tabular}, skipping an optional
     [t]/[b] position argument.
     """
-    marker = "\\begin{tabular}"
-    at = body.find(marker)
-    if at == -1:
+    # tabularx/tabular*: \begin{tabularx}{<width>}{<spec>}. The width is a
+    # brace group BEFORE the spec, so the spec is the SECOND group. Reading
+    # the first gave "\textwidth" as a column spec and a count of 0, which a
+    # reader would take for "no problem" rather than "not parsed".
+    width_groups = 0
+    for marker, groups in (
+        ("\\begin{tabularx}", 1),
+        ("\\begin{tabular*}", 1),
+        ("\\begin{tabular}", 0),
+    ):
+        at = body.find(marker)
+        if at != -1:
+            width_groups = groups
+            break
+    else:
         return ""
     i = at + len(marker)
     if i < len(body) and body[i] == "[":
         i = body.find("]", i) + 1
+    for _ in range(width_groups):
+        if i >= len(body) or body[i] != "{":
+            return ""
+        depth, i = 1, i + 1
+        while i < len(body) and depth:
+            depth += (body[i] == "{") - (body[i] == "}")
+            i += 1
     if i >= len(body) or body[i] != "{":
         return ""
     depth, out = 1, []
@@ -102,7 +121,7 @@ def column_count(spec: str) -> int:
     spec = re.sub(r"\*\{\d+\}\{.*?\}\}", "", spec)
     spec = re.sub(r">\{[^}]*\}|<\{[^}]*\}", "", spec)
     spec = re.sub(r"[pmb]\{[^}]*\}", "P", spec)
-    total += len(re.findall(r"[lcrP]", spec))
+    total += len(re.findall(r"[lcrPX]", spec))
     return total
 
 
@@ -121,7 +140,7 @@ def tables(path: Path):
         seen_spans.append(match.span())
         yield match.group(1), match.group(2), body[: match.start()].count("\n") + 1
     for match in re.finditer(
-        r"\\begin\{tabular\}(.*?)\\end\{tabular\}", body, flags=re.S
+        r"\\begin\{tabularx?\*?\}(.*?)\\end\{tabularx?\*?\}", body, flags=re.S
     ):
         if any(a <= match.start() < b for a, b in seen_spans):
             continue
@@ -147,7 +166,9 @@ def report(entry: Path) -> int:
             # its length says nothing about whether a column overflows; counting
             # it reported a 603-character "cell" in a table of short numbers.
             inner = re.search(
-                r"\\begin\{tabular\}\{[^}]*\}(.*?)\\end\{tabular\}", body, flags=re.S
+                r"\\begin\{tabularx?\*?\}(?:\{[^}]*\})*(.*?)\\end\{tabularx?\*?\}",
+                body,
+                flags=re.S,
             )
             longest = 0
             for row in (inner.group(1) if inner else "").split("\\\\"):
