@@ -107,9 +107,32 @@ The seeds-not-rows argument is a claim about a class of corpora (templated,
 augmented or model-expanded), and we demonstrate it on a single member of that
 class. We argue the generalisation from the structure of the cost asymmetry:
 expansion is cheap and authoring is not, in any such pipeline. \textbf{We do not
-demonstrate it.} Whether other generators, other languages or other teams hit the
-same wall at the same place is untested, and a reader should treat the general
-form as an argument to be checked rather than a result we have established.
+demonstrate it}, and a reader should treat the general form as an argument to be
+checked rather than a result we have established.
+
+\paragraph{The experiment that would settle it, and what we predict it shows.}
+The claim is testable on one generator and we state the design so that it can be
+run against us. Hold the total row count fixed at roughly 30{,}000 and vary the
+seed inventory across 10, 20, 40, 80 and 120 seeds, adjusting rows per seed to
+keep the total constant. Evaluate every arm on one fixed held-out seed set,
+disjoint from every training arm, with three runs per point at different seeds
+and cluster-bootstrap intervals that resample the source sentence rather than the
+row.
+
+\textbf{We predict that held-out performance tracks the distinct-seed count and
+is approximately flat in rows per seed}: the 10-seed arm and the 120-seed arm
+differ substantially, while two arms with equal seeds and different expansion
+factors do not separate beyond their intervals. That is the seeds-not-rows claim
+stated as a falsifiable shape rather than as an argument from cost.
+
+\textbf{A flat curve would be a real result and we would report it as one.}
+Saturation at a low seed count on a three-class task would mean the binding
+quantity is smaller than we claim, and that the gate's floor of 3{,}000 distinct
+seeds is set far above what this task needs. Either outcome is informative; only
+declining to run it is not. The cost is roughly fifteen training runs at the
+scale of the three already reported, which took 115, 70 and 95 minutes on two
+CPU cores, so the whole sweep is on the order of a day of commodity compute and
+needs no accelerator.
 
 \paragraph{Figures that cannot be re-run}
 

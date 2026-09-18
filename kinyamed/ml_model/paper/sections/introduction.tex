@@ -105,7 +105,7 @@ medical triage dataset for Kinyarwanda, and the resource audit described in
 Section~\ref{sec:related} did not locate one. We have not run a systematic search
 of the field, and we make no stronger claim than that.
 
-\paragraph{Contributions.} Our audit yields four findings.
+\paragraph{Contributions.} Our audit yields five findings.
 
 \textbf{(1) A corpus requirement written in rows does not constrain quality.}
 The binding quantity is distinct authored seed phrases, not rows, and the two
@@ -132,7 +132,16 @@ under surface variation. Neither is visible from probabilities, accuracy or
 label order; each was caught by a property check against something outside the
 model.
 
-The apparatus that produces all four re-derives from a clean clone with one
+\textbf{(5) A recurring failure we name \emph{recorded but unread}.} Six times
+a fact was recorded correctly, in a machine-readable place, and went unread until
+something unrelated forced a look: a leakage field, a duplicated threshold, three
+emitted tables no file included, a docstring disagreeing with its own constant, a
+gate that could not fail, and a required gloss field that is a placeholder in 13
+of the 15 phrases our figures rest on. None is a measurement failure. Each is a
+fact recorded where the code path that needed it does not look
+(Section~\ref{sec:disc:unread}).
+
+The apparatus that produces all five re-derives from a clean clone with one
 command, except where marked \textbf{NOT REPRODUCIBLE}.
 
 \begin{center}

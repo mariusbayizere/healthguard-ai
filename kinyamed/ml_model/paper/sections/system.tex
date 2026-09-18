@@ -73,6 +73,46 @@ decision a gate scores, and the decision a service serves are three separate
 things that can drift apart silently; we found two such gaps in our own system
 and closed both.
 
+\subsection{An invariance check the fragility finding implies}
+\label{sec:system:invariance}
+
+\textbf{Proposed, not implemented, and not evaluated.} No code in this
+repository does what this subsection describes, no measurement of its effect
+exists, and nothing below should be read as a property of the served system. We
+state it because the surface-fragility result in
+Section~\ref{sec:res:silent} implies a countermeasure, and a reader who accepts
+that result will reasonably ask what follows from it.
+
+The measurement was that the predicted urgency changes for 31.5\% of inputs
+under capitalisation and 21.0\% under a single typo. Whatever the cause, and
+Section~\ref{sec:res:silent} declines to attribute one, a prediction that moves
+under a change the patient did not intend is not a prediction the serving path
+should act on silently.
+
+\paragraph{The check.} Before serving a triage decision, the endpoint copies the
+input, applies the surface perturbations the probe already implements (case
+folding and punctuation removal), runs the model on the original and the
+perturbed copy, and compares the argmax. If the two agree, it serves the
+decision. \textbf{If they differ, it refuses rather than serving}: the request
+is routed to human review with the disagreement recorded, exactly as the gate
+refuses a cell it cannot measure. The system already fails closed elsewhere, so
+this is the same posture applied one layer further out.
+
+\paragraph{Its cost.} Two forward passes per request instead of one, so
+throughput halves and latency roughly doubles. On a task whose latency target is
+already recorded in this paper as unachievable on the hardware we measured, that
+cost is not obviously affordable, and we do not claim it is. It would need to be
+measured against a real target machine before anyone adopted it.
+
+\paragraph{What it does not do.} \textbf{It catches instability, not
+wrongness.} A model that is stable and confidently wrong passes it unchanged:
+both passes agree, the check is satisfied, and the wrong urgency is served with
+no flag. It is a consistency test, not a correctness test, and it would be a
+mistake to read a low disagreement rate as evidence that the model is right. It
+also cannot detect a failure that affects both copies equally, which includes the
+missing-tokenizer mode reported beside it: a model answering its class prior
+answers the same prior twice.
+
 \subsection{What the apparatus has not been shown to do}
 
 It has not run in a health centre and has not been used with any patient. No
