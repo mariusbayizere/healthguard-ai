@@ -23,7 +23,8 @@ than by default.
 
 \paragraph{Whole concepts collapsed into another (15 concepts, 30 rows).} Where
 two concepts turned out to name one sign, the speaker ruled them one concept and
-the absorbed identifier went out of generation. The collapses are:
+the absorbed identifier went out of generation. The collapses are listed in
+Table~\ref{tab:collapses}.
 
 % DEFECT 2 (page 23): six columns overflowed the 219.1pt column by ~21pt and
 % collided with the body text at x~306. table* gives 455.2pt. Widths below:
@@ -132,7 +133,8 @@ A Kinyarwanda speaker ruled fifteen medical terms for insertion, giving for each
 whether it is genuinely switched or simply borrowed, its noun class, and the
 agreement it triggers. That yielded five borrowed terms with established
 Kinyarwanda forms, which belong in \emph{monolingual} rows rather than mixed
-ones, and four cleanly switched terms.
+ones, and four cleanly switched terms. Table~\ref{tab:codeswitch} gives the
+pair-by-pair position.
 
 % Found by paper/check_tables.py after it learned to see bare tabulars, not by
 % the bounding-box pass. 3cm + 11cm = 396.9pt content + 2 x 2 x 4pt tabcolsep
@@ -259,7 +261,8 @@ the tables in a rebuilt archive against the tables the emitter writes.
 recorded it from the first commit.} v1 was split two ways, by phrase and by
 family, and presented as two difficulty levels. The family holdout was not a
 holdout. Its own frozen manifest reports that every one of its 114{,}321
-evaluation rows was built on a phrase that also appears in training:
+evaluation rows was built on a phrase that also appears in training
+(Table~\ref{tab:v1manifest}).
 
 % 8cm + a numeric column = 226.8pt + ~40pt + 16pt tabcolsep, about 283pt
 % against \textwidth 455.2pt. In a 219.1pt column the first cell alone is
@@ -351,7 +354,8 @@ those claims should not have to re-run the pipeline to see the numbers.
 
 Read them against that section and not as a performance report. In particular,
 Table~\ref{tab:results} is measured on 9 distinct sentences, so its support
-column is not an independent sample size.
+column is not an independent sample size, and Table~\ref{tab:confusion} gives
+the confusion matrix those per-class figures are computed from.
 
 \input{generated/results_table}
 \input{generated/confusion_table}
@@ -499,18 +503,23 @@ open, not as answered in our favour.
 \paragraph{Six claims require studies that have not run.} No value for any of
 the following exists anywhere in our records, and none is estimated here:
 
-% DEFECT 3 (page 29): this ran OFF THE PAGE EDGE, to x=599.2 on a 597.5pt page,
-% because the first column was `l' and could not wrap "Community health worker
-% consultation" while the second took 0.58 of a 219.1pt column. Both columns now
-% wrap and the table is full width. Arithmetic, checked before committing:
-%   5cm + 10cm = 426.8pt content
+% NOT A FLOAT, DELIBERATELY. As a table* this drifted onto page 34 and printed
+% INSIDE the references, between two bibliography entries, because it was
+% introduced positionally ("the following:") and referenced by no \ref, so LaTeX
+% was free to move it to the next page with room. A centred tabular cannot move.
+%
+% It therefore has to fit ONE column, 219.1pt, not \textwidth. Arithmetic:
+%   2.4cm + 4.6cm = 198.4pt content
 %   2 columns x 2 x 4pt tabcolsep = 16.0pt
-%   total 442.8pt against \textwidth 455.2pt -> fits, 12.5pt to spare
-% (\textwidth = 210mm paper - 2 x 25mm geometry margin = 455.2pt.)
-\begin{table*}[t]
-\centering\small
+%   total 214.4pt against a 219.1pt column -> fits, 4.7pt to spare
+% \footnotesize rather than \small because the second column holds sentences in
+% 4.6cm. The rows run three to four lines each; that is the price of not
+% floating, and a tall table in an appendix is better than a table in the
+% bibliography.
+\begin{center}
+\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}>{\raggedright\arraybackslash}p{10cm}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{4.6cm}}
 \toprule
 Claim & Why there is no value \\
 \midrule
@@ -526,10 +535,7 @@ Community health worker consultation & No consultation took place \\
 Deployment & The system has never run in a health centre and is not cleared to \\
 \bottomrule
 \end{tabular}
-\caption{Six claims that require a study nobody has run. None of these
-absences was chosen.}
-\label{tab:pending}
-\end{table*}
+\end{center}
 
 The protocol for each is written and ready to execute; what is missing is a
 person, not an instrument. None of these absences was chosen. Each is a study we

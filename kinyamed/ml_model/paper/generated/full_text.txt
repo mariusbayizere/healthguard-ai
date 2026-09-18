@@ -377,6 +377,9 @@ Person  |  Phrasing  |  Characters
 first  |  Mfite umuriro kandi mfite uduheri ku mubiri wose.  |  49 
 third  |  \REL\ afite umuriro n'uduheri ku mubiri wose.  |  45 
 
+3lone expansion of the third-person row, shown to explain the notation: 
+expansion  |  Umwana wanjye afite umuriro n'uduheri ku mubiri wose.  |  -- 
+
 2lShared prefix  |  0 
 2lLongest common substring  |  23 
 2lWord Jaccard  |  4/10 = 0.400 
@@ -403,6 +406,12 @@ in one phrase group
 because the authoring record declares them one concept, not because any
 string comparison found them alike, and that is what makes this the case no
 similarity rule catches.
+The third line is an expansion, not a corpus row. The corpus stores
+the placeholder form, and every count above is computed from the stored form:
+substituting a relation term would change the character count and the shared
+prefix, which is the whole point. REL expands to one of
+8 relation terms ruled per concept, and one is shown so
+the notation explains itself.
 On the choice of IF05. EX24 gives a cleaner Part B
 (shared prefix 0, longest common substring 25 against IF05's 23) and is
 not used because its english_gloss in the authoring record is a
@@ -1790,7 +1799,8 @@ than by default.
 
 Whole concepts collapsed into another (15 concepts, 30 rows). Where
 two concepts turned out to name one sign, the speaker ruled them one concept and
-the absorbed identifier went out of generation. The collapses are:
+the absorbed identifier went out of generation. The collapses are listed in
+Table A.
 
 table*[t]
 
@@ -1889,7 +1899,8 @@ A Kinyarwanda speaker ruled fifteen medical terms for insertion, giving for each
 whether it is genuinely switched or simply borrowed, its noun class, and the
 agreement it triggers. That yielded five borrowed terms with established
 Kinyarwanda forms, which belong in monolingual rows rather than mixed
-ones, and four cleanly switched terms.
+ones, and four cleanly switched terms. Table B gives the
+pair-by-pair position.
 
 table*[t]
 
@@ -2003,7 +2014,8 @@ One of the two evaluation splits never worked, and the manifest
 recorded it from the first commit. v1 was split two ways, by phrase and by
 family, and presented as two difficulty levels. The family holdout was not a
 holdout. Its own frozen manifest reports that every one of its 114,321
-evaluation rows was built on a phrase that also appears in training:
+evaluation rows was built on a phrase that also appears in training
+(Table D).
 
 table*[t]
 
@@ -2087,7 +2099,8 @@ those claims should not have to re-run the pipeline to see the numbers.
 
 Read them against that section and not as a performance report. In particular,
 Table F is measured on 9 distinct sentences, so its support
-column is not an independent sample size.
+column is not an independent sample size, and Table F gives
+the confusion matrix those per-class figures are computed from.
 
 table*[t]
 
@@ -2270,8 +2283,6 @@ open, not as answered in our favour.
 Six claims require studies that have not run. No value for any of
 the following exists anywhere in our records, and none is estimated here:
 
-table*[t]
-
 4pt
 
 Claim | Why there is no value
@@ -2281,11 +2292,6 @@ Native-speaker authenticity ratings | No rating session has been held. The five-
 Human-nurse baseline | No nurse study has been run, so we cannot say how a person would triage the same text
 Community health worker consultation | No consultation took place
 Deployment | The system has never run in a health centre and is not cleared to
-
-Six claims that require a study nobody has run. None of these
-absences was chosen.
-
-table*
 
 The protocol for each is written and ready to execute; what is missing is a
 person, not an instrument. None of these absences was chosen. Each is a study we

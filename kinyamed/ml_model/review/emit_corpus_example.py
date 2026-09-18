@@ -100,6 +100,19 @@ def shared_prefix(a: str, b: str) -> int:
     return count
 
 
+def relation_terms() -> list[str]:
+    """What {REL} expands to, read from the generator rather than chosen here."""
+    sys.path.insert(0, str(ROOT))
+    try:
+        from dataset import vocabulary
+    except ImportError as exc:
+        raise Missing(f"cannot import dataset.vocabulary: {exc}") from exc
+    terms = vocabulary.RELATIONS.get("kinyarwanda", ())
+    if not terms:
+        raise Missing("RELATIONS['kinyarwanda'] is empty; {REL} expands to nothing")
+    return list(terms)
+
+
 def load():
     with SPLIT.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
@@ -155,6 +168,7 @@ def render() -> str:
     group_third = by_phrase[third][0]["phrase_group"]
     same_group = group_first == group_third
 
+    expansion = relation_terms()[0]
     match = difflib.SequenceMatcher(None, first, third)
     lcs = max((b.size for b in match.get_matching_blocks()), default=0)
     prefix = shared_prefix(first, third)
@@ -211,6 +225,11 @@ def render() -> str:
         "\\midrule",
         f"first & {tex(first)} & {len(first)} \\\\",
         f"third & {tex(third)} & {len(third)} \\\\",
+        "\\addlinespace",
+        "\\multicolumn{3}{l}{\\emph{one expansion of the third-person row, shown "
+        "to explain the notation:}} \\\\",
+        f"\\emph{{expansion}} & \\emph{{{tex(third.replace(PLACEHOLDER, expansion))}}} "
+        "& \\emph{{--}} \\\\".replace("{{", "{").replace("}}", "}"),
         "\\midrule",
         f"\\multicolumn{{2}}{{l}}{{Shared prefix}} & \\textbf{{{prefix}}} \\\\",
         f"\\multicolumn{{2}}{{l}}{{Longest common substring}} & {lcs} \\\\",
@@ -252,6 +271,12 @@ def render() -> str:
         "\\emph{because the authoring record declares them one concept}, not because any",
         "string comparison found them alike, and that is what makes this the case no",
         "similarity rule catches.",
+        "\\textbf{The third line is an expansion, not a corpus row.} The corpus stores",
+        "the placeholder form, and every count above is computed from the stored form:",
+        "substituting a relation term would change the character count and the shared",
+        f"prefix, which is the whole point. {PLACEHOLDER} expands to one of",
+        f"{len(relation_terms())} relation terms ruled per concept, and one is shown so",
+        "the notation explains itself.",
         f"\\textbf{{On the choice of {CONCEPT}.}} {REJECTED} gives a cleaner Part B",
         f"(shared prefix 0, longest common substring 25 against {CONCEPT}'s {lcs}) and is",
         "not used because its \\path{english_gloss} in the authoring record is a",
