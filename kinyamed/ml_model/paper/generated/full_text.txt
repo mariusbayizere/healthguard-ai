@@ -1194,12 +1194,12 @@ A1: CRITICAL recall ≥ 0.95. Inherited; source not verified. This threshold pre
 A2: macro F1 > 2/3, strictly. Derived exactly. Macro F1 is the unweighted mean of three per-class F1 scores. If any one class is abandoned its F1 is zero, so macro F1 ≤ (1+1+0)/3 = 2/3 even when the other two classes are perfect. The comparison is therefore strict: a model scoring exactly 2/3 is consistent with two perfect classes and one dead one, and an inclusive ≥ admitted it. What the condition actually guarantees is weaker than non-degeneracy in any useful sense: from f_i ≤ 1 it follows that _i F1_i ≥ 3 macro - 2, which is 0 just above 2/3 and 0.3172 at the 0.7724 measured here. Passing A2 proves no class is exactly dead; it does not prove no class is nearly dead. A model at macro 0.672 may carry a class at F1 = 0.016 and pass.
 
 A3: CRITICAL precision ≥ the merge-strategy precision plus a margin. Floor derived and measured per evaluation set; margin not derived. A model that merges CRITICAL and URGENT and labels the union CRITICAL earns, by construction, a CRITICAL precision of
-\[ support(CRITICAL)support(CRITICAL) + support(URGENT) = 0.5349 \]
-on this reporting set. This is the precision of one specific strategy, not a ceiling on degenerate models in general, and it assumes no ROUTINE row is labelled CRITICAL; a strategy that swept ROUTINE in as well would score lower. It is what that strategy is paid for free, so an informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. The condition is not always satisfiable. When CRITICAL rows dominate the two urgent classes the merge precision approaches 1, the floor exceeds 1, and no model can pass; the gate reports NOT COMPUTABLE rather than failing a model for a property of the set it was scored on. The margin above that floor (0.10) is not derived. How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
+\[ ! n_CRITn_CRIT + n_URG = 8,96216,755 = 0.5349 \]
+on this reporting set, where n is a count of gold rows. No model is involved in this quantity: it is the CRITICAL class prior within the two urgent classes, computed from support counts alone, and it is the score the merge strategy is paid for free. It is the precision of one specific strategy, not a ceiling on degenerate models in general, and it assumes no ROUTINE row is labelled CRITICAL; a strategy that swept ROUTINE in as well would score lower. It is what that strategy is paid for free, so an informative model must exceed it. We compute it against the set being scored rather than hardcoding a value, because it moves with the set's composition. The condition is not always satisfiable. When CRITICAL rows dominate the two urgent classes the merge precision approaches 1, the floor exceeds 1, and no model can pass; the gate reports NOT COMPUTABLE rather than failing a model for a property of the set it was scored on. The margin above that floor (0.10) is not derived. How far above provably-degenerate a deployable model must sit is a question about tolerable over-triage in a clinic, it is a clinical judgement that has not yet been made, and we report it as a placeholder rather than as a standard.
 
 Our acceptance gate was initially a single condition, CRITICAL recall ≥ 0.95, on the reasoning that missing a critical presentation is the failure that matters. One configuration passed it with a CRITICAL recall of 0.9749 while achieving an URGENT recall of 0.0083: it assigned the CRITICAL label to 7,633 of 7,793 URGENT rows. It passed the safety gate because it over-triaged, and the gate contained no term that could observe this.
 
-The degeneracy is measurable rather than interpretive. A model that merges CRITICAL and URGENT earns a CRITICAL precision of 0.5349 on this set by construction. The model scored 0.5337, which is 0.0012 below its own set's merge-strategy precision. Within a thousandth, it did not approximate the merge strategy; it was the merge strategy.
+The degeneracy is measurable rather than interpretive. The quantity it is measured against is a class prior, not a model output: the CRITICAL share of the two urgent classes' gold support, which any strategy that merges CRITICAL and URGENT and labels the union CRITICAL earns by construction, without learning anything. On this set that is a CRITICAL precision of 0.5349 on this set by construction. The model scored 0.5337, which is 0.0012 below its own set's merge-strategy precision. Within a thousandth, it did not approximate the merge strategy; it was the merge strategy.
 
 Two further observations. First, the gate certified this model while rejecting a better one: a configuration with macro F1 0.7724 and all three classes alive failed the same gate on recall alone. Second, our own automated degeneracy check, written for exactly this failure, used the test recall ≥ 0.9  precision < 0.5 and did not fire, because 0.5337 sits above a hardcoded 0.5 while the true merge-strategy precision for this set was 0.5349. The lesson is not that the constant was too low: it is that the quantity is a property of the evaluation set and must be computed against it.
 
@@ -2100,17 +2100,22 @@ URGENT | 0.7426 | 0.4963 | 0.5950 | 7,793 | 4
 ROUTINE | 0.9549 | 1.0000 | 0.9770 | 1,187 | 1
 Macro avg | n/a | n/a | 0.7724 | 17,942 | 9
 
-[2pt] Run fingerprint ee40fcaa015a5850
+[2pt] Run fingerprint a288e8ca47f375f6
 table*
 
+table*[t]
+
 Confusion matrix for model_v2d_freeze8_lr1e-5 on the reporting set. ROUTINE is separated perfectly; the residual error is entirely on the CRITICAL/URGENT boundary, and this was true of every configuration trained.
+
+4pt
 
 Truth  / Pred → | CRITICAL | URGENT | ROUTINE
 CRITICAL | 7,621 | 1,341 | 0
 URGENT | 3,869 | 3,868 | 56
 ROUTINE | 0 | 0 | 1,187
 
-[2pt] Run fingerprint ee40fcaa015a5850
+[2pt] Run fingerprint a288e8ca47f375f6
+table*
 
 table*[t]
 
@@ -2123,7 +2128,7 @@ v2b_freeze10_lr1e-5 | 3,697,923 | 0.7660 | 0.7951/0.9007 | 0.8636/0.6315 | FAIL
 v2c_freeze6_lr1.5e-5 | 10,795,779 | 0.5545 | 0.5337/0.9749 | 0.2321/0.0083 | FAIL
 v2d_freeze8_lr1e-5 | 7,246,851 | 0.7724 | 0.6633/0.8504 | 0.7426/0.4963 | FAIL
 
-[2pt] All rows evaluated in one pass; fingerprint of the reported model ee40fcaa015a5850
+[2pt] All rows evaluated in one pass; fingerprint of the reported model a288e8ca47f375f6
 table*
 
 Table F is the one that carries an argument. The three
