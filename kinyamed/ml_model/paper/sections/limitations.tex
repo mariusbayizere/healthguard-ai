@@ -15,8 +15,7 @@
 \paragraph{1. The evaluation set is nine sentences.} Rows built from one source
 sentence are frame permutations of each other, not independent observations, so
 the quantity governing every interval is the number of distinct sentences.
-The paragraph \emph{How many distinct sentences each figure rests on}, below,
-gives the counts, generated from the frozen split.
+Section~\ref{sec:limits:base} gives the counts, generated from the frozen split.
 Our own gate, which counts distinct sentences, refuses 38 of its cells on this set (a \emph{cell} is one language crossed with one urgency class, the unit the gate requires a minimum count of before it will report)
 and reports nothing; the sizes it requires are derived rather than asserted:
 710 distinct sentences for overall accuracy, 365 gold critical items per pure
@@ -26,26 +25,12 @@ offered.} Every figure we report is a property of a corpus, of a specification, 
 of an artefact's behaviour under perturbation, never of a model's clinical
 performance.
 
-\paragraph{2. No validated instrument authorises this construct.} Validated
-triage instruments exist, and we do not claim otherwise. Telephone triage
-protocols are in routine clinical use, nurse-led telephone triage has been
-studied for decades, and symptom checkers have been audited against clinical
-vignettes. What we could not locate is an instrument validated for the specific
-task this system performs: assigning urgency from a patient's own \emph{written}
-free text, in the patient's own words, without examination and without a
-clinician in the loop asking follow-up questions
-(Section~\ref{sec:related:instruments}).
-
-The difference is not a technicality. Telephone triage is interactive: the nurse
-can ask, disambiguate, and hear how the patient sounds. Symptom-checker audits
-are typically run against vignettes written by clinicians rather than text
-written by patients. Neither supplies a reference standard for a single
-unprompted sentence typed by the person who is unwell, which is the only input
-this system receives. The instrument our specification named,
-WHO ETAT, is defined on examination signs, addresses children, and rules
-explicitly against substituting a caretaker's history for observation.
-\textbf{Every urgency label in this work is therefore an unvalidated
-construct.} No clinician has ratified any category definition, any threshold, or
+\paragraph{2. No validated instrument authorises this construct.} We could
+locate no instrument validated for the task this system performs, assigning
+urgency from a patient's own written free text without examination, and
+Section~\ref{sec:related:instruments} sets out what we did find and why none of
+it supplies a reference standard. \textbf{Every urgency label in this work is
+therefore an unvalidated construct.} No clinician has ratified any category definition, any threshold, or
 any label in the corpus. The taxonomy names three classes; whether those classes
 are the right ones, whether they can be assigned from text at all, and what each
 would mean if they could, are open questions we are not qualified to settle.
@@ -57,7 +42,7 @@ patients present. The corpus is Kinyarwanda only, and no second speaker has
 reviewed it, so inter-rater agreement on anything (labels, naturalness,
 register) is unmeasured because there is no second rater.
 
-\paragraph{How many distinct sentences each figure rests on}
+\subsection{How many distinct sentences each figure rests on}
 \label{sec:limits:base}
 
 The counts below are regenerated from the frozen split by the emitter, so they
@@ -155,11 +140,10 @@ Roughly half the phrases are authored directly by the speaker and the remainder
 are machine drafts under that speaker's approval, recorded per phrase in the
 repository. We give no percentage: the per-phrase provenance is recorded, but no
 committed script prints the split, so any figure here would be \textbf{NOT
-REPRODUCIBLE}. \CorpusFlaggedOnly{} rows of the authoring record carry a flag for clinician
-review without a hold, and \CorpusFlaggedInInventory{} of those are in the
-corpus: a flag records an open clinical question, not a withdrawal. The
-remainder generate nothing for a different reason, being ruled inapplicable or
-not yet written. Held rows generate nothing by definition.
+REPRODUCIBLE}. A flag records an open clinical question, not a withdrawal, so a flagged phrase
+may still be in the corpus. The three flag counts this paper uses are in
+different units and are reconciled once, in
+Section~\ref{sec:method:flagcounts}.
 
 \paragraph{No clinician has signed off on anything.} \CorpusFlagged{} rows are
 flagged as needing clinical review and \CorpusHeld{} are held pending decisions;
