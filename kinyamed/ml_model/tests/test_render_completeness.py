@@ -74,7 +74,14 @@ def headings(text: str) -> list[str]:
 # \newcommand definitions only; render_plain.macros() reads it and expands each
 # macro at its use site, which is why no heading or sentence of it should appear.
 # Anything else missing is a defect, not an exception.
-DEFINITIONS_ONLY = {"generated/results_macros.tex"}
+DEFINITIONS_ONLY = {
+    "generated/results_macros.tex",
+    # Corpus counts, emitted from the authoring record by
+    # review/emit_corpus_counts.py. Plain values only -- the prose that
+    # uses them is in sections/appendix.tex, so there is nothing here for
+    # the reading copy to be short of.
+    "generated/corpus_counts.tex",
+}
 
 
 def latex_sources() -> list[str]:
