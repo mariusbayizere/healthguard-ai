@@ -127,7 +127,7 @@ Kinyarwanda forms, which belong in \emph{monolingual} rows rather than mixed
 ones, and four cleanly switched terms.
 
 \begin{center}
-\begin{tabular}{lp{0.62\textwidth}}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{0.60\linewidth}}
 \toprule
 pair & why it does not generate \\
 \midrule
@@ -214,14 +214,28 @@ rigorous, report zero overlap honestly, and split 60 of 61 concepts across the
 holdout. We had already made exactly this class of mistake once, in an earlier
 split whose manifest recorded complete leakage in a field nobody read.
 
-\paragraph{The same shape, twice.} The split manifest recorded complete leakage in a machine-readable field, in the
-commit that created it, and the two fields being read were both honestly zero. Our acceptance threshold existed as independent copies of one constant in
-two source files, so changing the safety threshold in one would silently not
-apply in the other.
+\paragraph{The same shape, three times.} The split manifest recorded complete
+leakage in a machine-readable field, in the commit that created it, and the two
+fields being read were both honestly zero. Our acceptance threshold existed as
+independent copies of one constant in two source files, so changing the safety
+threshold in one would silently not apply in the other.
 
-Neither is a measurement failure. Both are a fact recorded where the code path
-that needed it does not look, and a project accumulating rulings faster than it
-accumulates places to read them should expect more of them.
+The third is this paper's own tables. \path{training/holdout_eval.py} wrote
+\path{results_table.tex}, \path{confusion_table.tex} and
+\path{sweep_table.tex} on every evaluation pass, and until 2026-09-18 no file
+included them. The build header at the top of \path{main.tex} had said since
+the pipeline was written that \path{results.tex} inputs the tables. It did not,
+and \textbf{nothing failed, because a generated file nobody reads produces no
+error}: no missing input, no undefined macro, no warning. The emitter kept its
+side of the contract and the document quietly stopped keeping its. They are
+restored in Appendix~\ref{app:run}.
+
+None of the three is a measurement failure. Each is a fact recorded where the
+code path that needed it does not look, and a project accumulating rulings
+faster than it accumulates places to read them should expect more of them. The
+third is the one that should worry a reader most, because the other two were
+caught by a person re-reading a file, while this one was caught only by counting
+the tables in a rebuilt archive against the tables the emitter writes.
 
 \section{The v1 family holdout, in full}
 \label{app:v1leak}
@@ -294,7 +308,9 @@ The affordability follows from the corpus rather than from any efficiency
 technique, and it is the seeds-not-rows point from the training side: the task is
 \textbf{150 distinct training phrases} mapped to three labels, however many rows
 those phrases were expanded into. The model is a small multilingual encoder with
-its embedding table frozen, leaving between 3.7 and 10.8 million trainable
+its whole embedding module frozen (the word-embedding table together with the
+position and token-type tables and the embedding LayerNorm; see
+Section~\ref{sec:method:training}), leaving between 3.7 and 10.8 million trainable
 parameters. A budget of a few hundred optimisation steps is not a compromise
 forced by the hardware but the right size for the problem, and the run that
 preceded these was abandoned in part because it had been budgeted at roughly
@@ -303,16 +319,13 @@ forty times what the task needed.
 \section{The reported run in full}
 \label{app:run}
 
-These three tables are written by \path{training/holdout_eval.py} on every
-evaluation pass, and until 2026-09-18 no file included them: the emitter wrote
-them, the document ignored them, and the build header had said since the
-pipeline was written that \path{results.tex} inputs the tables. Nothing failed,
-because a generated file nobody reads produces no error. They are collected
-here rather than in the results section because none of them is offered as a
-statement about model quality, for the reasons in
-Section~\ref{sec:res:none}; they are the evidence behind claims the paper makes
-about its own \emph{gate}, and a reader checking those claims should not have
-to re-run the pipeline to see the numbers.
+These three tables were emitted on every run and included by no file until
+2026-09-18; that is the third instance of the recorded-but-unread pattern and is
+treated in Appendix~\ref{app:leakage}. They are collected here rather than in
+the results section because none of them is offered as a statement about model
+quality, for the reasons in Section~\ref{sec:res:none}; they are the evidence
+behind claims the paper makes about its own \emph{gate}, and a reader checking
+those claims should not have to re-run the pipeline to see the numbers.
 
 Read them against that section and not as a performance report. In particular,
 Table~\ref{tab:results} is measured on 9 distinct sentences, so its support
@@ -357,9 +370,8 @@ generally rather than the speaker's own grandmother; the returned Swahili terms
 are possessive and name a different referent, so they are recorded and not
 wired into a set that means something else.
 
-\paragraph{Authenticity of the Kinyarwanda: \PENDING{no rating session has
-run}.} Whether these phrases read as something a patient would say has not been
-measured. The instrument, a five-point scale whose middle band is
+\paragraph{No rating session has run, so authenticity is unmeasured.} Whether
+these phrases read as something a patient would say has not been measured. The instrument, a five-point scale whose middle band is
 deliberately ``understandable, but not how I would put it'', the state the v1
 corpus was in, is written and unexecuted.
 
@@ -385,8 +397,9 @@ any result in this paper.
 machine-drafted candidate phrasings with per-row provenance and review verdicts
 against the same concept spine. No English speaker and no French speaker has
 ruled on them, and the French brief records explicitly that no French speaker has
-seen any of it. The eleven holds the two arms lifted independently are treated as
-a finding in Section~\ref{sec:method:arms} rather than here.
+seen any of it. The eleven held rows both arms lifted, across seven concepts,
+are treated as a finding in Section~\ref{sec:method:arms} rather than here,
+including which of them were reached independently and which were mirrored.
 
 \paragraph{Swahili is out for authoring, with no draft supplied.} The brief the
 speaker received contains no Swahili at all: it carries the English gloss, the
@@ -461,29 +474,33 @@ across three configurations. A reader wanting to know whether a different
 pretrained encoder would do better on this corpus should read that question as
 open, not as answered in our favour.
 
-\paragraph{Six claims require studies that have not run.} The following are
-recorded as \PENDING{} throughout, and no value for any of them exists anywhere
-in our records:
+\paragraph{Six claims require studies that have not run.} No value for any of
+the following exists anywhere in our records, and none is estimated here:
 
 \begin{center}\small
-\begin{tabular}{lp{0.52\textwidth}}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{0.58\linewidth}}
 \toprule
-Claim & Status \\
+Claim & Why there is no value \\
 \midrule
-Inter-rater agreement ($\kappa$) & \PENDING{no second annotator} \\
-Taxonomy approved by a clinician & \PENDING{no clinician has reviewed it} \\
-Native-speaker authenticity ratings & \PENDING{no rating session has run} \\
-Human-nurse baseline & \PENDING{no nurse study has run} \\
-Community health worker consultation & \PENDING{did not occur} \\
-Deployment & \PENDING{not deployed} \\
+Inter-rater agreement ($\kappa$) & There is no second annotator, so there is no
+agreement statistic: not a low one, none \\
+Taxonomy approved by a clinician & No clinician has reviewed it. We approached
+clinical contacts and did not secure one \\
+Native-speaker authenticity ratings & No rating session has been held. The
+five-point instrument is written and unexecuted \\
+Human-nurse baseline & No nurse study has been run, so we cannot say how a
+person would triage the same text \\
+Community health worker consultation & No consultation took place \\
+Deployment & The system has never run in a health centre and is not cleared to \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 The protocol for each is written and ready to execute; what is missing is a
-person, not an instrument. We state them as pending rather than omitting them
-because a claim quietly dropped from a paper is indistinguishable, to a reader,
-from one that was never made.
+person, not an instrument. None of these absences was chosen. Each is a study we
+could not arrange, and we list them rather than omitting them because a claim
+quietly dropped from a paper is indistinguishable, to a reader, from one that was
+never made.
 
 \paragraph{Patient-facing text exists in two of four languages.} The sentence a
 patient reads, and the SMS they receive, is speaker-authored or absent,
