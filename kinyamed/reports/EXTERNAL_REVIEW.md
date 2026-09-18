@@ -274,3 +274,92 @@ arithmetic. None was touched.
    A1-A3. The rename landed after the regeneration ran. No prose names either
    set, so the PDF carries no collision, but emitter and output disagree until
    the next `--writeup` pass.
+
+---
+
+# The recorded-but-unread pattern, instances four and five (2026-09-18)
+
+The paper's Appendix C now calls this "the same shape, three times". Two more
+turned up in the same sitting, both in code rather than in the document, and
+both found only because something else forced a look.
+
+## Four: a docstring, a constant and a validator, each knowing a different number
+
+`review/build_swahili_brief.py` said three things about one quantity:
+
+| where | said |
+|---|---|
+| module docstring, line 72 | "Eleven holds are lifted" |
+| `LIFTED_HOLDS`, lines 268-294 | twelve entries |
+| the run's own summary print, line 1222 | `len(LIFTED_HOLDS)`, so twelve |
+
+**Twelve is correct** and the docstring was wrong. `LIFTED_HOLDS` is the French
+set; the English arm lifted eleven of those twelve and deliberately kept `EX27`
+third held. Eleven is the size of the intersection, twelve the size of this
+arm's inheritance, and the docstring collapsed the two.
+
+`check_lifts_match_french()` validated `LIFTED_HOLDS` against the French brief
+**only**. That is why the discrepancy never fired: a check against one side
+cannot detect a disagreement between two sides. It is now
+`check_lifts_match_both_arms()` and reads both briefs. Run against the current
+record it reports exactly one finding, which is the row that had been invisible:
+
+```
+('EX27', 'third') is lifted in French and HELD in English: this arm
+inherits it from one arm only, not from two agreeing
+```
+
+The fix is to the docstring and the validator, not to the data.
+
+## Five: a gate that could not fail
+
+`dataset/corpus_gates.py::_g6` returned a hardcoded NOT COMPUTABLE string and
+read no column. It gave the same answer whatever it was given, including the
+sentence "the corpus carries no reporter or patient_age_group per row" about a
+corpus that carries both. The generated corpus genuinely lacked those fields, so
+the stub's answer was true by accident for as long as it was the only corpus,
+and the gate looked like it was working.
+
+The labelled corpus records `reporter` (Self 1,502 / Carer 780) and `age_group`
+across five values, on every row. G6 is now written: it reads both columns,
+fails on an incomplete record, and reports the nine observed reporter x
+age-group pairs against `PERMITTED_REPORTER_AGE`.
+
+**`PERMITTED_REPORTER_AGE` is deliberately empty.** Which combinations are
+coherent is a judgement about who presents on whose behalf and nobody has made
+it for this project, so G6 reports NOT COMPUTABLE with the pairs listed for
+ratification rather than passing a corpus because the pairs look reasonable.
+`tests/test_gate_g6.py` asserts the property the stub lacked: that the verdict
+depends on the input, with PASS, FAIL and NOT COMPUTABLE each reachable.
+
+Worth noting for the same reason as the others: nothing failed while the stub
+was in place. The gate ran, printed a verdict, and was counted among nine.
+
+# A figure withdrawn rather than reconciled (2026-09-18)
+
+The labelled corpus arrived with a comparison figure attached: that the
+generated corpus had "1,020 distinct sentences and 261 word types". Measured
+with the same tokeniser against every committed artefact, nothing produces it:
+`symptoms_large.csv` gives 330,000 rows and **363** types, the 1,000-row sample
+1,000 and 357, the phrase holdout 135, v1's Kinyarwanda 46 phrases and 140
+types.
+
+The figure came from a pasted subset in a scratch file rather than from any
+committed artefact, and **it was withdrawn rather than reconciled**. It never
+entered a report: the discrepancy was raised before anything was written, and
+`grep` confirms 261 appears nowhere as a word-type count. The canonical
+comparison is 363 types over 330,000 generated rows against 3,930 over 2,282
+authored ones.
+
+This is recorded because the alternative was available and worse. A number that
+cannot be reproduced can always be made to look reproducible by finding some
+subset that yields it, and that reconstruction would have been indistinguishable
+in the paper from a measurement.
+
+## Three figures corrected in the same pass
+
+| quantity | as given | measured |
+|---|---|---|
+| ids absent from the range | ~220 | **317** (99+19+100+99, the four ranges as stated) |
+| rows in clinical-record voice | 335 | **336** |
+| type/token ratio | 0.210 | **0.2095** |
