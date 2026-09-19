@@ -1,0 +1,89 @@
+\begin{thebibliography}{7}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Adelani et~al.(2021)Adelani, Abbott, Neubig, D'souza, Kreutzer,
+  Lignos, Palen-Michel, Buzaaba, Rijhwani, Ruder, Mayhew, Azime, Muhammad,
+  Emezue, Nakatumba-Nabende, Ogayo, Anuoluwapo, Gitau, Mbaye, Alabi, Yimam,
+  Gwadabe, Ezeani, Niyongabo, Mukiibi, Otiende, Orife, David, Ngom, Adewumi,
+  Rayson, Adeyemi, Muriuki, Anebi, Chukwuneke, Odu, Wairagala, Oyerinde, Siro,
+  Bateesa, Oloyede, Wambui, Akinode, Nabagereka, Katusiime, Awokoya, MBOUP,
+  Gebreyohannes, Tilaye, Nwaike, Wolde, Faye, Sibanda, Ahia, Dossou, Ogueji,
+  DIOP, Diallo, Akinfaderin, Marengereke, and Osei}]{adelani2021masakhaner}
+David~Ifeoluwa Adelani, Jade Abbott, Graham Neubig, Daniel D'souza, Julia
+  Kreutzer, Constantine Lignos, Chester Palen-Michel, Happy Buzaaba, Shruti
+  Rijhwani, Sebastian Ruder, Stephen Mayhew, Israel~Abebe Azime, Shamsuddeen~H.
+  Muhammad, Chris~Chinenye Emezue, Joyce Nakatumba-Nabende, Perez Ogayo, Aremu
+  Anuoluwapo, Catherine Gitau, Derguene Mbaye, and 42 others. 2021.
+\newblock \href {https://doi.org/10.1162/tacl\_a\_00416} {{MasakhaNER}: Named
+  entity recognition for {African} languages}.
+\newblock \emph{Transactions of the Association for Computational Linguistics},
+  9:1116--1131.
+
+\bibitem[{Adelani et~al.(2022)Adelani, Neubig, Ruder, Rijhwani, Beukman,
+  Palen-Michel, Lignos, Alabi, Muhammad, Nabende, Dione, Bukula, Mabuya,
+  Dossou, Sibanda, Buzaaba, Mukiibi, Kalipe, Mbaye, Taylor, Kabore, Emezue,
+  Aremu, Ogayo, Gitau, Munkoh-Buabeng, Memdjokam~Koagne, Tapo, Macucwa,
+  Marivate, Mboning, Gwadabe, Adewumi, Ahia, Nakatumba-Nabende, Mokono, Ezeani,
+  Chukwuneke, Adeyemi, Hacheme, Abdulmumin, Ogundepo, Yousuf, Moteu~Ngoli, and
+  Klakow}]{adelani2022masakhaner2}
+David~Ifeoluwa Adelani, Graham Neubig, Sebastian Ruder, Shruti Rijhwani,
+  Michael Beukman, Chester Palen-Michel, Constantine Lignos, Jesujoba~O. Alabi,
+  Shamsuddeen~H. Muhammad, Peter Nabende, Cheikh M.~Bamba Dione, Andiswa
+  Bukula, Rooweither Mabuya, Bonaventure F.~P. Dossou, Blessing Sibanda, Happy
+  Buzaaba, Jonathan Mukiibi, Godson Kalipe, Derguene Mbaye, and 26 others.
+  2022.
+\newblock \href {https://doi.org/10.18653/v1/2022.emnlp-main.298} {{MasakhaNER}
+  2.0: {Africa}-centric transfer learning for named entity recognition}.
+\newblock In \emph{Proceedings of the 2022 Conference on Empirical Methods in
+  Natural Language Processing}, pages 4488--4508, Abu Dhabi, United Arab
+  Emirates. Association for Computational Linguistics.
+
+\bibitem[{Alabi et~al.(2022)Alabi, Adelani, Mosbach, and
+  Klakow}]{alabi2022afroxlmr}
+Jesujoba~O. Alabi, David~Ifeoluwa Adelani, Marius Mosbach, and Dietrich Klakow.
+  2022.
+\newblock \href {https://aclanthology.org/2022.coling-1.382/} {Adapting
+  pre-trained language models to {African} languages via multilingual adaptive
+  fine-tuning}.
+\newblock In \emph{Proceedings of the 29th International Conference on
+  Computational Linguistics}, pages 4336--4349, Gyeongju, Republic of Korea.
+  International Committee on Computational Linguistics.
+
+\bibitem[{Niyongabo et~al.(2020)Niyongabo, Hong, Kreutzer, and
+  Huang}]{niyongabo2020kinnews}
+Rubungo~Andre Niyongabo, Qu~Hong, Julia Kreutzer, and Li~Huang. 2020.
+\newblock \href {https://doi.org/10.18653/v1/2020.coling-main.480} {{KINNEWS}
+  and {KIRNEWS}: Benchmarking cross-lingual text classification for
+  {Kinyarwanda} and {Kirundi}}.
+\newblock In \emph{Proceedings of the 28th International Conference on
+  Computational Linguistics}, pages 5507--5521, Barcelona, Spain (Online).
+  International Committee on Computational Linguistics.
+
+\bibitem[{Rutunda et~al.(2026)Rutunda, Williams, Kabanda, Nkurunziza,
+  Uwiduhaye, Rugegamanzi, Nshimiyimana, Menon, Emmanuel-Fabula, Denniston, Liu,
+  Hezagira, and Mateen}]{rutunda2026llm}
+Samuel Rutunda, Gwydion Williams, Kleber Kabanda, Francis Nkurunziza, Solange
+  Uwiduhaye, Eulade Rugegamanzi, Cyprien Nshimiyimana, Vaishnavi Menon, Mira
+  Emmanuel-Fabula, Alastair~K. Denniston, Xiaoxuan Liu, Emery Hezagira, and
+  Bilal~A. Mateen. 2026.
+\newblock \href {https://doi.org/10.1038/s44360-025-00038-1} {Large language
+  models for frontline healthcare support in low-resource settings}.
+\newblock \emph{Nature Health}, 1(2):191--197.
+\newblock PMCID PMC12880909; CC BY.
+
+\bibitem[{{World Health Organization}(2005)}]{who2005etat}
+{World Health Organization}. 2005.
+\newblock \href {https://iris.who.int/handle/10665/43386} {\emph{Emergency
+  Triage Assessment and Treatment (ETAT): Manual for participants}}.
+\newblock World Health Organization, Geneva.
+
+\bibitem[{Yu et~al.(2026)Yu, Xu, Hedderich, Hamidouche, Zamir, and
+  Adelani}]{yu2026afriquellm}
+Hao Yu, Tianyi Xu, Michael~A. Hedderich, Wassim Hamidouche, Syed~Waqas Zamir,
+  and David~Ifeoluwa Adelani. 2026.
+\newblock \href {https://arxiv.org/abs/2601.06395} {{AfriqueLLM}: How data
+  mixing and model architecture impact continued pre-training for {African}
+  languages}.
+\newblock \emph{Preprint}, arXiv:2601.06395.
+
+\end{thebibliography}

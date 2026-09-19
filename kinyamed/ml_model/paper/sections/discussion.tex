@@ -175,12 +175,13 @@ Appendix~\ref{app:search}.
 \subsection{Recorded but unread}
 \label{sec:disc:unread}
 
-Eleven times in this project something the codebase already knew went unread
-until an unrelated change forced a look. Six are the same shape: a fact recorded
-correctly, in a machine-readable place, that no code path consumed. Three are a
-variant worth separating, and the last two are a third: a count that was correct
-when it was written, invalidated by a change to the thing it counted, and never
-re-derived. We separate all three below. None is a measurement
+Twelve times in this project something the codebase already knew went unread
+until an unrelated change forced a look. They fall into three kinds. Six are a
+fact recorded correctly, in a machine-readable place, that no code path
+consumed. Four are \emph{instruments} that reported on something they had not
+read. Two are a count or a sentence that was correct when it was written,
+invalidated by a change to the thing it described, and never re-derived. The
+list below is chronological, so the kinds are interleaved rather than blocked. None is a measurement
 failure: in every case the measurement was right and available, and the gap is
 between recording a fact and having something that reads it.
 
@@ -249,16 +250,25 @@ between recording a fact and having something that reads it.
   caption that asserted in consecutive clauses that 15 of 15 phrases are glossed
   and that \emph{every other phrase} is not. The emitter did its job. Nothing
   checked that the sentence still parsed against its own values.
+\item \textbf{A digest that was stable because the gap was.} The paper's
+  submission archive was assembled by a shell command naming each file. One of
+  them, the bibliography that the submission server will not regenerate, did not
+  exist; the archiver said \emph{name not matched} into a pipe whose output was
+  discarded, and built the archive without it. Two commits shipped that way. The
+  archive's SHA-256 was recomputed on each rebuild and matched every time, and
+  that stability was read as reproducibility. It was: the same absence was being
+  reproduced exactly. A digest answers whether two things are identical and
+  never whether either is complete, and we had been using it for the second
+  question.
 \end{itemize}
 
-\paragraph{Three of them are a different animal, and worse.} The first six are
-records that drifted from the thing they described: a field, a constant, a
-docstring or a gloss that stopped matching reality while both sat still. The
-seventh, eighth and ninth are \emph{instruments} that reported on something they
-had not read:
-one silenced by the very change it existed to verify, one reading a field name
-that does not exist, and one whose threshold is a fraction of a study nobody has
-run. A table it could not parse scored identically to a table with nothing
+\paragraph{Four of them are a different animal, and worse.} Six are records
+that drifted from the thing they described: a field, a constant, a docstring or
+a gloss that stopped matching reality while both sat still. Four are
+\emph{instruments} that reported on something they had not read: one silenced by
+the very change it existed to verify, one reading a field name that does not
+exist, one whose threshold is a fraction of a study nobody has run, and one
+whose digest confirmed that an incomplete archive was identical to itself. A table it could not parse scored identically to a table with nothing
 wrong, because the script reported what it found and had no way to say
 \emph{I did not understand this one}.
 
@@ -290,13 +300,13 @@ wrong. Writing the fact down is cheap and feels like completion; wiring a reader
 to it is the expensive half, and it is the half that gets deferred.
 
 The pattern is visible only in hindsight, and we report it because the count is
-the point: \textbf{eleven instances in one project, and not one of them was
-caught by a check written to catch it}. Ten were caught by accident. The
-eleventh is the single exception and it is a narrow one: a compiler refused the
-document over a fragile macro in the same caption, and the contradiction between
-the caption's two sentences was then found by a human reading what the failure
-had put in front of them. Even there, nothing was checking the claim that was
-wrong. What separates the instances we now
+the point: \textbf{twelve instances in one project, and not one of them was
+caught by a check written to catch it}. Eleven were caught by accident. The
+remaining one is a narrow exception rather than a real one: a compiler refused
+the document over a fragile macro in a caption, and the contradiction between
+that caption's two sentences was then found by a human reading what the failure
+had put in front of them. The compiler was checking the macro, not the claim,
+and the claim is what was wrong. What separates the instances we now
 catch automatically from those we do not is unglamorous: a test that fails when
 the recorded value and the consumed value disagree. A field with no such test is
 a comment that happens to live in a data structure, and an instrument with no
