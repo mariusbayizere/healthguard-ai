@@ -2622,3 +2622,57 @@ Sources: REMEDIATION_PLAN §0 (D0–D7), EVAL_SET_SPEC §11–12 (B1–B7, E1–
 **Order that unblocks the most:** H1 → H6 with H3–H5 → H12 → H7 pilot (60 items) → the rest. H2 is needed
 before any real patient, not before the evaluation set.
 
+
+## 2026-09-19 — sweep abandoned, English and French arms, Table 1 column
+
+**Resume from here.**
+
+**SWEEP (Part C): ABANDONED for v1, cost recorded, artefacts kept.**
+- Measured: 11.1 s/step at 4 threads, 9.5 at 2 (4 threads is ~17% SLOWER, memory
+  contention). One arm = 174 min; fifteen arms = ~43 hours.
+- Reached step 600/940 on `seeds010_rep1` before the machine rebooted at 12:50,
+  the third reboot that day. No resume-within-arm path, so no measurement.
+- Recorded in §7.4 beside the prediction, which is UNCHANGED.
+- KEPT and committed: `dataset/sweep/` (15 arms + manifests),
+  `review/build_sweep_arms.py`, `review/run_sweep.py`,
+  `tests/test_sweep_arms.py` (7 tests). Ready to run on other hardware.
+- Arms are 3,000 rows, not 30,000: the generator's per-seed output varies 21-fold
+  (386 to 8,129, median 1,146), so a 30,000 budget selects for large seeds and
+  skews class mix. 3,860 is the ceiling at which all 150 phrases qualify.
+
+**ENGLISH AND FRENCH ARMS: authored, copied, measured.**
+- `dataset/labelled/triage_EN_FR_ALL.csv`, sha256 b970b3ce, 2,400 rows.
+- English 2,302 distinct / 1,905 types / TTR 0.0809.
+  French 2,301 distinct / 2,332 types / TTR 0.0919. (2,332, not 2,333.)
+- Zero clinical-record voice in English.
+- Gates run on all three arms: G1 PASS everywhere; G2 FAILS everywhere
+  (EN/FR 2,400 seeds vs 3,000 floor, shortfall 600; KW 2,282, shortfall 718);
+  G3 and G6 NOT COMPUTABLE; G5/G7/G8 fail on EMPTY provenance fields, which is
+  deliberate and must stay empty until real provenance is supplied.
+- Opener concentration: KW 1,578 distinct openers, 3.9% top-1, 14.8% top-10;
+  EN 931 / 6.6% / 25.7%; FR 895 / 6.7% / 29.2%. No verdict: C3 has no floor.
+
+**TABLE 1: meaning kept, column added.** It still means "what the generator can
+emit". New `Authored` column shows 2,302 and 2,301 sentences that exist and that
+the generator cannot use. English and French remain at 0 rows.
+
+**FOUR-LANGUAGE FRAMING: written.** Abstract, introduction and §3.3 now say
+sentences are authored in three arms and rows generate in one, because the frame
+slots the other two need do not exist. §3.3 states the distance concretely:
+three frame slots (openers, contexts, closers), not one further sentence.
+
+**NINTH recorded-but-unread instance: C3**, whose floor is a fraction of a pilot
+that has never run. Shares its shape with the G6 stub: neither would be caught by
+running them, because NOT COMPUTABLE is indistinguishable from a gate correctly
+declining on thin data.
+
+**NEXT ACTION:** the paper is coherent and pushed; the compile is the open loop.
+Pages 17 and 31 were fixed by the regeneration (fingerprint a288e8ca) but have
+not been recompiled since. Rebuild the zip, compile, and re-run the bounding-box
+analysis.
+
+**GATE NAMING, because the two prefixes are the same nine gates.**
+`dataset/corpus_gates.py` calls them G1-G9; the paper calls them C1-C9 (e.g.
+limitations.tex "C1's cap on rows per seed and C2's floor on distinct seeds" is
+the code's G1 and G2). Same numbering, same order. The gate results above use
+the code's prefix.

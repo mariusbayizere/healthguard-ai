@@ -363,3 +363,25 @@ in the paper from a measurement.
 | ids absent from the range | ~220 | **317** (99+19+100+99, the four ranges as stated) |
 | rows in clinical-record voice | 335 | **336** |
 | type/token ratio | 0.210 | **0.2095** |
+
+# Two corrections caught before pushing (2026-09-19)
+
+Recorded because this section is otherwise a list of things caught late, and the
+discipline it argues for is only visible when it works.
+
+Drafting §7.4's measured sweep cost, two errors went into the working tree and
+came out again before the commit:
+
+1. **9.4 s/step written where the measurement was 9.5.** A transcription slip in
+   a paragraph whose entire purpose is to report a measured rate.
+2. **174 minutes per arm attributed to the 30,000-row design.** The figure is
+   for the 3,000-row arms that were actually built; the 30,000-row design was
+   abandoned before any arm ran, for the class-mix confound recorded above.
+   Left uncorrected, the paragraph would have reported a cost for an experiment
+   that was never attempted, beside a prediction for a design that was.
+
+Neither reached a commit. Both were caught by re-reading the paragraph against
+the numbers it quoted, which is the same check that has caught nothing else in
+this project on the first pass. The nine recorded-but-unread instances were all
+found by accident; these two were found by looking. That asymmetry is the
+argument for looking.
