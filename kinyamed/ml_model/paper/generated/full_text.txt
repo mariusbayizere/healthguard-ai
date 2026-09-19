@@ -1268,10 +1268,10 @@ Appendix E.
 
 ## RECORDED BUT UNREAD
 
-Seven times in this project something the codebase already knew went unread
+Eight times in this project something the codebase already knew went unread
 until an unrelated change forced a look. Six are the same shape: a fact recorded
-correctly, in a machine-readable place, that no code path consumed. The seventh
-is a variant worth separating, and we do so below. None is a measurement
+correctly, in a machine-readable place, that no code path consumed. The last two
+are a variant worth separating, and we do so below. None is a measurement
 failure: in every case the measurement was right and available, and the gap is
 between recording a fact and having something that reads it.
 
@@ -1308,23 +1308,42 @@ between recording a fact and having something that reads it.
   tabularx to fix a width problem put it outside the one environment
   name the script matched, and it reported that table as zero columns and no
   content, which its own summary counted as passing.
+  - A collapse detector that read the wrong key. A sweep harness was
+  given a function to report when a trained arm predicts a single class for every
+  input, because a degenerate arm is a result and not an error. It read a
+  top-level confusion field. The trainer writes the matrix at
+  metrics.confusion_matrix. The function would have returned
+  no collapse for every arm in the sweep, including a collapsed one,
+  and nothing would have contradicted it.
 
-The seventh is a different animal, and worse. The first six are
+The last two are a different animal, and worse. The first six are
 records that drifted from the thing they described: a field, a constant, a
 docstring or a gloss that stopped matching reality while both sat still. The
-seventh is an instrument silenced by the very change it existed to
-verify. A table it could not parse scored identically to a table with nothing
+seventh and eighth are instruments that reported success on something
+they had not read: one silenced by the very change it existed to verify, the
+other reading a field name that does not exist. A table it could not parse scored identically to a table with nothing
 wrong, because the script reported what it found and had no way to say
 I did not understand this one.
 
 A checker that passes what it cannot parse is worse than no checker,
 and the reason is not subtle: absence of a checker is visible, and a green result
 from a blind one is not. It answers the question it was asked with the word the
-reader wanted. We caught this only because the count of columns it printed was
-obviously wrong for a table we had just written, and a less conspicuous failure
-would have survived. The lesson we take is that a verification script needs a
-third outcome beside pass and fail, and must treat unparsed as a failure
-rather than as silence.
+reader wanted. We caught the seventh only because the count of columns it printed
+was obviously wrong for a table we had just written, and a less conspicuous
+failure would have survived. The lesson we take is that a verification script
+needs a third outcome beside pass and fail, and must treat unparsed as a
+failure rather than as silence. The collapse detector now raises when the matrix
+is absent instead of returning no collapse from a matrix it never read.
+
+The eighth is the one we would ask a reader to weigh, because of when it
+happened. It was written within an hour of the paragraph you are reading, in
+code whose purpose was to catch a different failure, by someone who had just
+finished naming the pattern. Knowing about a failure mode, having written it
+down, and actively looking for it did not prevent committing it again. We report
+that plainly rather than presenting the pattern as one we have now escaped: the
+evidence of this section is that naming a recurring error does not inoculate
+against it, and the only thing that has reliably caught these is a test that
+fails when a value and its consumer disagree.
 
 Why it recurs, and what would actually help. The common cause of the
 first six is not carelessness about recording. It is that a project accumulates rulings faster
@@ -1334,7 +1353,7 @@ wrong. Writing the fact down is cheap and feels like completion; wiring a reader
 to it is the expensive half, and it is the half that gets deferred.
 
 The pattern is visible only in hindsight, and we report it because the count is
-the point: seven instances in one project, every one caught by accident
+the point: eight instances in one project, every one caught by accident
 rather than by a check written to catch it. What separates the instances we now
 catch automatically from those we do not is unglamorous: a test that fails when
 the recorded value and the consumed value disagree. A field with no such test is
