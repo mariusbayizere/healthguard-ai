@@ -150,14 +150,16 @@ under surface variation. Neither is visible from probabilities, accuracy or
 label order; each was caught by a property check against something outside the
 model.
 
-(5) A recurring failure we name recorded but unread. Six times
-a fact was recorded correctly, in a machine-readable place, and went unread until
-something unrelated forced a look: a leakage field, a duplicated threshold, three
-emitted tables no file included, a docstring disagreeing with its own constant, a
-gate that could not fail, and a required gloss field that is a placeholder in 13
-of the 15 phrases our figures rest on. None is a measurement failure. Each is a
-fact recorded where the code path that needed it does not look
-(Section 6.6).
+(5) A recurring failure we name recorded but unread. Eleven
+times a fact was recorded correctly, in a machine-readable place, and went unread
+until something unrelated forced a look. Six are one shape: a leakage field, a
+duplicated threshold, three emitted tables no file included, a docstring
+disagreeing with its own constant, a gate that could not fail, and a required
+gloss field that is a placeholder in 13 of the 15 phrases our figures rest on.
+Three are instruments that reported on what they had not read, and two are counts
+that were correct when written and were never re-derived after the thing they
+counted changed. None is a measurement failure. Each is a fact recorded where the
+code path that needed it does not look (Section 6.6).
 
 The apparatus that produces all five re-derives from a clean clone with one
 command, except where marked NOT REPRODUCIBLE.
@@ -385,6 +387,7 @@ third  |  \REL\ afite umuriro n'uduheri ku mubiri wose.  |  45
 tabularx
 [2pt] \REL\ is the stored relation placeholder, expanded at generation time to one of 8 ruled relation terms; the counts above are computed from the stored form.
 
+%
 What a frame permutation is, and what no similarity rule catches.
 Part A. All 446 rows built on this seed carry the label
 URGENT because the seed carries it: the seed text is invariant and
@@ -412,12 +415,14 @@ row.
 On the choice of IF05. EX24 gives a cleaner Part B
 (shared prefix 0, longest common substring 25 against IF05's 23) and is
 not used because its english_gloss in the authoring record is a
-placeholder rather than a gloss. Of the
-15 distinct phrases in the reporting split, 15
-carry a real English gloss, and they are the two persons of
-8 concept.
-Every other phrase the reported figures rest on is glossed only by a
-placeholder telling the author where to look. That is a property of the
+placeholder rather than a gloss.
+Of the 15 distinct phrases in the reporting split,
+2 carry a real English gloss
+and they are the two persons of a single concept.
+The remaining 13 phrases the reported figures rest
+on are glossed only by a placeholder telling the author where to
+look.
+That is a property of the
 corpus rather than a note about which row was convenient, and it is why this
 table could not be built from the cleaner pair.
 
@@ -806,6 +811,7 @@ axis[
   ours: 165 seeds,[-2pt] 0 rows;
 axis
 tikzpicture
+
 Table 4.1 plotted. This is arithmetic on the gate
 thresholds, not a measurement: the seed floor (3,000 distinct authored
 phrases per language) and the per-seed cap (50 rows) are written
@@ -1280,10 +1286,12 @@ Appendix E.
 
 ## RECORDED BUT UNREAD
 
-Nine times in this project something the codebase already knew went unread
+Eleven times in this project something the codebase already knew went unread
 until an unrelated change forced a look. Six are the same shape: a fact recorded
-correctly, in a machine-readable place, that no code path consumed. The last
-three are a variant worth separating, and we do so below. None is a measurement
+correctly, in a machine-readable place, that no code path consumed. Three are a
+variant worth separating, and the last two are a third: a count that was correct
+when it was written, invalidated by a change to the thing it counted, and never
+re-derived. We separate all three below. None is a measurement
 failure: in every case the measurement was right and available, and the gap is
 between recording a fact and having something that reads it.
 
@@ -1335,11 +1343,29 @@ between recording a fact and having something that reads it.
   metrics.confusion_matrix. The function would have returned
   no collapse for every arm in the sweep, including a collapsed one,
   and nothing would have contradicted it.
+  - A file count in a commit message. A rebuilt archive was described
+  as holding 32 files. It held 29, plus two directory entries. The 32 was true of
+  the archive that existed when it was written; excluding a 138 KB file of text
+  extracted from a compiled PDF, which is not a source and did not belong in it,
+  dropped the count, and the number was carried into the message without being
+  re-derived from the archive it described. The archive was correct. Only the
+  sentence about it was wrong, and it is a sentence no build step reads.
+  - Freshly emitted numbers in prose written for different ones. The
+  caption of Table 3.2 reports how many phrases in the reporting
+  split carry a real English gloss. A constant named PLACEHOLDER held
+  the gloss placeholder; a second constant of the same name was added sixty lines
+  below it for an unrelated purpose and silently shadowed the first, so the test
+  for a real gloss became a test no gloss fails and the count went from 2 to 15.
+  The emitter then substituted 15 into a sentence composed for 2, producing a
+  caption that asserted in consecutive clauses that 15 of 15 phrases are glossed
+  and that every other phrase is not. The emitter did its job. Nothing
+  checked that the sentence still parsed against its own values.
 
-The last three are a different animal, and worse. The first six are
+Three of them are a different animal, and worse. The first six are
 records that drifted from the thing they described: a field, a constant, a
 docstring or a gloss that stopped matching reality while both sat still. The
-last three are instruments that reported on something they had not read:
+seventh, eighth and ninth are instruments that reported on something they
+had not read:
 one silenced by the very change it existed to verify, one reading a field name
 that does not exist, and one whose threshold is a fraction of a study nobody has
 run. A table it could not parse scored identically to a table with nothing
@@ -1374,8 +1400,13 @@ wrong. Writing the fact down is cheap and feels like completion; wiring a reader
 to it is the expensive half, and it is the half that gets deferred.
 
 The pattern is visible only in hindsight, and we report it because the count is
-the point: nine instances in one project, every one caught by accident
-rather than by a check written to catch it. What separates the instances we now
+the point: eleven instances in one project, and not one of them was
+caught by a check written to catch it. Ten were caught by accident. The
+eleventh is the single exception and it is a narrow one: a compiler refused the
+document over a fragile macro in the same caption, and the contradiction between
+the caption's two sentences was then found by a human reading what the failure
+had put in front of them. Even there, nothing was checking the claim that was
+wrong. What separates the instances we now
 catch automatically from those we do not is unglamorous: a test that fails when
 the recorded value and the consumed value disagree. A field with no such test is
 a comment that happens to live in a data structure, and an instrument with no
