@@ -385,3 +385,27 @@ the numbers it quoted, which is the same check that has caught nothing else in
 this project on the first pass. The nine recorded-but-unread instances were all
 found by accident; these two were found by looking. That asymmetry is the
 argument for looking.
+
+# And one that was not caught before pushing (2026-09-19)
+
+Commit `b74f088`'s message says the rebuilt arXiv archive holds **32 files**. It
+holds **29 files plus 2 directory entries**. The zip itself is correct and
+matches the `paper_overleaf.zip` it replaces file-for-file; only the message is
+wrong.
+
+The number was true when it was written. The first rebuild swept in
+`generated/full_text.txt`, 138 KB of text extracted from a compiled PDF and not
+a LaTeX source, and that archive did hold 32 entries. Excluding the file dropped
+the count to 31, and the 32 was carried into the commit message without being
+re-derived from the archive it described.
+
+**This is the same shape as the nine**, in a commit message rather than in the
+paper: a count recorded correctly, invalidated by a change to the thing it
+counted, and read by nobody between the change and the commit. It is worth
+recording precisely because it happened one commit after writing up two errors
+caught by re-reading a paragraph against its own numbers. The check that caught
+those was not applied here, and the difference between the two cases is not
+skill or care but whether anyone looked at all.
+
+It is left uncorrected in the history. Amending a pushed commit means a
+force-push, which costs more than the error does.
