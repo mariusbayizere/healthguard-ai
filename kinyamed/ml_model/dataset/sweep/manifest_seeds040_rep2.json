@@ -1,0 +1,94 @@
+{
+  "manifest_version": 2,
+  "strategy": "phrase",
+  "split_seed": 42,
+  "generator_seed": 42,
+  "derived_from": {
+    "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+    "manifest_sha256": "b4a038eb68bdcbac49a91cb16f71b3bcdfb95a283ec847139c8c2f1072243f00",
+    "train_sha256": "2ea0d2d495617e6c7385faa3afce1c7ccfcedfa2bc438d75620ba8e98a40b394",
+    "eval_sha256": "b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5"
+  },
+  "sweep": {
+    "arm": "seeds040_rep2",
+    "distinct_seeds": 40,
+    "total_rows": 3000,
+    "rows_per_seed": 75,
+    "replicate": 2,
+    "rng_seed": 202,
+    "code_commit": "31bd4218f6b6bf00cec1946feea59d8cb3360f6e",
+    "run_config": {
+      "epochs": 5,
+      "batch_size": 16,
+      "max_length": 96,
+      "learning_rate": 1e-05,
+      "freeze_layers": 8,
+      "stop_groups": 3,
+      "threads": 4
+    },
+    "label_mix": {
+      "URGENT": 975,
+      "ROUTINE": 750,
+      "CRITICAL": 1275
+    },
+    "phrases": [
+      "Guhumeka birangora cyane ku buryo ntabasha no kuvuga neza.",
+      "Iminwa yanjye yahindutse ubururu.",
+      "Maze ibyumweru birenga bibiri ndwaye impiswi.",
+      "Maze umunsi wose mbabara ngerageza kubyara ariko umwana ntarasohoka.",
+      "Mfite gahunda yo gukingiza umwana.",
+      "Mfite ubushye bunini ku mubiri.",
+      "Mfite umuhaha.",
+      "Mu rugo hari umuntu urwaye igituntu kandi ndashaka kwisuzumisha.",
+      "Narumwe n'inzoka.",
+      "Ndabyara ariko habanje gusohoka umugozi w'umwana.",
+      "Ndaruka amaraso.",
+      "Ndashaka guhabwa inzitiramubu.",
+      "Ndashaka ko bapima umuvuduko w'amaraso.",
+      "Ndashaka kongererwa imiti y'umuvuduko w'amaraso.",
+      "Ndashaka kugirwa inama ku mazi yo kunywa.",
+      "Ndashaka kujya kwa muganga kwisuzumisha SIDA.",
+      "Ndumva mbabara nk'ugiye kubyara kandi igihe cyo kubyara kitaragera.",
+      "Nta miti ya SIDA mfite.",
+      "Nyuma yo kubyara mfite umuriro kandi hari ibintu bisohoka bifite impumuro mbi.",
+      "iyo maze kurya numva mu nda ntameze neza",
+      "mfite igikomere ku mutwe nyuma yo kugwa",
+      "mfite umuriro kandi umutwe urandya cyane",
+      "mfite umuriro mwinshi kandi ndakorora cyane",
+      "mfite umuriro woroheje umaze umunsi umwe, ariko nta kindi kibazo mfite",
+      "umutima uratera cyane kandi nkumva umeze nk'aho uhagarara",
+      "{REL} afite ikibazo cyo kutabasha guhumeka neza, kandi uruhu rwe rwahindutse ubururu",
+      "{REL} afite impiswi zikomeye kandi yagize umwuma.",
+      "{REL} afite ububabare bukabije mu nda.",
+      "{REL} afite ubushye bunini ku mubiri.",
+      "{REL} afite umuriro mwinshi kandi ntarya.",
+      "{REL} amaze umunsi wose ari mu bubabare bwo kubyara ariko umwana ntarasohoka.",
+      "{REL} arababara cyane mu nda kandi ububabare ntibuhagarara.",
+      "{REL} arava amaraso menshi nyuma yo kubyara.",
+      "{REL} ari guhinda umushyitsi kandi afite umuriro uri hejuru ya dogere 40",
+      "{REL} arumva igituza kimuremereye cyane kandi ububabare bukagera no ku rwasaya cyangwa ku kuboko.",
+      "{REL} ashaka inama ku biryo byo kugaburira umwana we.",
+      "{REL} ashaka ko bapima ibiro by'umwana we.",
+      "{REL} isukari yo mu maraso ye yazamutse cyane.",
+      "{REL} yabyimbye ibirenge kandi ntashobora guhumeka neza iyo aragaramye.",
+      "{REL} yataye ubwenge kandi ntasubiza."
+    ]
+  },
+  "provenance": "Labels assigned by a single non-clinician annotator; no second rater; no inter-rater agreement. Not clinical ground truth.",
+  "source": {
+    "path": "dataset/raw/symptoms_large.csv",
+    "sha256": "0c9c3a39119f2cacbd324da6f3a08c9b5b057d1a71f0a7b0f54d25914aaef152"
+  },
+  "files": {
+    "train": {
+      "path": "dataset/sweep/train_seeds040_rep2.csv",
+      "sha256": "c1de982486db9e265074c7b958af1b725aa1639bd67dc864d23ffa8bb09fa30d",
+      "rows": 3000
+    },
+    "eval": {
+      "path": "dataset/processed/eval_phrase_holdout.csv",
+      "sha256": "b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5",
+      "rows": 34425
+    }
+  }
+}

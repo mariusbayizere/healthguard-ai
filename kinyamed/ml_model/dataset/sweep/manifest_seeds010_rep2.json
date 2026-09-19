@@ -1,0 +1,64 @@
+{
+  "manifest_version": 2,
+  "strategy": "phrase",
+  "split_seed": 42,
+  "generator_seed": 42,
+  "derived_from": {
+    "manifest": "dataset/processed/eval_manifest_phrase_v2.json",
+    "manifest_sha256": "b4a038eb68bdcbac49a91cb16f71b3bcdfb95a283ec847139c8c2f1072243f00",
+    "train_sha256": "2ea0d2d495617e6c7385faa3afce1c7ccfcedfa2bc438d75620ba8e98a40b394",
+    "eval_sha256": "b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5"
+  },
+  "sweep": {
+    "arm": "seeds010_rep2",
+    "distinct_seeds": 10,
+    "total_rows": 3000,
+    "rows_per_seed": 300,
+    "replicate": 2,
+    "rng_seed": 202,
+    "code_commit": "31bd4218f6b6bf00cec1946feea59d8cb3360f6e",
+    "run_config": {
+      "epochs": 5,
+      "batch_size": 16,
+      "max_length": 96,
+      "learning_rate": 1e-05,
+      "freeze_layers": 8,
+      "stop_groups": 3,
+      "threads": 4
+    },
+    "label_mix": {
+      "URGENT": 900,
+      "CRITICAL": 1500,
+      "ROUTINE": 600
+    },
+    "phrases": [
+      "Inda irandya cyane kandi ububabare ntibuhagarara.",
+      "Mfite ububabare bukabije mu nda.",
+      "Ndatwite kandi ndashaka kujya kwa muganga kwisuzumisha.",
+      "guhumeka birangora cyane kandi iminwa yanjye yahindutse ibara",
+      "mfite igikomere gikomeye kirimo kuva amaraso menshi",
+      "{REL} afite ibimenyetso bya malariya, umuriro n'imbeho.",
+      "{REL} afite umuriro mwinshi kandi yaragagaye.",
+      "{REL} ahumeka bimugora cyane kandi iminwa ye yahindutse ibara.",
+      "{REL} aratwite kandi ashaka kujya kwa muganga kwisuzumisha.",
+      "{REL} arumva igituza kimuremereye cyane kandi ububabare bukagera no ku rwasaya cyangwa ku kuboko."
+    ]
+  },
+  "provenance": "Labels assigned by a single non-clinician annotator; no second rater; no inter-rater agreement. Not clinical ground truth.",
+  "source": {
+    "path": "dataset/raw/symptoms_large.csv",
+    "sha256": "0c9c3a39119f2cacbd324da6f3a08c9b5b057d1a71f0a7b0f54d25914aaef152"
+  },
+  "files": {
+    "train": {
+      "path": "dataset/sweep/train_seeds010_rep2.csv",
+      "sha256": "fddd7ca40f53dbfb9beb1c0227176da504339765549015a7b2218a0610fc9275",
+      "rows": 3000
+    },
+    "eval": {
+      "path": "dataset/processed/eval_phrase_holdout.csv",
+      "sha256": "b8cddf0dfd1646856ae44637dd724c542b4203fa159e150d01e42efc39723af5",
+      "rows": 34425
+    }
+  }
+}
