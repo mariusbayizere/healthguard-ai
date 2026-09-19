@@ -2704,3 +2704,52 @@ every citation as `[?]` however cleanly it compiles locally.
 listing and the sha256 from the archive it actually wrote, and excludes
 `generated/full_text.txt`. Do not build the archive from a shell `zip` line
 again: that is how `main.bbl` was dropped silently for two commits.
+
+## 2026-09-19 — the Kiswahili arm, and what G4 found
+
+`dataset/labelled/triage_EN_FR_SW_ALL.csv`, sha256 c6e3a14e, 2,400 rows.
+Supersedes `triage_EN_FR_ALL.csv`, verified column by column rather than taken on
+the filename: same rows, ids identical and in order, and cue, reporter,
+age_group, text_en, text_fr, author and label byte-identical. Only text_sw added.
+
+**Kiswahili, measured with `labelled_corpus.tokenise`** (the tokeniser the other
+three arms were measured with): 2,400 filled, 2,300 distinct, 2,787 word types,
+TTR 0.151, **1,413** distinct three-word openers, top opener "mtoto wangu ana"
+at 110, mean 7.7 words. The author's own count of 1,436 openers did not
+reproduce under any of five tokenisations (case-kept whitespace split gives
+1,433, every other variant 1,413); 1,413 is the figure used.
+
+**Voice: zero clinical-record framing; twelve carer-relayed-speech sentences,
+all deliberate.** NOT "zero reported-speech framing" - a reviewer who greps
+`anasema` finds twelve, and the qualifier is the difference between a true claim
+and one that looks false on inspection. The exact construction `anasema kwamba`
+is absent, and so is any say-verb followed by `kwamba`; `eti` as a standalone
+word is absent (earlier hits were `cheti`, certificate). All twelve are Carer
+rows relaying a child's or a neighbour's words, several of them discordant-
+account cues.
+
+**Type diversity across the four arms** (project tokeniser): word types KW 3,930
+> SW 2,787 > FR 2,332 > EN 1,905; TTR 0.210 / 0.151 / 0.092 / 0.081; distinct
+openers KW 1,578 > SW 1,413 > EN 931 > FR 895; mean length SW 7.7 < KW 8.2 <
+EN 9.8 < FR 10.6. Both agglutinative arms sit above both analytic ones on
+diversity and below them on length.
+
+**GATES ON FOUR ARMS: identical verdicts.** G1 PASS everywhere; G2, G4, G5, G7,
+G8, G9 FAIL everywhere; G3 and G6 NOT COMPUTABLE everywhere. G5/G7/G8 fail on
+the empty provenance fields, which stay empty. The `author` column is empty in
+both corpus files, which is why G8 reports that nobody wrote 100% of every cell.
+
+**G4 IS THE ONE REAL DIFFERENCE, AND IT IS NOT ABOUT LANGUAGE.** KW 1 exact
+duplicate in 2,282 (0.1%); EN/FR/SW 98/99/100 in 2,400 (8.2-8.3%). Every
+collision is a pair; 97 pairs are the same two ids in all three arms. Cause: the
+shared cue list holds **exactly 100 duplicate cues** (2,300 distinct over 2,400
+rows, none used more than twice), and authoring the same cue twice produces the
+same sentence 96/100, 97/100 and 96/100 of the time. KW was authored phrase by
+phrase from 165 phrases and duplicates once. The unit of authoring is the
+variable, not the language or the author. Four SW collisions are a separate,
+language-side case: cues differing by a feature (woman vs old man) that a
+first-person Kiswahili sentence does not mark. Written up in method 3.3.
+
+**NEXT ACTION:** the arm is in the paper and the archive is rebuilt. Wiring
+Kiswahili frames (openers, contexts, closers) is what would move its Rows column
+off zero; nothing else in Table 1 is binding.

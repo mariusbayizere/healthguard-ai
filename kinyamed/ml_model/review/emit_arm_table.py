@@ -50,9 +50,14 @@ DRAFTS = ROOT / "review" / "drafts"
 # Authored sentences that exist as a labelled corpus but are NOT wired into the
 # generator. They are real work and they emit nothing, and the table has to show
 # both facts at once or it misleads in one direction or the other.
+# triage_EN_FR_SW_ALL.csv supersedes triage_EN_FR_ALL.csv: same rows, same ids,
+# same labels, same English and French text, plus text_sw. Verified column by
+# column before the switch rather than taken on the filename.
+_EN_FR_SW = ROOT / "dataset" / "labelled" / "triage_EN_FR_SW_ALL.csv"
 AUTHORED_CORPORA = {
-    "english": (ROOT / "dataset" / "labelled" / "triage_EN_FR_ALL.csv", "text_en"),
-    "french": (ROOT / "dataset" / "labelled" / "triage_EN_FR_ALL.csv", "text_fr"),
+    "english": (_EN_FR_SW, "text_en"),
+    "french": (_EN_FR_SW, "text_fr"),
+    "swahili": (_EN_FR_SW, "text_sw"),
     "kinyarwanda": (
         ROOT / "dataset" / "labelled" / "triage_labels_ALL.csv",
         "text_kw",
@@ -274,7 +279,10 @@ Arm & Phrases & Drafts & Authored & Relations & Frames & Rows \\\\
 \\caption{{What each language arm contains. \\textbf{{Phrases}} are authored by a
 speaker of that arm; \\textbf{{drafts}} are machine-written candidates no
 speaker of that language has reviewed, counted separately because counting them
-as phrases is the overstatement this paper is about. \\textbf{{Frames}} counts
+as phrases is the overstatement this paper is about. \\textbf{{Authored}} counts
+labelled sentences that exist and that the generator cannot use; no arm is zero
+in it, so no row here can be read as an arm nobody has written yet.
+\\textbf{{Frames}} counts
 openers, onsets, contexts and closers, with the number of those four slots that
 are non-empty: a row needs all four, which is why three arms generate nothing
 whatever their other columns say. Provenance differs within a column

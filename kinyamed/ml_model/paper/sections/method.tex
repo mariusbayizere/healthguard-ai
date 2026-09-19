@@ -67,16 +67,25 @@ all four arms, emitted from the generator and the briefs rather than described.
 
 \input{generated/arm_table}
 
-\textbf{English and French now demonstrate that claim rather than illustrating
-it.} Both arms hold authored sentences, 2{,}302 and 2{,}301 respectively, and
-both generate \textbf{zero rows}. The sentences exist; the corpus does not. What
-is missing is not authoring but the wrappers a row is built from: each arm has
-\textbf{one of the four frame slots}, the onsets left over from v1's machine
-drafts, and lacks openers, contexts and closers. \textbf{The distance to a
-second generating arm is three frame slots, not a single further sentence.} That
-is the seeds-not-rows argument turned around: we have the expensive quantity in
-three languages and cannot emit a row in two of them, because the cheap quantity
-is absent.
+\textbf{English, French and Kiswahili now demonstrate that claim rather than
+illustrating it.} All three hold authored sentences, 2{,}302, 2{,}301 and
+2{,}300 respectively, and all three generate \textbf{zero rows}. The sentences
+exist; the corpus does not. What is missing is not authoring but the wrappers a
+row is built from: each arm has \textbf{one of the four frame slots}, the onsets
+left over from v1's machine drafts, and lacks openers, contexts and closers.
+\textbf{The distance to a second generating arm is three frame slots, not a
+single further sentence.} That is the seeds-not-rows argument turned around: we
+have the expensive quantity in all four languages and cannot emit a row in three
+of them, because the cheap quantity is absent.
+
+\textbf{With the Kiswahili arm authored, one reading of this table closes.}
+While that arm stood at zero in every column it could be read as work not yet
+done, and the argument rested on two cases. It now rests on three, and no arm in
+Table~\ref{tab:arms} is empty of authored sentences: \textbf{9{,}184 sentences
+across four languages produce rows in exactly one}. The column that separates
+that one from the rest is not \textbf{authored}, where the four arms sit within
+twenty-one sentences of each other, but \textbf{frames}, where one arm has four
+slots and three have one.
 
 The column that decides the others is \textbf{frames}. A row is a phrase wrapped
 in an opener, a time expression, a context and a closing line, and an arm
@@ -84,7 +93,47 @@ missing any of the four emits nothing whatever its phrase count. Only
 Kinyarwanda has all four. The ten fragments each other arm carries are onsets
 left over from v1's machine drafts, which is why three arms sit at zero rows and
 why the phrase inventory is not the binding constraint on a four-language
-corpus.
+corpus. The Kiswahili arm makes this hardest to argue against, because its brief
+shipped deliberately without a Kiswahili draft so that a fluent draft could not
+anchor the speaker's phrasing, and the arm was authored anyway: 2{,}787 word
+types and 1{,}413 distinct openers, second to Kinyarwanda on both, from a brief
+that offered nothing to copy.
+
+\paragraph{A corpus authored cue by cue duplicates wherever its cue list does.}
+Running the deduplication gate over the four arms separates them sharply and not
+by language. Kinyarwanda carries \textbf{one} exact duplicate in 2{,}282
+sentences (0.1\%). English, French and Kiswahili carry \textbf{98, 99 and 100}
+in 2{,}400 (8.2--8.3\%). Every collision is a pair, never a larger group, and 97
+of the pairs are \emph{the same two ids} in all three arms, which already rules
+out an explanation in any one language.
+
+The cause is upstream of all three. The three arms were authored against a
+shared list of clinical cues, and that list contains \textbf{exactly 100
+duplicate cues}: 2{,}300 distinct cues over 2{,}400 rows, no cue used more than
+twice. Asked to write the same cue twice, the author writes the same sentence
+about 96\% of the time (96 of 100 in English, 97 in French, 96 in Kiswahili),
+and the duplicate rate of the corpus is therefore the duplicate rate of its
+cue list, carried through almost intact. The remaining collisions come from cues
+that are distinct but say the same thing, such as \emph{feels the coil string is
+gone} beside \emph{cannot feel the coil thread any more}.
+
+Kinyarwanda was authored phrase by phrase from a 165-phrase inventory rather
+than cue by cue, and duplicates once. \textbf{The difference is the unit of
+authoring, not the language, the author or the effort.} We report it because it
+is a property of a construction method rather than of this corpus: a cue list
+with repeated or paraphrased entries produces a corpus with repeated entries,
+the repetition is invisible while the cues are read one at a time, and the only
+place it surfaces is a gate that compares finished sentences.
+
+One case is worth separating because it is a property of the target language
+instead. Four Kiswahili collisions come from cues that differ in a feature the
+sentence does not carry: \emph{woman + pain with a full bladder} and
+\emph{old man + a pain that comes with a full bladder} are different cues, and
+the Kiswahili sentence for both is \emph{Napata maumivu kibofu kikijaa}, because
+it is first person and marks neither gender nor age. English and French collide
+this way twice each. A cue can encode a distinction that a faithful sentence in
+the target language has no way to express, and the corpus then looks redundant
+where the authoring was not.
 
 \paragraph{Two arms lifting the same eleven held rows is evidence about
 concepts, not about a language.} The English and French briefs were built

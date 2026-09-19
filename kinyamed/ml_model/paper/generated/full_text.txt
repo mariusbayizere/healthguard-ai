@@ -3,10 +3,10 @@ patient-voice Kinyarwanda, we found our specification could be met without
 producing anything it was meant to secure. We report that, and the instruments
 that detect it, instead of a classifier. Designed for the four languages a Rwandan health
 centre receives, with every instrument per-language: sentences are authored in
-three arms and rows generate in one, because the frame slots the other two need
-do not exist. Our requirement asked for one million
+all four arms and rows generate in one, because the frame slots those three
+need do not exist. Our requirement asked for one million
 examples; generation produced them in 130 seconds. It fails four of the nine
-quality gates in the same specification, six when rows are attributed to their
+quality gates in that specification, six when rows are attributed to their
 source sentence. The binding gate counts distinct authored
 seed phrases, not rows: at our 165, no corpus passes at any row count. Two shortfalls follow and differ: 2,835 further sentences to pass the
 seed-count gate, 19,835 to reach the stated million rows, because a separate
@@ -48,9 +48,9 @@ Kinyarwanda, English, French and Kiswahili, and the design is per-language
 throughout: the corpus gates count seeds per language, the power derivation fixes
 a minimum per language crossed with urgency class, and the person and relation
 rulings are recorded per arm. The corpus that exists is Kinyarwanda
-only: sentences are authored in three of the four arms and rows generate in
-one, because the openers, contexts and closers a row is wrapped in do not exist
-for English or French (Table 3.3).
+only: sentences are authored in all four arms and rows generate in one, because
+the openers, contexts and closers a row is wrapped in do not exist for English,
+French or Kiswahili (Table 3.3).
 
 A corpus requirement in rows constrains the cheap quantity. Our
 functional requirement asked for one million examples. Generating them took 130
@@ -456,12 +456,15 @@ Arm | Phrases | Drafts | Authored | Relations | Frames | Rows
 Kinyarwanda | 165 | -- | 2,281 | 8 | 43 (4/4) | 330,000
 English | 0 | 198 | 2,302 | 8 | 10 (1/4) | 0
 French | 0 | 194 | 2,301 | 8 | 10 (1/4) | 0
-Swahili | 0 | 0 | 0 | 7 | 10 (1/4) | 0
+Swahili | 0 | 0 | 2,300 | 7 | 10 (1/4) | 0
 
 What each language arm contains. Phrases are authored by a
 speaker of that arm; drafts are machine-written candidates no
 speaker of that language has reviewed, counted separately because counting them
-as phrases is the overstatement this paper is about. Frames counts
+as phrases is the overstatement this paper is about. Authored counts
+labelled sentences that exist and that the generator cannot use; no arm is zero
+in it, so no row here can be read as an arm nobody has written yet.
+Frames counts
 openers, onsets, contexts and closers, with the number of those four slots that
 are non-empty: a row needs all four, which is why three arms generate nothing
 whatever their other columns say. Provenance differs within a column
@@ -469,16 +472,25 @@ whatever their other columns say. Provenance differs within a column
 
 table*
 
-English and French now demonstrate that claim rather than illustrating
-it. Both arms hold authored sentences, 2,302 and 2,301 respectively, and
-both generate zero rows. The sentences exist; the corpus does not. What
-is missing is not authoring but the wrappers a row is built from: each arm has
-one of the four frame slots, the onsets left over from v1's machine
-drafts, and lacks openers, contexts and closers. The distance to a
-second generating arm is three frame slots, not a single further sentence. That
-is the seeds-not-rows argument turned around: we have the expensive quantity in
-three languages and cannot emit a row in two of them, because the cheap quantity
-is absent.
+English, French and Kiswahili now demonstrate that claim rather than
+illustrating it. All three hold authored sentences, 2,302, 2,301 and
+2,300 respectively, and all three generate zero rows. The sentences
+exist; the corpus does not. What is missing is not authoring but the wrappers a
+row is built from: each arm has one of the four frame slots, the onsets
+left over from v1's machine drafts, and lacks openers, contexts and closers.
+The distance to a second generating arm is three frame slots, not a
+single further sentence. That is the seeds-not-rows argument turned around: we
+have the expensive quantity in all four languages and cannot emit a row in three
+of them, because the cheap quantity is absent.
+
+With the Kiswahili arm authored, one reading of this table closes.
+While that arm stood at zero in every column it could be read as work not yet
+done, and the argument rested on two cases. It now rests on three, and no arm in
+Table 3.3 is empty of authored sentences: 9,184 sentences
+across four languages produce rows in exactly one. The column that separates
+that one from the rest is not authored, where the four arms sit within
+twenty-one sentences of each other, but frames, where one arm has four
+slots and three have one.
 
 The column that decides the others is frames. A row is a phrase wrapped
 in an opener, a time expression, a context and a closing line, and an arm
@@ -486,7 +498,47 @@ missing any of the four emits nothing whatever its phrase count. Only
 Kinyarwanda has all four. The ten fragments each other arm carries are onsets
 left over from v1's machine drafts, which is why three arms sit at zero rows and
 why the phrase inventory is not the binding constraint on a four-language
-corpus.
+corpus. The Kiswahili arm makes this hardest to argue against, because its brief
+shipped deliberately without a Kiswahili draft so that a fluent draft could not
+anchor the speaker's phrasing, and the arm was authored anyway: 2,787 word
+types and 1,413 distinct openers, second to Kinyarwanda on both, from a brief
+that offered nothing to copy.
+
+A corpus authored cue by cue duplicates wherever its cue list does.
+Running the deduplication gate over the four arms separates them sharply and not
+by language. Kinyarwanda carries one exact duplicate in 2,282
+sentences (0.1%). English, French and Kiswahili carry 98, 99 and 100
+in 2,400 (8.2--8.3%). Every collision is a pair, never a larger group, and 97
+of the pairs are the same two ids in all three arms, which already rules
+out an explanation in any one language.
+
+The cause is upstream of all three. The three arms were authored against a
+shared list of clinical cues, and that list contains exactly 100
+duplicate cues: 2,300 distinct cues over 2,400 rows, no cue used more than
+twice. Asked to write the same cue twice, the author writes the same sentence
+about 96% of the time (96 of 100 in English, 97 in French, 96 in Kiswahili),
+and the duplicate rate of the corpus is therefore the duplicate rate of its
+cue list, carried through almost intact. The remaining collisions come from cues
+that are distinct but say the same thing, such as feels the coil string is
+gone beside cannot feel the coil thread any more.
+
+Kinyarwanda was authored phrase by phrase from a 165-phrase inventory rather
+than cue by cue, and duplicates once. The difference is the unit of
+authoring, not the language, the author or the effort. We report it because it
+is a property of a construction method rather than of this corpus: a cue list
+with repeated or paraphrased entries produces a corpus with repeated entries,
+the repetition is invisible while the cues are read one at a time, and the only
+place it surfaces is a gate that compares finished sentences.
+
+One case is worth separating because it is a property of the target language
+instead. Four Kiswahili collisions come from cues that differ in a feature the
+sentence does not carry: woman + pain with a full bladder and
+old man + a pain that comes with a full bladder are different cues, and
+the Kiswahili sentence for both is Napata maumivu kibofu kikijaa, because
+it is first person and marks neither gender nor age. English and French collide
+this way twice each. A cue can encode a distinction that a faithful sentence in
+the target language has no way to express, and the corpus then looks redundant
+where the authoring was not.
 
 Two arms lifting the same eleven held rows is evidence about
 concepts, not about a language. The English and French briefs were built
