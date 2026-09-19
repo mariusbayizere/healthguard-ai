@@ -44,7 +44,13 @@
   {ours: \SeedOurs\ seeds,\\[-2pt] 0 rows};
 \end{axis}
 \end{tikzpicture}
-\caption{Table~\ref{tab:seeds} plotted. \textbf{This is arithmetic on the gate
+% THE SHORT CAPTION IS LOAD-BEARING, not decoration. Without it the whole
+% caption is written to the .lot, which makes it a moving argument, and \path
+% is fragile: it expands to "\Url Error ->\url used in a moving argument" and
+% NO PDF IS PRODUCED. With it, only this short form moves. Keep \path here --
+% see test_every_file_path_is_written_with_path for why a path may not be set
+% as \texttt with an escaped underscore.
+\caption[The seed floor and the per-seed cap, plotted.]{Table~\ref{tab:seeds} plotted. \textbf{This is arithmetic on the gate
 thresholds, not a measurement}: the seed floor (\SeedFloor{} distinct authored
 phrases per language) and the per-seed cap (\SeedRowsPerSeed{} rows) are written
 in the corpus specification, and the curve is

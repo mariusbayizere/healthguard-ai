@@ -56,7 +56,12 @@ REJECTED = "EX24"
 PERMUTATIONS = 5
 
 # A gloss that begins with this is the authoring sheet's placeholder, not a gloss.
-PLACEHOLDER = "existing concept"
+# NAMED, not PLACEHOLDER: a second constant called PLACEHOLDER was added below for
+# the {REL} note on 2026-09-19 and silently shadowed this one, so the gloss test
+# became startswith("{REL}"), which no gloss satisfies. Every gloss then counted
+# as real and the caption reported 15 of 15 instead of 2 of 15. Keep the names
+# distinct; tests/test_corpus_example.py asserts neither is redefined.
+GLOSS_PLACEHOLDER = "existing concept"
 
 
 class Missing(RuntimeError):
@@ -66,7 +71,7 @@ class Missing(RuntimeError):
 # The generator's relation placeholder. It is not Kinyarwanda and not a word a
 # patient says: it is a slot the frame substitutes a relation term into. Set in
 # \texttt so it reads as a token rather than as part of the sentence.
-PLACEHOLDER = "{REL}"
+REL_PLACEHOLDER = "{REL}"
 
 
 def tex(text: str) -> str:
@@ -88,7 +93,10 @@ def tex(text: str) -> str:
     ):
         text = text.replace(old, new)
     # After escaping, {REL} is \{REL\}. Set that whole token in \texttt.
-    return text.replace("\\{REL\\}", "\\texttt{\\{REL\\}}")
+    # Derived from REL_PLACEHOLDER rather than written out again: the literal
+    # and the constant drifting apart is the failure this file already has once.
+    escaped = REL_PLACEHOLDER.replace("{", "\\{").replace("}", "\\}")
+    return text.replace(escaped, f"\\texttt{{{escaped}}}")
 
 
 def shared_prefix(a: str, b: str) -> int:
@@ -111,6 +119,49 @@ def relation_terms() -> list[str]:
     if not terms:
         raise Missing("RELATIONS['kinyarwanda'] is empty; {REL} expands to nothing")
     return list(terms)
+
+
+def gloss_sentences(total: int, glossed: int, concepts: int) -> list[str]:
+    """The gloss finding, with the sentence built around whatever the counts are.
+
+    Written after the emitter substituted 15 into prose composed for 2 and
+    produced a caption asserting both that 15 of 15 phrases carry a gloss and
+    that "every other phrase" carries a placeholder. The numbers were correct
+    and freshly computed; nothing checked that the words still fit them. So no
+    number here may sit in a sentence that assumes its value: agreement,
+    plurals and the whole second clause are derived, and when every phrase is
+    glossed the sentence about the remainder is not emitted at all.
+    """
+    if glossed > total:
+        raise Missing(f"{glossed} glossed phrases out of {total}: impossible")
+
+    carry = "carries" if glossed == 1 else "carry"
+    lines = [
+        f"\\textbf{{Of the {total} distinct phrases in the reporting split,",
+        f"{glossed} {carry} a real English gloss",
+    ]
+    # How the glossed phrases sit across concepts, only when it is sayable.
+    if glossed == 0:
+        lines[-1] = f"{glossed} {carry} a real English gloss.}}"
+    elif glossed == 1:
+        lines.append("and it belongs to a single concept.}")
+    elif concepts == 1 and glossed == 2:
+        lines.append("and they are the two persons of a single concept.}")
+    elif concepts == 1:
+        lines.append("and they all belong to a single concept.}")
+    else:
+        lines.append(f"and they span {concepts} concepts.}}")
+
+    remainder = total - glossed
+    if remainder:
+        plural = "phrase" if remainder == 1 else "phrases"
+        verb = "is" if remainder == 1 else "are"
+        lines += [
+            f"\\textbf{{The remaining {remainder} {plural} the reported figures rest",
+            f"on {verb} glossed only by a placeholder telling the author where to",
+            "look.}",
+        ]
+    return lines
 
 
 def load():
@@ -141,7 +192,7 @@ def load():
     first = find(CONCEPT, "first")
     third = find(CONCEPT, "third")
     gloss = (record[first]["english_gloss"] or "").strip()
-    if not gloss or gloss.startswith(PLACEHOLDER):
+    if not gloss or gloss.startswith(GLOSS_PLACEHOLDER):
         raise Missing(
             f"{CONCEPT}'s english_gloss is now a placeholder. The table claims a "
             "real gloss; refusing to emit one that is not."
@@ -151,7 +202,7 @@ def load():
         phrase
         for phrase in by_phrase
         if (g := (record.get(phrase, {}).get("english_gloss") or "").strip())
-        and not g.startswith(PLACEHOLDER)
+        and not g.startswith(GLOSS_PLACEHOLDER)
     ]
     concepts = {record[p]["concept_id"] for p in glossed}
     return by_phrase, first, third, gloss, len(glossed), len(concepts)
@@ -239,7 +290,11 @@ def render() -> str:
     ]
 
     caption = [
-        "\\caption{What a frame permutation is, and what no similarity rule catches.",
+        # SHORT CAPTION, LOAD-BEARING: see the note above. Only this form is
+        # written to the .lot, so the long caption is not a moving argument and
+        # the \path in it is safe.
+        "\\caption[A frame permutation, and what no similarity rule catches.]%",
+        "{What a frame permutation is, and what no similarity rule catches.",
         f"\\textbf{{Part A.}} All {len(rows):,} rows built on this seed carry the label",
         f"{label} \\emph{{because the seed carries it}}: the seed text is invariant and",
         "only the opener, the time expression and the closing line move. They are one",
@@ -275,13 +330,15 @@ def render() -> str:
         "row.",
         f"\\textbf{{On the choice of {CONCEPT}.}} {REJECTED} gives a cleaner Part B",
         f"(shared prefix 0, longest common substring 25 against {CONCEPT}'s {lcs}) and is",
+        # \path, not \texttt with an escaped underscore: the compiled v2 PDF
+        # dropped the underscore and printed eval_spec.py as evalspec.py, so this
+        # project writes every path verbatim. \path IS fragile in a moving
+        # argument, which is what stopped the build on 2026-09-19 -- the fix is
+        # the short optional caption below, which is the only part that moves.
         "not used because its \\path{english_gloss} in the authoring record is a",
-        "placeholder rather than a gloss. \\textbf{Of the",
-        f"{len(by_phrase)} distinct phrases in the reporting split, {glossed_phrases}",
-        "carry a real English gloss, and they are the two persons of",
-        f"{glossed_concepts} concept.}}",
-        "\\textbf{Every other phrase the reported figures rest on is glossed only by a",
-        "placeholder telling the author where to look.} That is a property of the",
+        "placeholder rather than a gloss.",
+        *gloss_sentences(len(by_phrase), glossed_phrases, glossed_concepts),
+        "That is a property of the",
         "corpus rather than a note about which row was convenient, and it is why this",
         "table could not be built from the cleaner pair.}",
         "\\label{tab:example}",
