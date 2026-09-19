@@ -52,6 +52,13 @@
 % was naming scripts that do not exist under the names it gave. T1 gives the
 % character outright.
 \usepackage[T1]{fontenc}
+% Type 1 fonts. Without these, [T1]{fontenc} makes pdflatex fall back to
+% bitmapped EC fonts, which embed as Type 3: blurry on screen, poor in print,
+% and flagged by arXiv. mathptmx is Times for text and maths; the ACL
+% templates use Times for the same reason.
+\usepackage{mathptmx}
+\usepackage{helvet}
+\usepackage{courier}
 % \path{...} for file paths and identifiers. It takes the characters verbatim,
 % so a path is written the way it appears on disk with nothing to escape, and
 % no future path can lose an underscore to a forgotten backslash.
@@ -132,8 +139,10 @@
 }
 
 % \triangleright, not \blacktriangleright: the filled form lives in amssymb,
-% which this document does not load. This one is in the base math fonts, so it
-% sets in Computer Modern like everything else.
+% which this document does not load. This one is a standard math symbol, so it
+% sets in whatever maths font the preamble selects -- Computer Modern when this
+% was written, Times since mathptmx was added on 2026-09-19. Phrased so it does
+% not have to be revisited the next time the font changes.
 % The `~` after the marker is deliberate and so is the absence of a backslash
 % at the end of any line in this macro: `\` immediately before a newline is the
 % null control sequence, not a control space, and it is an error rather than the
