@@ -1,17 +1,17 @@
 Triage decides who is seen first. Building an urgency classifier for
 patient-voice Kinyarwanda, we found our specification could be met without
 producing anything it was meant to secure. We report that, and the instruments
-that detect it, instead of a classifier. The system is designed for the four
-languages a Rwandan health centre receives, and every instrument here is
-per-language. The corpus is Kinyarwanda only. Our corpus requirement asked for
-one million examples. Generation produced them in 130 seconds. It fails four
-of the nine quality gates in the same specification, six when rows are
-attributed to their source sentence. The binding gate counts distinct authored
-seed phrases, not rows: at our 165, no corpus passes at any row count. Two
-shortfalls follow and are not the same number: 2,835 further authored
-sentences to pass the seed-count gate, and 19,835 to reach the stated
-million rows, because a separate gate caps a seed at 50 rows. Rows come from a
-machine at roughly 7,700 per second; seeds from native-speaking clinicians.
+that detect it, instead of a classifier. Designed for the four languages a Rwandan health
+centre receives, with every instrument per-language: sentences are authored in
+three arms and rows generate in one, because the frame slots the other two need
+do not exist. Our requirement asked for one million
+examples; generation produced them in 130 seconds. It fails four of the nine
+quality gates in the same specification, six when rows are attributed to their
+source sentence. The binding gate counts distinct authored
+seed phrases, not rows: at our 165, no corpus passes at any row count. Two shortfalls follow and differ: 2,835 further sentences to pass the
+seed-count gate, 19,835 to reach the stated million rows, because a separate
+gate caps a seed at 50 rows. Rows come from a machine at
+7,700 per second; seeds from clinicians.
 A row count constrains the cheap quantity, leaves the expensive one free, and
 so does not constrain quality at all.
 
@@ -48,8 +48,9 @@ Kinyarwanda, English, French and Kiswahili, and the design is per-language
 throughout: the corpus gates count seeds per language, the power derivation fixes
 a minimum per language crossed with urgency class, and the person and relation
 rulings are recorded per arm. The corpus that exists is Kinyarwanda
-only, and the other three arms generate no row that appears in any result here
-(Table 3.3).
+only: sentences are authored in three of the four arms and rows generate in
+one, because the openers, contexts and closers a row is wrapped in do not exist
+for English or French (Table 3.3).
 
 A corpus requirement in rows constrains the cheap quantity. Our
 functional requirement asked for one million examples. Generating them took 130
@@ -458,6 +459,17 @@ whatever their other columns say. Provenance differs within a column
 (English's are wording from the v1 machine drafts; Swahili's are speaker authored).
 
 table*
+
+English and French now demonstrate that claim rather than illustrating
+it. Both arms hold authored sentences, 2,302 and 2,301 respectively, and
+both generate zero rows. The sentences exist; the corpus does not. What
+is missing is not authoring but the wrappers a row is built from: each arm has
+one of the four frame slots, the onsets left over from v1's machine
+drafts, and lacks openers, contexts and closers. The distance to a
+second generating arm is three frame slots, not a single further sentence. That
+is the seeds-not-rows argument turned around: we have the expensive quantity in
+three languages and cannot emit a row in two of them, because the cheap quantity
+is absent.
 
 The column that decides the others is frames. A row is a phrase wrapped
 in an opener, a time expression, a context and a closing line, and an arm
