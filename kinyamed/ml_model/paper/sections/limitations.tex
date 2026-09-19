@@ -52,6 +52,14 @@ cannot drift from the data they describe.
 % inside the group so this subsection reads as one piece.
 \begingroup
 \renewcommand{\subsection}[1]{}%
+% The generated block emitted \label{sec:limitations} until 2026-09-19, duplicating
+% the \section label above. Being read second, it won, so every
+% \ref{sec:limitations} in the paper pointed at the subsection enclosing this
+% block instead of at Section~\ref{sec:limitations} itself. The emitter now writes
+% sec:limits:generated; this guard neutralises the stale label in any generated
+% file produced before that change and is harmless afterwards. The block defines
+% no other label, which is checked by tests/test_render_completeness.py.
+\renewcommand{\label}[1]{}%
 \input{generated/limitations}
 \endgroup
 

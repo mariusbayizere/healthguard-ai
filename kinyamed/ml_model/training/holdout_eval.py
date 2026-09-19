@@ -678,7 +678,12 @@ def write_limitations(
     with atomic_write(path, "w", encoding="utf-8") as handle:
         w = handle.write
         _provenance_header(w, prov)
-        w("\\subsection{Limitations}\n\\label{sec:limitations}\n\n")
+        # NOT sec:limitations: sections/limitations.tex already defines that
+        # label on the \section. This block is \input into it, so emitting the
+        # same label made it multiply defined, and because this copy is read
+        # second every \ref{sec:limitations} in the paper resolved to the
+        # subsection enclosing this block rather than to Section 7.
+        w("\\subsection{Limitations}\n\\label{sec:limits:generated}\n\n")
         w(
             "\\paragraph{The reporting set is nine sentences, not eighteen thousand "
             "rows.} The held-out evaluation reports "

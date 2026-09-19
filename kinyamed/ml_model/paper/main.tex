@@ -228,7 +228,12 @@ quality, negative results, evaluation methodology, reproducibility.
 % REFERENCES BEFORE THE APPENDICES, which is ACL convention and near-universal
 % practice. They sat after the appendices until 2026-09-18, so the bibliography
 % heading began mid-page directly beneath the tail of Appendix I.
-\bibliographystyle{plainnat}
+% NO \bibliographystyle HERE. acl.sty line 195 already sets acl_natbib, which is
+% the style we vendored the .bst for. This line said \bibliographystyle{plainnat}
+% until 2026-09-19 -- carried over from the article-class version in
+% main_article.tex.bak -- and silently overrode it, so the vendored acl_natbib.bst
+% sat in the archive being used by nothing and the references were formatted in a
+% non-ACL style.
 \bibliography{references}
 
 \appendix
