@@ -133,7 +133,7 @@ under surface variation. Neither is visible from probabilities, accuracy or
 label order; each was caught by a property check against something outside the
 model.
 
-\textbf{(5) A recurring failure we name \emph{recorded but unread}.} Twelve
+\textbf{(5) A recurring failure we name \emph{recorded but unread}.} Thirteen
 times a fact was recorded correctly, in a machine-readable place, and went unread
 until something unrelated forced a look. Six are one shape: a leakage field, a
 duplicated threshold, three emitted tables no file included, a docstring
@@ -142,8 +142,11 @@ gloss field that is a placeholder in 13 of the 15 phrases our figures rest on.
 Four are instruments that reported on what they had not read, among them a
 checksum that confirmed an incomplete archive was identical to itself. Two are a
 count or a sentence correct when written and never re-derived after the thing it
-described changed. None is a measurement failure. Each is a fact recorded where
-the code path that needed it does not look (Section~\ref{sec:disc:unread}).
+described changed. The last is a tool that read correctly and was taken to have
+answered a wider question than it was asked, and it was introduced by a fix that
+was right about its own subject. None is a measurement failure. Each is a fact
+available where the thing that needed it does not look
+(Section~\ref{sec:disc:unread}).
 
 The apparatus that produces all five re-derives from a clean clone with one
 command, except where marked \textbf{NOT REPRODUCIBLE}.
