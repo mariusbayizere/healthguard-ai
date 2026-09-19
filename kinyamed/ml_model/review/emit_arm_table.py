@@ -47,6 +47,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "paper" / "generated" / "arm_table.tex"
 DRAFTS = ROOT / "review" / "drafts"
+# Authored sentences that exist as a labelled corpus but are NOT wired into the
+# generator. They are real work and they emit nothing, and the table has to show
+# both facts at once or it misleads in one direction or the other.
+AUTHORED_CORPORA = {
+    "english": (ROOT / "dataset" / "labelled" / "triage_EN_FR_ALL.csv", "text_en"),
+    "french": (ROOT / "dataset" / "labelled" / "triage_EN_FR_ALL.csv", "text_fr"),
+    "kinyarwanda": (
+        ROOT / "dataset" / "labelled" / "triage_labels_ALL.csv",
+        "text_kw",
+    ),
+}
 
 ARMS = ("kinyarwanda", "english", "french", "swahili")
 
@@ -133,6 +144,26 @@ def machine_drafts() -> dict[str, int]:
     return counts
 
 
+def authored_not_wired() -> dict[str, int]:
+    """Distinct authored sentences that the generator cannot yet use.
+
+    The table means "what the generator can emit", and every sentence built on
+    it depends on that meaning. These arms have sentences and no frames, so they
+    emit nothing; reporting only the zero hides the authoring, and reporting
+    only the authoring would claim a corpus that does not exist.
+    """
+    counts = dict.fromkeys(ARMS, 0)
+    for arm, (path, column) in AUTHORED_CORPORA.items():
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        if rows and column not in rows[0]:
+            raise Missing(f"{path.name} has no {column} column for the {arm} arm")
+        counts[arm] = len({(r.get(column) or "").strip() for r in rows} - {""})
+    return counts
+
+
 def relation_terms(vocab) -> dict[str, tuple[int, str]]:
     """Relation words per arm, with their provenance.
 
@@ -183,6 +214,7 @@ def derive() -> list[dict]:
     drafts = machine_drafts()
     relations = relation_terms(vocab)
     rows = rows_generated()
+    authored = authored_not_wired()
     frames = {slot: per_language(vocab, slot) for slot in FRAME_SLOTS}
 
     out = []
@@ -198,6 +230,7 @@ def derive() -> list[dict]:
                 "frames": sum(frames[slot][arm] for slot in FRAME_SLOTS),
                 "frame_slots": len(present),
                 "rows": rows[arm],
+                "authored": authored[arm],
             }
         )
     return out
@@ -212,7 +245,8 @@ def render() -> str:
             name = f"\\textbf{{{name}}}"
         drafts = "--" if row["arm"] == "kinyarwanda" else f"{row['drafts']:,}"
         lines.append(
-            f"{name} & {row['phrases']:,} & {drafts} & {row['relations']:,} & "
+            f"{name} & {row['phrases']:,} & {drafts} & {row['authored']:,} & "
+            f"{row['relations']:,} & "
             f"{row['frames']:,} ({row['frame_slots']}/4) & {row['rows']:,} \\\\"
         )
     body = "\n".join(lines)
@@ -230,9 +264,9 @@ def render() -> str:
 \\centering
 \\small
 \\setlength{{\\tabcolsep}}{{4pt}}
-\\begin{{tabular}}{{>{{\\raggedright\\arraybackslash}}p{{3cm}}rrrrr}}
+\\begin{{tabular}}{{>{{\\raggedright\\arraybackslash}}p{{3cm}}rrrrrr}}
 \\toprule
-Arm & Phrases & Drafts & Relations & Frames & Rows \\\\
+Arm & Phrases & Drafts & Authored & Relations & Frames & Rows \\\\
 \\midrule
 {body}
 \\bottomrule

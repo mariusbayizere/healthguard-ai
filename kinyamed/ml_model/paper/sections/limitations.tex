@@ -125,6 +125,35 @@ differ substantially, while two arms with equal seeds and different expansion
 factors do not separate beyond their intervals. That is the seeds-not-rows claim
 stated as a falsifiable shape rather than as an argument from cost.
 
+\paragraph{What it costs, measured rather than estimated.} We attempted the
+sweep and did not finish it, and the cost is worth reporting because it names
+what this experiment takes on the hardware the rest of the paper assumes. On a
+four-core laptop with 1.7\,GiB of memory available, a single arm ran at
+\textbf{11.1 seconds per optimisation step} with four threads and 9.5 with two:
+doubling the threads made it about 17\% \emph{slower}, which we read as memory
+contention rather than any property of the model. At that rate one arm of 940
+steps is \textbf{174 minutes} and the fifteen-arm design is \textbf{roughly 43
+hours} of uninterrupted compute.
+
+The arms we built hold 3{,}000 rows rather than the 30{,}000 above, and the
+figures are for that smaller budget. The reason is a property of the generator
+worth stating on its own: \textbf{its output per seed varies twenty-one-fold},
+from 386 rows for the smallest phrase to 8{,}129 for the largest. A fixed
+30{,}000-row budget therefore selects for large seeds, since only 51 of 150
+phrases can supply the 3{,}000 rows a ten-seed arm would need, and those 51 are
+not label-balanced. Holding the budget at 3{,}000 is the largest round total at
+which every arm can still draw seeds uniformly from the whole inventory, so the
+arms differ in seed count and in nothing else. We reached step 600 of 940 on the first arm
+before the machine restarted, and the harness has no resume within an arm, so
+the attempt yielded no measurement.
+
+We record this rather than quietly dropping the experiment. A design that is
+affordable in principle and unaffordable on the machine available is the same
+constraint this paper is about, one step further out: the sweep is cheap for
+anyone with a cluster and out of reach for the setting the system is built for.
+The arms, their manifests and the tests that hold them to one evaluation file
+are committed and ready to run elsewhere.
+
 \textbf{A flat curve would be a real result and we would report it as one.}
 Saturation at a low seed count on a three-class task would mean the binding
 quantity is smaller than we claim, and that the gate's floor of 3{,}000 distinct
