@@ -394,8 +394,8 @@ matches the `paper_overleaf.zip` it replaces file-for-file; only the message is
 wrong.
 
 The number was true when it was written. The first rebuild swept in
-`generated/full_text.txt`, 138 KB of text extracted from a compiled PDF and not
-a LaTeX source, and that archive did hold 32 entries. Excluding the file dropped
+`generated/full_text.txt`, 138 KB the archive does not need, and that archive did
+hold 32 entries. Excluding the file dropped
 the count to 31, and the 32 was carried into the commit message without being
 re-derived from the archive it described.
 
@@ -409,3 +409,14 @@ skill or care but whether anyone looked at all.
 
 It is left uncorrected in the history. Amending a pushed commit means a
 force-push, which costs more than the error does.
+
+
+**Correction to the above, 2026-09-19.** Both this entry and commit `b74f088`
+described `generated/full_text.txt` as text extracted from a compiled PDF. It is
+not. It is a plain-text rendering of the LaTeX sources, produced by
+`paper/render_plain.py`, and `tests/test_render_completeness.py` compares it
+against those sources to catch a section that stops being reachable. Excluding it
+from the arXiv archive is still right -- the archive needs what compiles -- but
+the reason given was wrong, and it was wrong in the middle of an entry about
+carrying a number forward without re-deriving it. This entry is corrected. The
+commit message is not, for the same reason as before.

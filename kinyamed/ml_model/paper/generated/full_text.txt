@@ -1345,10 +1345,10 @@ between recording a fact and having something that reads it.
   and nothing would have contradicted it.
   - A file count in a commit message. A rebuilt archive was described
   as holding 32 files. It held 29, plus two directory entries. The 32 was true of
-  the archive that existed when it was written; excluding a 138 KB file of text
-  extracted from a compiled PDF, which is not a source and did not belong in it,
-  dropped the count, and the number was carried into the message without being
-  re-derived from the archive it described. The archive was correct. Only the
+  the archive that existed when it was written; excluding a 138 KB plain-text
+  rendering of the paper, which is not a source the archive needs, dropped the
+  count, and the number was carried into the message without being re-derived
+  from the archive it described. The archive was correct. Only the
   sentence about it was wrong, and it is a sentence no build step reads.
   - Freshly emitted numbers in prose written for different ones. The
   caption of Table 3.2 reports how many phrases in the reporting
