@@ -2676,3 +2676,31 @@ analysis.
 limitations.tex "C1's cap on rows per seed and C2's floor on distinct seeds" is
 the code's G1 and G2). Same numbering, same order. The gate results above use
 the code's prefix.
+
+## 2026-09-19 — the paper compiles
+
+**Measured by the author on a real TeX engine, not by me.** I have no TeX engine
+on this machine and have verified none of it; it is recorded here as their
+measurement, against archive sha256 `009fa892`.
+
+- compiles, exit 0, **36 pages**
+- **0 undefined references, 0 undefined citations** — so the duplicate
+  `sec:limitations` fix and the acl_natbib change both hold, and the eight
+  undefined refs reported earlier were the first-pass artefact of a document
+  that never finished a run
+- **2 Overfull \hbox, unchanged, both inside table cells**
+- the three takeaway boxes render as intended: slate accent bar, pale tint,
+  triangle marker, bold heading running into the body
+- Figure 1 renders with the 3,000-seed floor marked
+- no tcolorbox/xcolor clash
+
+**OPEN, AND THE ONLY THING BLOCKING THE ARCHIVE:** `paper/main.bbl` exists on the
+author's machine and on no other. It is not in this repository and not anywhere
+on this filesystem. arXiv does not run bibtex, so an archive without it renders
+every citation as `[?]` however cleanly it compiles locally.
+
+**NEXT ACTION:** put `main.bbl` at `kinyamed/ml_model/paper/main.bbl`, then run
+`python paper/build_archive.py`. It refuses to build without it, prints the
+listing and the sha256 from the archive it actually wrote, and excludes
+`generated/full_text.txt`. Do not build the archive from a shell `zip` line
+again: that is how `main.bbl` was dropped silently for two commits.
