@@ -108,3 +108,6 @@ kinyamed/docs/clinical/*
 # reverted in one move. Tracked deliberately despite the *.bak rule above: a
 # revert file that exists only on one laptop is not a revert path.
 !kinyamed/ml_model/paper/main_article.tex.bak
+
+# Local pre-edit copies. Not sources.
+*.tex.backup
