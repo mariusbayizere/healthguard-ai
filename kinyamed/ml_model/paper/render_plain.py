@@ -124,6 +124,44 @@ def expand(text: str, depth: int = 0) -> str:
     )
 
 
+def _takeaways(text: str) -> str:
+    """Expand `\\takeaway{title}{body}` the way the counter will typeset it.
+
+    The number lives in a LaTeX counter, so a renderer that only unwraps the two
+    arguments drops it and silently disagrees with the PDF about what the boxes
+    are called. It also butts the title against the body with no space. Both
+    were true of this file between the counter landing and this function.
+    """
+    out, i, n = [], 0, 0
+    while True:
+        at = text.find("\\takeaway{", i)
+        if at < 0:
+            out.append(text[i:])
+            return "".join(out)
+        out.append(text[i:at])
+        j = at + len("\\takeaway")
+        args = []
+        for _ in range(2):
+            if j >= len(text) or text[j] != "{":
+                break
+            depth, start = 1, j + 1
+            j += 1
+            while j < len(text) and depth:
+                if text[j] == "\\":
+                    j += 2
+                    continue
+                depth += (text[j] == "{") - (text[j] == "}")
+                j += 1
+            args.append(text[start : j - 1])
+        if len(args) != 2:  # malformed; leave it alone rather than guess
+            out.append(text[at:j])
+            i = j
+            continue
+        n += 1
+        out.append(f"Takeaway {n}: {args[0].strip()} {args[1].strip()}")
+        i = j
+
+
 def strip(
     text: str, macro: dict[str, str], number: dict[str, str] | None = None
 ) -> str:
@@ -143,6 +181,7 @@ def strip(
         text,
         flags=re.S,
     )
+    text = _takeaways(text)
     # \renewcommand / \newcommand lines are typesetting plumbing, not prose
     text = re.sub(r"(?m)^\s*\\(re)?newcommand.*$", "", text)
     for name, value in macro.items():

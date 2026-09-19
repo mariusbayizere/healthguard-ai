@@ -65,6 +65,21 @@
 \usepackage{xcolor}
 \usepackage{tabularx}   % a shared measure for the two halves of tab:example
 
+% tcolorbox for the takeaway boxes, loaded AFTER acl.sty so nothing it pulls in
+% is re-requested with different options.
+%
+% NO OPTION CLASH ON xcolor: acl.sty line 33 loads xcolor with no options, the
+% line above does the same, and tcolorbox requires it with none. A clash needs
+% two loads with DIFFERENT options; three optionless loads are one load.
+% tcolorbox also pulls in pgf/tikz, which pgfplots has already loaded above.
+%
+% skins     -- needed for `enhanced`, without which `borderline west` does nothing.
+% breakable -- a takeaway landing near the foot of a column splits across the
+%              break instead of overflowing the column. In a two-column layout
+%              with this many floats that is not a rare case.
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
 % \raggedbottom: let a short page end short rather than stretching the vertical
 % space between its blocks to reach the bottom margin. With full-width floats on
 % a two-column page the default \flushbottom opens visible gaps between
@@ -84,13 +99,53 @@
 \newcommand{\vNC}{\cellcolor{passbg}not computable}
 
 % Takeaway box. Short bold heading, two or three lines, after each results
-% subsection. Deliberately plain: a framed box that needs tcolorbox is one more
-% package that can fail on a machine that is not this one.
+% subsection.
+%
+% Was \fbox with a full black rule until 2026-09-19, on the stated grounds that
+% tcolorbox was one more package that could fail on another machine. That was an
+% assumption, not a measurement; tcolorbox and xcolor are both in TeX Live and
+% the document now compiles here, so the risk is testable and was tested.
+%
+% A left accent bar and a light tint rather than a full frame: this is a
+% clinical-safety paper and a saturated box reads as a warning it is not. Both
+% colours are desaturated slate, defined ONCE below and never written inline, so
+% restyling is one edit rather than three that can disagree.
+\definecolor{takeawayaccent}{HTML}{44607A}  % desaturated slate blue
+\definecolor{takeawaytint}{HTML}{F3F6F9}    % the same hue at very low saturation
+
+% Numbered by counter, NOT by hand. The three headings read "Takeaway 1:",
+% "Takeaway 2:" and "Takeaway 3:" as literal text until 2026-09-19, so inserting
+% one in the middle would have renumbered nothing and said so in silence.
+\newcounter{takeaway}
+
+\newtcolorbox{takeawaybox}{%
+  enhanced, breakable,
+  colback=takeawaytint,
+  colframe=takeawaytint,
+  boxrule=0pt,
+  frame hidden,
+  sharp corners,
+  borderline west={2.2pt}{0pt}{takeawayaccent},
+  left=8pt, right=6pt, top=5pt, bottom=5pt,
+  before skip=0.7em, after skip=0.7em,
+  fontupper=\small,
+}
+
+% \triangleright, not \blacktriangleright: the filled form lives in amssymb,
+% which this document does not load. This one is in the base math fonts, so it
+% sets in Computer Modern like everything else.
+% The `~` after the marker is deliberate and so is the absence of a backslash
+% at the end of any line in this macro: `\` immediately before a newline is the
+% null control sequence, not a control space, and it is an error rather than the
+% thin gap it looks like.
 \newcommand{\takeaway}[2]{%
-  \par\vspace{0.6em}%
-  \noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
-    \small\textbf{#1}\ #2}}%
-  \par\vspace{0.6em}%
+  \par
+  \refstepcounter{takeaway}%
+  \begin{takeawaybox}%
+    \textbf{\textcolor{takeawayaccent}{\ensuremath{\triangleright}}~Takeaway
+      \thetakeaway: #1}\ #2%
+  \end{takeawaybox}%
+  \par
 }
 
 % APPENDIX HEADINGS READ "Appendix H: Title", NOT "H Title".

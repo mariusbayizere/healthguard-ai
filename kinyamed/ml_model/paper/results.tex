@@ -101,7 +101,7 @@ the number of independently authored source items. A specification that sets no
 floor on that number has not constrained quality, however large the row count it
 demands. The remedy is small: constrain seeds, and let the row count follow.
 
-\takeaway{Takeaway 1: A row count constrains the cheap quantity.}{Rows are
+\takeaway{A row count constrains the cheap quantity.}{Rows are
 produced by machine at roughly 7{,}700 per second; seeds are written by
 native-speaking clinicians. A requirement stated in rows therefore binds the
 free quantity and leaves the expensive one unconstrained, which is why a corpus
@@ -171,7 +171,7 @@ the per-class figures and the confusion matrix are in
 Appendix~\ref{app:run}, so the claim can be checked without re-running the
 pipeline.
 
-\takeaway{Takeaway 2: Count clusters, not rows.}{17{,}942 rows built from nine
+\takeaway{Count clusters, not rows.}{17{,}942 rows built from nine
 distinct sentences are nine observations wearing a large number. Every interval
 is governed by the distinct-sentence count, so a gate that counts rows will
 report confidence it has not earned. Ours counts sentences and refuses.}
@@ -224,7 +224,7 @@ statement, so we record this as a corpus-health signal and not as a quality
 metric, and we do not propose normalising input at serving time: that would hide
 the fragility and discard information the tokenizer is case-sensitive to.
 
-\takeaway{Takeaway 3: A healthy output signal is not evidence of a healthy
+\takeaway{A healthy output signal is not evidence of a healthy
 model.}{A missing tokenizer and a fragile decision boundary both leave
 probabilities well formed, predictions deterministic and label order correct.
 Each was caught only by checking a property outside the model: the encoding of
