@@ -125,16 +125,31 @@
 % one in the middle would have renumbered nothing and said so in silence.
 \newcounter{takeaway}
 
-\newtcolorbox{takeawaybox}{%
+% Styled after the boxed takeaways in Yu et al. (2026): a rounded frame with a
+% filled title bar, rather than a rule in the margin. The title bar carries the
+% counter, so a box cannot be mistaken for a block quotation, and the frame
+% closes the box at the foot, which a one-sided rule does not.
+%
+% breakable is load-bearing: these sit after results subsections, which is where
+% column breaks fall in two columns. Without it a box at a break overflows the
+% column rather than splitting across it.
+\newtcolorbox{takeawaybox}[1]{%
   enhanced, breakable,
   colback=takeawaytint,
-  colframe=takeawaytint,
-  boxrule=0pt,
-  frame hidden,
-  sharp corners,
-  borderline west={2.2pt}{0pt}{takeawayaccent},
-  left=8pt, right=6pt, top=5pt, bottom=5pt,
-  before skip=0.7em, after skip=0.7em,
+  colframe=takeawayaccent,
+  colbacktitle=takeawayaccent,
+  coltitle=white,
+  boxrule=0.6pt,
+  rounded corners,
+  arc=2.5pt,
+  title={\ensuremath{\triangleright}~\textbf{Takeaway \thetakeaway: #1}},
+  fonttitle=\small,
+  % The title is NOT attached as a floating boxed title: an attached title does
+  % not wrap, and Takeaway 3's heading ran to x=596 on a 595pt page. A plain
+  % title fills the box width and breaks across lines like any other text.
+  toptitle=1.5pt, bottomtitle=1.5pt,
+  left=7pt, right=7pt, top=5pt, bottom=6pt,
+  before skip=0.9em, after skip=0.9em,
   fontupper=\small,
 }
 
@@ -150,9 +165,8 @@
 \newcommand{\takeaway}[2]{%
   \par
   \refstepcounter{takeaway}%
-  \begin{takeawaybox}%
-    \textbf{\textcolor{takeawayaccent}{\ensuremath{\triangleright}}~Takeaway
-      \thetakeaway: #1}\ #2%
+  \begin{takeawaybox}{#1}%
+    #2%
   \end{takeawaybox}%
   \par
 }

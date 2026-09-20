@@ -2753,3 +2753,190 @@ first-person Kiswahili sentence does not mark. Written up in method 3.3.
 **NEXT ACTION:** the arm is in the paper and the archive is rebuilt. Wiring
 Kiswahili frames (openers, contexts, closers) is what would move its Rows column
 off zero; nothing else in Table 1 is binding.
+
+---
+
+# CURRENT STATE — 2026-09-20
+
+**Read this section first. It is self-contained and supersedes the dated
+sections above wherever they disagree. Those are kept as a log, not as status.**
+
+## The paper is submission-ready
+
+- Archive: `kinyamed/ml_model/KinyaMed_arxiv_ready.zip`, sha256
+  **8b03afe660126d79bdbfc3d768c3ebb8766d76d17b809199d3caad549220e9d5**,
+  30 files, 108,031 bytes. Built by `python paper/build_archive.py`, which
+  refuses to build without `main.bbl` and prints the digest of the archive it
+  actually wrote.
+- **CONFIRM THIS DIGEST BEFORE SUBMITTING.** The author's compile result below
+  was reported while the redesigned takeaway boxes sat uncommitted in the
+  working tree; the archive was rebuilt from those sources afterwards. The
+  contents should be what they compiled, but the digest they compiled was not
+  recorded and this one has not been compiled by anybody yet.
+- **Compiled and verified by the author, not by this session.** There is no TeX
+  engine on this machine and no page of the PDF has been seen here. Their
+  result: **34 pages, Type 1 fonts throughout (zero Type 3), 0 undefined
+  references, 0 undefined citations, no collisions, nothing past the right
+  margin, 2 Overfull hboxes, both inside table cells.**
+- **Status: awaiting arXiv endorsement.** Nothing further is blocked on the
+  repository.
+- Rebuild after ANY edit under `paper/`. `tests/test_archive.py` fails when the
+  archive and `paper/` disagree, and also checks the `.bbl` is present, that
+  every cited key resolves in it, and that every `\input` is carried.
+
+### Two font facts that must not be undone
+`\usepackage[T1]{fontenc}` is required: without it the compiled PDF drops the
+underscore from every file path it prints. `mathptmx`/`helvet`/`courier` are
+also required: T1 with no scalable font falls back to bitmapped EC fonts, which
+embed as Type 3 and are flagged by arXiv. **Neither half alone is safe.**
+`tests/test_fonts.py` pins the pair. If Computer Modern's look is ever wanted
+back, use `lmodern`, not nothing.
+
+### Takeaway boxes, and the overflow that drove the second redesign
+Two changes, not one. First, `\fbox` with a plain black rule became a
+`tcolorbox`. Then the box was redesigned again, by the author, into its current
+form: a rounded frame (`colframe=takeawayaccent`, `boxrule=0.6pt`, `arc=2.5pt`)
+with a filled title bar (`colbacktitle=takeawayaccent`, `coltitle=white`)
+carrying the triangle and the counter, styled after the boxed takeaways in
+Yu et al. (2026). Colours are `takeawayaccent` #44607A and `takeawaytint`
+#F3F6F9, named once in `main.tex` and never inline.
+
+**The overflow, and why the title is a plain `title=` and not an attached
+boxed title.** An attached boxed title does not wrap. Takeaway 3's heading ran
+to **x=596 on a 595pt page**. A plain title fills the box width and breaks
+across lines like any other text. Do not switch to `attach boxed title` without
+re-measuring that heading.
+
+`breakable` is load-bearing: these sit after results subsections, which is where
+column breaks fall in two columns, and without it a box at a break overflows the
+column instead of splitting. `skins` is what supplies `enhanced`.
+
+The environment now takes the title as an argument, `\newtcolorbox{takeawaybox}[1]`,
+and `\takeaway{title}{body}` calls `\begin{takeawaybox}{#1}`. Numbering is a
+LaTeX counter; call sites pass the title alone and must never write "Takeaway N:"
+themselves. `tests/test_takeaway_style.py` pins the macro, the counter, the named
+colours, `breakable`, and that no call site hand-numbers.
+
+## The corpus: four authored arms, one that generates
+
+| arm | authored | word types | TTR | distinct openers | rows |
+|---|---|---|---|---|---|
+| Kinyarwanda | 2,281 | 3,930 | 0.210 | 1,578 | 330,000 |
+| English | 2,302 | 1,905 | 0.081 | 931 | 0 |
+| French | 2,301 | 2,332 | 0.092 | 895 | 0 |
+| Kiswahili | 2,300 | 2,787 | 0.151 | 1,413 | 0 |
+
+**9,184 authored sentences across four languages produce rows in exactly one.**
+The four arms sit within twenty-one sentences of each other in *authored* and
+are separated only by *frames*: Kinyarwanda has four slots (openers, onsets,
+contexts, closers), the other three have one. Wiring openers, contexts and
+closers for another arm is the only thing that moves its Rows column off zero.
+
+Files: `dataset/labelled/triage_labels_ALL.csv` (KW, sha256 d7e1b314) and
+`dataset/labelled/triage_EN_FR_SW_ALL.csv` (EN/FR/SW, sha256 c6e3a14e). The
+latter supersedes `triage_EN_FR_ALL.csv`, verified column by column.
+
+**PROVENANCE, unchanged and binding: labels are by a single non-clinician
+annotator. No second rater, no agreement statistic, no clinical validation.
+This is not clinical ground truth and no part of the paper may imply it is.**
+The `author`, `generation_method` and `validated_by` fields are EMPTY and must
+stay empty until real provenance exists. Gates G5, G7 and G8 fail because of
+that, deliberately. **Do not fill them to make a gate pass.**
+
+Kiswahili voice: **zero clinical-record framing; twelve carer-relayed-speech
+sentences, all deliberate.** Phrase it that way, not as "zero reported-speech
+framing" - a reviewer who greps `anasema` finds twelve.
+
+## Gates: nine, four arms, identical verdicts
+
+G1 PASS everywhere. G2, G4, G5, G7, G8, G9 FAIL everywhere. G3 and G6 NOT
+COMPUTABLE everywhere. The code calls them G1-G9; the paper calls the same nine
+C1-C9.
+
+### G4 is the one real difference, and it is not about language
+Kinyarwanda carries **1** exact duplicate in 2,282 (0.1%). English, French and
+Kiswahili carry **98, 99 and 100** in 2,400 (8.2-8.3%). Every collision is a
+pair, never larger, and **97 pairs are the same two ids in all three arms**.
+
+Cause, upstream of all three: the shared cue list holds **exactly 100 duplicate
+cues** (2,300 distinct over 2,400 rows, none used more than twice). Authoring
+the same cue twice produces the same sentence 96, 97 and 96 times in 100, so the
+corpus inherits its cue list's duplicate rate almost intact. Kinyarwanda was
+authored phrase by phrase from 165 phrases and duplicates once. **The variable is
+the unit of authoring, not the language, the author or the effort.**
+
+Separate and language-side: four Kiswahili collisions come from cues differing
+by a feature the sentence cannot carry ("woman + pain with a full bladder" and
+"old man + a pain that comes with a full bladder" are one first-person Kiswahili
+sentence marking neither gender nor age). EN and FR collide this way twice each.
+
+Written up in `sections/method.tex` §3.3.
+
+## The seeds-vs-rows sweep: ABANDONED for v1, cost recorded, artefacts kept
+
+Measured: **11.1 s/step at 4 threads, 9.5 at 2** (4 threads is ~17% SLOWER,
+memory contention). One arm = 174 min; fifteen arms = **~43 hours**. Reached
+step 600/940 on `seeds010_rep1` before a reboot; no resume-within-arm, so no
+measurement. Recorded in §7.4 beside the prediction, which is UNCHANGED.
+
+Kept and committed, ready to run on other hardware: `dataset/sweep/` (15 arms +
+manifests), `review/build_sweep_arms.py`, `review/run_sweep.py`,
+`tests/test_sweep_arms.py`. Arms are 3,000 rows, not 30,000: per-seed output
+varies 21-fold (386 to 8,129), so a 30,000 budget selects for large seeds and
+skews class mix.
+
+## Thirteen recorded-but-unread instances
+
+`sections/discussion.tex`, `sec:disc:unread`. Four kinds, list kept
+chronological so the kinds interleave:
+
+- **Six** - a fact recorded correctly, in a machine-readable place, that no code
+  path consumed: the leakage field; the duplicated threshold; three emitted
+  tables no file included; a docstring disagreeing with its own constant; a gate
+  that could not fail; the gloss field (2 of 15 phrases carry a real gloss).
+- **Four** - instruments that reported on what they had not read: the table
+  checker silenced by the change it existed to verify; the collapse detector
+  reading a field name that does not exist; C3, whose floor is a fraction of a
+  pilot nobody has run; the archive digest that was stable because the gap was.
+- **Two** - a count or sentence correct when written and never re-derived: the
+  file count in a commit message; freshly emitted numbers in prose written for
+  different ones.
+- **One** - a tool that read correctly and was taken to have answered a wider
+  question: `pdffonts`' name column read, its type column not. The only instance
+  contributed by a reader rather than by the code, and the only one created by a
+  fix that was right.
+
+**Not one was caught by a check written to catch it.** If a fourteenth appears,
+add it to the list, update the count in BOTH `discussion.tex` and
+`introduction.tex` contribution (5), and keep the partition by kind rather than
+by position.
+
+## OPEN: the training run
+
+**A training run is in progress. This session has no record of what it is.**
+
+Checked at 2026-09-20 and found nothing on this machine: no training process
+running, and the only run logs are `~/kinyamed-sweep/log_seeds010_rep1.log` from
+the abandoned sweep (2026-09-19 12:41). The run is presumably on the same
+hardware the author compiles on, which this session cannot see.
+
+**A fresh session must get these from the author before acting, and must not
+guess:** which config and seed; which split, and whether it is the frozen v2
+split (L8: splits are created once, hashed, committed, never regenerated); what
+it must report on completion; and whether its output is an audit artefact or a
+reported result. **The paper reports NO model metric as evidence of model
+quality, and the trained artefact that exists is an audit artefact.** Anything
+this run produces inherits that constraint until the author says otherwise, and
+the nine-distinct-sentence evaluation set still supports no verdict.
+
+## Standing rules that have bitten before
+
+- Never force-push; never rewrite pushed history. Corrections go in a new commit.
+- Hand-edit nothing under `generated/`. Change the emitter and re-run it.
+- Report no number that was not measured here; attribute the author's
+  measurements to them.
+- `gh` is logged out, so **CI has never been verified from this session.** Local
+  gates are not CI and must not be reported as CI.
+- Low memory (~1-2 GiB free) kills background jobs. The full pytest suite does
+  not complete here; run the specific modules instead.
+- Commit messages end with the `Claude-Session` trailer.
