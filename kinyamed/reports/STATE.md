@@ -2940,3 +2940,43 @@ the nine-distinct-sentence evaluation set still supports no verdict.
 - Low memory (~1-2 GiB free) kills background jobs. The full pytest suite does
   not complete here; run the specific modules instead.
 - Commit messages end with the `Claude-Session` trailer.
+
+## 2026-09-23 — PRELIMINARY training run on the labelled Kinyarwanda corpus
+
+The labelled corpus made a first training run possible. It was run with the refusals
+standing; no threshold was lowered, no cell re-sliced, no `CANNOT CLASSIFY` row folded
+into a class. Full numbers in `reports/PRELIMINARY_KW_V1.md`. Nothing from it goes in the
+paper.
+
+Two refusals, both from committed code, both reported rather than worked around:
+
+1. `training/pipeline.py` refused at step 1, exit 2, before reading a training row —
+   16 gate cells INSUFFICIENT DATA, tightest gate 7 at 35 CRITICAL sentences against 720.
+   174 CRITICAL sentences exist across all splits, so no slice of this corpus funds any
+   safety gate.
+2. `training/thresholds.py` refused: gate 5 constrains CRITICAL recall per pure language
+   and this arm is Kinyarwanda only. **No thresholds were tuned.** Argmax reported
+   instead. Relaxing the constraint to the languages present would be re-slicing a
+   requirement to fit the corpus.
+
+Result: **the model does not beat always-ROUTINE.** Accuracy 0.3870 [0.3400, 0.4295] vs
+0.5548 [0.5101, 0.5996] baseline, n=447 distinct sentences, non-overlapping intervals. It
+never predicted CRITICAL once. It collapsed to URGENT (98% of probe predictions), which
+is the cost matrix's safe middle rather than the majority class — the objective working
+on a model with no signal to override it.
+
+Temperature scaling on 223 calibration sentences made calibration **worse** on test
+(ECE 0.0199 -> 0.0984). Fitted to noise at that n.
+
+**Not attributable to the labels.** 98 optimisation steps at lr 1e-5 onto a randomly
+initialised head; the run carries no information about label quality either way. A
+verdict on the labels needs a budget where the model first demonstrably fits the training
+set.
+
+`review/preliminary_train.py` gained F1 with a cluster bootstrap, a record of the
+weighting mechanism actually used (cost matrix, not class-frequency weights), and the
+threshold-refusal path. The committed pipeline, tuner, calibrator and cost loss are
+unmodified.
+
+Local gates only: ruff clean, 493 passed / 3 skipped. CI unverified — `gh` is not
+authenticated in this session and needs `gh auth login`.

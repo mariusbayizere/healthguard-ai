@@ -46,6 +46,7 @@ if str(ML_ROOT) not in sys.path:
 from dataset import labelled_corpus as lc
 from dataset.labels import CLASS_ORDER, ID_TO_LABEL, LABEL_MAP
 from training import calibration as cal
+from training import thresholds as th
 from training.pipeline import (
     TransformersPredictor,
     TransformersTrainer,
@@ -103,6 +104,55 @@ def cluster_bootstrap(
     return point, float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))
 
 
+def _f1(gold: np.ndarray, predicted: np.ndarray, index: int) -> float:
+    """F1 for one class. Undefined when the class is neither present nor predicted."""
+    true_positive = float(((gold == index) & (predicted == index)).sum())
+    predicted_positive = float((predicted == index).sum())
+    actual_positive = float((gold == index).sum())
+    if predicted_positive == 0 or actual_positive == 0:
+        return float("nan")
+    precision = true_positive / predicted_positive
+    recall = true_positive / actual_positive
+    if precision + recall == 0:
+        return 0.0
+    return 2 * precision * recall / (precision + recall)
+
+
+def f1_bootstrap(
+    scenarios: list[str],
+    gold: np.ndarray,
+    predicted: np.ndarray,
+    index: int,
+    seed: int,
+    resamples: int = BOOTSTRAP_RESAMPLES,
+) -> tuple[float, float, float]:
+    """F1 and a 95% interval, resampling the SENTENCE rather than the row.
+
+    F1 is not a proportion over a fixed population, so it cannot reuse
+    `cluster_bootstrap`: precision and recall move together under a resample and
+    the interval has to be built from the recomputed statistic. Resamples in
+    which the class is absent from both gold and prediction contribute nothing
+    rather than a zero, which would drag the lower bound down for a class that is
+    simply rare.
+    """
+    unique = sorted(set(scenarios))
+    grouped: dict[str, list[int]] = {s: [] for s in unique}
+    for i, s in enumerate(scenarios):
+        grouped[s].append(i)
+    point = _f1(gold, predicted, index)
+    rng = np.random.default_rng(seed)
+    draws = []
+    for _ in range(resamples):
+        picked = rng.integers(0, len(unique), size=len(unique))
+        rows = [i for k in picked for i in grouped[unique[k]]]
+        value = _f1(gold[rows], predicted[rows], index)
+        if not np.isnan(value):
+            draws.append(value)
+    if not draws:
+        return point, float("nan"), float("nan")
+    return point, float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))
+
+
 def metrics(
     gold: np.ndarray, predicted: np.ndarray, scenarios: list[str], seed: int
 ) -> dict[str, Any]:
@@ -131,6 +181,12 @@ def metrics(
             "n_sentences": len(
                 {s for s, m in zip(scenarios, predicted_mask, strict=True) if m}
             ),
+            "value": point,
+            "ci": [low, high],
+        }
+        point, low, high = f1_bootstrap(scenarios, gold, predicted, index, seed)
+        out[f"f1_{name}"] = {
+            "n_sentences": len({s for s, m in zip(scenarios, mask, strict=True) if m}),
             "value": point,
             "ci": [low, high],
         }
@@ -187,6 +243,17 @@ def main(argv: list[str] | None = None) -> int:
             "file_sha256"
         ],
         "config": config,
+        # "Class weighting" in this pipeline is the cost matrix, not a per-class
+        # frequency weight: cross-entropy is unweighted and the second loss term is
+        # the expected misclassification cost under the model's own softmax
+        # (training/cost_loss.py). Recorded explicitly so the report names the
+        # mechanism that ran rather than one it might have had.
+        "weighting": {
+            "mechanism": "cost matrix via training/cost_loss.py; cross-entropy unweighted",
+            "cost_matrix": config["cost_matrix"],
+            "cost_weight": config["cost_weight"],
+            "class_frequency_weights": None,
+        },
         "seed": args.seed,
         "memory_available_mb": {"before_training": free_memory_mb()},
     }
@@ -239,6 +306,55 @@ def main(argv: list[str] | None = None) -> int:
     record["temperature"] = float(temperature)
     print(f"temperature fitted on the calibration split: {temperature:.4f}")
 
+    # Thresholds tuned to CRITICAL safety on the CALIBRATION split only, with the
+    # committed tuner and the committed cost matrix. Its two hard constraints are
+    # gate 5's and gate 7's targets, and it is being asked to satisfy them from 17
+    # CRITICAL sentences -- three hundred and forty-eight short of what gate 5
+    # needs to be a claim. Whatever it returns is a point estimate used to pick two
+    # numbers, and the pipeline's refusal still stands over it.
+    calibration_probabilities = cal.softmax(calibration_logits / temperature)
+    tuned: th.Thresholds | None = None
+    try:
+        tuned = th.tune(
+            calibration_probabilities,
+            calibration_gold,
+            [r["language"] for r in calibration_rows],
+            config["cost_matrix"],
+        )
+    except th.ThresholdsRefused as refusal:
+        # THE TUNER'S OWN REFUSAL, recorded and not worked around. Gate 5 is a
+        # per-pure-language constraint and this arm is Kinyarwanda only, so three
+        # of the four languages have no CRITICAL rows to constrain it with.
+        # Relaxing the constraint to the languages that happen to be present would
+        # be re-slicing a requirement to fit the corpus, which is the one move this
+        # whole exercise exists to refuse. Argmax is reported instead, and the
+        # report says plainly that no thresholds were tuned.
+        record["thresholds"] = {
+            "status": "REFUSED",
+            "reason": str(refusal),
+            "effect": "no thresholded decision; argmax reported instead",
+        }
+        print(f"thresholds REFUSED: {refusal}")
+
+    if tuned is not None:
+        record["thresholds"] = tuned.as_record()
+        record["thresholds"]["tuned_on_n_sentences"] = len(
+            {r["scenario_id"] for r in calibration_rows}
+        )
+        record["thresholds"]["tuned_on_n_critical_sentences"] = len(
+            {
+                r["scenario_id"]
+                for r in calibration_rows
+                if r["gold_label"] == "CRITICAL"
+            }
+        )
+        print(
+            f"thresholds tuned on the calibration split: t_critical={tuned.critical:.3f} "
+            f"t_urgent={tuned.urgent:.3f}"
+        )
+        for warning in tuned.warnings:
+            print(f"  threshold warning: {warning}")
+
     test_logits = predictor.logits(
         model_dir, [r["text"] for r in test_rows], max_length, batch
     )
@@ -247,13 +363,32 @@ def main(argv: list[str] | None = None) -> int:
     probabilities = cal.softmax(test_logits / temperature)
     predicted = probabilities.argmax(axis=1)
 
+    decided = (
+        th.decide(probabilities, tuned.critical, tuned.urgent)
+        if tuned is not None
+        else None
+    )
+
     record["test"] = metrics(test_gold, predicted, test_scenarios, args.seed)
+    # The thresholded decision is what the service would actually serve; argmax is
+    # kept beside it because the gap between them is the price the safety rule is
+    # charging, and that price is a result in its own right.
+    record["test_thresholded"] = (
+        metrics(test_gold, decided, test_scenarios, args.seed)
+        if decided is not None
+        else None
+    )
     record["baseline_always_routine"] = majority_baseline(
         test_gold, test_scenarios, args.seed
     )
     record["predicted_class_distribution"] = {
         ID_TO_LABEL[i]: int(n) for i, n in sorted(Counter(predicted.tolist()).items())
     }
+    record["thresholded_class_distribution"] = (
+        {ID_TO_LABEL[i]: int(n) for i, n in sorted(Counter(decided.tolist()).items())}
+        if decided is not None
+        else None
+    )
     record["gold_class_distribution"] = {
         ID_TO_LABEL[i]: int(n) for i, n in sorted(Counter(test_gold.tolist()).items())
     }
@@ -282,10 +417,18 @@ def main(argv: list[str] | None = None) -> int:
     ) as handle:
         writer = csv.writer(handle)
         writer.writerow(
-            ["item_id", "scenario_id", "gold_label", "predicted_label", *CLASS_ORDER]
+            [
+                "item_id",
+                "scenario_id",
+                "gold_label",
+                "predicted_label",
+                "thresholded_label",
+                *CLASS_ORDER,
+            ]
         )
-        for row, gold, prediction, probability in zip(
-            test_rows, test_gold, predicted, probabilities, strict=True
+        served = decided if decided is not None else predicted
+        for row, gold, prediction, decision, probability in zip(
+            test_rows, test_gold, predicted, served, probabilities, strict=True
         ):
             writer.writerow(
                 [
@@ -293,6 +436,7 @@ def main(argv: list[str] | None = None) -> int:
                     row["scenario_id"],
                     ID_TO_LABEL[int(gold)],
                     ID_TO_LABEL[int(prediction)],
+                    ID_TO_LABEL[int(decision)] if decided is not None else "REFUSED",
                     *[f"{p:.6f}" for p in probability],
                 ]
             )

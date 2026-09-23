@@ -1,0 +1,354 @@
+{
+  "baseline_always_routine": {
+    "accuracy": {
+      "ci": [
+        0.5100671140939598,
+        0.5995525727069351
+      ],
+      "n_sentences": 447,
+      "value": 0.5548098434004475
+    },
+    "confusion_gold_by_predicted": {
+      "matrix": [
+        [
+          0,
+          0,
+          35
+        ],
+        [
+          0,
+          0,
+          164
+        ],
+        [
+          0,
+          0,
+          248
+        ]
+      ],
+      "order": [
+        "CRITICAL",
+        "URGENT",
+        "ROUTINE"
+      ]
+    },
+    "critical_to_routine_rate": {
+      "ci": [
+        1.0,
+        1.0
+      ],
+      "n_sentences": 35,
+      "value": 1.0
+    },
+    "f1_CRITICAL": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 35,
+      "value": NaN
+    },
+    "f1_ROUTINE": {
+      "ci": [
+        0.6755555555555556,
+        0.7496503496503496
+      ],
+      "n_sentences": 248,
+      "value": 0.7136690647482016
+    },
+    "f1_URGENT": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 164,
+      "value": NaN
+    },
+    "precision_CRITICAL": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 0,
+      "value": NaN
+    },
+    "precision_ROUTINE": {
+      "ci": [
+        0.5100671140939598,
+        0.5995525727069351
+      ],
+      "n_sentences": 447,
+      "value": 0.5548098434004475
+    },
+    "precision_URGENT": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 0,
+      "value": NaN
+    },
+    "recall_CRITICAL": {
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n_sentences": 35,
+      "value": 0.0
+    },
+    "recall_ROUTINE": {
+      "ci": [
+        1.0,
+        1.0
+      ],
+      "n_sentences": 248,
+      "value": 1.0
+    },
+    "recall_URGENT": {
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n_sentences": 164,
+      "value": 0.0
+    }
+  },
+  "config": {
+    "base_model": "Davlan/afro-xlmr-mini",
+    "batch_size": 16,
+    "cost_matrix": [
+      [
+        0.0,
+        1.0,
+        10.0
+      ],
+      [
+        1.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0
+      ]
+    ],
+    "cost_weight": 1.0,
+    "epochs": 1,
+    "learning_rate": 1e-05,
+    "max_length": 96,
+    "predict_batch_size": 64,
+    "threads": 2,
+    "warmup_ratio": 0.06,
+    "weight_decay": 0.01
+  },
+  "corpus_sha256": "d7e1b3147af46e473589d719c6b3404377674dcd3b5777bfeb9c8ce88ce2264f",
+  "ece_temperature_scaled": {
+    "ci": [
+      0.061056117373579855,
+      0.14688970822076783
+    ],
+    "n_sentences": 447,
+    "value": 0.09835242665726746
+  },
+  "ece_uncalibrated": {
+    "ci": [
+      0.0018494240247707364,
+      0.06910021219980286
+    ],
+    "n_sentences": 447,
+    "value": 0.01988092306985456
+  },
+  "gold_class_distribution": {
+    "CRITICAL": 35,
+    "ROUTINE": 248,
+    "URGENT": 164
+  },
+  "leakage": {
+    "by_pair": {
+      "calibration and test": {
+        "exact": 0,
+        "near_duplicate": 0,
+        "scenario": 0
+      },
+      "train and calibration": {
+        "exact": 0,
+        "near_duplicate": 0,
+        "scenario": 0
+      },
+      "train and test": {
+        "exact": 0,
+        "near_duplicate": 0,
+        "scenario": 0
+      }
+    },
+    "clean": true,
+    "exact": 0,
+    "jaccard_threshold": 0.85,
+    "near_duplicate": 0,
+    "scenario": 0,
+    "shingle_words": 3
+  },
+  "memory_available_mb": {
+    "after_training": 3473,
+    "before_training": 3972
+  },
+  "predicted_class_distribution": {
+    "ROUTINE": 15,
+    "URGENT": 432
+  },
+  "provenance": "PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth.",
+  "seed": 42,
+  "split": "dataset/splits/kw_v1",
+  "split_manifest_sha256": {
+    "calibration.csv": "131cbee4300a87ef61f5afa68d186a6b9bfc3addd4ff81fa98aed85cd38d1469",
+    "test.csv": "0b82271043a2ad53d5a7bc7ca35dc8b801a7442732241851fe3579cfd5edb220",
+    "train.csv": "9cf66c84fcee5fc1418b5aeb14e598fcee55f2b574148a2dbbbaf3b12343d8c0"
+  },
+  "status": "PRELIMINARY -- not a gate verdict; see the pipeline refusal.",
+  "temperature": 0.165883401644312,
+  "test": {
+    "accuracy": {
+      "ci": [
+        0.3400447427293065,
+        0.42953020134228187
+      ],
+      "n_sentences": 447,
+      "value": 0.3870246085011186
+    },
+    "confusion_gold_by_predicted": {
+      "matrix": [
+        [
+          0,
+          35,
+          0
+        ],
+        [
+          0,
+          161,
+          3
+        ],
+        [
+          0,
+          236,
+          12
+        ]
+      ],
+      "order": [
+        "CRITICAL",
+        "URGENT",
+        "ROUTINE"
+      ]
+    },
+    "critical_to_routine_rate": {
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n_sentences": 35,
+      "value": 0.0
+    },
+    "f1_CRITICAL": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 35,
+      "value": NaN
+    },
+    "f1_ROUTINE": {
+      "ci": [
+        0.044440344403444035,
+        0.14179236794749656
+      ],
+      "n_sentences": 248,
+      "value": 0.09125475285171103
+    },
+    "f1_URGENT": {
+      "ci": [
+        0.48979417109309475,
+        0.5849673202614379
+      ],
+      "n_sentences": 164,
+      "value": 0.540268456375839
+    },
+    "precision_CRITICAL": {
+      "ci": [
+        NaN,
+        NaN
+      ],
+      "n_sentences": 0,
+      "value": NaN
+    },
+    "precision_ROUTINE": {
+      "ci": [
+        0.5625,
+        1.0
+      ],
+      "n_sentences": 15,
+      "value": 0.8
+    },
+    "precision_URGENT": {
+      "ci": [
+        0.32713078270751456,
+        0.4164754901960784
+      ],
+      "n_sentences": 432,
+      "value": 0.3726851851851852
+    },
+    "recall_CRITICAL": {
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n_sentences": 35,
+      "value": 0.0
+    },
+    "recall_ROUTINE": {
+      "ci": [
+        0.022900763358778626,
+        0.07723577235772358
+      ],
+      "n_sentences": 248,
+      "value": 0.04838709677419355
+    },
+    "recall_URGENT": {
+      "ci": [
+        0.9588174382178908,
+        1.0
+      ],
+      "n_sentences": 164,
+      "value": 0.9817073170731707
+    }
+  },
+  "test_thresholded": null,
+  "thresholded_class_distribution": null,
+  "thresholds": {
+    "effect": "no thresholded decision; argmax reported instead",
+    "reason": "no gold CRITICAL rows in the calibration split for english, french, swahili: CRITICAL recall cannot be constrained there",
+    "status": "REFUSED"
+  },
+  "training_seconds": 417.9,
+  "weighting": {
+    "class_frequency_weights": null,
+    "cost_matrix": [
+      [
+        0.0,
+        1.0,
+        10.0
+      ],
+      [
+        1.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0
+      ]
+    ],
+    "cost_weight": 1.0,
+    "mechanism": "cost matrix via training/cost_loss.py; cross-entropy unweighted"
+  }
+}
