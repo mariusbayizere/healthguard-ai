@@ -1,0 +1,224 @@
+item_id,text,language,gold_label,scenario_id,split
+kw-000211,Avuga ko umuti umufasha ariko ko atabasha kuwugura buri kwezi.,kinyarwanda,ROUTINE,s0454c6e8d02d,calibration
+kw-000214,Umugabo avuga ko atarasinzira kuva murumuna we cyangwa mukuru we apfuye hashize ibyumweru bitatu.,kinyarwanda,ROUTINE,se7e494cee92e,calibration
+kw-000216,Avuga ko umwanda w'umwana wera cyane kandi inkari zikaba zijimye.,kinyarwanda,URGENT,s5b7aefe26528,calibration
+kw-000225,Nyina avuga ko umwana yagabanutse ibiro kuva atangiye ishuri.,kinyarwanda,ROUTINE,sfe445a4011e6,calibration
+kw-000226,Umugabo avuga ko ibuye ryinjiye mu jisho ubwo yamenaga amabuye.,kinyarwanda,URGENT,sd26b388d2d70,calibration
+kw-000229,Umwana yari ari gukina maze mu buryo butunguranye ananirwa gukoresha ukuboko kumwe.,kinyarwanda,URGENT,sf2c5a593a97b,calibration
+kw-000246,Avuga ko kuva yabyara atagishobora kwifata inkari.,kinyarwanda,ROUTINE,s25b0e8a87508,calibration
+kw-000262,Yazanywe n'umutwara moto nyuma y'impanuka yo mu muhanda.,kinyarwanda,URGENT,s155adae9ed60,calibration
+kw-000272,Avuga ko imiti imutera gusinzira maze arayihagarika.,kinyarwanda,ROUTINE,s7478ac5cf4ff,calibration
+kw-000278,Umugabo avuga ko yaguye ku ngazi agwa ku bitendegeri.,kinyarwanda,URGENT,sb180197552ca,calibration
+kw-000289,Umugabo yazanywe nyuma yo kunywa icupa ry'inzoga y'iwacu akagwa igihumure.,kinyarwanda,CRITICAL,s986e1085e539,calibration
+kw-000308,Amaze kuruka kuva atangiye imiti ya malariya.,kinyarwanda,URGENT,s38783b83aa10,calibration
+kw-000323,Yaje kuko ishuri risaba urupapuro rwa muganga.,kinyarwanda,ROUTINE,sde5cbce9d905,calibration
+kw-000324,Avuga ko ububabare bwavuye ku rutugu bugera ku rwasaya.,kinyarwanda,CRITICAL,s2a534f3b3efe,calibration
+kw-000332,Yaje kubaza niba ikimenyetso umwana yavukanye ku ruhu ari akaga.,kinyarwanda,ROUTINE,sac05e45bc72c,calibration
+kw-000349,Avuga ko yabwiwe ko adashobora gusama kandi ashaka inama.,kinyarwanda,ROUTINE,s9378e6b13aea,calibration
+kw-000368,Avuga ko yahagaritse imiti ya virusi itera SIDA amaze kumva ameze neza.,kinyarwanda,ROUTINE,s22d05d665515,calibration
+kw-000373,Umugore avuga ko ari kuva amaraso kandi atwite amezi atatu.,kinyarwanda,URGENT,s3804e75cfb30,calibration
+kw-000380,Avuga ko igikomere cyadodwe mu rugo hakoreshejwe urushinge n'urudodo.,kinyarwanda,URGENT,s60f62b01dbcd,calibration
+kw-000383,Yaje kubaza niba umwana ashobora gusubira ku ishuri.,kinyarwanda,ROUTINE,s0c264f5a8905,calibration
+kw-000388,Avuga ko amaze kuzungera kuva yakubita umutwe mu mukino.,kinyarwanda,URGENT,s3e920973bed8,calibration
+kw-000403,Umwana afite kubyimba munsi y'akanwa kumaze iminsi kwiyongera.,kinyarwanda,URGENT,sd140ad6cd18d,calibration
+kw-000412,Umugabo avuga ko kuva yagira impanuka yo mu muhanda atabasha kwihagarika.,kinyarwanda,URGENT,s4915507752d9,calibration
+kw-000415,Avuga ko ikirenge cye cyanyujijweho igare kandi kikaba cyarabyimbye.,kinyarwanda,URGENT,sbb2c07445ddb,calibration
+kw-000421,Avuga ko yakubiswe kandi akaba ava amaraso mu mazuru.,kinyarwanda,URGENT,sa04c93a688c2,calibration
+kw-000428,Umwana yazanywe nyuma yo kurya igihingwa cyo mu ishyamba.,kinyarwanda,URGENT,s0689486041ea,calibration
+kw-000431,Avuga ko ukuguru kwabyimbye nyuma y'urugendo rurerure muri bisi.,kinyarwanda,URGENT,s48b2a9d6cfb2,calibration
+kw-000434,Yabwiwe ko afite ikibazo cy'umutima kandi ashaka ko undi muganga amwisuzuma.,kinyarwanda,ROUTINE,sa9594b15f383,calibration
+kw-000436,Umugore avuga ko ari kubabara kandi umwana akaba ari hafi kuvuka ubu.,kinyarwanda,CRITICAL,s34599c4c199d,calibration
+kw-000448,Afite kubyimba mu ijosi kugenda iyo amira.,kinyarwanda,ROUTINE,se36f261a8cfb,calibration
+kw-000451,Avuga ko yikase ku kirahure cyamenetse ubwo yasukuraga.,kinyarwanda,URGENT,s02064502b42e,calibration
+kw-000478,Umugore avuga ko atazi neza niba atwite kandi akaba yumva arwaye.,kinyarwanda,ROUTINE,s522b46721869,calibration
+kw-000496,Umugore avuga ko yagize impanuka yo mu muhanda kandi atwite amezi atandatu.,kinyarwanda,CRITICAL,s37ea8cadd5e2,calibration
+kw-000530,Yabwiwe kugarura umwana kugira ngo bongere bamupime ibiro.,kinyarwanda,ROUTINE,se2076236faf6,calibration
+kw-000538,Umwana yashyize akabuto k'ibigori mu gutwi.,kinyarwanda,ROUTINE,s992eee62ba66,calibration
+kw-000582,Umugore avuga ko ukuboko kwe kwabyimbye kuva yabagwa ku ibere.,kinyarwanda,ROUTINE,sdbbf4e7399e0,calibration
+kw-000589,Avuga ko umwana arira iyo bakoze ku kuguru kandi yanga guhagarara.,kinyarwanda,URGENT,sa56ac00afc74,calibration
+kw-000601,Avuga ko ku ibere hari ahantu hameze nk'ahagwa imbere mu ruhu yabonye ukwezi gushize.,kinyarwanda,ROUTINE,s0da981810ccb,calibration
+kw-000607,Avuga ko ububabare bwo mu nda budahagarara kandi adashobora kuryama arambuye.,kinyarwanda,URGENT,sd3b473350119,calibration
+kw-000613,Avuga ko uruhinja rufite ikibyimba mu ijosi kuva ruvuka.,kinyarwanda,ROUTINE,s8d30687e4134,calibration
+kw-000617,Avuga ko ububabare bwo ku ruhande bujyana n'umuriro no gutitira.,kinyarwanda,URGENT,s93be7b301af6,calibration
+kw-000626,Umwana afite ijisho ryakomeretse kandi nyina avuga ko yaguye ku buriri.,kinyarwanda,URGENT,s257f60c485ca,calibration
+kw-000636,Umugore avuga ko arwaye umutwe kandi imiti itakimufasha.,kinyarwanda,ROUTINE,s6e99fa3c4ee4,calibration
+kw-000647,Avuga ko gushya mu birenge byiyongereye kuva imiti yahinduka.,kinyarwanda,ROUTINE,s6edd155d3411,calibration
+kw-000661,Avuga ko umwana amaze kwishimagura kandi uruhu rwarabyimbye rukaba rwarakomeye.,kinyarwanda,ROUTINE,seb31a7bfc81d,calibration
+kw-000680,Amaze amezi atatu afite ububabare mu gituza n'inkorora.,kinyarwanda,ROUTINE,saf30f9f0a17f,calibration
+kw-000686,Amaze ukwezi akorora kandi ijwi ryarabuze.,kinyarwanda,ROUTINE,s1f1b88ec342a,calibration
+kw-000692,Umwana afite kubyimba ku mutwe korohereye kandi gukomeza kwiyongera.,kinyarwanda,URGENT,s2f8307811bff,calibration
+kw-000700,Yaje gusa kubaza ikibazo kandi ntashaka ko bamusuzuma.,kinyarwanda,ROUTINE,s2917f446b693,calibration
+kw-000703,"Iyo ngiye kuzamuka umusozi ndababara mu gituza, nkabanza guhagarara bikagenda bigabanuka.",kinyarwanda,URGENT,s0416a9ac2078,calibration
+kw-000711,"Naje kwisuzumisha inda nk'uko bisanzwe, nta kibazo mfite.",kinyarwanda,ROUTINE,s890da56877f0,calibration
+kw-000727,Narumwe n'inzoka ku kuguru ndi mu murima.,kinyarwanda,URGENT,s309478f8f8cc,calibration
+kw-000733,"Nateye umuti wica udukoko ntambaye agapfukamunwa, none ndazungera kandi amacandwe arava cyane.",kinyarwanda,CRITICAL,sb2d55bc306ad,calibration
+kw-000736,"Iyo nkoze imibonano mpuzabitsina ndababara, ariko nta muntu nari nabibwiye.",kinyarwanda,ROUTINE,s13e50836e3f3,calibration
+kw-000737,Nyogokuru ntakimenya abo mu muryango.,kinyarwanda,URGENT,s29f811ce650e,calibration
+kw-000752,Naje gukuramo insinga zo ku gikomere mwanshiriye hano.,kinyarwanda,ROUTINE,sca1e92d35800,calibration
+kw-000764,Ndatwite kandi maze icyumweru ndaruka ibyo nariye byose.,kinyarwanda,URGENT,s513a43595ec2,calibration
+kw-000765,"Niyaciye igikumwe n'umupanga, ngipfuka n'umwenda.",kinyarwanda,URGENT,s3a447640cbd3,calibration
+kw-000779,Umwana yarumwe n'injangwe ku kuboko.,kinyarwanda,URGENT,se8a9ef6332dc,calibration
+kw-000783,Natangiye kubabara mu gituza nkiri gutwara umufuka kandi ububabare ntiburashira.,kinyarwanda,URGENT,sf8985874f2d1,calibration
+kw-000795,"Umwana yaguye mu muriro wo gutekamo, atwika ikiganza n'ukuboko.",kinyarwanda,URGENT,s7c7448235cf8,calibration
+kw-000799,"Yaguye mu isoko, abaturanyi ni bo bamuzanye hano.",kinyarwanda,CRITICAL,s1e1a71d23550,calibration
+kw-000804,Umwana kuva avuka aratuje cyane kandi yonka buhoro.,kinyarwanda,URGENT,se74e1bee035b,calibration
+kw-000814,"Mfite igisebe munsi y'ikirenge, nakimenye kubera ko natangiye kukumva kinuka.",kinyarwanda,URGENT,sd110dbe1417b,calibration
+kw-000819,Bambwiye ko mfite umuvuduko w'amaraso uri hejuru ariko nta kimenyetso numva.,kinyarwanda,ROUTINE,s513bccfb5641,calibration
+kw-000820,Mfite urupapuro rwohereza ku bitaro by'akarere.,kinyarwanda,ROUTINE,sa072f65927d0,calibration
+kw-000830,Ndava amaraso menshi nyuma yo gukorerwa igikorwa kwa muganga ahandi.,kinyarwanda,CRITICAL,sdceb20288158,calibration
+kw-000837,Naciwe n'urupapuro rw'icyuma cyari cyafashwe n'ingese.,kinyarwanda,URGENT,s70550f443d53,calibration
+kw-000839,Natewe urushinge n'umuturanyi none aho naruterwe harakomeye.,kinyarwanda,URGENT,s53a0827f62af,calibration
+kw-000840,Ukuboko kwanjye kwafashwe n'imashini isya ibigori.,kinyarwanda,URGENT,sa43482e5baa6,calibration
+kw-000851,Ndababara kuva ku rutugu rugana mu rwasaya.,kinyarwanda,URGENT,s65cb2c4ad762,calibration
+kw-000857,Narumwe n'imbwa ntazi maze iriruka.,kinyarwanda,URGENT,s24e2d1d612d4,calibration
+kw-000864,Nafashe imiti y'umugore wanjye natekereza ko ari iyanjye.,kinyarwanda,URGENT,sdf84734f9810,calibration
+kw-000865,Muri farumasi bambwiye ko nza kwa muganga nkisuzumisha neza.,kinyarwanda,ROUTINE,se83644e71e31,calibration
+kw-000875,Umwana yaguye none hafi y'igufa ryo ku rutugu harabyimbye.,kinyarwanda,URGENT,sffb33fe81e92,calibration
+kw-000882,Maze kurya ubunyobwa nahise ntangira guhumeka nabi.,kinyarwanda,CRITICAL,seb4593228a8b,calibration
+kw-000884,Mfata imiti ya diyabete kandi rimwe na rimwe nyisangiza umugore wanjye.,kinyarwanda,URGENT,s89198b2bce30,calibration
+kw-000899,Ivi rirandya ku buryo ntashobora gukora imirimo yo mu murima.,kinyarwanda,ROUTINE,s7580dec4bf18,calibration
+kw-000905,Kuva nakomereka sinshobora gukora kandi nta mafaranga mfite.,kinyarwanda,ROUTINE,sb3edf5ac3555,calibration
+kw-000915,Maze gukubitwa ku mutwe nkiri gukina umupira mpora nzengera.,kinyarwanda,URGENT,s0d50e7faf3ae,calibration
+kw-000921,Umwana yari ameze neza kugeza ejo igiti cy'umwembe kimuguyeho.,kinyarwanda,URGENT,s91bd975fb447,calibration
+kw-000944,Inda indya cyane iyo nshonje gusa.,kinyarwanda,ROUTINE,s989001d22589,calibration
+kw-000946,Umwana rimwe na rimwe ararangarira ntasubize iyo tumuhamagaye.,kinyarwanda,URGENT,sc7c3684b467b,calibration
+kw-000949,Akabyimba ko ku ruhu nari mfite kahinduye ibara.,kinyarwanda,URGENT,s1c8071698787,calibration
+kw-000956,Nijoro ndabira icyuya ku buryo ishati inyongera.,kinyarwanda,URGENT,s8ee3af2cc214,calibration
+kw-000965,Ese nshobora gutanga amaraso?,kinyarwanda,ROUTINE,s5aee1e7ab109,calibration
+kw-000972,Iyo mpumetse cyane ububabare bwo mu gituza buriyongera.,kinyarwanda,URGENT,s11a361397683,calibration
+kw-000977,Ndatwite kandi maze umunsi amazi agenda ava mu nda.,kinyarwanda,URGENT,s2c82cc672547,calibration
+kw-000989,Iryinyo ryaravunitse kandi mbona ahantu h'imbere harasohotse.,kinyarwanda,URGENT,s1093c8ce62be,calibration
+kw-000997,Nabonye akabyimba mu nda y'umwana nkiri kumwuhagira.,kinyarwanda,URGENT,s5733be746fd9,calibration
+kw-001002,Mfite igisebe ku kuguru cyasigaye nyuma yo gushya nkiri umwana.,kinyarwanda,ROUTINE,s97e91d1a769b,calibration
+kw-001014,Iyo nkoroye cyane n'inkari ziranyiyiraho.,kinyarwanda,URGENT,s76b709a99186,calibration
+kw-001053,Umwana yagize umuriro maze agira igicuri kimara iminota mike.,kinyarwanda,URGENT,sf866e02f757a,calibration
+kw-001061,Ese nkwiye gufata imiti y'amaraso cyangwa ibinini by'ubutare?,kinyarwanda,ROUTINE,s58c2a78fc990,calibration
+kw-001080,Mfite igisebe ku kuboko kandi intoki ebyiri ntizikora.,kinyarwanda,URGENT,sdf6d953b1f67,calibration
+kw-001086,Ububabare bwo ku rutugu burankangura nijoro kandi sinshobora kuryama kuri urwo ruhande.,kinyarwanda,URGENT,s80f55d883572,calibration
+kw-001103,Nabonye umwana afite icupa ry'imiti rifunguye.,kinyarwanda,URGENT,sa2cca8e138a2,calibration
+kw-001114,Ndatwite kandi iyo mfata imiti mpita nyiruka.,kinyarwanda,URGENT,s3702bc0041e8,calibration
+kw-001125,Noherejwe na gereza ngo nze kwisuzumisha.,kinyarwanda,ROUTINE,s1bbf20d12184,calibration
+kw-001127,Nakorera iki imiti nasigaranye?,kinyarwanda,ROUTINE,s6b50ba798246,calibration
+kw-001130,Umwana ahora anyara kenshi kandi yongeye kunyara mu buriri.,kinyarwanda,URGENT,s31b5d9e15d69,calibration
+kw-001149,Bambwiye ko umwijima wanjye wabyimbye. Ibyo bivuze iki?,kinyarwanda,ROUTINE,s3bde189ba962,calibration
+kw-001165,Naje gushaka icyemezo nyuma y'impanuka kugira ngo nkikoreshe mu bwishingizi.,kinyarwanda,ROUTINE,s7f10da844f1b,calibration
+kw-001175,Umwana yaguye maze iryinyo rishyirwa imbere mu ishinya.,kinyarwanda,URGENT,s3a17b645b13c,calibration
+kw-001214,"Ndababara mu gituza, ariko iyo nsebura biragabanuka.",kinyarwanda,ROUTINE,saeebd60da38a,calibration
+kw-001217,"Nagabanutse ibiro, nkagira n'umuriro nijoro kandi mfata imiti ya ARV.",kinyarwanda,URGENT,sa078c92e74f0,calibration
+kw-001235,Umwana afite ahantu horohereye ku mutwe hasa n'ahamanutse.,kinyarwanda,URGENT,sae459ccaa2ed,calibration
+kw-001251,"Ndi umurobyi, nakomeretse n'urubavu rw'ifi maze nkagira igisebe.",kinyarwanda,URGENT,sdc7dfd61fb6d,calibration
+kw-001257,"Ndatwite, umwana atangiye gukubita cyane mu nda mu buryo butunguranye.",kinyarwanda,ROUTINE,s9a316f0f3151,calibration
+kw-001260,Umwana avuga ko ibyo arya byose bimuryohera nabi.,kinyarwanda,ROUTINE,s6dbac751156f,calibration
+kw-001277,Umwana ntakoresha ukuboko kumwe kuva namuterura.,kinyarwanda,URGENT,s81631023847d,calibration
+kw-001286,Umwana yaguye mu muyoboro w'amazi mabi.,kinyarwanda,URGENT,s13365f99c6f9,calibration
+kw-001290,Ijosi rirandya kuva nasinziriye muri bisi.,kinyarwanda,ROUTINE,s47dcf281801b,calibration
+kw-001299,"Ndi umusaza, nijoro nyara kenshi cyane.",kinyarwanda,ROUTINE,s9483af6f7b16,calibration
+kw-001300,Umwana yarumwe n'inzoka mu musarani.,kinyarwanda,CRITICAL,se359887a1f3e,calibration
+kw-001303,Mfite igikomere ku mutwe natewe n’igisenge cyaguyeho.,kinyarwanda,URGENT,s51ec5528872e,calibration
+kw-001312,Ndashaka kumenya niba nakomeza gukora nyuma yo guterwa urushinge.,kinyarwanda,ROUTINE,s857d71127943,calibration
+kw-001318,"Ndakorora, byatangiye nyuma y’indwara yo mu gatuza nagize ukwezi gushize.",kinyarwanda,ROUTINE,s3b7d7079f045,calibration
+kw-001320,Umwana yatwitswe n’amazi ashyushye ku matako.,kinyarwanda,URGENT,sf858117597e5,calibration
+kw-001330,"Umwana yaguye, ukuboko kurabyimba kandi ntashobora kukugorora.",kinyarwanda,URGENT,s89f5a0cbc0f7,calibration
+kw-001354,"Ndatwite, ukuguru kumwe kurabyimbye kandi kurandya.",kinyarwanda,URGENT,s5758f7fabc94,calibration
+kw-001365,"Umugongo urandya, mfite umuriro kandi ndababara ku ruhande rumwe.",kinyarwanda,URGENT,s3beef9b54652,calibration
+kw-001375,"Amaboko yombi arandya mu gitondo, ariko saa sita biba byagabanutse.",kinyarwanda,ROUTINE,s398e487045b3,calibration
+kw-001382,Umwana ararira akiyegereza amavi ku nda kandi yituma amaraso.,kinyarwanda,CRITICAL,s74e7df1aefcf,calibration
+kw-001505,Ndashaka kumenya niba uku kubyimba mu ijosi kuzasaba kubagwa.,kinyarwanda,ROUTINE,sb508976c6122,calibration
+kw-001506,"Ndatwite, maze iminsi ntituma neza kandi birambabaza.",kinyarwanda,ROUTINE,s17a21c1b9356,calibration
+kw-001512,Ndashaka kumenya niba hari ibinini bishobora gutera inkorora yumye.,kinyarwanda,ROUTINE,se41c6fa04ed2,calibration
+kw-001530,"Hari ibintu byeruruka kandi byinshi biva mu gitsina, nta mpumuro bifite ariko ndishimagura.",kinyarwanda,ROUTINE,s08cbc2c5832b,calibration
+kw-001560,Inkari zanjye zirabira nk’ifuro.,kinyarwanda,ROUTINE,sff78dd82e804,calibration
+kw-001561,Uruhinja ntironsa neza kandi iyo urukozemo urumva rukonje.,kinyarwanda,CRITICAL,scb7e969290a4,calibration
+kw-001587,"Umwana agenda atakaza ibiro, anywa amazi menshi kandi ahora ananiwe.",kinyarwanda,URGENT,s6c893d542b71,calibration
+kw-001592,Umwana afite umuriro kandi ingingo zigenda zibyimba imwe imwe.,kinyarwanda,URGENT,s97e4fa339b9a,calibration
+kw-001605,Uruhinja rurakorora rugasohora ijwi ridasanzwe iyo ruhumeka.,kinyarwanda,URGENT,sd511aa90ae05,calibration
+kw-001609,Umwana ntashobora kumva umuntu avugira hasi.,kinyarwanda,ROUTINE,s9581c518116c,calibration
+kw-001627,Ndatwite kandi iyo ngenda ndababara hagati y’amaguru.,kinyarwanda,ROUTINE,scec15fbf6b4c,calibration
+kw-001654,Mu gatuza harambabaza ariko iyo nunamiye imbere biroroha.,kinyarwanda,URGENT,s9fc713d3fd4c,calibration
+kw-001663,Mfite igisebe gifite impumuro mbi kandi uruhu rugikikije rwarirabura.,kinyarwanda,URGENT,s0364da678079,calibration
+kw-001665,Umutwe urambabaza kandi bikarushaho iyo nkoroye.,kinyarwanda,ROUTINE,sc6954f984409,calibration
+kw-001669,Umusaza ahora agwa kandi avuga ko biterwa n’amaso ye.,kinyarwanda,ROUTINE,sb12aeaebeeec,calibration
+kw-001686,"Umugongo urambabaza, mfite umuriro kandi ndatitira cyane.",kinyarwanda,URGENT,s46e5b0463ff8,calibration
+kw-001692,"Umusarani wanjye wabaye umukara, ndacitse intege kandi mfata ibinini by’ububabare.",kinyarwanda,URGENT,s3a4db7c93466,calibration
+kw-001700,Yashye cyane nyuma y’uko imyenda ye ifashwe n’umuriro.,kinyarwanda,CRITICAL,sbb64223b627e,calibration
+kw-001721,Amavi arambabaza iyo nzamuka cyangwa manuka ingazi.,kinyarwanda,ROUTINE,sf3d2b2cbcb1d,calibration
+kw-001729,Mu mayasha harandya cyane.,kinyarwanda,ROUTINE,s6f9647467936,calibration
+kw-001741,Urutoki rw’ukuguru rufite umusumari mwinshi kandi w’umuhondo.,kinyarwanda,ROUTINE,sa5fc1167a6e8,calibration
+kw-001746,Ndatwite kandi ishinya rirava amaraso.,kinyarwanda,ROUTINE,sff246521ca8c,calibration
+kw-001759,Ndashaka umuti w’ububabare bw’iryinyo wampfasha kugeza ngeze kwa muganga w’amenyo.,kinyarwanda,ROUTINE,s4f49b0bb5cf5,calibration
+kw-001761,Mu gitondo gusa ni bwo mu jisho ry’uruhinja havamo ibintu.,kinyarwanda,ROUTINE,sa5a5968492d2,calibration
+kw-001773,Umwana atinya umwijima kandi ntasinzira neza.,kinyarwanda,ROUTINE,se8b8a5813ae5,calibration
+kw-001776,Ibirenge byanjye binuka kandi hagati y’intoki z’ibirenge harandya.,kinyarwanda,ROUTINE,se2e82b0dfcfe,calibration
+kw-001777,Sinabona uko ndyama neza mu buriri ngo numve norohewe.,kinyarwanda,ROUTINE,s117e8448ab54,calibration
+kw-001779,"Ndatwite, nkunda kurya ibintu bidasanzwe kandi natangiye no kurya ibumba.",kinyarwanda,ROUTINE,se94611113784,calibration
+kw-001782,Ndashaka kumenya niba umwana ashobora guhabwa urukingo atinze.,kinyarwanda,ROUTINE,sc778412fe6a7,calibration
+kw-001799,Umwana afite umwanda mwinshi mu gutwi kandi ntumva neza.,kinyarwanda,ROUTINE,s9963386813bb,calibration
+kw-001810,Umwana yamize ibinini nabonye mu gikapu.,kinyarwanda,CRITICAL,sb0edcab67181,calibration
+kw-001819,Uyu mugore yumvise ururenda rw’umwana rwasohotse ari mu rugo.,kinyarwanda,CRITICAL,s386594083198,calibration
+kw-001825,Naje kureba ibisubizo bya biopsy nakoze.,kinyarwanda,ROUTINE,s7d751edd6844,calibration
+kw-001833,Nazanye ikarita yanjye yo mu bindi bitaro.,kinyarwanda,ROUTINE,scf2ac01750f6,calibration
+kw-001844,"Ndi impunzi, nta byangombwa mfite kandi ndatwite.",kinyarwanda,ROUTINE,s162993db1c2d,calibration
+kw-001850,"Uyu muntu ntameze neza mu mutwe, yazanywe n’umuryango kandi afite igisebe.",kinyarwanda,URGENT,s30b4626ad074,calibration
+kw-001871,Nkoresha umuti w’ibyatsi wo kwiyuhagira ariko kwishimagura byarushijeho kuba bibi.,kinyarwanda,ROUTINE,s15121a3b0178,calibration
+kw-001876,Ndatwite ariko sinfata imiti y’amaraso kubera ko inyobera.,kinyarwanda,ROUTINE,se446662749f9,calibration
+kw-001885,Nta mafaranga mfite yo kwishyura ibizamini.,kinyarwanda,ROUTINE,s8a18004457ff,calibration
+kw-001903,Mu gatuza haraka iyo ntwite gusa.,kinyarwanda,ROUTINE,s74e932eec3ed,calibration
+kw-001914,Umwana yaguye ku kananwa kandi yakomeretse imbere mu kanwa.,kinyarwanda,ROUTINE,s28c4c4b9e1f8,calibration
+kw-001922,Umwana yakubise urutoki none ku musumari hari umurongo w’umukara.,kinyarwanda,ROUTINE,s8ef1b31db87b,calibration
+kw-001934,Umwana aruma inzara kugeza ziviriye amaraso.,kinyarwanda,ROUTINE,sde8f6d65cb61,calibration
+kw-001969,Umwana aribwa n’ukuguru nijoro ariko ku manywa nta bubabare afite.,kinyarwanda,ROUTINE,sab8a212fcf7f,calibration
+kw-001974,Ndatwite hafi kubyara kandi munsi y’imbavu zo ku ruhande rw’iburyo harambabaza.,kinyarwanda,URGENT,s6de8c79e54c7,calibration
+kw-001988,Ndatwite ibyumweru 30 kandi inda irakomera ikorohera rimwe na rimwe.,kinyarwanda,URGENT,scd3734451747,calibration
+kw-002030,Umwana ahumeka asohora amajwi igihe cyose yirutse,kinyarwanda,ROUTINE,sef40242bbb7c,calibration
+kw-002050,"Mfite ibintu biva mu gitsina kandi birambabaza, kandi mfite umukunzi mushya",kinyarwanda,ROUTINE,s0af3474933dc,calibration
+kw-002051,Ndababara mu mugongo kandi mbona amaraso mu nkari,kinyarwanda,URGENT,sf9959b287487,calibration
+kw-002053,Maze amezi abiri nkorora kandi natakaje ibiro,kinyarwanda,ROUTINE,sa7d0f39f7e9d,calibration
+kw-002057,Umwana uruhande rumwe rw’isura rwaramanutse,kinyarwanda,URGENT,s5bbf851b0434,calibration
+kw-002058,Ndazungera kandi ugutwi kumwe kurimo urusaku,kinyarwanda,ROUTINE,s6857213f2c81,calibration
+kw-002087,"Ijisho rimwe ryahise rihuma, nta bubabare mfite",kinyarwanda,CRITICAL,s6eab6cafca1a,calibration
+kw-002201,Ndababara mu mbavu nyuma y’umuganda.,kinyarwanda,ROUTINE,sfe6ee2aa1df1,calibration
+kw-002206,Uruhinja rwanze kunywa ku icupa ariko rwonsa.,kinyarwanda,ROUTINE,sd89e2ef34e15,calibration
+kw-002210,Umugongo urambabaza kubera gutwara amazi nzamuka umusozi.,kinyarwanda,ROUTINE,s6923a0705acf,calibration
+kw-002212,Umwana yagize ibisebe ku maguru nyuma yo gukinira mu bishanga.,kinyarwanda,ROUTINE,s560a3828aaed,calibration
+kw-002216,Umwana arwaye ugutwi nyuma yo kwibira mu mugezi.,kinyarwanda,ROUTINE,s6abad20edcd1,calibration
+kw-002218,Nashutswe n’umucanira w’amakara wari mu nzu.,kinyarwanda,URGENT,s3b75b7821d1d,calibration
+kw-002223,Umwana arushaho gukorora iyo bacanye umuriro mu nzu.,kinyarwanda,ROUTINE,s5e331cd48695,calibration
+kw-002225,Numva amaguru yabaye nk’ayafashwe n’ibinya nyuma yo kwicara ku ntebe nto.,kinyarwanda,ROUTINE,s3ba22a142a38,calibration
+kw-002229,Umwana yabyimbye ibirenge nyuma yo kugenda ajya ku ishuri atambaye inkweto.,kinyarwanda,ROUTINE,sec4f25f4271f,calibration
+kw-002241,Kuva ejo sinshobora guterura isuka.,kinyarwanda,URGENT,s754b33fc2a58,calibration
+kw-002258,Ndatwite kandi sinshobora guhagarika kwihagarika nijoro.,kinyarwanda,ROUTINE,s3bfbad53f8b2,calibration
+kw-002262,Uruhinja rwarabyimbye aho rwahawe urukingo hashize iminsi ibiri.,kinyarwanda,ROUTINE,s37d0501240dc,calibration
+kw-002268,Urwasaya rurambabaza kuva nuzurishije iryinyo.,kinyarwanda,ROUTINE,sd5d06bdfd549,calibration
+kw-002276,Sinshobora guhekenya ibyo umuryango urya.,kinyarwanda,ROUTINE,sc8b3984bbb97,calibration
+kw-002291,Amaguru aracika intege iyo manuka umusozi.,kinyarwanda,ROUTINE,s0306c70616b2,calibration
+kw-002314,Uruhinja rwonsa neza ariko umusarani warwo uroroshye cyane.,kinyarwanda,ROUTINE,s2b2145d69624,calibration
+kw-002328,Natangiye kugira ibintu biva mu gitsina nyuma yo kubyara.,kinyarwanda,ROUTINE,sa345b87284a0,calibration
+kw-002332,Igisebe cyanjye kirandya uko kigenda gikira.,kinyarwanda,ROUTINE,s3b279759ff3d,calibration
+kw-002338,Akabyimba kaje mu ijoro rimwe.,kinyarwanda,ROUTINE,s0f9181cb8366,calibration
+kw-002342,Ndababara iyo ntegeretse umubiri nkiri mu buriri.,kinyarwanda,ROUTINE,s0ef153cef37d,calibration
+kw-002346,Umwana afite akabyimba ku ijosi kagenda iyo amize.,kinyarwanda,ROUTINE,s8005b0b89134,calibration
+kw-002350,Numva nacitse intege nyuma yo kurya gusa.,kinyarwanda,ROUTINE,sc1ac6a965034,calibration
+kw-002383,Imihango yanjye yamaze iminsi ibiri gusa.,kinyarwanda,ROUTINE,sfd13d2edd01c,calibration
+kw-002393,Ibintu biva mu gitsina byahinduye ibara muri iki cyumweru.,kinyarwanda,ROUTINE,sdeb2244ba5e2,calibration
+kw-002395,Inkorora ituma nduka.,kinyarwanda,ROUTINE,s2fbc80344551,calibration
+kw-002410,Ndashaka kumenya amafaranga ubuvuzi buzantwara.,kinyarwanda,ROUTINE,sfdf8ad0df33e,calibration
+kw-002412,Ndashaka ko umwana asuzumwa na muganga wamubonye ubushize.,kinyarwanda,ROUTINE,s95b346288081,calibration
+kw-002414,Ndashaka kumenya niba ngomba kuza buri kwezi.,kinyarwanda,ROUTINE,sa9b84e9b3fc6,calibration
+kw-002425,Umwana yanga kuva iruhande rwa nyina.,kinyarwanda,ROUTINE,s70b9382b6ba1,calibration
+kw-002456,Ndatwite kandi naguye kuri moto nari ntwaye inyuma.,kinyarwanda,CRITICAL,sc91f996ecc61,calibration
+kw-002464,Umusaza yaguye ku ntebe ubwo yahinduraga itara.,kinyarwanda,URGENT,s7c6df031e1ee,calibration
+kw-002465,Ukuboko kwanjye kwafashwe n’umuryango wa bisi.,kinyarwanda,URGENT,sd612c0459b45,calibration
+kw-002504,Ndashaka kumenya niba nakureka burundu kurya umunyu.,kinyarwanda,ROUTINE,s5c92bf00024c,calibration
+kw-002508,Ndashaka kumenya niba nanjye nshobora kunywa iyo miti y’ibyatsi.,kinyarwanda,ROUTINE,se17fbcf6353d,calibration
+kw-002533,Ndababara kandi maze gufata ubwoko butandatu bw’ibinini.,kinyarwanda,ROUTINE,sb836746f3ce8,calibration
+kw-002550,Ndatwite kandi nta na rimwe nigeze njya kwisuzumisha inda.,kinyarwanda,ROUTINE,sc65f81ad6e83,calibration
+kw-002553,Mfite ahantu hakomeye mu ibere kandi si akabyimba kazengurutse.,kinyarwanda,ROUTINE,sf8fc672a0d33,calibration
+kw-002575,Ububabare buragabanuka iyo ndyamye ku ruhande rubabara.,kinyarwanda,ROUTINE,sba0e8812924a,calibration
+kw-002578,Ibintu byavaga mu gitsina byarahagaze ariko ububabare bwo ntibwashize.,kinyarwanda,ROUTINE,sb52ad4aaa494,calibration
+kw-002579,Igisebe cyarakize ariko numva hari ikintu cyasigaye imbere.,kinyarwanda,ROUTINE,s82af8d9cd9a7,calibration
+kw-002603,Ukuguru kumwe kwanjye kurananutse kurusha ukundi.,kinyarwanda,ROUTINE,s4e6f6419f5ec,calibration
+kw-002608,Ndatwite kandi mfite inkongi mu gatuza ikomeye ku buryo ntashobora kurya.,kinyarwanda,ROUTINE,s50b6fa172d82,calibration
+kw-002640,Mfite akabyimba gakomeye kadashobora kunyeganyega.,kinyarwanda,ROUTINE,sd2a898de3d5a,calibration
+kw-002664,Ndashaka kumenya niba ngomba kugaruka gufata ibisubizo.,kinyarwanda,ROUTINE,s406fd6c7f43e,calibration
+kw-002669,Ndashaka kumenya niba nkeneye urupapuro rwo kujya ku bitaro.,kinyarwanda,ROUTINE,s3c8d5cca2389,calibration
+kw-002674,Umusaza bamusanze aryamye hasi mu gitondo.,kinyarwanda,CRITICAL,s7ccdb9755ebb,calibration

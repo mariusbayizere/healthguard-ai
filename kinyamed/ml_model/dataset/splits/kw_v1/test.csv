@@ -1,0 +1,448 @@
+item_id,text,language,gold_label,scenario_id,split
+kw-000208,Umukecuru yazanywe n'umuryango uvuga ko atakibamenya.,kinyarwanda,URGENT,s2c270c563510,test
+kw-000215,Yatwitse ukuboko ku muyoboro usohora imyotsi wa moto.,kinyarwanda,URGENT,sc682c2280395,test
+kw-000218,Afite ibisebe binini munsi y'ukuboko bimaze icyumweru byiyongera.,kinyarwanda,URGENT,s6784a9ad7750,test
+kw-000223,Avuga ko igikomere cyadodewe hano kandi ko imidodo igomba gukurwamo.,kinyarwanda,ROUTINE,s1f23bb2f48c7,test
+kw-000227,Yaje kongera guterwa urushinge ahabwa buri mezi atatu.,kinyarwanda,ROUTINE,s656744892913,test
+kw-000232,Umuturanyi yazanye umugabo umaze kuva mu gitondo aruka amaraso.,kinyarwanda,CRITICAL,se8255d43c8c6,test
+kw-000234,Yaje kuko umukoresha we yamubwiye ko agomba kwisuzumisha mbere y'uko igihe cy'akazi gitangira.,kinyarwanda,ROUTINE,sfafe3c033302,test
+kw-000235,"Yumva mu gituza hashya nyuma yo kurya, cyane cyane iyo aryamye.",kinyarwanda,ROUTINE,s24fb44374ad9,test
+kw-000239,Avuga ko ibirenge bye bimaze amezi bitumva neza kandi atigeze amenya ko afite igikomere.,kinyarwanda,URGENT,s2d990af032bf,test
+kw-000240,Umugore yaje kuko inshuti ye yamubwiye ko ako kabyimba kagomba gusuzumwa.,kinyarwanda,ROUTINE,s1b2f35593224,test
+kw-000243,Afite ibisebe ku ruhu byatangiye nyuma yo gukoresha isabune nshya.,kinyarwanda,ROUTINE,sb9c0b2d08a2f,test
+kw-000245,Umugabo yazanywe nyuma yo kugwa ku byuma by'ubwubatsi ku kazi.,kinyarwanda,CRITICAL,sc512695c6c73,test
+kw-000258,Avuga ko inkuba yamukubise hafi y'umurima kandi akaba yumva atameze neza.,kinyarwanda,CRITICAL,s21c5689455f7,test
+kw-000261,Avuga ko amaze kugira umutwe kuva atangiye akazi gashya.,kinyarwanda,ROUTINE,sb236ef3174a4,test
+kw-000263,Avuga ko umwana amaze igihe arya ubutaka.,kinyarwanda,ROUTINE,sb507c4959fba,test
+kw-000264,Afite amazi asohoka mu ibere kandi ntabwo yonsa.,kinyarwanda,ROUTINE,s6cbb66fc84cd,test
+kw-000268,Avuga ko amaze igihe azungera kandi imihango ikaba ari myinshi.,kinyarwanda,URGENT,sbdf4f0918a4e,test
+kw-000271,Umugore yazanywe n'abaturanyi nyuma yo kugwa igihumure ku isoko.,kinyarwanda,CRITICAL,sed66ecf03058,test
+kw-000273,Umwana afite ivi ryabyimbye kandi nta gikomere yagize.,kinyarwanda,URGENT,s57c0b2535e4a,test
+kw-000281,Umugore avuga ko umutwe watangiye kumurya gitunguranye nk'uwakubiswe.,kinyarwanda,CRITICAL,s0a14810b3cee,test
+kw-000282,Umwana yamize bateri yo mu itoroshi.,kinyarwanda,CRITICAL,s0101b541b34c,test
+kw-000285,Avuga ko umwana akorora cyane kugeza ubwo aruka.,kinyarwanda,URGENT,s5260ae07a700,test
+kw-000286,Afite igikomere ku kirenge yakomeje kutamenya kugeza ubwo gitangiye kunuka.,kinyarwanda,URGENT,sd727a3febae4,test
+kw-000288,Avuga ko yahagaritse urushinge rwo kuboneza urubyaro kandi kuva icyo gihe akaba atarongera kuva amaraso.,kinyarwanda,ROUTINE,sff152898c266,test
+kw-000290,Umwana afite umuriro n'utubyimba ku ruhu byatangiriye mu maso.,kinyarwanda,URGENT,s07abb74320ba,test
+kw-000293,Avuga ko ababara mu mutsi w'inyana kandi ukuguru gushyuha.,kinyarwanda,URGENT,s9ebac00d2dd6,test
+kw-000294,Uruhinja rufite ijisho rifatirana kandi risa n'umuhondo kuva rufite iminsi ibiri.,kinyarwanda,URGENT,s864140139438,test
+kw-000296,Umwana arakorora kandi imbavu zigasa n'izijya imbere iyo ahumeka.,kinyarwanda,URGENT,s9dee070175c0,test
+kw-000300,Yaje gusa gufata ikarita y'ubwishingizi bw'ubuzima.,kinyarwanda,ROUTINE,sa98780c041e8,test
+kw-000305,Umugabo avuga ko amaze kugabanuka ibiro ariko arya nk'uko bisanzwe.,kinyarwanda,ROUTINE,s43973ca20723,test
+kw-000306,Umwana afite igikomere cy'ubururu ku mugongo kandi nyina ntazi uko cyabaye.,kinyarwanda,URGENT,sa7d53649de00,test
+kw-000313,Umugabo avuga ko ukuboko kwe kwafashwe n'imashini isya ibigori.,kinyarwanda,CRITICAL,s3508a793c3f2,test
+kw-000316,Afite ikibyimba mu kwaha kitamubabaza.,kinyarwanda,ROUTINE,s483389352cfd,test
+kw-000322,Avuga ko igikomere cyo ku kuguru gifite impande zirabura.,kinyarwanda,URGENT,sfdfd0aa63e0f,test
+kw-000333,Avuga ko ububabare bwo mu gituza bwiyongera iyo agukandagiyeho.,kinyarwanda,ROUTINE,s8efacd7355dc,test
+kw-000342,"Umwana yaguye mu kigega cy'amazi, bamukuramo arakorora.",kinyarwanda,CRITICAL,se3807fe9d243,test
+kw-000345,Yaje kubaza niba imvugo y'umwana we yaratinze.,kinyarwanda,ROUTINE,sf0e5b5e4e0f2,test
+kw-000347,Amaze ibyumweru abura umwuka kandi aryama ashyize imitwe ku misago itatu.,kinyarwanda,URGENT,sa5abb9149587,test
+kw-000348,Umwana afite kubyimba ku igufa ryo hejuru y'igituza nyuma yo kugwa.,kinyarwanda,URGENT,sd6bf15edd05f,test
+kw-000372,Avuga ko ububabare bwo mu ivi bumubuza gukora mu murima.,kinyarwanda,ROUTINE,s8b77f940019f,test
+kw-000375,Umugabo avuga ko inzoka yamurumye ejo kandi ubu ukuguru kwarirabura.,kinyarwanda,CRITICAL,seb504688fe4f,test
+kw-000379,Umwana aruka ibintu by'icyatsi kandi inda yarabyimbye.,kinyarwanda,CRITICAL,s9a5d6334d75b,test
+kw-000381,Umugore avuga ko uruhinja rwe kuva ejo rutigeze rwihagarika.,kinyarwanda,URGENT,s56b219e882fd,test
+kw-000389,Umugore avuga ko umwanya w'inda w'uruhinja wasohotse ukabyimba.,kinyarwanda,ROUTINE,s802505bacdf0,test
+kw-000391,Umwana amaze kwishimagura nijoro kandi ntashobora gusinzira.,kinyarwanda,ROUTINE,sebace28bf122,test
+kw-000392,Avuga ko amaze icyumweru akorora amaraso kandi akaba yarabihishe umuryango we.,kinyarwanda,URGENT,s28890ea2799b,test
+kw-000396,Avuga ko kuva umwana yavuka amaze igihe yumva atameze neza mu mutima.,kinyarwanda,ROUTINE,s591ab7b75d75,test
+kw-000399,Yaje kubaza ibijyanye no gukebwa k'umuhungu we.,kinyarwanda,ROUTINE,s73cf81eb3c78,test
+kw-000405,Yabwiwe kugabanya cyangwa guhagarika umunyu kandi ntasobanukiwe impamvu.,kinyarwanda,ROUTINE,s75f647b88dfa,test
+kw-000409,Yaje kwisuzumisha nyuma yo kurangiza imiti y'igituntu.,kinyarwanda,ROUTINE,s6b9ddd196b14,test
+kw-000410,Avuga ko umwana atwarwa n'amazi cyangwa akenda kunanirwa guhumeka iyo anywa.,kinyarwanda,ROUTINE,scfbc36297f28,test
+kw-000411,Amaze kumva agiye kugwa igihumure iyo ahagurutse kuva atangiye imiti mishya.,kinyarwanda,URGENT,sdd2009764a6f,test
+kw-000419,Avuga ko umwana ajya areba hamwe ntasubize iyo bamuvugisha mu gihe gito.,kinyarwanda,ROUTINE,sb5cecda7132f,test
+kw-000430,Yaje kuko imiti yahawe kuri iyi nshuro isa n'itandukanye n'iyo yari asanzwe ahabwa.,kinyarwanda,ROUTINE,s212fb5c730bc,test
+kw-000432,Umugabo avuga ko ugutwi kwe kwaciwe mu mirwano kandi kukaba kumanitse.,kinyarwanda,URGENT,sd9b4f8780df2,test
+kw-000440,Afite inkorora yatangiye nyuma yo kunanirwa guhumeka kubera ibyo yariye ukwezi gushize.,kinyarwanda,ROUTINE,sc2b8cd80db7c,test
+kw-000442,Umugore avuga ko yabwiwe ko umwana aryamye mu nda atambitse.,kinyarwanda,ROUTINE,s291aea9688db,test
+kw-000443,Avuga ko imiti y'umuvuduko w'amaraso yamushizeho kandi ubu yumva ameze neza atayifata.,kinyarwanda,ROUTINE,s360e564e18e8,test
+kw-000444,Umwana afite igikomere ku ivi cyuzuye umwanda.,kinyarwanda,ROUTINE,s81f123ed84c8,test
+kw-000445,Avuga ko ububabare bwo mu gituza bwiyongera iyo ahumetse cyane.,kinyarwanda,URGENT,s97ab26009c89,test
+kw-000450,Umugore avuga ko amaze umunsi asohora amazi mu gitsina kandi atwite.,kinyarwanda,URGENT,sd2ae8ac2a9e7,test
+kw-000460,Yaje kwisuzumisha kubera ko hari umuntu mu rugo ukorora.,kinyarwanda,ROUTINE,s413008fea759,test
+kw-000466,Umugore avuga ko amaze kugira ububabare kuva ashyirwamo agakoresho ko kuboneza urubyaro ko mu mura.,kinyarwanda,ROUTINE,s9c414729c66d,test
+kw-000485,Avuga ko intoki z'umwana zabyimbye kandi zibabaza.,kinyarwanda,URGENT,s75e2dec30147,test
+kw-000486,Yaje kubaza icyo urupapuro rw'ibisubizo by'isuzuma ry'amaraso rusobanura.,kinyarwanda,ROUTINE,s20dccc06c00c,test
+kw-000492,Umugabo avuga ko kuva aguye adashobora kuzamura ukuboko hejuru y'umutwe.,kinyarwanda,URGENT,sf0a5bbf8c242,test
+kw-000497,Avuga ko ibirenge bye bimaze umwaka bishya nijoro.,kinyarwanda,ROUTINE,sea9293d394a8,test
+kw-000503,Avuga ko iryinyo ritakibabara ariko ubu mu maso hakaba harabyimbye.,kinyarwanda,URGENT,s4033e02fb090,test
+kw-000506,Umwana amaze kuva abyutse agumisha umutwe ku ruhande rumwe.,kinyarwanda,ROUTINE,sc64db15b6fa4,test
+kw-000508,Amaze kumva umutima usa n'uwigiza mu gituza kuva anyweye ikawa.,kinyarwanda,ROUTINE,sac348942db9e,test
+kw-000512,Yaje kuko umuturanyi yavuze ko inda y'umwana ari nini cyane.,kinyarwanda,ROUTINE,s599e5be8d7b9,test
+kw-000527,Avuga ko ababara munsi y'imbavu zo ku ruhande rw'iburyo kandi bikiyongera nyuma yo kurya ibiryo birimo ibinure byinshi.,kinyarwanda,ROUTINE,s5bcea94d0ff4,test
+kw-000533,Avuga ko umwana amaze ibyumweru bibiri asohora umwanda w'amazi.,kinyarwanda,URGENT,see72b3846202,test
+kw-000537,Avuga ko igikomere cyo ku kuguru bamaze amezi abiri bagipfuka hano ariko nta mpinduka.,kinyarwanda,ROUTINE,sf6e303b6ec79,test
+kw-000539,Avuga ko ababara iyo agenda ariko ububabare bukagenda iyo ahagaze.,kinyarwanda,ROUTINE,s5ef18b4a16c1,test
+kw-000543,Avuga ko yumva ibintu bigenda mu nda kandi atari atwite.,kinyarwanda,ROUTINE,sd808c2c5c6ac,test
+kw-000553,Avuga ko igikomere kiri ku kuboko kandi akaba adashobora kugendesha intoki ebyiri.,kinyarwanda,URGENT,s334c99d7af90,test
+kw-000556,Amaze ibyumweru bitandatu akorora kuva yagaruka mu kirombe.,kinyarwanda,ROUTINE,sf502504dac0b,test
+kw-000557,Avuga ko uruhu rw'umwana ruri kuvaho nyuma y'umuriro.,kinyarwanda,ROUTINE,sb7684ea28e82,test
+kw-000558,Umugabo avuga ko yanyoye umuti wica imbeba.,kinyarwanda,CRITICAL,s2f0ed25fc6c4,test
+kw-000559,Avuga ko ububabare bwo ku rutugu bumukangura kandi akaba adashobora kuryama kuri urwo rutugu.,kinyarwanda,ROUTINE,s5d8708e0d086,test
+kw-000560,Yaje kubaza uko kumva k'umwana bimeze nyuma yo kurwara ugutwi kenshi.,kinyarwanda,ROUTINE,s3d134ba12a5f,test
+kw-000568,Umugabo avuga ko kuva muri iki gitondo ukuguru kwe gukonje kandi kubabaza.,kinyarwanda,CRITICAL,se20f9b9c38ca,test
+kw-000575,Avuga ko ububabare bwo mu mugongo bukabije nijoro kandi ntibugabanuke iyo aruhutse.,kinyarwanda,ROUTINE,s001f5a5fca44,test
+kw-000587,Avuga ko atabasha kugumana imiti mu nda kuko arayiruka igihe atwite.,kinyarwanda,URGENT,s83176f70951b,test
+kw-000608,Umugore avuga ko yabwiwe ko atwite impanga kandi akaba afite impungenge.,kinyarwanda,ROUTINE,sae9cfdb6ef3b,test
+kw-000612,Amaze kumva ubushyuhe mu gituza n'uburyohe busharira mu kanwa nijoro.,kinyarwanda,ROUTINE,s7758acc3af81,test
+kw-000616,Yaje kubaza niba umwana agomba kwisuzumisha nyuma y'uko nyina asanzwemo indwara.,kinyarwanda,ROUTINE,sebff9beee5aa,test
+kw-000619,Avuga ko ku kirenge afite umwobo winjira cyane kandi utamubabaza.,kinyarwanda,ROUTINE,s65cb9d9ccd71,test
+kw-000620,Umugore avuga ko amaze imyaka ibiri adashobora gusama.,kinyarwanda,ROUTINE,s7cfba838ad46,test
+kw-000629,Avuga ko inda y'umwana ikomeye kandi akaba atarasohora umwuka mu nda.,kinyarwanda,CRITICAL,sf5f31dab0073,test
+kw-000635,Avuga ko buri gitondo ababara ku gatsinsino.,kinyarwanda,ROUTINE,s1b26e0918041,test
+kw-000639,Avuga ko asohora uturemangingo tw'amaraso mu nkari.,kinyarwanda,URGENT,s6c897603f2de,test
+kw-000645,Avuga ko umuhungu we anywa inzoga kandi akaba atazi icyo yakora.,kinyarwanda,ROUTINE,scbf172382691,test
+kw-000651,Avuga ko umwana afite umuriro kandi yanga ko bamukoraho.,kinyarwanda,URGENT,sa9aa3c281515,test
+kw-000652,Umugabo avuga ko ukuboko kwe kwafashwe n'imashini itwara ibintu ku ruganda.,kinyarwanda,CRITICAL,sd4fde14b5a21,test
+kw-000654,Yaje kuko imiti yamushizeho ari mu rugendo.,kinyarwanda,ROUTINE,sbb8a696076d9,test
+kw-000657,Avuga ko atabona neza nijoro kandi akagonga ibintu.,kinyarwanda,ROUTINE,s01fb6147ce11,test
+kw-000658,Umugore avuga ko yavuye amaraso mu ntangiriro z'inda ariko ubu byarahagaze.,kinyarwanda,ROUTINE,s5414127a6465,test
+kw-000670,Yaje gusaba inama kuko umwana yasanzwemo indwara y'uturemangingo tw'amaraso dutoya.,kinyarwanda,ROUTINE,sa7277b16bcae,test
+kw-000673,Avuga ko amaze kubona mu bitekerezo ibintu by'ibyabaye kuva yagabwaho igitero.,kinyarwanda,ROUTINE,sfdb07dd1b867,test
+kw-000679,Avuga ko yarumwe n'igitagangurirwa kandi uruhu ruzengurutse aho yarumwe rurimo kwangirika.,kinyarwanda,URGENT,sa92b8a1e832f,test
+kw-000687,Avuga ko umwana ahinduka ubururu iyo arize cyane.,kinyarwanda,URGENT,s41f9db3be561,test
+kw-000688,Umugore avuga ko amaze kuva amaraso kuva yaterwa urushinge rwo kuboneza urubyaro.,kinyarwanda,ROUTINE,s21e8540affa2,test
+kw-000694,Umugabo avuga ko ibuye ryatewe mu bantu ryamukubise mu jisho.,kinyarwanda,URGENT,s9b9534897ecd,test
+kw-000702,Umwana afite umuriro kandi kuva ejo ntashaka konka cyangwa kurya.,kinyarwanda,URGENT,s5fcec8049783,test
+kw-000728,"Umwana yatwitswe n'amazi ashyushye, ni njye nyirakuru wamuzanye.",kinyarwanda,URGENT,s922308647cb4,test
+kw-000731,"Umwana yanyoye ku icupa ryari munsi y'urwogero, ariko sinzi icyo ryari ririmo.",kinyarwanda,URGENT,sde1ccd80f4de,test
+kw-000742,"Umwana yavutse afite umunwa ucitse, ndashaka kumenya icyo twakora.",kinyarwanda,ROUTINE,s9ba73941fea0,test
+kw-000744,Nahiye ukuboko kuri moteri ya moto yari ishyushye.,kinyarwanda,URGENT,se7f45706678b,test
+kw-000755,Hari akabuye kinjiye mu jisho nkiri kumena amabuye.,kinyarwanda,URGENT,s04de06f6cb84,test
+kw-000757,Iryinyo rirandya cyane ku buryo n'ijoro rintera kubyuka.,kinyarwanda,URGENT,se1863d998950,test
+kw-000766,Umwana afite kubyimba inyuma y'ugutwi kandi haramurya.,kinyarwanda,URGENT,sacee11664943,test
+kw-000768,Inshuti yambwiye ko nza kwisuzumisha iki kibyimba mfite.,kinyarwanda,ROUTINE,s83e7d1c1a575,test
+kw-000774,Kuva navuka sinshobora kwifata inkari.,kinyarwanda,ROUTINE,s7a4ff0026e86,test
+kw-000778,Ndi kuva amaraso nyuma yo kubyara kandi ntarahagarara.,kinyarwanda,CRITICAL,s558bd87f1888,test
+kw-000784,Umwana arunama inyuma kandi akarira nyuma yo konka.,kinyarwanda,ROUTINE,s030e7f28c471,test
+kw-000790,"Yagize impanuka yo mu muhanda, bamuzana kuri moto.",kinyarwanda,URGENT,s178dbb115e1d,test
+kw-000792,Amabere arimo gusohora ibintu kandi sindimo konsa.,kinyarwanda,URGENT,s6c741d49e4a2,test
+kw-000797,Kuva ejo mu gitondo sinigeze nsubira kunyara.,kinyarwanda,URGENT,s8b494613ab97,test
+kw-000810,Umwana yamize batiri y'agatadowa.,kinyarwanda,URGENT,s8bf8c8501b24,test
+kw-000815,Kuva mbyutse uruhande rumwe rw'umubiri ntirwumva neza.,kinyarwanda,CRITICAL,sfcd3c935ab7c,test
+kw-000817,"Yanyweye inzoga y'inkorano maze agwa hasi, bamuzana hano.",kinyarwanda,CRITICAL,s0ecc498db5fe,test
+kw-000821,Inyama yo ku kuguru irandya kandi ukuguru kurashyushye.,kinyarwanda,URGENT,sdcf5f0c39611,test
+kw-000822,Umwana w'iminsi ibiri afite ijisho ririho ibintu by'umuhondo kandi rifatana.,kinyarwanda,URGENT,sc5963c2c39ea,test
+kw-000827,Naje mfite ikarita y'ubwisungane mu kwivuza gusa.,kinyarwanda,ROUTINE,sd2e913687225,test
+kw-000833,Umwana afite ikimenyetso cy'igikomere ku mugongo kandi sinzi uko yakibonye.,kinyarwanda,URGENT,s64d3b79c04e6,test
+kw-000842,Umuhogo umaze ibyumweru bitatu undya kandi ijwi ryanjye ryarahindutse.,kinyarwanda,URGENT,s7e304da533ab,test
+kw-000844,Umwana yaguye ku buriri maze araruka kabiri.,kinyarwanda,URGENT,s066fe98b2359,test
+kw-000845,Ndatwite kandi ndababara iyo nyara.,kinyarwanda,URGENT,s012733c8b22a,test
+kw-000849,Mfite igisebe ku kuguru kandi impande zacyo zatangiye kuba umukara.,kinyarwanda,URGENT,sa3e6a680d1b7,test
+kw-000853,Kuva nagira impanuka mpora ndota nabi nijoro.,kinyarwanda,ROUTINE,scb192199985c,test
+kw-000856,Kubyimba byatangiriye mu maso none bimaze kugera no ku maguru.,kinyarwanda,URGENT,s826437da0f3b,test
+kw-000858,Kuva nabagwa sinshobora kurya neza.,kinyarwanda,URGENT,s55bfd0b8bc40,test
+kw-000860,Ndababara mu gituza kandi birushaho iyo ngikandagiye.,kinyarwanda,ROUTINE,s0e396e3c4516,test
+kw-000863,"Umwana ahora akora ku maso, aratukuye kandi amaso aramufatana.",kinyarwanda,ROUTINE,sea0d6f572589,test
+kw-000868,Ububabare buza bukagenda kandi iyo bumbaye sinshobora gutuza.,kinyarwanda,URGENT,s8ac490122360,test
+kw-000872,Ndashaka kumenya niba imvugo y'umwana itaratinze gukura.,kinyarwanda,ROUTINE,s8a6feaf64aa4,test
+kw-000874,Maze ibyumweru mpumeka nabi kandi nsigaye nsinzira nkoresheje imisego itatu.,kinyarwanda,URGENT,s83f35c9f41f2,test
+kw-000877,Ukuguru kwatangiye kundya nijoro kandi ububabare burakabije cyane.,kinyarwanda,URGENT,s08c8ea1fa6bf,test
+kw-000880,Aho natewe urushinge hashize ukwezi haracyakomeye.,kinyarwanda,ROUTINE,s0a422ea8894e,test
+kw-000888,Nafashe imiti y'inkorora ariko nta cyo yamfashije. Kuki?,kinyarwanda,ROUTINE,s16688acfda28,test
+kw-000908,Umwana kuva ejo ntaranyara.,kinyarwanda,URGENT,s075b1eef10fa,test
+kw-000909,Kuva mbyutse ukuboko kwanjye kwagabanyije imbaraga.,kinyarwanda,CRITICAL,s7fdbc09a3511,test
+kw-000912,Igufwa ry'ifi ryangiriye mu muhogo.,kinyarwanda,URGENT,s62d97ff03e51,test
+kw-000913,Umwana agira umuriro buri minsi ibiri.,kinyarwanda,URGENT,sfc7f4fdd4a15,test
+kw-000922,"Ndababara ku kibero kandi nta kintu nakomerekejwe, ariko biragenda birushaho.",kinyarwanda,URGENT,sb913bbf48146,test
+kw-000923,Kuva umwana avuka numva mfite intege nke kandi meze nabi.,kinyarwanda,URGENT,sd14c005608b3,test
+kw-000928,Nafashe imiti nahawe kwa muganga w'ivuriro ryigenga ariko narushijeho kuremba.,kinyarwanda,URGENT,s3241a3bacbd2,test
+kw-000934,Ibibero by'amabere birandya kandi mfite umuriro.,kinyarwanda,URGENT,s6c8ae37aa9af,test
+kw-000937,Umwana arakara cyangwa agata amazi iyo anywa.,kinyarwanda,URGENT,s35d2fb3b54fe,test
+kw-000950,Kuva duheruka kwa muganga umwana nta biro yongeye kugira.,kinyarwanda,URGENT,sef37c9594730,test
+kw-000951,Ingingo nyinshi z'umubiri zirandya ku mpande zombi.,kinyarwanda,URGENT,se9b694aa10a3,test
+kw-000964,Urutoki ntirushobora kugoroka kuva nafata umupira nabi.,kinyarwanda,URGENT,s431c053371c7,test
+kw-000967,Maze ukwezi nkorora kuva ubwo natsikama ku biryo.,kinyarwanda,URGENT,s4190ed5c894a,test
+kw-000973,Nsigaye nibagirwa ibintu kenshi kandi birampangayikishije.,kinyarwanda,ROUTINE,sf818220a66c4,test
+kw-000980,Nafashe imiti y'inshuti yanjye kubera ko nari mfite ibimenyetso nk'ibye.,kinyarwanda,ROUTINE,s8bce39875f49,test
+kw-000983,Maze iminsi itatu ndaruka kuva nakomereka ku mutwe.,kinyarwanda,URGENT,s4c2c09163f3e,test
+kw-000985,Ndatwite ngeze mu cyumweru cya nyuma kandi amaguru yarabyimbye.,kinyarwanda,URGENT,s2ef7d24d8858,test
+kw-000986,Mfite ikibyimba kirimo amashyira inyuma y'ijosi kandi kiragenda gikura.,kinyarwanda,URGENT,s7052feeb7f37,test
+kw-000991,Akantu k'icyuma kinjiye mu jisho nkiri gusudira.,kinyarwanda,URGENT,s4f7be784f026,test
+kw-000998,Yafashwe munsi y'urukuta rwaguye kubera imvura.,kinyarwanda,CRITICAL,s9244e4e79497,test
+kw-001001,Umwana bamwohereje mu rugo avuye ku ishuri kubera utubyimba afite.,kinyarwanda,URGENT,sb8a0bde784f5,test
+kw-001003,Iyo ngenda njya ku isoko ndababara mu gituza no ku kuboko.,kinyarwanda,URGENT,safafe1555ee8,test
+kw-001005,Sinzi neza niba ntwite ariko numva ndwaye kandi ndaruka.,kinyarwanda,ROUTINE,s2827cc5e2528,test
+kw-001006,Mfite igisebe ku gitsina kandi naterwa n'isoni kukivuga.,kinyarwanda,URGENT,s44d088c6bccb,test
+kw-001016,Umwana yatwitse mu gituza kandi uruhu rwaho rwaravaho.,kinyarwanda,URGENT,sf5c9e8c1b9dc,test
+kw-001029,Mfite ikibazo cy'impyiko. Ese ndacyashobora gukomeza gukora mu murima?,kinyarwanda,ROUTINE,s1c57297f00d0,test
+kw-001031,Hari impumuro mbi numva iva kuri njye kandi ndaterwa n'isoni.,kinyarwanda,URGENT,s5b954c11a909,test
+kw-001034,Imiti yanjye bayibye hamwe n'isakoshi yanjye.,kinyarwanda,ROUTINE,sfc9310001c94,test
+kw-001038,"Ndatwite, umutwe urandya kandi mbona ibintu bitagaragara neza.",kinyarwanda,URGENT,s6b173596619e,test
+kw-001045,Kuva yagira ubwandu bwo mu gutwi umwana agenda ataringaniza kandi akagwa.,kinyarwanda,URGENT,s2fa47144db1e,test
+kw-001050,Mwene wacu yahaye umwana ibyatsi none umwana araruka.,kinyarwanda,URGENT,sc40bfc49b0ad,test
+kw-001057,Bambwiye ko ngarura umwana kugira ngo bongere kumupima ibiro.,kinyarwanda,ROUTINE,s220c555b169c,test
+kw-001060,Umwana amaze ibyumweru bibiri agira impiswi.,kinyarwanda,URGENT,sd9f971409864,test
+kw-001062,Nkorora nijoro gusa cyane cyane mu gihe cy'ubukonje.,kinyarwanda,ROUTINE,s6f596daf8fca,test
+kw-001064,Maze amezi abiri nza kwambika igisebe ku kuguru hano ariko ntigikira.,kinyarwanda,URGENT,se1a7d526fc92,test
+kw-001066,Iyo ngenda ukuguru kurandya ariko iyo mpagaze ububabare bukagabanuka.,kinyarwanda,ROUTINE,s6b6e2422f962,test
+kw-001067,Bambwiye ko mfite ikibyimba. Ese bishobora kuba kanseri?,kinyarwanda,URGENT,s430629fdd7ac,test
+kw-001075,Nacitse igihe nabyaraga ariko igikomere ntikirakira.,kinyarwanda,URGENT,s593d8fbf9656,test
+kw-001079,Bambwiye ko isukari yo mu maraso yanjye iri hejuru.,kinyarwanda,ROUTINE,sa8c921e63138,test
+kw-001081,Umwana araruka buri gihe amaze konka kandi arimo kunanuka.,kinyarwanda,URGENT,sfc28ccedef10,test
+kw-001084,Uruhu rw'umwana rwatangiye kuvaho nyuma yo kugira umuriro.,kinyarwanda,ROUTINE,s80d0c543eba9,test
+kw-001091,Umwana ahora yikurura umusatsi kandi akubita umutwe.,kinyarwanda,URGENT,sd6fd0a477604,test
+kw-001093,Umuvuzi gakondo yambwiye guhagarika imiti nahawe kwa muganga.,kinyarwanda,URGENT,s9e3c74cca9cd,test
+kw-001094,Hari ibintu biva mu zuru rimwe kandi bimaze ibyumweru.,kinyarwanda,URGENT,s01f602eaad20,test
+kw-001106,Umwana amaze amezi akorora kandi arimo kunanuka.,kinyarwanda,URGENT,sf1414f2bdc87,test
+kw-001107,Iyo nunamye numva umutwe wanjye usa n'uwuzuye igitutu.,kinyarwanda,ROUTINE,sf0e054555164,test
+kw-001108,Yacishije umugozi w'umwana ubwe none umwana ari kuva amaraso ku mukondo.,kinyarwanda,CRITICAL,se667fa306784,test
+kw-001135,Bambwiye ko ntwite impanga kandi birampangayikishije.,kinyarwanda,ROUTINE,scb3dbb153419,test
+kw-001136,Nakomerekejwe n'amashanyarazi ku kuboko nkiri gusana insinga.,kinyarwanda,URGENT,s6e83a7dad317,test
+kw-001139,Nijoro numva mu gituza hashyushye kandi nkagira uburyohe busharira mu kanwa.,kinyarwanda,ROUTINE,s643d74c9aec0,test
+kw-001143,"Mama bamusanze afite uburwayi, ese umwana na we akwiriye kwisuzumisha?",kinyarwanda,ROUTINE,s2c685d4e1a45,test
+kw-001144,"Ndababara ku ruhande rw'umubiri, mfite umuriro kandi ndatitira.",kinyarwanda,URGENT,s63929723e9c2,test
+kw-001145,Umwana kuva yariye ibiryo bishyushye ntashobora kumira neza.,kinyarwanda,URGENT,s1d6602f4abc7,test
+kw-001152,Iyo nariye amafi numva umuhogo usa n'uwufunze.,kinyarwanda,URGENT,s2aed61370731,test
+kw-001156,Inda y'umwana irakomeye kandi ntarasohora umwuka mu nda.,kinyarwanda,URGENT,s8da3840b8022,test
+kw-001158,Imihango yari imaze umwaka yarahagaze ariko ubu yongeye kuza.,kinyarwanda,URGENT,s92c007548afd,test
+kw-001161,Mfite igisebe kimaze amezi atandatu kandi ntigikira.,kinyarwanda,URGENT,se0abaa06b297,test
+kw-001162,Buri gitondo agatsinsino karandya.,kinyarwanda,ROUTINE,s05e82b847ac7,test
+kw-001164,Umwana yarumwe n'inzoka maze umuryango umushyiraho ibyatsi.,kinyarwanda,URGENT,s62c977463f9a,test
+kw-001177,Bambwiye ko ngomba kubyarira kwa muganga kandi ndashaka kumenya impamvu.,kinyarwanda,ROUTINE,s1639d1d7bb7e,test
+kw-001178,Umwana afite umuriro kandi ntiyemera ko tumukoraho.,kinyarwanda,URGENT,sad703313f1c1,test
+kw-001188,Umwana ahora yishimagura none uruhu rwatangiye kubyimba no gukomera.,kinyarwanda,ROUTINE,s4daca96810b4,test
+kw-001189,Ese nyuma yo kubagwa urwondo nshobora gusubira ku kazi karemereye?,kinyarwanda,ROUTINE,s699623e116a5,test
+kw-001191,Narumwe nkiri gutandukanya imbwa ebyiri zarwanaga.,kinyarwanda,URGENT,s957f50318910,test
+kw-001192,Mpora numva nkonje kandi ndimo kongera ibiro.,kinyarwanda,ROUTINE,sd87aca27e997,test
+kw-001195,Ndababara mu nda kandi umwanda wanjye wabaye umukara.,kinyarwanda,URGENT,s091211ffdbff,test
+kw-001202,Umwana yamize indoboro y'uburobyi.,kinyarwanda,URGENT,sb946f515aafc,test
+kw-001211,"Nmaze igihe kinini nicaye muri bisi, ubu amaguru yanjye afite intege nke.",kinyarwanda,URGENT,scaf48cae5d75,test
+kw-001226,Nakomeretse nkiri gutema ibisheke.,kinyarwanda,URGENT,s33d5be46602c,test
+kw-001232,Nyogokuru yaguye mu buriri nijoro.,kinyarwanda,URGENT,s5bf20ccc7407,test
+kw-001237,Narumwe n'ihene.,kinyarwanda,URGENT,s0109a6cd4af2,test
+kw-001238,Umwana ntiyuka ngo anywe amata.,kinyarwanda,CRITICAL,sfea9b039205d,test
+kw-001239,"Ndababara mu gituza, ariko iyo nicaye nunamye imbere biragabanuka.",kinyarwanda,URGENT,s7086226ffecc,test
+kw-001243,"Ndatwite, ndibwa no mu gifu kandi sinshobora kuryama ndambitse neza.",kinyarwanda,ROUTINE,s26a3c4d9a535,test
+kw-001252,Narutse nyuma yo kunywa imiti y'ibyatsi yo kuvura inzoka.,kinyarwanda,URGENT,s71c787321fe5,test
+kw-001259,Ikirenge cyanjye cyabyimbye nyuma yo kumara igihe kinini mpagaze ku isoko.,kinyarwanda,ROUTINE,sc3308af2c1f3,test
+kw-001271,Umwana arakorora kandi dufite inkoko yitwa paroti mu rugo.,kinyarwanda,ROUTINE,sf448614fe784,test
+kw-001273,"Ndatwite inda y'amezi arindwi, ariko umwana ntakinyeganyega cyane nka mbere.",kinyarwanda,URGENT,s8379a07a9895,test
+kw-001276,Agatsinsino karandya kuva natangira kwambara inkweto nshya.,kinyarwanda,ROUTINE,s7f20bb029cb0,test
+kw-001278,Mfite umuriro kandi nari maze iminsi nkora mu murima w'umuceri.,kinyarwanda,URGENT,sd4e31b33052f,test
+kw-001283,Umwana ararya ariko ahora yumva atarashira inzara.,kinyarwanda,ROUTINE,s066983335ed5,test
+kw-001294,"Ivi rirandya, rirakoma kandi rimwe na rimwe rikaguma ridashobora kugororwa.",kinyarwanda,ROUTINE,s8b7b6f477b7b,test
+kw-001310,"Mfite umuriro gusa, nta kindi kimenyetso mfite, bimaze iminsi ine.",kinyarwanda,URGENT,sae81f59586d6,test
+kw-001311,Umwana ahinduka ubururu hafi y’umunwa iyo arimo konka.,kinyarwanda,URGENT,s89affd4e6688,test
+kw-001343,"Nakomeretse ku mukono w’isekuru wamenetse, kandi hari agati kacyinjiyemo.",kinyarwanda,URGENT,sda0fb5934ea0,test
+kw-001346,Mu gatuza harandya nyuma yo kuruka kenshi.,kinyarwanda,URGENT,s0e8157a7d57d,test
+kw-001348,Ndakorora iyo ndyamye ku ruhande rumwe gusa.,kinyarwanda,ROUTINE,sbcd5703cf35e,test
+kw-001349,Umwana abyimba mu mayasha iyo arira.,kinyarwanda,ROUTINE,s683be8bc15dc,test
+kw-001352,Urutugu rurandya kandi sinshobora kurushyira inyuma y’umugongo.,kinyarwanda,ROUTINE,s468a3411ac06,test
+kw-001359,"Ndababara mu nda yo hasi, mfite umuriro kandi hari ururenda rusohoka.",kinyarwanda,URGENT,sf366e9ddc4ed,test
+kw-001362,Ndashaka kumenya niba nakomeza gufata ibinini nubwo ndi kwiyiriza.,kinyarwanda,ROUTINE,s02d49175144b,test
+kw-001363,"Umwana yaguye kuri moto, ariko yari yambaye ingofero.",kinyarwanda,URGENT,sb061242a5637,test
+kw-001366,Umwana aruka cyane nk’aho amazi arasohoka nyuma yo konka.,kinyarwanda,URGENT,s2204eb091c1d,test
+kw-001371,Igikomere cyanduye kandi nari nagihambiriye igitambaro naguze ku isoko.,kinyarwanda,URGENT,s57d39c8d67eb,test
+kw-001394,Umugabo wanjye bamubwiye ko arwaye igituntu.,kinyarwanda,ROUTINE,sff140724d2dc,test
+kw-001396,Amaso y’umwana ntabwo akurikira umuntu iyo amureba.,kinyarwanda,ROUTINE,sa0e34f3c3969,test
+kw-001398,Umwana arananutse kandi umusatsi wahinduye ibara.,kinyarwanda,URGENT,sf49694666525,test
+kw-001510,Amatwi yanjye ahora arimo urusaku rudashira.,kinyarwanda,ROUTINE,s4dd30beab3bb,test
+kw-001515,"Mu gitondo mu maso harabyimba, kandi bambwiye ibya poroteyine.",kinyarwanda,URGENT,s0c8c92e31a85,test
+kw-001522,Umwana yongeye kwihagarika mu buriri kandi yari amaze umwaka atabikora.,kinyarwanda,ROUTINE,sf95e7e1e81be,test
+kw-001523,"Mu gitondo sinshobora gufungura amaso, asa n’afashe.",kinyarwanda,ROUTINE,s00ad44d4cada,test
+kw-001526,"Naratakaje ibiro, nta appetit mfite kandi ndanywa itabi.",kinyarwanda,ROUTINE,s5ec8b5469b8a,test
+kw-001527,Umwana yabimbiriye munsi y’ukuboko nyuma yo kwishimagura.,kinyarwanda,ROUTINE,s195de2731570,test
+kw-001528,Ndashaka kumenya icyo nakora ku mutsi wo ku kuguru wabyimbye.,kinyarwanda,ROUTINE,s20b6d764433e,test
+kw-001532,Uruhinja ruhora ruhinduye umutwe ku ruhande rumwe.,kinyarwanda,ROUTINE,sbf625a18b902,test
+kw-001548,Uruhinja rufite ibintu by’umweru ku rurimi.,kinyarwanda,ROUTINE,scbac3f5ced4c,test
+kw-001551,"Uyu mugore aratwite, mbere yarabazwe, none afite ibise.",kinyarwanda,CRITICAL,s98b6e5d7f8b8,test
+kw-001555,Umukecuru afite igisebe ku mpera y’umugongo giturutse ku kwicara ku ntebe.,kinyarwanda,ROUTINE,s1ab2550c7d45,test
+kw-001556,Ndashaka umuti w’ububabare utazambabaza igifu.,kinyarwanda,ROUTINE,sa720d9c22d5a,test
+kw-001570,"Ndatwite, umwana agenda agabanya uko anyeganyega kandi ubu hari ubushyuhe bwinshi.",kinyarwanda,URGENT,sd199153b26f6,test
+kw-001579,Natangiye gukorora nyuma y’urugendo rwari rufite umukungugu mwinshi.,kinyarwanda,ROUTINE,saf30eae5060e,test
+kw-001580,Ukuguru kurambabaza kandi mfata ibinini byo kuboneza urubyaro.,kinyarwanda,URGENT,s49f5c6ddfb25,test
+kw-001584,"Ndatwite, amazi arava ariko nta bise mfite.",kinyarwanda,URGENT,sf17907f40724,test
+kw-001589,Ndashaka kumenya impamvu ngomba gufata ibi binini amezi atandatu.,kinyarwanda,ROUTINE,sccbc1055e197,test
+kw-001596,Uruhinja rwagize umuhondo ku munsi wa kabiri.,kinyarwanda,URGENT,sabbb4f11f9c3,test
+kw-001601,Mfite igisebe cyasigaye nyuma yo gukebwa kera.,kinyarwanda,ROUTINE,s1e0a35c5147e,test
+kw-001603,Umwana ahuma amaso cyane iyo ananiwe gusa.,kinyarwanda,ROUTINE,s4fb6ad2d7678,test
+kw-001607,"Ndatwite, amaboko yanjye yarabyimbye cyane ku buryo impeta zambanye.",kinyarwanda,URGENT,sf406a7a80391,test
+kw-001611,Ndashaka kumenya niba igisebe gikeneye kudodwa.,kinyarwanda,URGENT,sbe8cceffb597,test
+kw-001614,Umusaza yaguye inshuro ebyiri muri iki cyumweru kandi nta kimenyetso cyabanje kubaho.,kinyarwanda,URGENT,sb7d057495305,test
+kw-001618,Ndashaka kubaza kuri wa mwana twigeze kubwirwa ko afite umwobo mu mutima.,kinyarwanda,ROUTINE,sec88c35c6f71,test
+kw-001624,Ukuguru kwanjye kwarabyimbye nyuma yo gukurwaho plaster.,kinyarwanda,URGENT,s70be3152597d,test
+kw-001632,"Umwana afite umuriro kandi aracumbagira, kandi aherutse kubabara mu muhogo.",kinyarwanda,URGENT,s3d6f79b8eaa5,test
+kw-001643,Umusaza arakorora agasohora amase asa n’amafuro yijimye.,kinyarwanda,CRITICAL,s1526b75beb21,test
+kw-001648,Ndashaka kubaza ku muntu wo mu muryango udashobora gufata ibinini.,kinyarwanda,ROUTINE,s4264c08cec15,test
+kw-001651,Intanga yanjye irambabaza cyane bitunguranye kandi ndaruka.,kinyarwanda,CRITICAL,s9f85697acae2,test
+kw-001653,"Umwana arakorora cyane, akagira no kuruka nyuma yo gukorora, kandi bimaze ibyumweru.",kinyarwanda,URGENT,sdd314d0d72b5,test
+kw-001656,Umusaza yahise abura ubushobozi bwo kuvuga ariko nyuma arongera aravuga.,kinyarwanda,URGENT,s8f7eff3c464f,test
+kw-001662,Naratakaje ibiro kandi kugotomera cyangwa kumira birangora.,kinyarwanda,ROUTINE,s88e91a700860,test
+kw-001674,Ndashaka kumenya niba igisebe cy’ubushye kigomba kujya gipfukwa buri munsi.,kinyarwanda,ROUTINE,s8be0b4d7fb80,test
+kw-001675,"Umwana yakomeretse ku mutwe, ahora asinzira kandi uruhande rumwe rwaracitse intege.",kinyarwanda,CRITICAL,s34f15bea319d,test
+kw-001677,Ingingo iri ku ntangiriro y’urutoki runini rw’ikirenge yarabyimbye kandi irambabaza.,kinyarwanda,URGENT,s9966077caac0,test
+kw-001678,"Uyu mugore aratwite, afite umuriro mwinshi kandi arayoberwa.",kinyarwanda,CRITICAL,se0645c010dd5,test
+kw-001679,Uruhinja ntirunyeganyeza ukuboko kumwe kuva ruvutse.,kinyarwanda,ROUTINE,se78b06583d1c,test
+kw-001682,"Mu gatuza haraka, ukuboko kurambabaza kandi ndabira ibyuya.",kinyarwanda,CRITICAL,s112d1ce7826c,test
+kw-001699,Umusaza ntashobora kwihagarika kandi afite umubabaro mwinshi.,kinyarwanda,URGENT,s2b71bb8d5035,test
+kw-001702,Umwana yatangiye kubabara mu gutwi nyuma y’ibicurane.,kinyarwanda,ROUTINE,sf061d33b0fb0,test
+kw-001703,Ndaruha cyane kuva natangira akazi gashya.,kinyarwanda,ROUTINE,s7eefe7c113e9,test
+kw-001706,Uruhinja rugira hiccups nyuma ya buri konsa.,kinyarwanda,ROUTINE,sf0420da45ef2,test
+kw-001709,Umwana yaguye ku gisoro maze apfukura ivi.,kinyarwanda,ROUTINE,sa5fa9a847d4e,test
+kw-001710,Buri kwezi ngira ibisebe mu kanwa.,kinyarwanda,ROUTINE,s131f0c16545a,test
+kw-001711,Imbavu zirambabaza nyuma yo gukorora cyane.,kinyarwanda,ROUTINE,sa3b2efd3eec0,test
+kw-001722,"Ndaruha, ngira imihango myinshi kandi sinarya inyama.",kinyarwanda,ROUTINE,s7aa8583be79d,test
+kw-001725,Umwana aribwa mu nda iyo ibizamini byegereje.,kinyarwanda,ROUTINE,s50e434507907,test
+kw-001728,Uruhinja rufite ibiheri ku kibuno kubera diaper kandi ntibigabanuka.,kinyarwanda,ROUTINE,s4f8bd2a303d8,test
+kw-001731,"Ndatwite, ndaruha kandi ndazungera iyo mpagaze mu murongo igihe kirekire.",kinyarwanda,ROUTINE,s0abaa83e2941,test
+kw-001734,Sinkibasha gushyira urudodo mu rushinge.,kinyarwanda,ROUTINE,s26f4ee6a6f56,test
+kw-001737,Umwana yagize umuriro nyuma yo kumara umunsi wose ku zuba.,kinyarwanda,ROUTINE,sf978adc9c1fa,test
+kw-001740,Uruhinja rurira buri munsi nimugoroba.,kinyarwanda,ROUTINE,s60d9d1a5e3a1,test
+kw-001742,Umwana afite utubyimba ku biganza no ku birenge kandi afite umuriro.,kinyarwanda,ROUTINE,s828ff67fbfe1,test
+kw-001743,Ndashaka kumenya niba umwana ashobora koga afite infection yo mu gutwi.,kinyarwanda,ROUTINE,s9a082897db37,test
+kw-001744,Ibiheri byo mu maso birushaho kuba byinshi mbere y’imihango.,kinyarwanda,ROUTINE,sb7b9e53bf7d7,test
+kw-001751,Nijoro iyo nonsa intoki zirandondora kandi nkumva ntazumva neza.,kinyarwanda,ROUTINE,sf1c5fa18b26f,test
+kw-001758,Umwana aribwa mu muhogo ariko nta muriro afite.,kinyarwanda,ROUTINE,s1f641f4f4e2f,test
+kw-001764,Umusatsi wanjye watangiye kugabanuka nyuma yo kubyara.,kinyarwanda,ROUTINE,sb5dc92704a82,test
+kw-001767,Ndatwite kandi sinshobora kuryama ku ruhande urwo ari rwo rwose.,kinyarwanda,ROUTINE,sb086e97bd2e6,test
+kw-001771,Maze icyumweru ijisho ryanjye rinyeganyega.,kinyarwanda,ROUTINE,s0e41c9e554c4,test
+kw-001780,Mfite igisebe ku rurimi cyatewe n’iryinyo ryavunitse.,kinyarwanda,ROUTINE,sdc6b8bccb5c6,test
+kw-001784,Iyo hari umuyaga amaso arandira.,kinyarwanda,ROUTINE,s1939d803e14b,test
+kw-001787,Ndatwite kandi mpangayikishijwe n’uko umwana yaba ari muto.,kinyarwanda,ROUTINE,s04ab33955c50,test
+kw-001789,Ndashaka kumenya niba amazi tunywa mu rugo ari meza.,kinyarwanda,ROUTINE,s2f764a1e4cd6,test
+kw-001798,Ndatwite kandi mpangayikishijwe n’uko nabyaye ubushize.,kinyarwanda,ROUTINE,s060305be55eb,test
+kw-001800,Iyo mvuye mu rusengero ngahaguruka ndazungera.,kinyarwanda,ROUTINE,sb0b65b66d044,test
+kw-001802,"Umwana afite umuriro, ijosi ryarafashe kandi afite utubyimba tutagenda iyo ubikandagiye.",kinyarwanda,CRITICAL,s449ef129372d,test
+kw-001805,"Uruhinja ntiruhumeka neza, rurakonje kandi umubiri wararembye cyane.",kinyarwanda,CRITICAL,sfd86cad006a7,test
+kw-001807,Yakomeretse ku mutwe n’umuhoro kandi ubu arayoberwa.,kinyarwanda,CRITICAL,s26e2526a908f,test
+kw-001809,"Ndabasaba ubufasha bwihuse, umugabo wanjye araruka amaraso ari mu modoka.",kinyarwanda,CRITICAL,s0b81847af861,test
+kw-001815,Yatewe icyuma kandi afite igisebe mu nda.,kinyarwanda,CRITICAL,s5d881fbcd994,test
+kw-001822,Naje kongera gusuzumisha umwana nyuma y’umusonga kandi yongeye kurya.,kinyarwanda,ROUTINE,sd3f514ce3d9f,test
+kw-001823,Nagarutse gupimisha umuvuduko w’amaraso.,kinyarwanda,ROUTINE,s5f91f5457b9a,test
+kw-001826,Naje kwisuzumisha diabete nk’uko mbikora buri kwezi.,kinyarwanda,ROUTINE,sbfc727f01196,test
+kw-001831,"Naje kongera gusuzumisha umwana nyuma ya infection yo mu gutwi, kandi ubu yumva neza.",kinyarwanda,ROUTINE,s1d24e4b5cc22,test
+kw-001834,"Naje kongera kwisuzumisha nyuma yo kugwa, ubu nongeye kugenda.",kinyarwanda,ROUTINE,s0d23242b3762,test
+kw-001837,Nazanye ikarita y’ikura y’umwana kandi byose ni ibisanzwe.,kinyarwanda,ROUTINE,s3a45968d6bc5,test
+kw-001846,"Uyu mukecuru ni impumyi, yazanywe n’umwana kandi afite umuriro.",kinyarwanda,URGENT,s4623577d8579,test
+kw-001851,Ntuye mu muhanda kandi ikirenge cyanjye cyafashwe n’ubwandu.,kinyarwanda,URGENT,s3dd3c9379055,test
+kw-001866,Ndatwite kandi bambwiye kunywa imiti y’ibyatsi kugira ngo ibise bigende neza.,kinyarwanda,ROUTINE,s94406ca73974,test
+kw-001868,Nsangira ibinini byanjye na mushiki wanjye.,kinyarwanda,ROUTINE,s63714ce7f1c6,test
+kw-001877,Nakoresheje imiti y’amaso y’umuturanyi.,kinyarwanda,ROUTINE,s93bcfb4e53c7,test
+kw-001886,Mbere yo kubagwa ndashaka kubanza kumva igitekerezo cya muganga wa kabiri.,kinyarwanda,ROUTINE,s84eb6db11551,test
+kw-001902,Umwana yavuye amaraso mu mazuru nyuma yo kuyakuramo umwanda n’intoki.,kinyarwanda,ROUTINE,sa147c76ecbc4,test
+kw-001911,Ijwi ryarahindutse nyuma yo gutaka cyane mu mukino.,kinyarwanda,ROUTINE,sa85f082438bf,test
+kw-001924,Inyuma y’ugutwi harambabaza kandi nambara agatambaro k’umutwe kanze cyane.,kinyarwanda,ROUTINE,s3a006216f51f,test
+kw-001932,Urutoki rw’ikirenge rwagoramye rukajya hejuru y’urundi kandi rurambabaza.,kinyarwanda,ROUTINE,s21f377c3a11a,test
+kw-001941,Umwana afite kubyimba ku kuguru kandi aho hantu harashyushye.,kinyarwanda,URGENT,s46eea7d20a16,test
+kw-001942,Mfite akabyimba mu ijosi kababaza iyo ndya.,kinyarwanda,ROUTINE,sa3382dc37dbb,test
+kw-001948,Mfite igisebe imbere mu zuru kivamo amaraso.,kinyarwanda,ROUTINE,s96f98cc1ab35,test
+kw-001951,"Umwana afite umuriro kandi arakorora, kandi abo bigana mu ishuri hafi ya bose barwaye.",kinyarwanda,URGENT,s43f824657a5e,test
+kw-001954,Mu gitondo amaso yombi arabyimba hafi yayo.,kinyarwanda,ROUTINE,s2c7e7b53414a,test
+kw-001955,Umwana arya duke kandi iryinyo riranyeganyega kandi rirababaza.,kinyarwanda,ROUTINE,sc68a23944f74,test
+kw-001956,Umutwe urandya kandi uruhu ruracyoka rugwa nk’uduce duto.,kinyarwanda,ROUTINE,s8604c1a5f31e,test
+kw-001958,Uruhinja rwagize utubyimba ku ruhu nyuma yo gutangira amata y’ifu mashya.,kinyarwanda,ROUTINE,s8204f27c0811,test
+kw-001960,Amaso arambabaza nyuma yo kumara umunsi wose ntunganya ibitunguru.,kinyarwanda,ROUTINE,sfd2a121bf758,test
+kw-001968,Uruhinja rufite akabyimba korohereye hafi y’umukondo kajya imbere iyo kagizweho.,kinyarwanda,ROUTINE,s146e56a8e928,test
+kw-001972,Igisebe cyarakize ariko cyongeye gufunguka inshuro ebyiri.,kinyarwanda,ROUTINE,s550819e2828e,test
+kw-001993,Urutugu rurambabaza nyuma yo guterwa urushinge.,kinyarwanda,ROUTINE,s21eb31cfbc09,test
+kw-001995,Iyo nunamye ngo nambare inkweto mbura umwuka.,kinyarwanda,ROUTINE,s8137f679857d,test
+kw-002000,Umwana agira umuriro ugabanuka iyo ahawe ibinini ariko ukongera ukagaruka.,kinyarwanda,URGENT,s007cf7fd5577,test
+kw-002021,Sinshobora kumva televiziyo nk’uko nari nsanzwe nyumva,kinyarwanda,ROUTINE,sa52c864f31a6,test
+kw-002028,"Ndaruha kandi nkagira inyota cyane, kandi mu muryango wacu harimo diabete",kinyarwanda,ROUTINE,s435421f6e5e2,test
+kw-002035,Ndabura umwuka iyo nzamuka njya mu rugo rwanjye ruri ku musozi,kinyarwanda,ROUTINE,s0c6eb373bd69,test
+kw-002038,Nacitse intege kandi ndazungera nyuma yo kwiyiriza,kinyarwanda,URGENT,s9436b8cb325c,test
+kw-002041,Natangiye gukorora nyuma yo gukorera hafi y’umurima watwikwaga,kinyarwanda,ROUTINE,s70e699c6a24f,test
+kw-002043,Ndababara mu rutugu ku buryo bituma ntasinzira,kinyarwanda,ROUTINE,saa2b67780ebe,test
+kw-002048,Umwana ahora agira ibikomere by’umukara ku maguru kubera gukina cyane,kinyarwanda,ROUTINE,sd2302eccab34,test
+kw-002059,Sinshobora gusinzira kubera kubabara amaguru,kinyarwanda,ROUTINE,s4efb6b99fdd0,test
+kw-002060,Uruhinja rwagize umuriro nyuma yo kujya mu kandi karere,kinyarwanda,URGENT,scd7ad5650df9,test
+kw-002068,Iyo ngize imihango ndababara cyane kandi hari igihe kimwe nigeze kuzimira,kinyarwanda,ROUTINE,sb8eb140f0623,test
+kw-002070,"Umusaza amaze isaha avuga amagambo adasobanutse, ariko ubu ameze neza",kinyarwanda,URGENT,s280674fdd32a,test
+kw-002082,Umwana afite umuriro kandi nyina atekereza ko ari malaria yongeye kugaruka,kinyarwanda,URGENT,s350c09c2a810,test
+kw-002090,Umwana yakomeretse ku mutwe kandi amaze kuruka inshuro eshatu,kinyarwanda,URGENT,s150807bbe0e8,test
+kw-002204,Ukuboko kwanjye kwarabyimbye nyuma yo gutwara imitiba y’imineke.,kinyarwanda,ROUTINE,s93bbe2b0d65b,test
+kw-002222,Amaboko yanjye yarabyimbye nyuma yo gucukura umunsi wose.,kinyarwanda,ROUTINE,s41b02d1b5621,test
+kw-002227,Mfite igisebe nakomerekejwe n’icyuma cy’uruziga rw’igare.,kinyarwanda,URGENT,s3622ff5fdb90,test
+kw-002239,Umwana ntabwo akura nk’abandi bigana.,kinyarwanda,ROUTINE,sa893e91905ce,test
+kw-002244,Umwana ava amaraso mu mazuru gusa mu gihe cy’izuba.,kinyarwanda,ROUTINE,se7bcea4770f5,test
+kw-002247,Ubu sinshobora gupfukama mu rusengero.,kinyarwanda,ROUTINE,s1cb514a83c61,test
+kw-002249,Umunsi wose ndagira inyota cyane iyo hashyushye.,kinyarwanda,ROUTINE,s21f8a9005a4c,test
+kw-002250,Nakomeretse mu kiganza nkatwa n’umugozi w’umusuri.,kinyarwanda,URGENT,sa644d7518a6a,test
+kw-002253,Ndwara umutwe iyo nsize kurya amafunguro ya mu gitondo.,kinyarwanda,ROUTINE,sa2e67ae845c4,test
+kw-002256,Uruhinja rurira gusa iyo diaper yaranye.,kinyarwanda,ROUTINE,sb797678669c5,test
+kw-002267,Umwana ntashobora gukurikira abandi bana iyo biruka.,kinyarwanda,ROUTINE,se319e8fa3556,test
+kw-002275,Amaguru yanjye yacitse intege nyuma y’uburwayi bumaze igihe.,kinyarwanda,ROUTINE,s7f1be9de94c5,test
+kw-002278,Natangiye gukorora igihe imbeho yatangiraga.,kinyarwanda,ROUTINE,s0a252559e0fe,test
+kw-002279,Ndatwite kandi nijoro ndashyushya cyane ku buryo ntasinzira.,kinyarwanda,ROUTINE,s4414aea6adb3,test
+kw-002296,Ibinini nahawe ni binini cyane ku buryo ntashobora kubimira.,kinyarwanda,ROUTINE,s9675da26fa2b,test
+kw-002299,Ku mugoroba wo ku munsi w’isoko numva amaguru aremereye.,kinyarwanda,ROUTINE,sb099d750e113,test
+kw-002304,Amaboko yanjye arakakaye cyane ku buryo ntashobora gufunga utubuto.,kinyarwanda,ROUTINE,s15bb348b2110,test
+kw-002307,Ndababara iyo nshaka kwihagarika nkarangiza inkari zose.,kinyarwanda,ROUTINE,sf7c7236ebe42,test
+kw-002313,Uruhu rwatangiye kundya kuva natwita.,kinyarwanda,ROUTINE,s1cda4c4e8c16,test
+kw-002319,Ndatwite kandi numva inda yanjye itakomeza gukura.,kinyarwanda,URGENT,sbd3cd6a219c2,test
+kw-002329,Ndatwite kandi umwana yagabanije kugenda nyuma y’umunsi narushye ku isoko.,kinyarwanda,URGENT,sbe5c851b88f4,test
+kw-002331,Umwana ntashyira agatsinsino hasi iyo agenda.,kinyarwanda,ROUTINE,s109997ddb4fb,test
+kw-002337,Numva uruhande rumwe rw’amaso n’amaso rwarafashwe n’ibinya.,kinyarwanda,URGENT,sdd45ffee3f74,test
+kw-002343,Nabonye impumuro mbi nyuma yo gukora imibonano mpuzabitsina.,kinyarwanda,ROUTINE,sf955f8595b15,test
+kw-002344,Uruhinja rwabyimbye ibitsike by’amaso byombi.,kinyarwanda,URGENT,s8c527944ca9f,test
+kw-002348,Ububabare bukwira bukagera mu rwagati rw’ukuguru.,kinyarwanda,ROUTINE,s392072a8dde0,test
+kw-002357,Ububabare bwo mu gatuza buragabanuka iyo nkandagiyeho.,kinyarwanda,ROUTINE,sbae5226f2fae,test
+kw-002360,Umukecuru afite umukara w’ijisho rimwe munini kurusha uw’irindi.,kinyarwanda,URGENT,sf3185ad46893,test
+kw-002362,Akabyimba ndakumva gusa iyo nkoroye.,kinyarwanda,ROUTINE,sc2a02a731ec7,test
+kw-002363,Mu maso harabyimbye nyuma yo gukoresha isabune nshya.,kinyarwanda,URGENT,scb876925f148,test
+kw-002366,Umwana arakorora ariko inkorora igahagarara iyo asinziriye.,kinyarwanda,ROUTINE,sa15adc0279d4,test
+kw-002369,Ndatwite kandi umwana agenda nijoro gake kurusha mbere.,kinyarwanda,URGENT,sa908808cde45,test
+kw-002373,Igisebe kirasa neza ariko mfite umuriro.,kinyarwanda,URGENT,s02f8d372e600,test
+kw-002378,Ukuboko kurambabaza bikankangura saa cyenda z’ijoro.,kinyarwanda,ROUTINE,s69b0cd6b3914,test
+kw-002382,Akabyimba karakomeye kurusha uko kari kameze mbere.,kinyarwanda,ROUTINE,sa69f62aa868b,test
+kw-002394,Uruhinja rwagize ikimenyetso cy’ubururu ku itama nyuma yo konsa.,kinyarwanda,URGENT,scadb738e3d4d,test
+kw-002401,Ndashaka kumenya niba umwana ashobora kuvurwa nta burenganzira bwa se.,kinyarwanda,ROUTINE,sd15ecf359468,test
+kw-002404,Ndashaka kumenya niba umuhungu wanjye agomba kubimenyeshwa.,kinyarwanda,ROUTINE,s85f7a2fd9617,test
+kw-002408,Ndatwite kandi ndashaka kumenya niba mama ashobora kwinjirana nanjye.,kinyarwanda,ROUTINE,s34a2b15bde6e,test
+kw-002411,Ndashaka kumenya niba igisebe cyanjye gishobora kuvurwa uyu munsi.,kinyarwanda,ROUTINE,s0a5e91c1c360,test
+kw-002413,Ndashaka kumenya niba nshobora kugaruka ndi kumwe n’umugabo wanjye.,kinyarwanda,ROUTINE,s087da539bf93,test
+kw-002416,Ndashaka kumenya niba ikizamini gishobora gukorwa uyu munsi.,kinyarwanda,ROUTINE,s85c078136ad5,test
+kw-002417,Ndashaka kumenya niba n’undi mwana wacu agomba gusuzumwa.,kinyarwanda,ROUTINE,sf507939ba4f5,test
+kw-002418,Ndashaka kumenya niba koherezwa kwa muganga bishobora gutegereza icyumweru.,kinyarwanda,ROUTINE,s6bec05ff70fa,test
+kw-002426,Umutima urihuta cyane iyo ntekereje kubyara.,kinyarwanda,ROUTINE,s008cd61015e5,test
+kw-002429,Umwana yihagarika mu ishuri kubera ubwoba.,kinyarwanda,ROUTINE,s7e12f1986538,test
+kw-002448,Umukecuru yanga gufata ibinini ahawe n’umuntu uwo ari we wese.,kinyarwanda,ROUTINE,s6dc6d5b2adee,test
+kw-002451,Mfite igisebe ku kuboko nakomerekejwe n’ifi.,kinyarwanda,URGENT,s70a2c9f33151,test
+kw-002485,Naje kubera umwana kandi nanjye ndababara iyo nsiwemo inkari.,kinyarwanda,ROUTINE,s322d87ff4c4a,test
+kw-002488,Naje kuboneza urubyaro kandi nanjye ndava amaraso.,kinyarwanda,ROUTINE,sca51584f5824,test
+kw-002489,Naje kubera ivi kandi sinshobora kubona neza.,kinyarwanda,ROUTINE,s794616e3f5b3,test
+kw-002490,Naje kubera umutwe kandi nanywaga inzoga buri munsi.,kinyarwanda,ROUTINE,s30e2824c285a,test
+kw-002493,Naje kureba ibisubizo kandi sinshobora gusinzira.,kinyarwanda,ROUTINE,s02a8e92c4db5,test
+kw-002496,Naje n’umwana kumusuzumisha kandi aracyihagarika mu buriri.,kinyarwanda,ROUTINE,s908ca0211b2b,test
+kw-002498,Naje n’umukecuru guhindurirwa igipfuko kandi rimwe na rimwe ajijwa.,kinyarwanda,ROUTINE,s2784a2fe6b00,test
+kw-002502,Ndashaka kumenya niba urushinge ruzatuma imihango ihagarara.,kinyarwanda,ROUTINE,sb7f33f7a9a79,test
+kw-002510,Ndashaka kumenya niba ishuri rigomba kubimenyeshwa.,kinyarwanda,ROUTINE,s361e6c526761,test
+kw-002515,Ndashaka kumenya uko namenya ko umwana ari mu kaga.,kinyarwanda,ROUTINE,s7561df1d1feb,test
+kw-002518,Ndashaka kumenya niba umukobwa wanjye agomba gukorerwa ikizamini.,kinyarwanda,ROUTINE,s81f1405d55fa,test
+kw-002519,Ndashaka kumenya niba akabyimba kazongera kugaruka.,kinyarwanda,ROUTINE,sa11d9df7576a,test
+kw-002531,Ndababara mu gatuza ariko numva ari inda gusa.,kinyarwanda,URGENT,sadb62366dfda,test
+kw-002537,Umwana aragenda ananirwa gukandagira neza ariko ababyeyi bavuga ko ari ukwiyitirira.,kinyarwanda,URGENT,s3c418aba2e2a,test
+kw-002538,Ndatwite mfite umuriro kandi ubushize nari naranze kurwarira kwa muganga.,kinyarwanda,URGENT,s7cd5bdfa6abd,test
+kw-002552,"Iyo umwana ahumeka, uruhande rumwe rw’igituza rugenda gake kurusha urundi.",kinyarwanda,URGENT,sa6dad111063c,test
+kw-002557,Umwana agira umuriro nijoro gusa.,kinyarwanda,ROUTINE,s88ea069d4f8c,test
+kw-002559,Mfite ikimenyetso cy’ubururu kandi sinibuka aho nakomeretse.,kinyarwanda,ROUTINE,s7d0df0ab2513,test
+kw-002563,Inkari zisa n’izisanzwe ariko zirandya iyo ninyaye.,kinyarwanda,ROUTINE,sa50490b79ff0,test
+kw-002566,Uruhinja ruriyongera ibiro ariko ruri gutuza cyane ntirukina.,kinyarwanda,ROUTINE,sb487695f670e,test
+kw-002573,Inkorora yaragabanutse ariko ibiro biracyagabanuka.,kinyarwanda,ROUTINE,sb1a61448f78f,test
+kw-002574,"Ndatwite kandi kubyimba mfite ni mu maso, si mu maguru.",kinyarwanda,URGENT,sdf1746007792,test
+kw-002577,Ukuguru kw’umwana kumugora cyane mu gitondo.,kinyarwanda,ROUTINE,s2da43c8de88e,test
+kw-002580,Kubyimba kwanjye kurahinduka bitewe n’uko ikirere kimeze.,kinyarwanda,ROUTINE,s4cb7ffcc5975,test
+kw-002586,Ndashaka kumenya uko nahagarika umwana kwishimagura.,kinyarwanda,ROUTINE,s9698afb0a007,test
+kw-002588,Ndashaka kumenya icyo nakora niba kongera kuva amaraso bitangiye.,kinyarwanda,ROUTINE,se195acd73039,test
+kw-002606,Umutwe w’uruhinja uraringaniye ku ruhande rumwe.,kinyarwanda,ROUTINE,s3b70a74324b2,test
+kw-002609,Ijosi rirabyimba gusa iyo nkoze cyane cyangwa nishyizeho imbaraga.,kinyarwanda,ROUTINE,s704cfb849409,test
+kw-002612,Umwana afite umuriro n’akabyimba inyuma y’ivi.,kinyarwanda,URGENT,s0537780517d8,test
+kw-002615,Uruhinja ntirufata urutoki iyo ndaruha.,kinyarwanda,ROUTINE,s44cadb7fd96a,test
+kw-002629,Ndatwite kandi numva inda inyeganyega nk’ibise ariko nta maraso ava.,kinyarwanda,URGENT,s15b01dbda7b6,test
+kw-002630,"Kuva muri iki gitondo, igitsike cy’ijisho rimwe cyamanutse.",kinyarwanda,URGENT,s3412a11d73ba,test
+kw-002633,Mfite igisebe munsi y’ikirenge ntashobora kwirebera.,kinyarwanda,ROUTINE,s7e8784654006,test
+kw-002635,Amaso y’uruhinja agenda ava ku ruhande ajya ku rundi.,kinyarwanda,URGENT,s8a2d3b52cd9c,test
+kw-002639,Ndatwite kandi numva umwana agenda hasi kurusha mbere.,kinyarwanda,ROUTINE,s6f4e5acaab4f,test
+kw-002652,Ndashaka kwiyandikisha mu bwishingizi bw’indwara uyu munsi.,kinyarwanda,ROUTINE,sa25034e6ba3e,test
+kw-002656,Ndashaka kumenya niba nasuzumirwa ku ivuriro rito ryo hafi aho.,kinyarwanda,ROUTINE,s02fdef372dae,test
+kw-002657,Ndashaka kumenya niba amakuru ari muri dosiye yanjye ashobora gukosorwa.,kinyarwanda,ROUTINE,s69e480e8abd2,test
+kw-002663,Ndashaka kumenya niba hari imodoka yamutwara ishobora gutegurwa.,kinyarwanda,ROUTINE,sef94845b9eb8,test
+kw-002667,Ndashaka kumenya niba ivuriro rizaba rifunguye ku munsi w’ikiruhuko.,kinyarwanda,ROUTINE,sfe3a74d06789,test
+kw-002672,Yaguye mu nzira imanuka umusozi kandi yakomerekeje umutwe n’ukuboko.,kinyarwanda,URGENT,s8efd5bd28c55,test
+kw-002683,Ukuboko kwe kwakandamijwe n’imashini ikanda.,kinyarwanda,CRITICAL,s3551982bdcf2,test
+kw-002687,Yakomerekejwe cyane ku nyama y’ukuguru n’imashini isya.,kinyarwanda,CRITICAL,s22f7a9d9dad5,test
+kw-002688,"Uruhinja rwari rwaracitse intege kandi rwarahindutse ibara, twarwirutse turuzana.",kinyarwanda,CRITICAL,sb7d6397e7b8c,test
+kw-002696,Ndashaka kumenya niba nkiri n’umurwayi nshobora kuzashaka.,kinyarwanda,ROUTINE,sa8f396ce7818,test
+kw-002699,Ndashaka kumenya niba kuvurwa bifite umumaro kuri njye.,kinyarwanda,ROUTINE,s83e19a4196a3,test
