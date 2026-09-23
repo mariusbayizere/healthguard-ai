@@ -1,0 +1,80 @@
+{
+  "fixed_before_evaluation": true,
+  "written_at": "2026-09-23T05:13:33+0200",
+  "note": "This file is written to disk before training begins and before the test split is read. The figures this run reports are therefore the figures of one pre-committed budget, not the best of several attempts.",
+  "max_epochs": 20,
+  "patience": 3,
+  "early_stopping_signal": "validation loss on a slice of the TRAINING split",
+  "checkpoint_selection": "lowest validation loss; never test performance",
+  "test_reads": 1,
+  "test_read_when": "after training has finished and the checkpoint is chosen",
+  "validation_share_of_training_scenarios": 0.15,
+  "validation_carved_by": "source sentence (scenario_id), stratified by class",
+  "learning_rate": 1e-05,
+  "learning_rate_note": "committed value, deliberately not tuned alongside the budget",
+  "schedule_spans": "the epoch cap, not the epoch reached",
+  "seed": 42,
+  "config": {
+    "base_model": "Davlan/afro-xlmr-mini",
+    "max_length": 96,
+    "epochs": 1,
+    "batch_size": 16,
+    "learning_rate": 1e-05,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.06,
+    "threads": 2,
+    "cost_weight": 1.0,
+    "cost_matrix": [
+      [
+        0.0,
+        1.0,
+        10.0
+      ],
+      [
+        1.0,
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        0.0
+      ]
+    ],
+    "predict_batch_size": 64
+  },
+  "split": "dataset/splits/kw_v1",
+  "split_file_sha256": {
+    "calibration.csv": "131cbee4300a87ef61f5afa68d186a6b9bfc3addd4ff81fa98aed85cd38d1469",
+    "test.csv": "0b82271043a2ad53d5a7bc7ca35dc8b801a7442732241851fe3579cfd5edb220",
+    "train.csv": "9cf66c84fcee5fc1418b5aeb14e598fcee55f2b574148a2dbbbaf3b12343d8c0"
+  },
+  "corpus_sha256": "d7e1b3147af46e473589d719c6b3404377674dcd3b5777bfeb9c8ce88ce2264f",
+  "provenance": "PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth.",
+  "fit": {
+    "rows": 1332,
+    "rows_by_class": {
+      "CRITICAL": 104,
+      "URGENT": 490,
+      "ROUTINE": 738
+    },
+    "scenarios_by_class": {
+      "CRITICAL": 104,
+      "URGENT": 489,
+      "ROUTINE": 738
+    }
+  },
+  "validation": {
+    "rows": 234,
+    "rows_by_class": {
+      "CRITICAL": 18,
+      "URGENT": 86,
+      "ROUTINE": 130
+    },
+    "scenarios_by_class": {
+      "CRITICAL": 18,
+      "URGENT": 86,
+      "ROUTINE": 130
+    }
+  }
+}

@@ -1,0 +1,551 @@
+{
+  "status": "PRELIMINARY -- not a gate verdict; see the pipeline refusal.",
+  "provenance": "PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth.",
+  "budget": {
+    "fixed_before_evaluation": true,
+    "written_at": "2026-09-23T05:13:33+0200",
+    "note": "This file is written to disk before training begins and before the test split is read. The figures this run reports are therefore the figures of one pre-committed budget, not the best of several attempts.",
+    "max_epochs": 20,
+    "patience": 3,
+    "early_stopping_signal": "validation loss on a slice of the TRAINING split",
+    "checkpoint_selection": "lowest validation loss; never test performance",
+    "test_reads": 1,
+    "test_read_when": "after training has finished and the checkpoint is chosen",
+    "validation_share_of_training_scenarios": 0.15,
+    "validation_carved_by": "source sentence (scenario_id), stratified by class",
+    "learning_rate": 1e-05,
+    "learning_rate_note": "committed value, deliberately not tuned alongside the budget",
+    "schedule_spans": "the epoch cap, not the epoch reached",
+    "seed": 42,
+    "config": {
+      "base_model": "Davlan/afro-xlmr-mini",
+      "max_length": 96,
+      "epochs": 1,
+      "batch_size": 16,
+      "learning_rate": 1e-05,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.06,
+      "threads": 2,
+      "cost_weight": 1.0,
+      "cost_matrix": [
+        [
+          0.0,
+          1.0,
+          10.0
+        ],
+        [
+          1.0,
+          0.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "predict_batch_size": 64
+    },
+    "split": "dataset/splits/kw_v1",
+    "split_file_sha256": {
+      "calibration.csv": "131cbee4300a87ef61f5afa68d186a6b9bfc3addd4ff81fa98aed85cd38d1469",
+      "test.csv": "0b82271043a2ad53d5a7bc7ca35dc8b801a7442732241851fe3579cfd5edb220",
+      "train.csv": "9cf66c84fcee5fc1418b5aeb14e598fcee55f2b574148a2dbbbaf3b12343d8c0"
+    },
+    "corpus_sha256": "d7e1b3147af46e473589d719c6b3404377674dcd3b5777bfeb9c8ce88ce2264f",
+    "provenance": "PROVENANCE: annotator single, non-clinician, the paper's author; validated_by NONE; none computed; there is no second annotator. These labels are NOT clinical ground truth.",
+    "fit": {
+      "rows": 1332,
+      "rows_by_class": {
+        "CRITICAL": 104,
+        "URGENT": 490,
+        "ROUTINE": 738
+      },
+      "scenarios_by_class": {
+        "CRITICAL": 104,
+        "URGENT": 489,
+        "ROUTINE": 738
+      }
+    },
+    "validation": {
+      "rows": 234,
+      "rows_by_class": {
+        "CRITICAL": 18,
+        "URGENT": 86,
+        "ROUTINE": 130
+      },
+      "scenarios_by_class": {
+        "CRITICAL": 18,
+        "URGENT": 86,
+        "ROUTINE": 130
+      }
+    }
+  },
+  "training_seconds": 3764.0,
+  "loss_curve": [
+    {
+      "epoch": 1,
+      "train_loss": 1.991644,
+      "validation_loss": 1.952704,
+      "validation_accuracy": 0.461538,
+      "seconds": 154.7,
+      "memory_available_mb": 1953
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.908446,
+      "validation_loss": 1.862927,
+      "validation_accuracy": 0.367521,
+      "seconds": 129.4,
+      "memory_available_mb": 2016
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.858137,
+      "validation_loss": 1.834091,
+      "validation_accuracy": 0.371795,
+      "seconds": 278.9,
+      "memory_available_mb": 2190
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.836968,
+      "validation_loss": 1.814977,
+      "validation_accuracy": 0.405983,
+      "seconds": 228.6,
+      "memory_available_mb": 2284
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.809848,
+      "validation_loss": 1.763672,
+      "validation_accuracy": 0.495726,
+      "seconds": 293.7,
+      "memory_available_mb": 1801
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.729121,
+      "validation_loss": 1.721016,
+      "validation_accuracy": 0.598291,
+      "seconds": 224.5,
+      "memory_available_mb": 2286
+    },
+    {
+      "epoch": 7,
+      "train_loss": 1.631128,
+      "validation_loss": 1.600502,
+      "validation_accuracy": 0.645299,
+      "seconds": 302.9,
+      "memory_available_mb": 2810
+    },
+    {
+      "epoch": 8,
+      "train_loss": 1.527586,
+      "validation_loss": 1.545315,
+      "validation_accuracy": 0.649573,
+      "seconds": 236.7,
+      "memory_available_mb": 2775
+    },
+    {
+      "epoch": 9,
+      "train_loss": 1.437276,
+      "validation_loss": 1.504373,
+      "validation_accuracy": 0.632479,
+      "seconds": 283.7,
+      "memory_available_mb": 3128
+    },
+    {
+      "epoch": 10,
+      "train_loss": 1.37013,
+      "validation_loss": 1.461415,
+      "validation_accuracy": 0.649573,
+      "seconds": 230.7,
+      "memory_available_mb": 3361
+    },
+    {
+      "epoch": 11,
+      "train_loss": 1.296326,
+      "validation_loss": 1.513587,
+      "validation_accuracy": 0.675214,
+      "seconds": 161.5,
+      "memory_available_mb": 3117
+    },
+    {
+      "epoch": 12,
+      "train_loss": 1.234932,
+      "validation_loss": 1.405774,
+      "validation_accuracy": 0.653846,
+      "seconds": 128.1,
+      "memory_available_mb": 2653
+    },
+    {
+      "epoch": 13,
+      "train_loss": 1.206435,
+      "validation_loss": 1.437968,
+      "validation_accuracy": 0.666667,
+      "seconds": 185.6,
+      "memory_available_mb": 2765
+    },
+    {
+      "epoch": 14,
+      "train_loss": 1.165333,
+      "validation_loss": 1.444528,
+      "validation_accuracy": 0.67094,
+      "seconds": 93.7,
+      "memory_available_mb": 2743
+    },
+    {
+      "epoch": 15,
+      "train_loss": 1.138686,
+      "validation_loss": 1.357372,
+      "validation_accuracy": 0.666667,
+      "seconds": 91.4,
+      "memory_available_mb": 2775
+    },
+    {
+      "epoch": 16,
+      "train_loss": 1.094215,
+      "validation_loss": 1.361732,
+      "validation_accuracy": 0.662393,
+      "seconds": 203.0,
+      "memory_available_mb": 2629
+    },
+    {
+      "epoch": 17,
+      "train_loss": 1.068832,
+      "validation_loss": 1.39801,
+      "validation_accuracy": 0.662393,
+      "seconds": 264.5,
+      "memory_available_mb": 2397
+    },
+    {
+      "epoch": 18,
+      "train_loss": 1.069877,
+      "validation_loss": 1.391412,
+      "validation_accuracy": 0.662393,
+      "seconds": 100.9,
+      "memory_available_mb": 2492
+    }
+  ],
+  "stopping": {
+    "best": {
+      "validation_loss": 1.3573715798875206,
+      "epoch": 15
+    },
+    "stopped": {
+      "reason": "validation loss did not improve for 3 epochs",
+      "epoch": 18
+    },
+    "trainable_parameters": 21442563,
+    "total_parameters": 117641859,
+    "embeddings_frozen": true
+  },
+  "amendment": {
+    "amends": "budget.json",
+    "written_at": "2026-09-23T09:16:15+0200",
+    "test_still_unread_at_this_point": true,
+    "reason": "The first attempt at this budget was killed under memory pressure before completing an epoch. Full fine-tuning at 20 epochs needs about 3.9 GiB: gradients and Adam state scale with trainable parameters, and 96.2M of the model's 117.6M (81.8%) are the 250,002-row embedding matrix. This machine has about 3.2 GiB available.",
+    "changes": [
+      {
+        "change": "embedding matrix frozen",
+        "effect": "trainable parameters fall to 21.4M (18.2%)",
+        "memory": "gradients + Adam state 1.32 GiB -> 0.24 GiB",
+        "scope_cost": "The model fits the twelve encoder layers and the classification head only. It CANNOT adapt its Kinyarwanda subword representations. This is a DIFFERENT EXPERIMENT from the one-epoch run, not the same experiment with a longer budget.",
+        "why_defensible": [
+          "117M parameters fitted on 1,332 rows is over-parameterised by any reading; freezing 82% of them is regularisation one would plausibly choose with memory to spare.",
+          "Layer freezing is this project's existing practice rather than an invention for a memory problem: the v2d checkpoint is named model_v2d_freeze8_lr1e-5."
+        ]
+      },
+      {
+        "change": "best weights streamed to disk instead of cloned in RAM",
+        "effect": "the checkpoint directory is overwritten whenever validation improves",
+        "memory": "removes a second full copy of the weights, 0.44 GiB",
+        "scope_cost": "none; the weights kept are identical either way"
+      }
+    ],
+    "rejected": {
+      "gradient accumulation with a smaller batch": "weights, gradients and optimiser state are batch-independent; at seq 96 / hidden 384 / 12 layers the batch-16 activations are order tens of MB, so this saves ~50 MB for 4x the step count",
+      "fp16 / bf16": "this CPU reports AVX2 only, with no avx512_bf16 and no amx_bf16; autocast would emulate and run slower, and Adam state stays fp32 regardless, so the 0.88 GiB does not shrink",
+      "either change alone": "all-trainable with weights streamed to disk still peaks at 2.74 GiB against a 3.0 GiB ceiling, which is roughly the margin that was already reaped once"
+    },
+    "projected_memory_gib": {
+      "as first attempted (all trainable, best in RAM)": 3.18,
+      "all trainable, best on disk": 2.74,
+      "embeddings frozen, best in RAM": 2.1,
+      "this run (embeddings frozen, best on disk)": 1.67
+    },
+    "hardware_finding": "This machine does not fund twenty epochs of FULL fine-tuning at about 3.9 GiB, and does fund twenty epochs of encoder-only fine-tuning at about 1.67 GiB. The constraint bounds WHAT can be trained rather than ruling the experiment out. Belongs beside the 43-hour sweep measurement as a fact about the hardware.",
+    "unchanged_from_budget": [
+      "max_epochs",
+      "patience",
+      "early_stopping_signal",
+      "checkpoint_selection",
+      "test_reads",
+      "learning_rate",
+      "seed",
+      "split"
+    ]
+  },
+  "peak_rss_mb": 2208,
+  "temperature": 1.1304833302958595,
+  "thresholds": {
+    "status": "REFUSED",
+    "reason": "no gold CRITICAL rows in the calibration split for english, french, swahili: CRITICAL recall cannot be constrained there",
+    "effect": "no thresholded decision; argmax reported instead"
+  },
+  "test": {
+    "accuracy": {
+      "n_sentences": 447,
+      "value": 0.639821029082774,
+      "ci": [
+        0.5950782997762863,
+        0.6845637583892618
+      ]
+    },
+    "recall_CRITICAL": {
+      "n_sentences": 35,
+      "value": 0.05714285714285714,
+      "ci": [
+        0.0,
+        0.14814814814814814
+      ]
+    },
+    "precision_CRITICAL": {
+      "n_sentences": 2,
+      "value": 1.0,
+      "ci": [
+        1.0,
+        1.0
+      ]
+    },
+    "f1_CRITICAL": {
+      "n_sentences": 35,
+      "value": 0.1081081081081081,
+      "ci": [
+        0.046511627906976744,
+        0.2666666666666667
+      ]
+    },
+    "recall_URGENT": {
+      "n_sentences": 164,
+      "value": 0.6341463414634146,
+      "ci": [
+        0.5575757575757576,
+        0.7065868263473054
+      ]
+    },
+    "precision_URGENT": {
+      "n_sentences": 202,
+      "value": 0.5148514851485149,
+      "ci": [
+        0.44660194174757284,
+        0.5833333333333334
+      ]
+    },
+    "f1_URGENT": {
+      "n_sentences": 164,
+      "value": 0.5683060109289617,
+      "ci": [
+        0.5060223034997131,
+        0.625669196068473
+      ]
+    },
+    "recall_ROUTINE": {
+      "n_sentences": 248,
+      "value": 0.7258064516129032,
+      "ci": [
+        0.6735455846944751,
+        0.781753663003663
+      ]
+    },
+    "precision_ROUTINE": {
+      "n_sentences": 243,
+      "value": 0.7407407407407407,
+      "ci": [
+        0.6882401315789474,
+        0.7951807228915663
+      ]
+    },
+    "f1_ROUTINE": {
+      "n_sentences": 248,
+      "value": 0.7331975560081466,
+      "ci": [
+        0.6906741748438894,
+        0.7764762992575672
+      ]
+    },
+    "critical_to_routine_rate": {
+      "n_sentences": 35,
+      "value": 0.08571428571428572,
+      "ci": [
+        0.0,
+        0.19444444444444445
+      ]
+    },
+    "confusion_gold_by_predicted": {
+      "order": [
+        "CRITICAL",
+        "URGENT",
+        "ROUTINE"
+      ],
+      "matrix": [
+        [
+          2,
+          30,
+          3
+        ],
+        [
+          0,
+          104,
+          60
+        ],
+        [
+          0,
+          68,
+          180
+        ]
+      ]
+    }
+  },
+  "baseline_always_routine": {
+    "accuracy": {
+      "n_sentences": 447,
+      "value": 0.5548098434004475,
+      "ci": [
+        0.5100671140939598,
+        0.5995525727069351
+      ]
+    },
+    "recall_CRITICAL": {
+      "n_sentences": 35,
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "precision_CRITICAL": {
+      "n_sentences": 0,
+      "value": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ]
+    },
+    "f1_CRITICAL": {
+      "n_sentences": 35,
+      "value": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ]
+    },
+    "recall_URGENT": {
+      "n_sentences": 164,
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ]
+    },
+    "precision_URGENT": {
+      "n_sentences": 0,
+      "value": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ]
+    },
+    "f1_URGENT": {
+      "n_sentences": 164,
+      "value": NaN,
+      "ci": [
+        NaN,
+        NaN
+      ]
+    },
+    "recall_ROUTINE": {
+      "n_sentences": 248,
+      "value": 1.0,
+      "ci": [
+        1.0,
+        1.0
+      ]
+    },
+    "precision_ROUTINE": {
+      "n_sentences": 447,
+      "value": 0.5548098434004475,
+      "ci": [
+        0.5100671140939598,
+        0.5995525727069351
+      ]
+    },
+    "f1_ROUTINE": {
+      "n_sentences": 248,
+      "value": 0.7136690647482016,
+      "ci": [
+        0.6755555555555556,
+        0.7496503496503496
+      ]
+    },
+    "critical_to_routine_rate": {
+      "n_sentences": 35,
+      "value": 1.0,
+      "ci": [
+        1.0,
+        1.0
+      ]
+    },
+    "confusion_gold_by_predicted": {
+      "order": [
+        "CRITICAL",
+        "URGENT",
+        "ROUTINE"
+      ],
+      "matrix": [
+        [
+          0,
+          0,
+          35
+        ],
+        [
+          0,
+          0,
+          164
+        ],
+        [
+          0,
+          0,
+          248
+        ]
+      ]
+    }
+  },
+  "ece_uncalibrated": {
+    "value": 0.08014442022408141,
+    "ci": [
+      0.05205980718150139,
+      0.1262681274290005
+    ],
+    "n_sentences": 447
+  },
+  "ece_temperature_scaled": {
+    "value": 0.05776129748928785,
+    "ci": [
+      0.03261697375519266,
+      0.10381272234130512
+    ],
+    "n_sentences": 447
+  },
+  "predicted_class_distribution": {
+    "CRITICAL": 2,
+    "URGENT": 202,
+    "ROUTINE": 243
+  },
+  "gold_class_distribution": {
+    "CRITICAL": 35,
+    "URGENT": 164,
+    "ROUTINE": 248
+  }
+}

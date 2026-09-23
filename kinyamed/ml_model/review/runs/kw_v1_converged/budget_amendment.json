@@ -1,0 +1,46 @@
+{
+  "amends": "budget.json",
+  "written_at": "2026-09-23T09:16:15+0200",
+  "test_still_unread_at_this_point": true,
+  "reason": "The first attempt at this budget was killed under memory pressure before completing an epoch. Full fine-tuning at 20 epochs needs about 3.9 GiB: gradients and Adam state scale with trainable parameters, and 96.2M of the model's 117.6M (81.8%) are the 250,002-row embedding matrix. This machine has about 3.2 GiB available.",
+  "changes": [
+    {
+      "change": "embedding matrix frozen",
+      "effect": "trainable parameters fall to 21.4M (18.2%)",
+      "memory": "gradients + Adam state 1.32 GiB -> 0.24 GiB",
+      "scope_cost": "The model fits the twelve encoder layers and the classification head only. It CANNOT adapt its Kinyarwanda subword representations. This is a DIFFERENT EXPERIMENT from the one-epoch run, not the same experiment with a longer budget.",
+      "why_defensible": [
+        "117M parameters fitted on 1,332 rows is over-parameterised by any reading; freezing 82% of them is regularisation one would plausibly choose with memory to spare.",
+        "Layer freezing is this project's existing practice rather than an invention for a memory problem: the v2d checkpoint is named model_v2d_freeze8_lr1e-5."
+      ]
+    },
+    {
+      "change": "best weights streamed to disk instead of cloned in RAM",
+      "effect": "the checkpoint directory is overwritten whenever validation improves",
+      "memory": "removes a second full copy of the weights, 0.44 GiB",
+      "scope_cost": "none; the weights kept are identical either way"
+    }
+  ],
+  "rejected": {
+    "gradient accumulation with a smaller batch": "weights, gradients and optimiser state are batch-independent; at seq 96 / hidden 384 / 12 layers the batch-16 activations are order tens of MB, so this saves ~50 MB for 4x the step count",
+    "fp16 / bf16": "this CPU reports AVX2 only, with no avx512_bf16 and no amx_bf16; autocast would emulate and run slower, and Adam state stays fp32 regardless, so the 0.88 GiB does not shrink",
+    "either change alone": "all-trainable with weights streamed to disk still peaks at 2.74 GiB against a 3.0 GiB ceiling, which is roughly the margin that was already reaped once"
+  },
+  "projected_memory_gib": {
+    "as first attempted (all trainable, best in RAM)": 3.18,
+    "all trainable, best on disk": 2.74,
+    "embeddings frozen, best in RAM": 2.1,
+    "this run (embeddings frozen, best on disk)": 1.67
+  },
+  "hardware_finding": "This machine does not fund twenty epochs of FULL fine-tuning at about 3.9 GiB, and does fund twenty epochs of encoder-only fine-tuning at about 1.67 GiB. The constraint bounds WHAT can be trained rather than ruling the experiment out. Belongs beside the 43-hour sweep measurement as a fact about the hardware.",
+  "unchanged_from_budget": [
+    "max_epochs",
+    "patience",
+    "early_stopping_signal",
+    "checkpoint_selection",
+    "test_reads",
+    "learning_rate",
+    "seed",
+    "split"
+  ]
+}

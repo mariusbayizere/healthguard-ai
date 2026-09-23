@@ -2980,3 +2980,47 @@ unmodified.
 
 Local gates only: ruff clean, 493 passed / 3 skipped. CI unverified — `gh` is not
 authenticated in this session and needs `gh auth login`.
+
+## 2026-09-23 — encoder-only run trained to convergence (PRELIMINARY)
+
+Full numbers in `reports/CONVERGED_KW_V1.md`. Nothing from it goes in the paper. The gate
+refusals recorded on 2026-09-23 stand unchanged; this run overrides none of them.
+
+**Scope change, stated because it is load-bearing:** the embedding matrix is frozen, so
+this fits the twelve encoder layers and the head only and the model cannot adapt its
+Kinyarwanda subword representations. 21.4M of 117.6M parameters trainable (18.2%). It is
+a DIFFERENT experiment from the one-epoch run, not a longer version of it. The reason is
+memory (full fine-tuning needs ~3.9 GiB, the machine has ~3.2); the reasons it is
+defensible anyway are that 117M parameters on 1,332 rows is over-parameterised by any
+reading, and that freeze8 is this project's existing precedent.
+
+Budget fixed at 2026-09-23T05:13:33+0200, before the first attempt read anything. That
+attempt was reaped under memory pressure having written only `budget.json`, so it never
+read test. This run REUSED that file byte for byte and recorded the memory changes in a
+sibling `budget_amendment.json`, so the pre-commitment provably predates the numbers.
+
+Result: it fit (train 1.9916 -> 1.0699 over 18 epochs), early-stopped at 18, kept epoch
+15 on validation loss 1.35737. Epoch 11 had the best validation ACCURACY and was not
+selected — the pre-committed rule held.
+
+**The model beats always-ROUTINE:** accuracy 0.6398 [0.5951, 0.6846] vs 0.5548 [0.5101,
+0.5996]. Marginal intervals overlap slightly, so the comparison was made paired on the
+one saved prediction set: **+0.0850 [+0.0291, +0.1432]**, excluding zero.
+
+**But the safety class fails outright:** CRITICAL recall 0.0571 (2 of 35).
+CRITICAL -> ROUTINE 0.0857 [0.0000, 0.1944] against gate 7's < 0.01. ECE 0.0801 -> 0.0578
+after temperature 1.1305 (scaling helped, unlike run 1's 0.1659 sharpening); still above
+the 0.05 gate. Thresholds refused again for the same structural reason.
+
+This is a result about the corpus where run 1's was a result about the budget. It still
+does NOT license a statement about label quality: with embeddings frozen, "the labels are
+noisy" and "the pretrained Kinyarwanda representations cannot express the distinction"
+remain indistinguishable. Separating them needs a full fine-tune this machine cannot fund.
+
+**Hardware finding, beside the 43-hour sweep measurement:** this machine does not fund
+20 epochs of FULL fine-tuning (~3.9 GiB) and does fund 20 epochs of encoder-only
+(measured 2,208 MB peak RSS via VmHWM). It bounds what can be trained, not whether the
+experiment runs. Peak RSS is now instrumented at exit; my pre-run projection of 1,710 MB
+was 498 MB low.
+
+Local gates only. CI unverified: `gh` is not authenticated in this session.
